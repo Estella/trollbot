@@ -1,0 +1,1 @@
+CFLAGS="-I/usr/local/include/php/main -I/usr/local/include/tcl8.4 -I/usr/local/include/php -I/usr/local/include/php/TSRM -I/usr/local/include/php/Zend" LDFLAGS="/usr/local/lib/libtcl84.so /usr/local/lib/libphp5.so" ./configure

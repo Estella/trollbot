@@ -1,0 +1,57 @@
+Planned features before trollbot release:
+-----------------------------------------
+
+** NETWORK **
+
+* Multi-network bot, each network capable of having its
+  own channel and user databases and also scripting namespaces.
+  It will be done by using a simple syntax in the conf file such as
+  chan = DALnet:#php
+  and scripting as simple as
+  tclscript = DALnet:scripts/foo.tcl
+  also possible per channel namespaces using
+  tclscript = DALnet:#php:scripts/foo.tcl
+
+* capable of having different nicknames on different networks 
+
+* capable of detecting max IRC line sizes and splitting up output
+  to wrap instead of just truncating it. (eggdrop annoyance)
+
+** USER FILE **
+
+* Support for multiple types of encryption, with the possibility
+  of switching encryption on password ok, for smooth transitions
+  and because you can't decrypt hashed passwords.
+
+* Support for per network users
+
+** SCRIPTING **
+
+* Eggdrop compatible TCL commands, and similiar commandsets
+  in other languages for smooth transition
+
+* Scripting Support for TCL (in release)
+* Scripting Support for PHP (in release)
+* Scripting Support for Perl (post release)
+* Scripting Support for Python (post release)
+* Scripting Support for Javascript (post releast)
+
+** MODULE INTERFACE **
+
+* hey. it needs one
+
+** DCC MENU **
+
+* Partyline support, and inner partyline "channels" like eggdrop
+
+* ability to configure any aspect of the bot
+
+** BUILT IN HTTP SERVER **
+
+* This is a hopeful, a mini http server for configuration of the bot to 
+  make it easier than staring at a vi session
+
+** LINKING **
+
+* Examine possibility of eggdrop compatible link.
+
