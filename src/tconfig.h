@@ -11,6 +11,7 @@
 
 struct tconfig_block {
   char *identifier;
+  char *type;
   char **data;
   
   struct tconfig_block *parent, *child;

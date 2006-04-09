@@ -19,15 +19,63 @@
 
 struct tconfig_blocks *master_blocks = NULL;
 
-static void allocate_master_blocks(void)
+static void allocate_master_blocks(const char *type,
+                                   const char *identifier,
+                                   const char **data)
 {
+  master_blocks = tmalloc(sizeof(struct tconfig_blocks));
+
+  master_blocks->prev   = master_blocks->next  = NULL;
+  master_blocks->parent = master_blocks->child = NULL;
+ 
+  master_blocks->type = type;
+  master_blocks->data = identifier;
+
+  master_blocks->identifier = data;    
 }
 
 static void free_master_blocks(void)
 {
+  struct tconfig_blocks *tmp_parent   = NULL,
+                        *tmp_ptr      = NULL,
+                        *local_blocks = master_blocks;
+   
+  /* go to parent */
+  while (local_blocks->parent != NULL)
+    local_blocks = local_blocks->parent;
+
+  /* Go to beginning */
+  while (local_blocks->prev != NULL)
+    local_blocks = local_blocks->prev;
+  
+  /* Go to child */
+  while (local_blocks->child != NULL)
+    local_blocks = local_blocks->child;
+
+  while (local_blocks)
+  {
+    tmp_parent = local_blocks->parent;
+
+    while (local_blocks)
+    {
+      tstrfreev(local_blocks->data);
+      free(local_blocks->identifier);
+      free(local_blocks->type);
+
+      tmp_ptr = local_blocks;   
+
+      local_blocks = local_blocks->next;
+
+      free(tmp_ptr);
+    }
+
+    local_blocks = tmp_parent;
+
+  }
+ 
+  return;
 }
 
-/* small rewrite */
 int tconfig_load(void)
 {
   FILE *fp;
@@ -40,8 +88,6 @@ int tconfig_load(void)
   }
 
   memset(buffer,0,sizeof(buffer));
-
-  allocate_master_blocks();
 
   while (fgets(buffer,sizeof(buffer),fp) != NULL)
   {
@@ -67,7 +113,10 @@ void tconfig_parse_line(const char *buffer)
   static int   block_ref      = 0;
   static struct tconfig_block *curblk = NULL;
   
-  char *ptr = buffer;
+  char *word = NULL;
+  char *ptr  = buffer;
+
+  int i = 0;
 
   /* Skip initial whitespace */
   while (*ptr)
@@ -81,6 +130,35 @@ void tconfig_parse_line(const char *buffer)
   if (*ptr == ';')
     return; /* This line is a comment */
 
+  /* Get the next word */
+  word = tmalloc0(strlen(buffer) + 1);
+  
+  while (*ptr != ' ' && *ptr != '\t' && *ptr != '\r' && *ptr != '\n')
+  {
+    word[i] = *ptr;
+  }    
+    
+  if (lastword == NULL)
+  {
+    /* We haven't encountered a block yet, check for "network",
+     * "channels", "nicks", and "options" so far
+     */
+    if (!strcmp(word,"network"))
+    {
+     
+    } else if (!strcmp(word,"channels"))
+    {
+      /* start a channels block */
+    } else if (!strcmp(word,"nicks"))
+    {
+      /* start a nicks block */
+    } else if (!strcmp(word,"options"))
+    {
+      /* start an options block */
+    }
+  }
+
+   
   /* block_ref should never be over 2 */
   if (lastword != NULL)
   {
