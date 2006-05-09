@@ -17,7 +17,6 @@
 
 void troll_debug(int level, const char *fmt, ...)
 {
-/*
   va_list va;
   char buf[2048]; 
   char buf2[2059];
@@ -32,6 +31,6 @@ void troll_debug(int level, const char *fmt, ...)
   if (config != NULL)
     if (config->debug >= level)
       printf("%s\n",buf);
-*/
+
   return;
 }

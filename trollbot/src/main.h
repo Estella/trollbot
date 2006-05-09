@@ -48,15 +48,23 @@ enum {
 extern Tcl_Interp *tcl_interpreter;
 #endif /* HAVE_TCL */
 
-extern struct global_config global_config;
+extern struct glob_config *config;
 
-extern struct users    *glob_users;
+extern struct users    *glob_users,
+                       *glob_users_head,
+                       *glob_users_tail;
 
+extern struct channels *glob_chan,
+                       *glob_chan_head,
+                       *glob_chan_tail;
+ 
+extern struct servers  *glob_server,
+                       *glob_server_head,
+                       *glob_server_tail;
 
-extern struct channels *glob_chan;
-
-extern struct dcc_session *glob_dcc;
-
+extern struct dcc_session *glob_dcc,
+                          *glob_dcc_head,
+                          *glob_dcc_tail;
 
 extern struct triggers *trig_pub,
                        *trig_msg,
@@ -92,13 +100,13 @@ extern void set_altnick(const char *);
 extern void set_fork(int);
 extern void set_debug(int);
 extern void set_vhost(const char *);
-extern void global_config_free(void);
+extern void glob_config_new(void);
+extern void glob_config_free(void);
+extern int  glob_config_check(void);
 
 /* mem.c */
 extern void *tmalloc(size_t);
 extern void *tmalloc0(size_t);
-extern void *trealloc0(void *ptr, size_t new_size, unsigned int old_size);
-extern void *trealloc0(void *ptr, size_t new_size, unsigned int old_size);
 extern char *tcrealloc0(char *ptr, size_t size, unsigned int *bufsize);
 extern char **tsrealloc0(char **ptr, size_t size, unsigned int *bufsize);
 
@@ -107,7 +115,6 @@ extern void troll_debug(int, const char *, ...);
 
 /* util.c */
 extern char *tstrdup(const char *ptr);
-extern int tstrcountv(char *ptr[]);
 extern void  tstrfreev(char *ptr[]);
 extern char *tstrtrim(char *ptr);
 
@@ -126,8 +133,9 @@ extern int dcc_in(struct dcc_session *);
 extern int dcc_connect(struct irc_data *, const char *);
 
 /* servers.c */
-extern struct network *network_new(void);
-extern struct network *network_free(struct network *);
+extern void add_server(const char *);
+extern void print_servers(void);
+extern void free_servers(void);
 
 /* sockets.c */
 extern void irc_loop(void);
@@ -167,7 +175,6 @@ void add_tcl_script(const char *);
 
 /* users.c */
 int load_userdb(void);
-int msg_hello(struct irc_data *, const char *);
 
 #ifdef HAVE_TCL
 /* tcl.c */

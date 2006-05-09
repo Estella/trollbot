@@ -30,14 +30,6 @@ char *tstrdup(const char *ptr)
   return local;
 }
 
-int tstrcountv(char *ptr[]){
-  int i=0;
-  while (ptr[i] != NULL){
-    i++;
-  }
-  return i;
-}
-
 void tstrfreev(char *ptr[])
 {
   int i = 0;
@@ -61,7 +53,7 @@ char *tstrtrim(char *data){
     char *end = &data[strlen(data)-1];
 
     while (*data == ' ' || *data == '\t' || *data == '\r' || *data == '\n') data++;
-    while (*end == ' ' || *end == '\t' || *end == '\r' || *end == '\n'){ *end = '\0'; end--; }
+    while (*end == ' ' || *data == '\t' || *data == '\r' || *data == '\n'){ *end = '\0'; end--; }
     return data;
 
 }

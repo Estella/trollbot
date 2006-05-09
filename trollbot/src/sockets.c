@@ -24,7 +24,6 @@
 #include "main.h"
 #include "tconfig.h"
 
-/*
 void irc_loop(void)
 {
   int sock      = 0,
@@ -70,7 +69,7 @@ void irc_loop(void)
    my_addr.sin_port = htons(0);
    memset(&(my_addr.sin_zero), '\0', 8);
 
-    /* Bind IRC connection to vhost * /
+    /* Bind IRC connection to vhost */
     if (bind(sock, (struct sockaddr *)&my_addr, sizeof(my_addr)) == -1) 
     {
       troll_debug(LOG_WARN,"Could not use vhost: %s",config->vhost);
@@ -100,7 +99,7 @@ void irc_loop(void)
 
     dccs = glob_dcc_head;
     
-    /* Go through DCC connections * /
+    /* Go through DCC connections */
     while (dccs != NULL)
     {
       if (dccs->status > DCC_WAITING)
@@ -120,7 +119,7 @@ void irc_loop(void)
         return;
     }
 
-    /* Check DCC connections * /
+    /* Check DCC connections */
     dccs = glob_dcc_head;
 
     while (dccs != NULL)
@@ -136,5 +135,3 @@ void irc_loop(void)
   die_nicely();
   return;
 }
-
-*/

@@ -18,7 +18,7 @@
 #include "irc.h"
 #include "tconfig.h"
 
-/* Simple printf like function that outputs to a socket, buffer work needs to be more dynamic * /
+/* Simple printf like function that outputs to a socket, buffer work needs to be more dynamic */
 void irc_printf(int sock, const char *fmt, ...)
 {
   va_list va;
@@ -37,7 +37,7 @@ void irc_printf(int sock, const char *fmt, ...)
   send(sock,buf2,strlen(buf2),0);
 }
 
-/* Constructor * /
+/* Constructor */
 struct irc_data *irc_data_new(void)
 {
   struct irc_data *local;
@@ -57,7 +57,7 @@ struct irc_data *irc_data_new(void)
   return local;
 }
 
-/* Destructor * /
+/* Destructor */
 void irc_data_free(struct irc_data *data)
 {
   if (data->prefix != NULL)
@@ -74,14 +74,14 @@ void irc_data_free(struct irc_data *data)
   free(data->c_params_str);
   free(data->rest_str);
 
-  /* Frees initial pointer also * /
+  /* Frees initial pointer also */
   tstrfreev(data->c_params);
   tstrfreev(data->rest);
 
   free(data);
 }
 
-/* This function gets an unparsed line from IRC, and makes it into the irc_data struct * /
+/* This function gets an unparsed line from IRC, and makes it into the irc_data struct */
 void parse_irc_line(const char *buffer)
 {
   struct irc_data *data    = NULL;
@@ -98,12 +98,12 @@ void parse_irc_line(const char *buffer)
 
   if (buffer[0] != ':')
   {
-    /* No prefix * /
+    /* No prefix */
     data->prefix = NULL;
   } else {
     data->prefix = tmalloc(sizeof(struct irc_prefix));
 
-    /* For storing the temp prefix * /
+    /* For storing the temp prefix */
     tmp          = tmalloc0(strlen(buffer) + 1);
 
     for (i=0; buffer[i] != ' ';i++)
@@ -121,20 +121,20 @@ void parse_irc_line(const char *buffer)
      *
      * Exception:
      *   if :<nick>, then user command
-     * /
+     */
 
     if (which == 0)
     {
-      /* skip trailing : * /
+      /* skip trailing : */
       data->prefix->servername = tstrdup(&tmp[1]);
       data->prefix->nick       = NULL;
       data->prefix->user       = NULL;
       data->prefix->host       = NULL;
 
-      /* So we know where we're at * /
+      /* So we know where we're at */
       m                        = strlen(tmp)+1;
 
-      /* If ServerName == Bot's nick, do a swap * /
+      /* If ServerName == Bot's nick, do a swap */
       if (!strcmp(data->prefix->servername,config->nick))
       {
         data->prefix->nick       = data->prefix->servername;
@@ -155,12 +155,12 @@ void parse_irc_line(const char *buffer)
       for(i++, j=0;tmp[i] != '\0';i++, j++)
         data->prefix->host[j]  = tmp[i];
 
-      /* set our current position in m * /
+      /* set our current position in m */
       m = i+1;
     }
 
     free(tmp);
-  } /* Prefix is now all taken care of * /
+  } /* Prefix is now all taken care of */
 
   data->command = tmalloc0(strlen(&buffer[m]) + 1);
 
@@ -172,7 +172,7 @@ void parse_irc_line(const char *buffer)
 
   m++;
 
-  /* Fill in command parameters if any * /
+  /* Fill in command parameters if any */
   for(i=0,j=0;buffer[m] != '\0' && buffer[m] != '\n' && buffer[m] != '\r';m++, j++, i++)
   {
     if (buffer[m] == ':' && buffer[m-1] == ' ')
@@ -180,7 +180,7 @@ void parse_irc_line(const char *buffer)
 
     if (data->c_params == NULL)
     {
-      /* Allocate 9 usable paramaters, keep 10 NULL * /
+      /* Allocate 9 usable paramaters, keep 10 NULL */
       bufsize            = sizeof(char *) * 10;
       bufindex           = 0;
       data->c_params     = tmalloc0(bufsize);
@@ -194,10 +194,10 @@ void parse_irc_line(const char *buffer)
     {
       bufindex++;
 
-      /* We're on the last slot that should be marked NULL if true * /
+      /* We're on the last slot that should be marked NULL if true */
       if (((bufindex+1) * sizeof(char *)) == bufsize)
       {
-        /* allocate 10 more slots * /
+        /* allocate 10 more slots */
         data->c_params = tsrealloc0(data->c_params,
                                     sizeof(char *) * (bufindex + 10 + 1),
                                     &bufsize);
@@ -241,7 +241,7 @@ void parse_irc_line(const char *buffer)
   data->rest = NULL;
 
   if (buffer[m] != '\0')
-    m += 1; /* Skip ':' * /
+    m += 1; /* Skip ':' */
 
   for(j=0,i=0;buffer[m] != '\0' && buffer[m] != '\n' && buffer[m] != '\r';m++, j++, i++)
   {
@@ -261,7 +261,7 @@ void parse_irc_line(const char *buffer)
       bufindex++;
       if (((bufindex+1) * sizeof(char *)) == bufsize)
       {
-        /* Needs changed * /
+        /* Needs changed */
         data->rest = tsrealloc0(data->rest,
                                 sizeof(char *) * (bufindex + 10 + 1),
                                 &bufsize);
@@ -289,7 +289,7 @@ void parse_irc_line(const char *buffer)
       data->bind_hint = CTCP;
   }
 
-  /* That's all for now * /
+  /* That's all for now */
   if (data->prefix != NULL)
   {
     if (data->prefix->servername != NULL)
@@ -337,7 +337,7 @@ int irc_in(int sock)
     buffer = tmalloc0(BUFFER_SIZE + 1);
     recved = recv(sock,buffer,BUFFER_SIZE-1,0);
   } else {
-    /* There was a fragment left over * /
+    /* There was a fragment left over */
     buffer = tcrealloc0(buffer,
                         strlen(buffer) + BUFFER_SIZE + 1,
                         &size);
@@ -365,7 +365,7 @@ int irc_in(int sock)
   }
 
   while (strchr(buffer,'\n') != NULL)
-  { /* Complete IRC line * / 
+  { /* Complete IRC line */
     line = tmalloc0(strlen(buffer)+1);
 
     optr = line;
@@ -376,7 +376,7 @@ int irc_in(int sock)
       optr++;
     }
 
-    /* This should deal with ircds which output \r only, \r\n, or \n * /
+    /* This should deal with ircds which output \r only, \r\n, or \n */
     while (*ptr == '\r' || *ptr == '\n')
       ptr++;
 
@@ -402,5 +402,3 @@ int irc_in(int sock)
 
   return 1;
 }
-*/
-

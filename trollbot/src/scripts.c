@@ -16,7 +16,6 @@
 #include "servers.h"
 #include "scripts.h"
 
-/*
 void add_php_script(const char *script)
 {
   struct scripts *tmp = NULL;
@@ -70,4 +69,3 @@ void add_tcl_script(const char *script)
   return;
 }
 
-*/

@@ -9,17 +9,7 @@
  ******************************/
 #ifndef __SERVERS_H__
 
-struct network {
-  char *name;
-  char *current_nick;
-  char **nicklist;
-
-  struct server *current_server;
-  struct server *servers;
-  struct network *next;
-};
-
-struct server {
+struct servers {
   char *name;
 
   int port;
@@ -27,7 +17,7 @@ struct server {
 
   int sock;
 
-  struct server *prev, *next;
+  struct servers *prev, *next;
 };
 
 #define __SERVERS_H__

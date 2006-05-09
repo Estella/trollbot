@@ -28,19 +28,23 @@ Tcl_Interp *tcl_interpreter;
 
 /* Too many fucking globals */
 
-struct global_config global_config;
+struct glob_config *config = NULL;
 
-extern struct users    *glob_users;
+struct dcc_session *glob_dcc      = NULL,
+                   *glob_dcc_head = NULL,
+                   *glob_dcc_tail = NULL;
 
+struct users    *glob_users      = NULL,
+                *glob_users_head = NULL,
+                *glob_users_tail = NULL;
 
-extern struct channels *glob_chan;
+struct channels *glob_chan       = NULL,
+                *glob_chan_head  = NULL,
+                *glob_chan_tail  = NULL;
 
- 
-extern struct network *glob_networks;
-
-extern struct dcc_session *glob_dcc;
-
-
+struct servers  *glob_server      = NULL,
+                *glob_server_head = NULL,
+                *glob_server_tail = NULL;
 
 struct triggers *trig_pub       = NULL,
                 *trig_msg       = NULL,
@@ -75,10 +79,10 @@ int main(int argc, char *argv[])
   parse_config();
   printf("# %-45s #\n","Parsed Configuration");
 
-  /*glob_config_check();*/
+  glob_config_check();
   printf("# %-45s #\n","Config File looks good");
   
-  /*add_default_handlers();*/
+  add_default_handlers();
   printf("# %-45s #\n","Added default handlers");
 
   printf("# %-45s #\n","Loading user file");
@@ -98,11 +102,10 @@ int main(int argc, char *argv[])
   
   printf("#################################################\n");
 
-  /*if (config->fork == 1)
+  if (config->fork == 1)
     if(fork()>0) exit(1);
 
-  irc_loop();*/
+  irc_loop();
   
-  global_config_free();
   return 0;
 }

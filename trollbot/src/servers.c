@@ -15,32 +15,6 @@
 #include "main.h"
 #include "servers.h"
 
-
-struct network *network_new(void){
-  struct network *n;
-  n = tmalloc0(sizeof(*n));
-
-  return n;
-}
-
-struct network *network_free(struct network *network){
-  struct network *network_next = network->next;
-
-  network->current_nick = NULL;
-  if (network->nicklist){
-    tstrfreev(network->nicklist);
-    network->nicklist=NULL;
-  }
-
-  if (network->name) free(network->name);
-  /* TODO: Add code for freeing server list, when server list exists. */
-
-  free(network);
-  return network_next;
-}
-
-
-/*
 void add_server(const char *server)
 {
   struct servers *tmp       = NULL;
@@ -51,13 +25,13 @@ void add_server(const char *server)
 
   /* First off, let's see if this is a server:port or just a
    * server
-   * /
+   */
   if ((ptr = strchr(server,':')) != NULL)
   {
     ptr++;
     port = atoi(ptr);
 
-    /* reset the pointer * /
+    /* reset the pointer */
     ptr = server;
 
     localserv = tmalloc0(sizeof(char) * strlen(server) + 1);
@@ -80,12 +54,12 @@ void add_server(const char *server)
     tmp                          = glob_server_tail;
   }
 
-  /* server only * /
+  /* server only */
   if (port == -1)
   {
     tmp->name = tstrdup(server);
     tmp->port = 6667;
-  } else { /* server:port * /
+  } else { /* server:port */
     tmp->name = localserv;
     tmp->port = port;
   }
@@ -136,5 +110,3 @@ void free_servers(void)
 
   return;
 }
-
-*/

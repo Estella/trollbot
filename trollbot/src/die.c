@@ -16,15 +16,12 @@
 #include "tconfig.h"
 #include "main.h"
 
-
 void die_nicely(void)
 {
-  global_config_free();
-  /*free_servers();
-  free_channels();*/
+  glob_config_free();
+  free_servers();
+  free_channels();
   exit(1);
 
+  return; /* Never gets here */
 }
-
-
-

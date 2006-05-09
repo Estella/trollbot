@@ -19,7 +19,6 @@
 #include "servers.h"
 #include "irc.h"
 
-/*
 int dcc_connect(struct irc_data *data, const char *line)
 {
   int dcc_sock = 0;
@@ -31,7 +30,7 @@ int dcc_connect(struct irc_data *data, const char *line)
   ip = strtoul(data->rest[3],(char **)'\0',10);
   port = atoi(data->rest[4]);
 
-  /* error checking * /
+  /* error checking */
 
   if ((dcc_sock = socket(AF_INET, SOCK_STREAM, 0)) == -1)
   {
@@ -86,5 +85,3 @@ int dcc_in(struct dcc_session *dcc)
   
   return 1;
 }
-
-*/

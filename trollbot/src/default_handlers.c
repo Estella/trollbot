@@ -14,10 +14,9 @@
 #include "handlers.h"
 #include "channels.h"
 
-/*
 static int ping_handler(struct irc_data *data, const char *line)
 {
-  /* Return PING :<servername> * /
+  /* Return PING :<servername> */
   irc_printf(glob_server_head->sock,
              "PING :%s",
              data->rest_str);
@@ -63,6 +62,7 @@ static int join_channels_handler(struct irc_data *data, const char *line)
 
 void add_default_handlers(void)
 {
+  /* For DCC initiation handling */
   /* Reference:
    * void add_handler(const char *name,
    *                  int (*startup_func)(void),
@@ -76,22 +76,8 @@ void add_default_handlers(void)
    *                  const char *handler_name,
    *                  const char *flags,
    *                  const char *exec)
-   * /
+   */
 
-  add_handler("msg_hello",
-              NULL,
-              msg_hello,
-              NULL,
-              1);
-
-  add_trigger(MSG,
-              "hello",
-              "msg_hello",
-              NULL,
-              "foo");
-                            
-
-  /* For DCC initiation handling */
   add_handler("dcc_connect",
               NULL,
               dcc_connect,
@@ -158,7 +144,7 @@ void add_default_handlers(void)
               tcl_handler,
               tcl_shutdown,
               1);
-#endif /* HAVE_TCL * /
+#endif /* HAVE_TCL */
 
 #ifdef HAVE_PHP
   add_handler("php-handle",
@@ -166,9 +152,7 @@ void add_default_handlers(void)
               php_handle,
               php_shutdown,
               1);
-#endif /* HAVE_PHP * /
+#endif /* HAVE_PHP */
 
   return;
 }
-*/
-

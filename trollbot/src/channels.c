@@ -17,7 +17,7 @@
 
 /* I use a linked list instead of a dynamic pointer array because
  * there will be extra data associated with them eventually
- * /
+ */
 void add_channel(const char *channel)
 {
   struct channels *tmp = NULL;
@@ -99,4 +99,4 @@ void free_channels(void)
 
   return;
 }
-*/
+
