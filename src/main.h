@@ -92,7 +92,6 @@ extern struct handlers *handlers,
 /* Function Prototypes */
 
 /* config.c */
-extern void parse_config(void);
 extern void parse_config_line(char *);
 extern void set_sendq(const char *);
 extern void set_nick(const char *);

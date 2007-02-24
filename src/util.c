@@ -49,12 +49,14 @@ void tstrfreev(char *ptr[])
 }
 
 
-char *tstrtrim(char *data){
-    char *end = &data[strlen(data)-1];
+char *tstrtrim(char *data)
+{
+  char *end = &data[strlen(data)-1];
 
-    while (*data == ' ' || *data == '\t' || *data == '\r' || *data == '\n') data++;
-    while (*end == ' ' || *data == '\t' || *data == '\r' || *data == '\n'){ *end = '\0'; end--; }
-    return data;
+  while (*data == ' ' || *data == '\t' || *data == '\r' || *data == '\n') data++;
+  while (*end == ' ' || *data == '\t' || *data == '\r' || *data == '\n'){ *end = '\0'; end--; }
+
+  return data;
 
 }
 

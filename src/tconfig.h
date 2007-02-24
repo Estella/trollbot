@@ -9,23 +9,19 @@
  ******************************/
 #ifndef __TCONFIG_H__
 
-struct glob_config {
-  char *nick;
-  char *altnick;
+struct tconfig_block {
+  char *eip;
 
-  char *ident;
-  char *realname;
+  char *key;
+  char *value;
+  
+  struct tconfig_block *prev;
+  struct tconfig_block *next;
 
-  char *vhost;
-
-  int fork;
-  int debug;
-
-  struct servers *server;
-
-  int sock;
+  struct tconfig_block *parent;
+  struct tconfig_block *child;
 };
-    
+
 
 #define __TCONFIG_H__
 

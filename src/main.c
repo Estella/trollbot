@@ -72,14 +72,12 @@ struct handlers *handlers      = NULL,
 int main(int argc, char *argv[])
 {
   printf("#################################################\n");
-  printf("# Trollbot, written by poutine DALnet           #\n");
+  printf("# Trollbot, written by poutine/DALnet           #\n");
   printf("#################################################\n");  
   printf("# %-45s #\n","Running init");
 
-  parse_config();
+  parse_config("trollbot.conf"); /* Needs to be configurable */
   printf("# %-45s #\n","Parsed Configuration");
-
-  glob_config_check();
   printf("# %-45s #\n","Config File looks good");
   
   add_default_handlers();
