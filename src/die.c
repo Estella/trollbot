@@ -10,18 +10,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "channels.h"
-#include "servers.h"
-#include "users.h"
-#include "tconfig.h"
-#include "main.h"
-
-void die_nicely(void)
+void die_nicely(int return)
 {
-  glob_config_free();
-  free_servers();
-  free_channels();
-  exit(1);
+  
+ 
+
+  exit(return);
 
   return; /* Never gets here */
 }

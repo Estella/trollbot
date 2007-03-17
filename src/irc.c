@@ -15,8 +15,11 @@
 #include <sys/socket.h>
 
 #include "main.h"
+#include "network.h"
 #include "irc.h"
-#include "tconfig.h"
+#include "util.h"
+#include "debug.h"
+#include "channel.h"
 
 /* Simple printf like function that outputs to a socket, buffer work needs to be more dynamic */
 void irc_printf(int sock, const char *fmt, ...)
@@ -82,10 +85,9 @@ void irc_data_free(struct irc_data *data)
 }
 
 /* This function gets an unparsed line from IRC, and makes it into the irc_data struct */
-void parse_irc_line(const char *buffer)
+void parse_irc_line(struct network *net, const char *buffer)
 {
   struct irc_data *data    = NULL;
-  struct params   *head    = NULL;
   char            *tmp     = NULL;
   int             which    = 0,
                   i        = 0,
@@ -135,7 +137,7 @@ void parse_irc_line(const char *buffer)
       m                        = strlen(tmp)+1;
 
       /* If ServerName == Bot's nick, do a swap */
-      if (!strcmp(data->prefix->servername,config->nick))
+      if (!strcmp(data->prefix->servername,"MrTrollbot"))
       {
         data->prefix->nick       = data->prefix->servername;
         data->prefix->servername = NULL;
@@ -166,9 +168,6 @@ void parse_irc_line(const char *buffer)
 
   for(j=0;buffer[m] != ' ';m++, j++)
     data->command[j] = buffer[m];
-
-  if (!strcmp("PING",data->command))
-    data->bind_hint = RAW;
 
   m++;
 
@@ -227,7 +226,7 @@ void parse_irc_line(const char *buffer)
 
     if (!strcmp("PRIVMSG",data->command))
     {
-      if (!strcmp(data->c_params[0],config->nick))
+      if (!strcmp(data->c_params[0],"MrTrollbot"))
       {
         printf("We got messaged\n");
         data->bind_hint = MSG;
@@ -316,16 +315,32 @@ void parse_irc_line(const char *buffer)
   if (data->rest != NULL)
     troll_debug(LOG_DEBUG,"Rest: %s",data->rest_str);
 
-  match_triggers(data);
+  /* deal with pings */
+  if (!strcmp(data->command,"PING"))
+  {
+    if (data->rest[0] != NULL)
+      irc_printf(net->sock, "PONG :%s\n",data->rest[0]);
+  }
+
+  /* Deal with end of MOTD to join channels */
+  if (!strcmp("376",data->command))
+  {
+    if (net->status == STATUS_AUTHORIZED)
+    {
+      join_channels(net);
+      net->status = STATUS_IDLE;
+    }
+  }
+
+  /* match_triggers(data); */
 
   irc_data_free(data);
 }
 
-int irc_in(int sock)
+int irc_in(struct network *net)
 {
   static char         *buffer  = NULL;
   static size_t       size     = BUFFER_SIZE;
-  static          int first    = 1;
   int                 recved   = 0;
   char                *line    = NULL;
   const char          *ptr     = NULL;
@@ -335,14 +350,14 @@ int irc_in(int sock)
   if (buffer == NULL)
   {
     buffer = tmalloc0(BUFFER_SIZE + 1);
-    recved = recv(sock,buffer,BUFFER_SIZE-1,0);
+    recved = recv(net->sock,buffer,BUFFER_SIZE-1,0);
   } else {
     /* There was a fragment left over */
     buffer = tcrealloc0(buffer,
                         strlen(buffer) + BUFFER_SIZE + 1,
                         &size);
 
-    recved = recv(sock,&buffer[strlen(buffer)],BUFFER_SIZE-1,0);
+    recved = recv(net->sock,&buffer[strlen(buffer)],BUFFER_SIZE-1,0);
 
   }
 
@@ -354,14 +369,8 @@ int irc_in(int sock)
       buffer = NULL;
       return 1;
     case 0:
+      net->sock = -1;
       return 0;
-  }
-
-  if (first == 1)
-  {
-    irc_printf(sock,"USER %s foo.com foo.com %s",config->nick,config->nick);
-    irc_printf(sock,"NICK %s",config->nick);
-    first = 0;
   }
 
   while (strchr(buffer,'\n') != NULL)
@@ -380,7 +389,7 @@ int irc_in(int sock)
     while (*ptr == '\r' || *ptr == '\n')
       ptr++;
 
-    parse_irc_line(line);
+    parse_irc_line(net,line);
 
     free(line);
 

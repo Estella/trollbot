@@ -1,28 +1,22 @@
-/******************************
- * Trollbot                   *
- ******************************
- * Written by poutine DALnet  *
- ******************************
- * This software is public    *
- * domain. Free for any use   *
- * whatsoever.                *
- ******************************/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+
 #include "main.h"
+
+/* Soon to be merged */
+#include "util.h"
+
 #include "tconfig.h"
 
-void parse_config(const char *filename)
+struct tconfig_block *parse_config(const char *filename)
 {
   FILE   *cfile;
   char   *fbuf   = NULL;
   char   *eip    = NULL;
-  char   *fptr   = NULL;
   struct tconfig_block *block = NULL;
-
+  struct tconfig_block *head  = NULL;
   size_t  size   = 0;
   size_t  i      = 0;
   size_t  count  = 0;
@@ -39,12 +33,7 @@ void parse_config(const char *filename)
     exit(EXIT_FAILURE);
   }
 
-  /* Allocate initial memory for fbuf */
-  if ((fbuf = malloc(1024)) == NULL)
-  {
-    fprintf(stderr, "Could not allocate memory, barfing.\n");
-    exit(EXIT_FAILURE);
-  }
+  fbuf = tmalloc0(BUFFER_SIZE);
 
   /* Read the entire file into memory */
   for(i=0;(count = fread(&fbuf[i],1,1024,cfile)) == 1024;i+=1024)
@@ -66,14 +55,9 @@ void parse_config(const char *filename)
   /* Terminate it with a NULL */
   fbuf[i+count] = '\0';
 
-  close(cfile);
+  fclose(cfile);
 
-  /* We now have the config file in memory, now to parse it */
-  if ((block = malloc(sizeof(struct tconfig_block))) == NULL)
-  {
-    fprintf(stderr, "Could not allocate memory for tconfig block\n");
-    exit(EXIT_FAILURE);
-  }
+  block = tmalloc(sizeof(struct tconfig_block));
 
   block->parent = NULL;
   block->child  = NULL;
@@ -82,6 +66,8 @@ void parse_config(const char *filename)
 
   block->key    = NULL;
   block->value  = NULL;
+
+  head = block;
   
   eip = fbuf;
 
@@ -90,11 +76,7 @@ void parse_config(const char *filename)
     switch (*eip)
     {
       case '{':
-        if ((block->child = malloc(sizeof(struct tconfig_block))) == NULL)
-        {
-          fprintf(stderr, "Could not allocate memory for tconfig block\n");
-          exit(EXIT_FAILURE);
-        } 
+        block->child = tmalloc(sizeof(struct tconfig_block));
 
         block->child->parent = block;
         block                = block->child;
@@ -123,7 +105,7 @@ void parse_config(const char *filename)
 
       /* Ugly comment parsing routines */
       case '/':
-        if (*(eip+1) != '*' || *(eip+1) != '/')
+        if (*(eip+1) != '*' && *(eip+1) != '/')
         {
           fprintf(stderr,"Stray / on line: %d\n",line);
           exit(EXIT_FAILURE);
@@ -132,7 +114,7 @@ void parse_config(const char *filename)
         /* If comment takes C form */
         if (*(eip+1) == '*')
         {
-          /* Skip over /* */
+          /* Skip over / and * */
           eip+=2;
 
           /* Go until terminating -> */
@@ -170,7 +152,7 @@ void parse_config(const char *filename)
 
           if (eip == '\0')
           {
-            return;
+            return head;
           }   
         }
         else /* // comment, go until \r\n, \n, or \r */
@@ -183,7 +165,7 @@ void parse_config(const char *filename)
             {
               /* This just means the file is over, not an error */
               if (*(eip+1) == '\0')
-                return;
+                return head;
 
               if (*(eip+1) != '\n')
               {
@@ -203,74 +185,149 @@ void parse_config(const char *filename)
               break;
             }
 
-            eip++;
+            eip++;  
           }
-         
+
           if (*eip == '\0')
-            return;                
+            return head;                
+        }
 
-          break;
-        case '\r':
-          if (*(eip+1) == '\n')
-          {
-            eip++;
-            line++;
-          }
-          else
-            line++;
-
-          if (eip == '\0')
-            return;
-
-
-          break;
-        case '\n':
+        break;
+      case '\r':
+        if (*(eip+1) == '\n')
+        {
+          eip++;
           line++;
+        }
+        else
+          line++;
+
+        if (eip == '\0')
+          return head;
+
+
+        break;
+      case '\n':
+        line++;
           
-          break;
-        case '\t':
-          break;
-        case ' ':
-          break;
-        default:
-          if (block->key == NULL)
+        break;
+      case '\t':
+        break;
+      case ' ':
+        break;
+      default:
+        if (block->key != NULL)
+        {
+          block->next = tmalloc(sizeof(struct tconfig_block));
+ 
+          block->next->prev = block;
+          block             = block->next;
+          block->next       = NULL;
+          block->parent     = NULL;
+          block->key        = NULL;
+          block->value      = NULL;
+        }
+
+        /* Do a wasteful scan so I don't have to deal with realloc */
+        if (*eip == '"')
+        {
+          eip++; /* Skip the first " */
+          for (i=0;*(eip+i) != '\0' && *(eip+i) != '\n' && *(eip+i) != '\r' &&
+                   *(eip+i) != '"';i++);
+
+          if (*(eip+i) != '"')
           {
-            /* Do a wasteful scan so I don't have to deal with realloc */
-            if (*eip != '"')
-            {
-              for (i=0;*(eip+i+1) != '\0' && *(eip+i+1) != '\n' && *(eip+i+1) != '\r' &&
-                       *(eip+i+1) != '"';i++);
-            }
-            else
-            { 
-              for (i=0;*(eip+i) != '\0' && *(eip+i) != '"';i++);
-              eip++;
-            }
+            fprintf(stderr, "Unmatched \" on line %d\n",line);
+            exit(EXIT_FAILURE);
+          }
+        }
+        else
+        { 
+          for (i=0;*(eip+i) != '\0' && *(eip+i) != ' ' && *(eip+i) != '\t';i++);
+            
+          if (*(eip+i) != ' ' && *(eip+i) != '\t')
+          {
+            fprintf(stderr, "Unmatched key on line %d\n",line);
+            exit(EXIT_FAILURE);
+          }
+        }
 
-            if (*(eip+i) == '\0')
-            {
-              fprintf(stderr, "Reached end of file while looking for value on line %d\n",line);
-              exit(EXIT_FAILURE);
-            }
-
-            size = i;
+        size = i;
   
-            /* No I'm not off by 1, in the case of a " " string, we're over by 1 */
-            if ((block->key = malloc(size)) == NULL)
-            {
-              fprintf(stderr,"Could not allocate memory for config key\n");
-              exit(EXIT_FAILURE);
-            }
+        block->key = tmalloc0(size+1);
 
-            for (i=0;*(eip+i) != ' ' && *(eip+i) != '\t';i++)
-            {
-              *(block->key+i) = *(eip+i);
-            }
-        
-          
+        for (i=0;i<size;i++)
+        {
+          *(block->key+i) = *(eip++);
+        }
+
+        block->key[size] = '\0';
+   
+        /* Skip over trailing " if exists, this could be a problem if key is next to value */
+        if (*eip == '"')
+          eip++;
+
+        /* Skip over whitespace, print error if EOF or there's a newline reached before text */
+        while(*eip == '\t' || *eip == ' ' || *eip == '\r' || *eip == '\n' || *eip == '\0')
+        {
+          if (*eip == '\0')
+          {
+            fprintf(stderr, "Reached end of file looking for %s's value on line %d\n",block->key,line);
+            exit(EXIT_FAILURE);
+          }
+
+          if (*eip == '\r' || *eip == '\n')
+          {
+            fprintf(stderr, "Reached end of line looking for %s's value on line %d\n",block->key,line);
+            exit(EXIT_FAILURE);
+          }
+    
+          eip++;
+        }
+
+        /* Now to scan the value */
+        /* Do a wasteful scan so I don't have to deal with realloc */
+        if (*eip == '"')
+        {
+          eip++; /* Skip the first " */
+          for (i=0;*(eip+i) != '\0' && *(eip+i) != '\n' && *(eip+i) != '\r' &&
+                   *(eip+i) != '"';i++);
+
+          if (*(eip+i) != '"')
+          {
+            fprintf(stderr, "Unmatched \" on line %d\n",line);
+            exit(EXIT_FAILURE);
+          }
+        }
+        else
+        {
+          for (i=0;*(eip+i) != '\0' && *(eip+i) != ' ' && *(eip+i) != '\t' &&
+                   *(eip+i) != '\r' && *(eip+i) != '\n';i++);
+
+          if (*(eip+i) != ' ' && *(eip+i) != '\t' && *(eip+i) != '\r' && *(eip+i) != '\n')
+          {
+            fprintf(stderr, "Unmatched key on line %d\n",line);
+            exit(EXIT_FAILURE);
+          }
+        }
+
+        size = i;
+
+        block->value = tmalloc0(size+1);
+
+        for (i=0;i<size;i++)
+        {
+          *(block->value+i) = *(eip++);
+        }
+
+        block->value[size] = '\0';
+ 
+        break;          
     }   
 
     eip++; /* While loop increase */
   }
+
+  return head;
 }
 

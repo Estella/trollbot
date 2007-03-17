@@ -10,6 +10,8 @@
 
 #ifndef __IRC_H__
 
+#include "network.h"
+
 enum
 {
   PUB = 0x0,
@@ -52,6 +54,12 @@ struct irc_data {
 
   int bind_hint;
 };
+
+void irc_printf(int sock, const char *fmt, ...);
+void irc_data_free(struct irc_data *data);
+void parse_irc_line(struct network *net, const char *buffer);
+struct irc_data *irc_data_new(void);
+int irc_in(struct network *net);
 
 
 #define __IRC_H__

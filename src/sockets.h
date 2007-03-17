@@ -8,3 +8,9 @@
  * whatsoever.                *
  ******************************/
 
+#ifndef __SOCKETS_H__
+#define __SOCKETS_H__
+
+void irc_loop(void);
+
+#endif /* __SOCKETS_H__ */

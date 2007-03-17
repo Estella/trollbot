@@ -12,8 +12,7 @@
 #include <string.h>
 #include <stdarg.h>
 
-#include "main.h"
-#include "tconfig.h"
+#include "debug.h"
 
 void troll_debug(int level, const char *fmt, ...)
 {
@@ -28,9 +27,7 @@ void troll_debug(int level, const char *fmt, ...)
   vsnprintf(buf, sizeof(buf), fmt, va);
   va_end(va);
 
-  if (config != NULL)
-    if (config->debug >= level)
-      printf("%s\n",buf);
+  /* printf("%s\n",buf); */
 
   return;
 }
