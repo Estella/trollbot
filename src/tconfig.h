@@ -21,7 +21,10 @@ struct tconfig_block {
 };
 
 
-struct tconfig_block *parse_config(const char *filename);
+struct tconfig_block *file_to_tconfig(const char *filename);
+void free_tconfig_r(struct tconfig_block *tcfg);
+void free_tconfig(struct tconfig_block *tcfg);
+
 
 #define __TCONFIG_H__
 

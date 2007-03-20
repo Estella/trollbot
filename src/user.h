@@ -1,12 +1,13 @@
 #ifndef __USER_H__
 #define __USER_H__
 
-enum user_flags
+struct channel_flags
 {
-  USER_UNKNOWN =  0,
-  USER_KNOWN   =  1,
-  USER_AUTH    =  2,
-  USER_OWNER   =  4
+  char *chan;
+  char *flags;
+
+  struct channel_flags *next;
+  struct channel_flags *prev;
 };
   
 struct user
@@ -18,8 +19,18 @@ struct user
   char *realname;
   char *host;
 
-  unsigned int flags;
+  char *flags;
+  struct channel_flags *chan_flags;
+
+  struct user *next;
+  struct user *prev;
 };
 
-#endif __CHANNEL_H__
+
+struct user *new_user(char *nick, char *passhash, char *ident, char *realname, char *host, char *flags);
+struct channel_flags *new_channel_flags(char *chan, char *flags);
+void user_init(void);
+
+
+#endif /* __USER_H__ */
 

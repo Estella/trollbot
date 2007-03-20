@@ -27,8 +27,12 @@ struct network *new_network(char *label)
   ret->channel_tail = NULL;
   ret->cur_server   = NULL;
   ret->sock         = -1;
-  ret->botnick      = NULL;
   ret->status       = 0;
+
+  ret->nick         = NULL;
+  ret->altnick      = NULL;
+  ret->realname     = NULL;
+  ret->ident        = NULL;
 
   return ret;
 }

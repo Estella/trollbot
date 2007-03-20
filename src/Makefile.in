@@ -45,7 +45,6 @@ am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
-CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
@@ -55,11 +54,12 @@ am_trollbot_OBJECTS = trollbot-main.$(OBJEXT) \
 	trollbot-server.$(OBJEXT) trollbot-config_engine.$(OBJEXT) \
 	trollbot-sockets.$(OBJEXT) trollbot-irc.$(OBJEXT) \
 	trollbot-util.$(OBJEXT) trollbot-debug.$(OBJEXT) \
-	trollbot-channel.$(OBJEXT)
+	trollbot-channel.$(OBJEXT) trollbot-trigger.$(OBJEXT) \
+	trollbot-sha1.$(OBJEXT) trollbot-user.$(OBJEXT)
 trollbot_OBJECTS = $(am_trollbot_OBJECTS)
 am__DEPENDENCIES_1 =
 trollbot_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
-DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
+DEFAULT_INCLUDES = -I. -I$(srcdir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
@@ -147,8 +147,10 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-trollbot_SOURCES = main.c tconfig.c network.c server.c config_engine.c sockets.c irc.c util.c debug.c channel.c
-trollbot_CFLAGS = ${TCL_CFLAGS} ${PHP_CFLAGS} -O0 -pedantic -std=c89 -Wall
+trollbot_SOURCES = main.c tconfig.c network.c server.c config_engine.c sockets.c irc.c util.c debug.c channel.c trigger.c sha1.c \
+		   user.c 
+
+trollbot_CFLAGS = ${TCL_CFLAGS} ${PHP_CFLAGS} -O0 -pedantic -Wall
 trollbot_LDADD = ${TCL_LDFLAGS} ${PHP_LDADD}
 all: all-am
 
@@ -223,8 +225,11 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-network.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-server.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-sha1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-sockets.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-tconfig.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-trigger.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-user.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-util.Po@am__quote@
 
 .c.o:
@@ -380,6 +385,48 @@ trollbot-channel.obj: channel.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='channel.c' object='trollbot-channel.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-channel.obj `if test -f 'channel.c'; then $(CYGPATH_W) 'channel.c'; else $(CYGPATH_W) '$(srcdir)/channel.c'; fi`
+
+trollbot-trigger.o: trigger.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-trigger.o -MD -MP -MF "$(DEPDIR)/trollbot-trigger.Tpo" -c -o trollbot-trigger.o `test -f 'trigger.c' || echo '$(srcdir)/'`trigger.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/trollbot-trigger.Tpo" "$(DEPDIR)/trollbot-trigger.Po"; else rm -f "$(DEPDIR)/trollbot-trigger.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='trigger.c' object='trollbot-trigger.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-trigger.o `test -f 'trigger.c' || echo '$(srcdir)/'`trigger.c
+
+trollbot-trigger.obj: trigger.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-trigger.obj -MD -MP -MF "$(DEPDIR)/trollbot-trigger.Tpo" -c -o trollbot-trigger.obj `if test -f 'trigger.c'; then $(CYGPATH_W) 'trigger.c'; else $(CYGPATH_W) '$(srcdir)/trigger.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/trollbot-trigger.Tpo" "$(DEPDIR)/trollbot-trigger.Po"; else rm -f "$(DEPDIR)/trollbot-trigger.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='trigger.c' object='trollbot-trigger.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-trigger.obj `if test -f 'trigger.c'; then $(CYGPATH_W) 'trigger.c'; else $(CYGPATH_W) '$(srcdir)/trigger.c'; fi`
+
+trollbot-sha1.o: sha1.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-sha1.o -MD -MP -MF "$(DEPDIR)/trollbot-sha1.Tpo" -c -o trollbot-sha1.o `test -f 'sha1.c' || echo '$(srcdir)/'`sha1.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/trollbot-sha1.Tpo" "$(DEPDIR)/trollbot-sha1.Po"; else rm -f "$(DEPDIR)/trollbot-sha1.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='sha1.c' object='trollbot-sha1.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-sha1.o `test -f 'sha1.c' || echo '$(srcdir)/'`sha1.c
+
+trollbot-sha1.obj: sha1.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-sha1.obj -MD -MP -MF "$(DEPDIR)/trollbot-sha1.Tpo" -c -o trollbot-sha1.obj `if test -f 'sha1.c'; then $(CYGPATH_W) 'sha1.c'; else $(CYGPATH_W) '$(srcdir)/sha1.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/trollbot-sha1.Tpo" "$(DEPDIR)/trollbot-sha1.Po"; else rm -f "$(DEPDIR)/trollbot-sha1.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='sha1.c' object='trollbot-sha1.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-sha1.obj `if test -f 'sha1.c'; then $(CYGPATH_W) 'sha1.c'; else $(CYGPATH_W) '$(srcdir)/sha1.c'; fi`
+
+trollbot-user.o: user.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-user.o -MD -MP -MF "$(DEPDIR)/trollbot-user.Tpo" -c -o trollbot-user.o `test -f 'user.c' || echo '$(srcdir)/'`user.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/trollbot-user.Tpo" "$(DEPDIR)/trollbot-user.Po"; else rm -f "$(DEPDIR)/trollbot-user.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='user.c' object='trollbot-user.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-user.o `test -f 'user.c' || echo '$(srcdir)/'`user.c
+
+trollbot-user.obj: user.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-user.obj -MD -MP -MF "$(DEPDIR)/trollbot-user.Tpo" -c -o trollbot-user.obj `if test -f 'user.c'; then $(CYGPATH_W) 'user.c'; else $(CYGPATH_W) '$(srcdir)/user.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/trollbot-user.Tpo" "$(DEPDIR)/trollbot-user.Po"; else rm -f "$(DEPDIR)/trollbot-user.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='user.c' object='trollbot-user.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-user.obj `if test -f 'user.c'; then $(CYGPATH_W) 'user.c'; else $(CYGPATH_W) '$(srcdir)/user.c'; fi`
 uninstall-info-am:
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)

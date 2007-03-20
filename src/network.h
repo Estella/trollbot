@@ -27,11 +27,14 @@ struct network
    
   int sock;
   
-  char *botnick;
+  char *nick;
+  char *altnick;
   char *ident;
   char *realname;
 
   int status;
+
+  struct user *users;
   
   struct network *prev;
   struct network *next;

@@ -10,7 +10,7 @@
 
 #include "tconfig.h"
 
-struct tconfig_block *parse_config(const char *filename)
+struct tconfig_block *file_to_tconfig(const char *filename)
 {
   FILE   *cfile;
   char   *fbuf   = NULL;
@@ -260,8 +260,6 @@ struct tconfig_block *parse_config(const char *filename)
         {
           *(block->key+i) = *(eip++);
         }
-
-        block->key[size] = '\0';
    
         /* Skip over trailing " if exists, this could be a problem if key is next to value */
         if (*eip == '"')
@@ -329,5 +327,41 @@ struct tconfig_block *parse_config(const char *filename)
   }
 
   return head;
+}
+
+void free_tconfig_r(struct tconfig_block *tcfg)
+{
+  if (tcfg->child)
+    free_tconfig_r(tcfg->child);
+
+  if (tcfg->next)
+    free_tconfig_r(tcfg->next);
+
+  if (tcfg->key != NULL)
+    free(tcfg->key);
+  
+  if (tcfg->value != NULL)
+    free(tcfg->value);
+
+  free(tcfg);
+}
+
+  
+void free_tconfig(struct tconfig_block *tcfg)
+{
+  struct tconfig_block *tmp;
+
+  if (tcfg == NULL)
+    return;
+
+  tmp = tcfg;
+
+  /* Rewind to the top left, it should be there already */
+  while (tmp->prev != NULL && tmp->parent != NULL)
+    tmp = (tmp->parent) ? tmp->parent : tmp->prev;
+ 
+  free_tconfig_r(tcfg);
+ 
+  return; 
 }
 

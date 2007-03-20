@@ -13,6 +13,7 @@
 #include "main.h"
 #include "sockets.h"
 #include "config_engine.h"
+#include "user.h"
 
 struct config *g_cfg;
 
@@ -35,7 +36,11 @@ int main(int argc, char *argv[])
     config_engine_init("trollbot.conf");
 
   printf("# %-45s #\n","Configuration File looks good");
+
+  printf("# %-45s #\n","Checking userdb");
   
+  user_init();
+
   printf("#################################################\n");
  
   printf("# %-45s #\n","Entering IRC loop");

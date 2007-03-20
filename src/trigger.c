@@ -3,22 +3,7 @@
 #include <string.h>
 
 #include "util.h"
-
-struct trigger
-{
-  char *glob_flags;
-  char *chan_flags;
-
-  /* What triggers are matched against */
-  char *mask;
-
-  void (*handler)(struct trigger *);
-
-  char *command;
-
-  struct trigger *prev;
-  struct trigger *next;
-};
+#include "trigger.h"
 
 struct trigger *new_trigger(char *flags, char *mask, char *command, void (*handler)(struct trigger *))
 {
@@ -32,7 +17,7 @@ struct trigger *new_trigger(char *flags, char *mask, char *command, void (*handl
   if (flags != NULL)
   {
     /* If there's a user|chan pair */
-    if ((tmp = strchr(flags,"|"))) != NULL)
+    if ((tmp = strchr(flags,'|')) != NULL)
     { 
       tmp++;
       /* tmp should now contain chanflags
@@ -40,18 +25,44 @@ struct trigger *new_trigger(char *flags, char *mask, char *command, void (*handl
        * to get user flags
        */
       if (tmp != NULL)
-      {
         ret->chan_flags = tstrdup(tmp);
-      }
       else
         ret->chan_flags = NULL;
 
-      size = strlen(flags) - (strlen(tmp) 
-      /* Off by one for NULL */
-      ret->glob_flags = tmalloc0(strlen(flags) - (strlen(tmp));
-      strncpy(ret->glob_flags,flags,strlen(flags) - (strlen(tmp) + 1));
-    
+      size = strlen(flags) - (strlen(tmp) + 1);
+
+      if (size != 0)
+      {
+        ret->glob_flags = tmalloc0(size+1);
+
+        strncpy(ret->glob_flags,flags,size);
+      } 
+      else
+        ret->glob_flags = NULL;
     }
-      
+    else
+    {
+      ret->chan_flags = NULL;
+
+      /* There is no |, assume all flags are global */
+      if (flags[0] == '-')
+        ret->glob_flags = NULL;
+      else
+        ret->glob_flags = tstrdup(flags);
+    }
+  } 
+  else
+  {
+    ret->glob_flags = NULL;
+    ret->chan_flags = NULL;
+  }
+
+  ret->mask    = tstrdup(flags);
+  ret->command = tstrdup(command);
+  ret->handler = handler;
+
+  ret->prev    = NULL;
+  ret->next    = NULL;
+
   return ret;
 }

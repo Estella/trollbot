@@ -1,0 +1,19 @@
+network DALnet
+{
+  user poutine
+  {
+    passhash 0x0x0x0x0x0x0x0x0x0
+    flags abc
+  
+    channel #php
+    {
+      flags o
+    }
+
+    channel #tcl
+    {
+      flags m
+    }
+  }  
+}
+

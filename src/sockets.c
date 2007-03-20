@@ -113,7 +113,7 @@ void irc_loop(void)
           if (net->status == STATUS_CONNECTED)
           {
             irc_printf(net->sock,"USER %s foo.com foo.com :%s",net->ident,net->realname);
-            irc_printf(net->sock,"NICK %s",net->botnick);
+            irc_printf(net->sock,"NICK %s",net->nick);
             net->status = STATUS_AUTHORIZED;
           } 
 

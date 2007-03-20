@@ -4,6 +4,7 @@
 #include "server.h"
 #include "network.h"
 #include "tconfig.h"
+#include "user.h"
 
 /* This is the main struct that information is loaded
  * into from the config block format.
@@ -16,7 +17,8 @@ struct config
   struct network *network_tail;
 
   /* Global */
-  char *g_botnick;
+  char *g_nick;
+  char *g_altnick;
   char *g_realname;
   char *g_ident;
 
@@ -24,7 +26,10 @@ struct config
   char *owner;
   char *ohostmask;
   char *opasshash;
-  
+
+  /* Global users */
+  struct user *g_users;  
+
   /* For TCL */
   /* For PHP */
 };

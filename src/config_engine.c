@@ -19,10 +19,14 @@
 int config_engine_init(char *filename)
 {
   struct tconfig_block *tcfg;
-  struct config *cfg;
+  struct        config *cfg;
 
-  tcfg  = parse_config(filename);
+
+  tcfg  = file_to_tconfig(filename);
   cfg   = config_engine_load(tcfg);
+
+  /* Free the old tconfig system */
+  free_tconfig(tcfg);
  
   g_cfg = cfg;
 
@@ -43,7 +47,8 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
   cfg->network_head = NULL;
   cfg->network_tail = NULL;
 
-  cfg->g_botnick    = NULL;
+  cfg->g_nick       = NULL;
+  cfg->g_altnick    = NULL;
   cfg->g_realname   = NULL;
   cfg->g_ident      = NULL;
 
@@ -78,10 +83,17 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
       {
         if (!strcmp(search->key,"nick"))
         {
-          if (net->botnick != NULL)
-            free(net->botnick);
+          if (net->nick != NULL)
+            free(net->nick);
    
-          net->botnick = tstrdup(search->value);
+          net->nick = tstrdup(search->value);
+        }
+        else if (!strcmp(search->key,"altnick"))
+        {
+          if (net->altnick != NULL)
+            free(net->altnick);
+
+          net->altnick = tstrdup(search->value);
         }
         else if (!strcmp(search->key,"realname"))
         {
@@ -148,10 +160,10 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
   {
     if (!strcmp(net->label,"global"))
     {
-      if (net->botnick != NULL)
+      if (net->nick != NULL)
       {
-        cfg->g_botnick = net->botnick;
-        net->botnick   = NULL;
+        cfg->g_nick = net->nick;
+        net->nick   = NULL;
       }
 
       if (net->ident != NULL)
@@ -176,8 +188,8 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
   {
     if (strcmp(net->label,"global"))
     {
-      if (net->botnick == NULL)
-        net->botnick = tstrdup(cfg->g_botnick);
+      if (net->nick == NULL)
+        net->nick = tstrdup(cfg->g_nick);
 
       if (net->ident == NULL)
         net->ident = tstrdup(cfg->g_ident);

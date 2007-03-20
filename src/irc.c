@@ -32,6 +32,7 @@ void irc_printf(int sock, const char *fmt, ...)
   memset(buf2, 0, sizeof(buf2));
 
   va_start(va, fmt);
+  /* C99 */
   vsnprintf(buf, sizeof(buf), fmt, va);
   va_end(va);
 
@@ -54,8 +55,6 @@ struct irc_data *irc_data_new(void)
 
   local->c_params_str  = NULL;
   local->rest_str      = NULL;
-
-  local->bind_hint     = -1;
 
   return local;
 }
@@ -137,7 +136,7 @@ void parse_irc_line(struct network *net, const char *buffer)
       m                        = strlen(tmp)+1;
 
       /* If ServerName == Bot's nick, do a swap */
-      if (!strcmp(data->prefix->servername,"MrTrollbot"))
+      if (!strcmp(data->prefix->servername,net->nick))
       {
         data->prefix->nick       = data->prefix->servername;
         data->prefix->servername = NULL;
@@ -219,24 +218,6 @@ void parse_irc_line(struct network *net, const char *buffer)
     data->c_params_str[i]       = buffer[m];
   }
 
-  if (data->c_params_str != NULL)
-  {
-    if (!strcmp("PRIVMSG",data->command) && data->c_params_str[0] == '#')
-      data->bind_hint = PUB;
-
-    if (!strcmp("PRIVMSG",data->command))
-    {
-      if (!strcmp(data->c_params[0],"MrTrollbot"))
-      {
-        printf("We got messaged\n");
-        data->bind_hint = MSG;
-      }
-    }
-  }
-
-  if (!strcmp("NOTICE",data->command))
-    data->bind_hint = NOTC;
-
   data->rest = NULL;
 
   if (buffer[m] != '\0')
@@ -282,12 +263,6 @@ void parse_irc_line(struct network *net, const char *buffer)
     data->rest_str[i]       = buffer[m];
   }
 
-  if (data->rest != NULL)
-  {
-    if (data->rest_str[0] == '\001')
-      data->bind_hint = CTCP;
-  }
-
   /* That's all for now */
   if (data->prefix != NULL)
   {
@@ -303,9 +278,6 @@ void parse_irc_line(struct network *net, const char *buffer)
         troll_debug(LOG_DEBUG,"Host: %s",data->prefix->host);
     }
   }
-
-  if (data->bind_hint == -1)
-    data->bind_hint = RAW;
 
   troll_debug(LOG_DEBUG,"Command: %s",data->command);
 
