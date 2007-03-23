@@ -41,10 +41,11 @@ subdir = src
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
-	$(top_srcdir)/configure.in
+	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
+CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
@@ -55,11 +56,12 @@ am_trollbot_OBJECTS = trollbot-main.$(OBJEXT) \
 	trollbot-sockets.$(OBJEXT) trollbot-irc.$(OBJEXT) \
 	trollbot-util.$(OBJEXT) trollbot-debug.$(OBJEXT) \
 	trollbot-channel.$(OBJEXT) trollbot-trigger.$(OBJEXT) \
-	trollbot-sha1.$(OBJEXT) trollbot-user.$(OBJEXT)
+	trollbot-sha1.$(OBJEXT) trollbot-user.$(OBJEXT) \
+	trollbot-trig_table.$(OBJEXT)
 trollbot_OBJECTS = $(am_trollbot_OBJECTS)
 am__DEPENDENCIES_1 =
 trollbot_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
-DEFAULT_INCLUDES = -I. -I$(srcdir)
+DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
@@ -148,7 +150,7 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 trollbot_SOURCES = main.c tconfig.c network.c server.c config_engine.c sockets.c irc.c util.c debug.c channel.c trigger.c sha1.c \
-		   user.c 
+		   user.c trig_table.c
 
 trollbot_CFLAGS = ${TCL_CFLAGS} ${PHP_CFLAGS} -O0 -pedantic -Wall
 trollbot_LDADD = ${TCL_LDFLAGS} ${PHP_LDADD}
@@ -228,6 +230,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-sha1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-sockets.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-tconfig.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-trig_table.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-trigger.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-user.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-util.Po@am__quote@
@@ -427,6 +430,20 @@ trollbot-user.obj: user.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='user.c' object='trollbot-user.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-user.obj `if test -f 'user.c'; then $(CYGPATH_W) 'user.c'; else $(CYGPATH_W) '$(srcdir)/user.c'; fi`
+
+trollbot-trig_table.o: trig_table.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-trig_table.o -MD -MP -MF "$(DEPDIR)/trollbot-trig_table.Tpo" -c -o trollbot-trig_table.o `test -f 'trig_table.c' || echo '$(srcdir)/'`trig_table.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/trollbot-trig_table.Tpo" "$(DEPDIR)/trollbot-trig_table.Po"; else rm -f "$(DEPDIR)/trollbot-trig_table.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='trig_table.c' object='trollbot-trig_table.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-trig_table.o `test -f 'trig_table.c' || echo '$(srcdir)/'`trig_table.c
+
+trollbot-trig_table.obj: trig_table.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-trig_table.obj -MD -MP -MF "$(DEPDIR)/trollbot-trig_table.Tpo" -c -o trollbot-trig_table.obj `if test -f 'trig_table.c'; then $(CYGPATH_W) 'trig_table.c'; else $(CYGPATH_W) '$(srcdir)/trig_table.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/trollbot-trig_table.Tpo" "$(DEPDIR)/trollbot-trig_table.Po"; else rm -f "$(DEPDIR)/trollbot-trig_table.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='trig_table.c' object='trollbot-trig_table.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-trig_table.obj `if test -f 'trig_table.c'; then $(CYGPATH_W) 'trig_table.c'; else $(CYGPATH_W) '$(srcdir)/trig_table.c'; fi`
 uninstall-info-am:
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)

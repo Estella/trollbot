@@ -9,6 +9,7 @@
  ******************************/
 
 #ifndef __IRC_H__
+#define __IRC_H__
 
 #include "network.h"
 
@@ -62,5 +63,4 @@ struct irc_data *irc_data_new(void);
 int irc_in(struct network *net);
 
 
-#define __IRC_H__
 #endif /* __IRC_H__ */

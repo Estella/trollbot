@@ -12,6 +12,7 @@ struct channel_flags
   
 struct user
 {
+  char *username;
   char *nick;
   char *passhash;
 
@@ -27,7 +28,7 @@ struct user
 };
 
 
-struct user *new_user(char *nick, char *passhash, char *ident, char *realname, char *host, char *flags);
+struct user *new_user(char *username, char *nick, char *passhash, char *ident, char *realname, char *host, char *flags);
 struct channel_flags *new_channel_flags(char *chan, char *flags);
 void user_init(void);
 

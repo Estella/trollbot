@@ -8,12 +8,13 @@
 #include "util.h"
 #include "user.h"
 
-struct user *new_user(char *nick, char *passhash, char *ident, char *realname, char *host, char *flags)
+struct user *new_user(char *username, char *nick, char *passhash, char *ident, char *realname, char *host, char *flags)
 {
   struct user *ret;
 
   ret = tmalloc(sizeof(struct user));
-  
+
+  ret->username = (username != NULL) ? tstrdup(username) : NULL;  
   ret->nick     = (nick != NULL)     ? tstrdup(nick)     : NULL;
   ret->passhash = (passhash != NULL) ? tstrdup(passhash) : NULL;
   ret->ident    = (ident != NULL)    ? tstrdup(ident)    : NULL;
@@ -46,9 +47,10 @@ struct channel_flags *new_channel_flags(char *chan, char *flags)
 void user_init(void)
 {
   struct tconfig_block *tcfg;
-  struct tconfig_block *top;
   struct tconfig_block *tnet;
-  struct tconfig_block *tnick;
+  struct tconfig_block *tuser;
+  struct tconfig_block *tparams;
+  struct user *user;
   struct network *net;
 
   tcfg = file_to_tconfig("userdb");
@@ -60,52 +62,83 @@ void user_init(void)
   while (tcfg->parent != NULL || tcfg->prev != NULL)
     tcfg = (tcfg->parent == NULL) ? tcfg->prev : tcfg->parent;
 
-  top = tcfg;
+  tnet = tcfg;
   
   do
   {
-    if (!strcmp(top->key,"network"))
+    if (!strcmp(tnet->key,"network"))
     {
       net = g_cfg->network_head;
 
       do
       {
-        if (!strcmp(net->label,top->value))
+        if (!strcmp(net->label,tnet->value))
           break;
       } while ((net = net->next) != NULL);
 
       if (net == NULL)
         continue;
 
-      /* Not a known network, ignore it */
-      if (strcmp(net->label,top->value))
+      if (tnet->child == NULL)
         continue;
 
-      if (top->child == NULL)
-        continue;
-
-      tnet = top->child;
+      tuser = tnet->child;
 
       /* Scan the users now */
       do
       {
-        if (!strcmp(tnet->key,"user"))
+        if (!strcmp(tuser->key,"user"))
         {
-          
-          tnick = tnet;
+          if (net->users_head == NULL)
+          {
+            net->users_head  = new_user(tuser->key,NULL,NULL,NULL,NULL,NULL,NULL);
+            net->users       = net->users_head;
+            net->users_tail  = net->users_head;
+            net->users->prev = NULL;
+            net->users->next = NULL;
+          } 
+          else
+          {
+            net->users_tail->next = new_user(tuser->key,NULL,NULL,NULL,NULL,NULL,NULL);
+            net->users            = net->users_tail->next;
+            net->users->prev      = net->users_tail;
+            net->users->next      = NULL;
+            net->users_tail       = net->users;
+          }
+         
+          user = net->users;
+
+          tparams = tuser->child;
 
           do
           {
-            printf("Found nick: %s for network %s\n",tnick->value,top->value);
-          } while ((tnick = tnick->next) != NULL);
-        }
-      } while ((tnet = tnet->next) != NULL);
-  
-    }
-  } while ((top = top->next) != NULL);
-      
-  exit(EXIT_FAILURE);
+            if (!strcmp(tparams->key,"nick"))
+            {
+              if (user->nick != NULL)
+                free(user->nick);
+     
+              user->nick = tstrdup(tparams->key);
+            }
+            else if (!strcmp(tparams->key,"passhash"))
+            {
+              if (user->passhash != NULL)
+                free(user->passhash);
 
+              user->passhash = tstrdup(tparams->key);
+            }
+            else if (!strcmp(tparams->key,"flags"))
+            {
+              if (user->flags != NULL)
+                free(user->flags);
+
+              user->flags = tstrdup(tparams->key);
+            }
+          } while ((tparams = tparams->next) != NULL);
+        }
+      } while ((tuser = tuser->next) != NULL);  
+    }
+  } while ((tnet = tnet->next) != NULL);
+      
   return;
 }
 

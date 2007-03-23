@@ -15,11 +15,11 @@
 #include <sys/socket.h>
 
 #include "main.h"
-#include "network.h"
 #include "irc.h"
 #include "util.h"
 #include "debug.h"
 #include "channel.h"
+#include "trigger.h"
 
 /* Simple printf like function that outputs to a socket, buffer work needs to be more dynamic */
 void irc_printf(int sock, const char *fmt, ...)
@@ -304,7 +304,7 @@ void parse_irc_line(struct network *net, const char *buffer)
     }
   }
 
-  /* match_triggers(data); */
+  trigger_match(net,data);
 
   irc_data_free(data);
 }

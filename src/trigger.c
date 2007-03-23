@@ -4,8 +4,9 @@
 
 #include "util.h"
 #include "trigger.h"
+#include "trig_table.h"
 
-struct trigger *new_trigger(char *flags, char *mask, char *command, void (*handler)(struct trigger *))
+struct trigger *new_trigger(char *flags, char *mask, char *command, void (*handler)(struct trigger *, struct irc_data *))
 {
   struct trigger *ret;
   char *tmp;
@@ -57,7 +58,7 @@ struct trigger *new_trigger(char *flags, char *mask, char *command, void (*handl
     ret->chan_flags = NULL;
   }
 
-  ret->mask    = tstrdup(flags);
+  ret->mask    = tstrdup(mask);
   ret->command = tstrdup(command);
   ret->handler = handler;
 
@@ -65,4 +66,67 @@ struct trigger *new_trigger(char *flags, char *mask, char *command, void (*handl
   ret->next    = NULL;
 
   return ret;
+}
+
+/* This is the heart of the scripting system */
+void trigger_match(struct network *net, struct irc_data *data)
+{
+  struct trigger *trig;
+
+  /* First let's determine what trigger table to check */
+  if (!strcmp(data->command,"PRIVMSG"))
+  {
+    /* Could be PUB, PUBM, MSG, MSGM atm */
+    if (data->c_params[0] != NULL)
+    {
+      if (!strcmp(data->c_params[0],net->nick))
+      {
+        /* Trigger is either MSG or MSGM */
+        trig = net->trigs->msg;
+
+        while (trig != NULL)
+        {
+          if (data->rest[0] != NULL)
+          {
+            if (!strcmp(data->rest[0],trig->mask))
+            {
+              if (trig->handler != NULL)
+                trig->handler(net,data);
+            }
+          }
+
+          trig = trig->next;
+        }
+          
+      }
+      else 
+      {
+        trig = net->trigs->pub;
+ 
+        while (trig != NULL)
+        {
+          if (data->rest[0] != NULL)
+          {
+            if (!strcmp(data->rest[0],trig->mask))
+            { 
+              if (trig->handler != NULL)
+                trig->handler(net,data);
+            }
+        
+          }
+  
+          trig = trig->next;
+        } 
+      }
+      /* Need to handle PUBM */
+    }
+ 
+  } 
+  else if (!strcmp(data->command,"NOTICE"))
+  {
+    /* Command is a NOTC */
+  }
+ 
+  return;
+
 }

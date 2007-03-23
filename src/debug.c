@@ -24,10 +24,11 @@ void troll_debug(int level, const char *fmt, ...)
   memset(buf2, 0, sizeof(buf2));
 
   va_start(va, fmt);
+  /* C99 */
   vsnprintf(buf, sizeof(buf), fmt, va);
   va_end(va);
 
-  /* printf("%s\n",buf); */
+  printf("%s\n",buf); 
 
   return;
 }

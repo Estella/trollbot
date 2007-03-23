@@ -5,5 +5,4 @@
 
 extern struct config *g_cfg;
 
-
 #endif /* __MAIN_H__ */

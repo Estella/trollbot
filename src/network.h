@@ -1,7 +1,12 @@
 #ifndef __NETWORK_H__
 #define __NETWORK_H__
 
-#include "server.h"
+#include <string.h>
+
+#ifdef HAVE_TCL
+#include <tcl.h>
+#endif /* HAVE_TCL */
+
 
 enum
 {
@@ -34,10 +39,20 @@ struct network
 
   int status;
 
+  /* Users */
   struct user *users;
+  struct user *users_head;
+  struct user *users_tail;
   
+  struct trig_table *trigs;  
+
   struct network *prev;
   struct network *next;
+
+#ifdef HAVE_TCL
+  /* Network TCL Interpreter */
+  Tcl_Interp *tclinterp;
+#endif /* HAVE_TCL */
 };
 
 struct network *new_network(char *label);

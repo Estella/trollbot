@@ -3,7 +3,7 @@ VERSION = "0.0.1"
 AC_INIT(src/main.c)
 AM_INIT_AUTOMAKE(trollbot,0.0.1)
 
-dnl AC_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADER(config.h)
 
 AC_PROG_CC
 
@@ -12,8 +12,6 @@ AC_LANG_C
 
 AC_PROG_TCL
 AC_PROG_PHP
-
-AC_C_BIGENDIAN
 
 AC_PROG_MAKE_SET
 

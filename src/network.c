@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-
 #include "util.h"
 #include "network.h"
+#include "trig_table.h"
 
 struct network *new_network(char *label)
 {
@@ -33,6 +33,16 @@ struct network *new_network(char *label)
   ret->altnick      = NULL;
   ret->realname     = NULL;
   ret->ident        = NULL;
+
+  ret->users        = NULL;
+  ret->users_head   = NULL;
+  ret->users_tail   = NULL;
+
+  ret->trigs        = new_trig_table();
+
+#ifdef HAVE_TCL
+  ret->tclinterp    = NULL;
+#endif /* HAVE_TCL */
 
   return ret;
 }
