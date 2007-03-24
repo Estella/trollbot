@@ -1,132 +1,164 @@
-dnl m4 script to find tcl
-dnl does NOT use tclConfig.sh (due to the general shittiness of that mechanism)
-dnl poutine/DALnet
-dnl This file is part of trollbot and it is public domain
+dnl FIRST PASS AFTER STEALING THIS FROM CYRUS!
+dnl USE AT YOUR OWN PERIL!
+dnl I MEAN IT!
+dnl
+dnl tcl.m4: an autoconf Tcl locator
+dnl $Id: tcl.m4,v 1.5 2005/03/05 00:36:14 dasenbro Exp $
+dnl
+dnl This is rob's Tcl macro, fixed by tjs.  It may need occasional tweaking,
+dnl but until the next impediment to compilation, it's fill-in-the-blank,
+dnl and it should be able to do reasonable things with user input.
+dnl
+dnl This will probably just work on Andrew systems, but given the variety
+dnl and apparent creativity of people who compile Tcl elsewhere, I don't know
+dnl what it will do.  I have yet to see an autoconf Tcl test that users were
+dnl happy with.
+dnl
+dnl BUGS
+dnl   The command-line arguments are overcomplicated.
+dnl   There are doubtlessly others...
 
-AC_DEFUN([AC_PROG_TCL], [
+dnl To use this macro, just do CMU_TCL.  It outputs
+dnl TCL_LIBS, TCL_CPPFLAGS, and TCL_DEFS and SUBSTs them.  
+dnl If successful, these have stuff in them.  If not, they're empty.
+dnl If not successful, with_tcl has the value "no".
 
-without_tcl=""
-with_tcl_inc=""
-with_tcl_lib=""
-with_tcl_cflags=""
-with_tcl_ldflags=""
+AC_DEFUN([CMU_TCL], [
+# --- BEGIN CMU_TCL ---
+dnl To link against Tcl, configure does several things to make my life
+dnl "easier".
+dnl
+dnl * maybe ask the user where they think Tcl lives, and try to find it
+dnl * maybe ask the user what "tclsh" is called this week (i.e., "tclsh8.0")
+dnl * run tclsh, ask it for a path, then run that path through sed
+dnl * sanity check its result (many installs are a little broken)
+dnl * try to figure out where Tcl is based on this result
+dnl * try to guess where the Tcl include files are
+dnl
+dnl Notes from previous incarnations:
+dnl > XXX MUST CHECK FOR TCL BEFORE KERBEROS V4 XXX
+dnl > This is because some genius at MIT named one of the Kerberos v4
+dnl > library functions log().  This of course conflicts with the
+dnl > logarithm function in the standard math library, used by Tcl.
+dnl
+dnl > Checking for Tcl first puts -lm before -lkrb on the library list.
+dnl
 
-TCL_INC=""
-TCL_LIB=""
+dnl Check for some information from the user on what the world looks like
+AC_ARG_WITH(tclconfig,[  --with-tclconfig=PATH   use tclConfig.sh from PATH
+                          (configure gets Tcl configuration from here)],
+        dnl trim tclConfig.sh off the end so we can add it back on later.
+	TclLibBase=`echo ${withval} | sed s/tclConfig.sh\$//`)
+AC_ARG_WITH(tcl,      [  --with-tcl=PATH         use Tcl from PATH],
+	TclLibBase="${withval}/lib")
+AC_ARG_WITH(tclsh,    [  --with-tclsh=TCLSH      use TCLSH as the tclsh program
+                          (let configure find Tcl using this program)],
+	TCLSH="${withval}")
 
-TCL_CFLAGS=""
-TCL_LDFLAGS=""
-
-TCL_VERSION_MAJ=""
-TCL_VERSION_MIN=""
-
-dnl check if provided --with-tcl-inc=PATH
-AC_ARG_WITH(tcl-inc,      [  --with-tcl-inc=PATH         Path to tcl.h],
-	[with_tcl_inc=$withval])
-
-AC_ARG_WITH(tcl-lib,      [  --with-tcl-lib=PATH         Path to libtcl8.x.so],
-	[with_tcl_lib=$withval])
-
-AC_ARG_WITH(tcl-cflags,      [  --with-tcl-cflags=CFLAGS    CFLAG override for Tcl],
-	[with_tcl_cflags=$withval])
-
-AC_ARG_WITH(tcl-ldflags,      [  --with-tcl-ldflags=LDFLAGS  LDFLAGS override for Tcl],
-	[with_tcl_ldflags=$withval])
-
-
-dnl not sure if this is how I'm supposed to do it
-AC_ARG_WITH(without_tcl,      [ --without-tcl                Compile without TCL support],
-	[without_tcl=no])
-
-if test "x${without_tcl}" = "x" ; then
-    dnl first check if they provided args, and if they are correct
-    if test "x${with_tcl_inc}" = "x"; then
-        echo "${with_tcl_inc}"
-        AC_MSG_CHECKING([for tcl.h in $with_tcl_inc])
-        if test -r "${with_tcl_inc}/tcl.h" ; then
-            TCL_INC=${with_tcl_inc}
-            AC_MSG_RESULT([found])
-        else
-            AC_MSG_RESULT([not found])
-        fi
-    fi
-  
-    if test -r "${with_tcl_lib}" ; then
-        AC_MSG_CHECKING([for tcl??.so or .dll])
-        if test -r "${with_tcl_lib}/libtcl??.so" ; then
-            TCL_LIB=${with_tcl_lib}
-            AC_MSG_RESULT([found])
-        else
-            dnl cygwin
-            if test -r "${with_tcl_lib}/libtcl??.dll" ; then
-                TCL_LIB=${with_tcl_lib}
-                AC_MSG_RESULT([found])
-            else
-                AC_MSG_RESULT([not found])
-            fi
-        fi
-    fi
-
-    dnl Finished checking user provided args
-    dnl if they provided them, and they were correct
-    dnl TCL_LIB and/or TCL_INC should be set
-
-    if test "x${TCL_INC}" = "x" ; then
-        AC_MSG_CHECKING([for tcl.h in /usr/include])
-        if test -r "/usr/include/tcl.h" ; then
-            AC_MSG_RESULT([found])
-            TCL_INC="/usr/include"
-        else
-            AC_MSG_RESULT([not found])
-            AC_MSG_CHECKING([for tcl.h in /usr/local/include])
-            if test -r "/usr/local/include/tcl.h" ; then
-                AC_MSG_RESULT([found])
-                TCL_INC="/usr/local/include"
-            else
-                AC_MSG_RESULT([not found])
-            fi
-        fi
-    fi
-   
-    if test "x${TCL_LIB}" = "x" ; then
-        if test -r "/usr/lib/libtcl??.so" ; then
-            TCL_LIB="/usr/lib"
-        fi
-
-        dnl cygwin
-        if test -r "/usr/lib/libtcl??.dll" ; then
-            TCL_LIB="/usr/lib"
-        fi
-
-        if test -r "/usr/local/lib/libtcl??.so" ; then
-            TCL_LIB="/usr/local/lib"
-        fi
-
-        dnl cygwin
-        if test -r "/usr/local/lib/libtcl??.dll" ; then
-            TCL_LIB="/usr/local/lib"
-        fi
-    fi
-
-    dnl TCL_INC and TCL_LIB should be set if we can use TCL right now
-    AC_MSG_CHECKING([for the usability of tcl.h])
-    if test "x${TCL_INC}" != "x" ; then
-        AC_MSG_RESULT([Yes])
-        AC_MSG_CHECKING([for the usability of libtcl??.so or libtcl??.dll])
-        if test "x${TCL_LIB}" != "x" ; then
-            AC_MSG_RESULT( [Yes] )
-        else
-            AC_MSG_RESULT( [No])
-        fi
-    else
-        AC_MSG_RESULT([Not found])
-    fi
-    
+if test "$TCLSH" = "no" -o "$with_tclconfig" = "no" ; then
+  AC_MSG_WARN([Tcl disabled because tclsh or tclconfig specified as "no"])
+  with_tcl=no
 fi
 
-AC_SUBST(TCL_CFLAGS)
-AC_SUBST(TCL_LDFLAGS)
-] )
+if test "$with_tcl" != "no"; then
+  if test \! -z "$with_tclconfig" -a \! -d "$with_tclconfig" ; then
+    AC_MSG_ERROR([--with-tclconfig requires a directory argument.])
+  fi
+
+  if test \! -z "$TCLSH" -a \! -x "$TCLSH" ; then
+    AC_MSG_ERROR([--with-tclsh must specify an executable file.])
+  fi
+
+  if test -z "$TclLibBase"; then # do we already know?
+    # No? Run tclsh and ask it where it lives.
+
+    # Do we know where a tclsh lives?
+    if test -z "$TCLSH"; then
+      # Try and find tclsh.  Any tclsh.
+      # If a new version of tcl comes out and unfortunately adds another
+      # filename, it should be safe to add it (to the front of the line --
+      # somef vendors have older, badly installed tclshs that we want to avoid
+      # if we can)
+      AC_PATH_PROGS(TCLSH, [tclsh8.4 tclsh8.3 tclsh8.2 tclsh8.1 tclsh8.0 tclsh], "unknown")
+    fi
+
+    # Do we know where to get a tclsh?
+    if test "${TCLSH}" != "unknown"; then
+      AC_MSG_CHECKING([where Tcl says it lives])
+      TclLibBase=`echo puts \\\$tcl_library | ${TCLSH} | sed -e 's,[^/]*$,,'`
+      AC_MSG_RESULT($TclLibBase)
+    fi
+  fi
+
+  if test -z "$TclLibBase" ; then
+    AC_MSG_RESULT([can't find tclsh])
+    AC_MSG_WARN([can't find Tcl installtion; use of Tcl disabled.])
+    with_tcl=no
+  else
+    AC_MSG_CHECKING([for tclConfig.sh])
+    # Check a list of places where the tclConfig.sh file might be.
+    for tcldir in "${TclLibBase}" \
+                  "${TclLibBase}/.." \
+		  "${TclLibBase}"`echo ${TCLSH} | sed s/sh//` ; do
+      if test -f "${tcldir}/tclConfig.sh"; then
+        TclLibBase="${tcldir}"
+        break
+      fi
+    done
+
+    if test -z "${TclLibBase}" ; then
+      AC_MSG_RESULT("unknown")
+      AC_MSG_WARN([can't find Tcl configuration; use of Tcl disabled.])
+      with_tcl=no
+    else
+      AC_MSG_RESULT(${TclLibBase}/)
+    fi
+
+    if test "${with_tcl}" != no ; then
+      AC_MSG_CHECKING([Tcl configuration on what Tcl needs to compile])
+      . ${TclLibBase}/tclConfig.sh
+      AC_MSG_RESULT(ok)
+      dnl no TK stuff for us.
+      dnl . ${TclLibBase}/tkConfig.sh
+    fi
+
+    if test "${with_tcl}" != no ; then
+      dnl Now, hunt for the Tcl include files, since we don't strictly
+      dnl know where they are; some folks put them (properly) in the 
+      dnl default include path, or maybe in /usr/local; the *BSD folks
+      dnl put them in other places.
+      AC_MSG_CHECKING([where Tcl includes are])
+      for tclinclude in "${TCL_PREFIX}/include/tcl${TCL_VERSION}" \
+                        "${TCL_PREFIX}/include/tcl" \
+                        "${TCL_PREFIX}/include" ; do
+        if test -r "${tclinclude}/tcl.h" ; then
+          TCL_CPPFLAGS="-I${tclinclude}"
+          break
+        fi
+      done
+      if test -z "${TCL_CPPFLAGS}" ; then
+        AC_MSG_WARN(can't find Tcl includes; use of Tcl disabled.)
+        with_tcl=no
+      fi
+      AC_MSG_RESULT(${TCL_CPPFLAGS})
+    fi
+    
+    # Finally, pick up the Tcl configuration if we haven't found an
+    # excuse not to.
+    if test "${with_tcl}" != no; then
+      dnl TCL_LIBS="${TCL_LD_SEARCH_FLAGS} ${TCL_LIB_SPEC}"
+      TCL_LIBS="${TCL_LIB_SPEC} ${TCL_LIBS}"
+    fi
+  fi
+fi
+
+AC_SUBST(TCL_DEFS)
+AC_SUBST(TCL_LIBS)
+AC_SUBST(TCL_CPPFLAGS)
+AC_DEFINE(HAVE_TCL, 1, [Ability to use TCL scripting])
+
+# --- END CMU_TCL ---
+]) dnl CMU_TCL
 dnl PHP finder thingy
 
 AC_DEFUN([AC_PROG_PHP], [

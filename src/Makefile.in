@@ -37,6 +37,9 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 bin_PROGRAMS = trollbot$(EXEEXT)
+@WITH_TCL_TRUE@am__append_1 = tcl_embed.c tcl_lib.c
+@WITH_TCL_TRUE@am__append_2 = ${TCL_CPPFLAGS}
+@WITH_TCL_TRUE@am__append_3 = ${TCL_LIBS}
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -50,6 +53,11 @@ CONFIG_CLEAN_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
+am__trollbot_SOURCES_DIST = main.c tconfig.c network.c server.c \
+	config_engine.c sockets.c irc.c util.c debug.c channel.c \
+	trigger.c sha1.c user.c trig_table.c tcl_embed.c tcl_lib.c
+@WITH_TCL_TRUE@am__objects_1 = trollbot-tcl_embed.$(OBJEXT) \
+@WITH_TCL_TRUE@	trollbot-tcl_lib.$(OBJEXT)
 am_trollbot_OBJECTS = trollbot-main.$(OBJEXT) \
 	trollbot-tconfig.$(OBJEXT) trollbot-network.$(OBJEXT) \
 	trollbot-server.$(OBJEXT) trollbot-config_engine.$(OBJEXT) \
@@ -57,10 +65,11 @@ am_trollbot_OBJECTS = trollbot-main.$(OBJEXT) \
 	trollbot-util.$(OBJEXT) trollbot-debug.$(OBJEXT) \
 	trollbot-channel.$(OBJEXT) trollbot-trigger.$(OBJEXT) \
 	trollbot-sha1.$(OBJEXT) trollbot-user.$(OBJEXT) \
-	trollbot-trig_table.$(OBJEXT)
+	trollbot-trig_table.$(OBJEXT) $(am__objects_1)
 trollbot_OBJECTS = $(am_trollbot_OBJECTS)
 am__DEPENDENCIES_1 =
-trollbot_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+@WITH_TCL_TRUE@am__DEPENDENCIES_2 = $(am__DEPENDENCIES_1)
+trollbot_DEPENDENCIES = $(am__DEPENDENCIES_2)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -69,7 +78,7 @@ COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 SOURCES = $(trollbot_SOURCES)
-DIST_SOURCES = $(trollbot_SOURCES)
+DIST_SOURCES = $(am__trollbot_SOURCES_DIST)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -117,9 +126,13 @@ PHP_PREFIX = @PHP_PREFIX@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
-TCL_CFLAGS = @TCL_CFLAGS@
-TCL_LDFLAGS = @TCL_LDFLAGS@
+TCLSH = @TCLSH@
+TCL_CPPFLAGS = @TCL_CPPFLAGS@
+TCL_DEFS = @TCL_DEFS@
+TCL_LIBS = @TCL_LIBS@
 VERSION = @VERSION@
+WITH_TCL_FALSE = @WITH_TCL_FALSE@
+WITH_TCL_TRUE = @WITH_TCL_TRUE@
 ac_ct_CC = @ac_ct_CC@
 ac_ct_STRIP = @ac_ct_STRIP@
 am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
@@ -149,11 +162,11 @@ sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
-trollbot_SOURCES = main.c tconfig.c network.c server.c config_engine.c sockets.c irc.c util.c debug.c channel.c trigger.c sha1.c \
-		   user.c trig_table.c
-
-trollbot_CFLAGS = ${TCL_CFLAGS} ${PHP_CFLAGS} -O0 -pedantic -Wall
-trollbot_LDADD = ${TCL_LDFLAGS} ${PHP_LDADD}
+trollbot_SOURCES = main.c tconfig.c network.c server.c config_engine.c \
+	sockets.c irc.c util.c debug.c channel.c trigger.c sha1.c \
+	user.c trig_table.c $(am__append_1)
+trollbot_CFLAGS = -O0 -Wall $(am__append_2)
+trollbot_LDADD = $(am__append_3)
 all: all-am
 
 .SUFFIXES:
@@ -229,6 +242,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-server.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-sha1.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-sockets.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-tcl_embed.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-tcl_lib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-tconfig.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-trig_table.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-trigger.Po@am__quote@
@@ -444,6 +459,34 @@ trollbot-trig_table.obj: trig_table.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='trig_table.c' object='trollbot-trig_table.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-trig_table.obj `if test -f 'trig_table.c'; then $(CYGPATH_W) 'trig_table.c'; else $(CYGPATH_W) '$(srcdir)/trig_table.c'; fi`
+
+trollbot-tcl_embed.o: tcl_embed.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-tcl_embed.o -MD -MP -MF "$(DEPDIR)/trollbot-tcl_embed.Tpo" -c -o trollbot-tcl_embed.o `test -f 'tcl_embed.c' || echo '$(srcdir)/'`tcl_embed.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/trollbot-tcl_embed.Tpo" "$(DEPDIR)/trollbot-tcl_embed.Po"; else rm -f "$(DEPDIR)/trollbot-tcl_embed.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tcl_embed.c' object='trollbot-tcl_embed.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-tcl_embed.o `test -f 'tcl_embed.c' || echo '$(srcdir)/'`tcl_embed.c
+
+trollbot-tcl_embed.obj: tcl_embed.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-tcl_embed.obj -MD -MP -MF "$(DEPDIR)/trollbot-tcl_embed.Tpo" -c -o trollbot-tcl_embed.obj `if test -f 'tcl_embed.c'; then $(CYGPATH_W) 'tcl_embed.c'; else $(CYGPATH_W) '$(srcdir)/tcl_embed.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/trollbot-tcl_embed.Tpo" "$(DEPDIR)/trollbot-tcl_embed.Po"; else rm -f "$(DEPDIR)/trollbot-tcl_embed.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tcl_embed.c' object='trollbot-tcl_embed.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-tcl_embed.obj `if test -f 'tcl_embed.c'; then $(CYGPATH_W) 'tcl_embed.c'; else $(CYGPATH_W) '$(srcdir)/tcl_embed.c'; fi`
+
+trollbot-tcl_lib.o: tcl_lib.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-tcl_lib.o -MD -MP -MF "$(DEPDIR)/trollbot-tcl_lib.Tpo" -c -o trollbot-tcl_lib.o `test -f 'tcl_lib.c' || echo '$(srcdir)/'`tcl_lib.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/trollbot-tcl_lib.Tpo" "$(DEPDIR)/trollbot-tcl_lib.Po"; else rm -f "$(DEPDIR)/trollbot-tcl_lib.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tcl_lib.c' object='trollbot-tcl_lib.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-tcl_lib.o `test -f 'tcl_lib.c' || echo '$(srcdir)/'`tcl_lib.c
+
+trollbot-tcl_lib.obj: tcl_lib.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-tcl_lib.obj -MD -MP -MF "$(DEPDIR)/trollbot-tcl_lib.Tpo" -c -o trollbot-tcl_lib.obj `if test -f 'tcl_lib.c'; then $(CYGPATH_W) 'tcl_lib.c'; else $(CYGPATH_W) '$(srcdir)/tcl_lib.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/trollbot-tcl_lib.Tpo" "$(DEPDIR)/trollbot-tcl_lib.Po"; else rm -f "$(DEPDIR)/trollbot-tcl_lib.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tcl_lib.c' object='trollbot-tcl_lib.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-tcl_lib.obj `if test -f 'tcl_lib.c'; then $(CYGPATH_W) 'tcl_lib.c'; else $(CYGPATH_W) '$(srcdir)/tcl_lib.c'; fi`
 uninstall-info-am:
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)

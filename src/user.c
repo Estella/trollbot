@@ -138,6 +138,9 @@ void user_init(void)
       } while ((tuser = tuser->next) != NULL);  
     }
   } while ((tnet = tnet->next) != NULL);
+
+  /* Free up all tconfig related stuff */
+  /* free_tconfig(tcfg); */
       
   return;
 }

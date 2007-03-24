@@ -21,11 +21,6 @@
 
 struct config *g_cfg;
 
-static void dummy_handler(struct network *net, struct irc_data *data)
-{
-  irc_printf(net->sock,"PRIVMSG %s :Moo\n",data->c_params[0]);
-}
-
 int main(int argc, char *argv[])
 {
   struct network *net;
@@ -52,19 +47,6 @@ int main(int argc, char *argv[])
   
   user_init();
 
-  /* Trigger testing */
-  net = g_cfg->network_head;
-
-  while (net != NULL)
-  {
-    if (!strcmp(net->label,"DALnet"))
-    {
-      net->trigs->pub = new_trigger(NULL,"moo",NULL,dummy_handler);
-    }
-    net = net->next;
-  }
-
-      
   printf("#################################################\n");
  
   printf("# %-45s #\n","Entering IRC loop");

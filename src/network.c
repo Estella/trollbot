@@ -6,6 +6,10 @@
 #include "network.h"
 #include "trig_table.h"
 
+#ifdef HAVE_TCL
+#include "tcl_embed.h"
+#endif /* HAVE_TCL */
+
 struct network *new_network(char *label)
 {
   struct network *ret;
@@ -41,7 +45,7 @@ struct network *new_network(char *label)
   ret->trigs        = new_trig_table();
 
 #ifdef HAVE_TCL
-  ret->tclinterp    = NULL;
+  net_init_tcl(ret);
 #endif /* HAVE_TCL */
 
   return ret;

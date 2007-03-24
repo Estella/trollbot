@@ -3,6 +3,8 @@
 
 #include <string.h>
 
+#include "config.h"
+
 #ifdef HAVE_TCL
 #include <tcl.h>
 #endif /* HAVE_TCL */

@@ -10,6 +10,8 @@
 #include "channel.h"
 #include "util.h"
 
+#include "config.h"
+
 /* The configuration process works in 2 steps
  * first it loads the file's data in tree form
  * and checks for syntax, then it walks through
@@ -95,6 +97,18 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 
           net->altnick = tstrdup(search->value);
         }
+#ifdef HAVE_TCL
+        else if (!strcmp(search->key,"tclscript"))
+        {
+            if (net->tclinterp == NULL)
+              continue;
+        
+            if (Tcl_EvalFile(net->tclinterp, search->value) == TCL_ERROR)
+            {
+              printf("TCL Error: %s\n",Tcl_GetStringResult(net->tclinterp));
+            }
+        }
+#endif /* HAVE_TCL */
         else if (!strcmp(search->key,"realname"))
         {
           if (net->realname != NULL)

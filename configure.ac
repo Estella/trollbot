@@ -10,7 +10,10 @@ AC_PROG_CC
 dnl test C Compiler
 AC_LANG_C
 
-AC_PROG_TCL
+CMU_TCL
+
+AM_CONDITIONAL(WITH_TCL, test "x${TCL_LIBS}" != "x")
+
 AC_PROG_PHP
 
 AC_PROG_MAKE_SET
@@ -22,17 +25,4 @@ AC_SUBST(VERSION)
 AC_OUTPUT(Makefile 
           src/Makefile)
 
-echo "Trollbot is now configured with the following options"
-
-if test "x${WITH_TCL}" = "x"; then
-    echo "TCL Support: NO"
-else
-    echo "TCL Support: YES"
-fi
-
-if test "x${WITH_PHP}" = "x"; then
-    echo "PHP Support: NO"
-else
-    echo "PHP Support: YES"
-fi
 

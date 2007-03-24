@@ -6,7 +6,7 @@
 #include "trigger.h"
 #include "trig_table.h"
 
-struct trigger *new_trigger(char *flags, char *mask, char *command, void (*handler)(struct trigger *, struct irc_data *))
+struct trigger *new_trigger(char *flags, int type, char *mask, char *command, void (*handler)(struct network *, struct trigger *, struct irc_data *))
 {
   struct trigger *ret;
   char *tmp;
@@ -58,6 +58,8 @@ struct trigger *new_trigger(char *flags, char *mask, char *command, void (*handl
     ret->chan_flags = NULL;
   }
 
+  
+  ret->type    = type;
   ret->mask    = tstrdup(mask);
   ret->command = tstrdup(command);
   ret->handler = handler;
@@ -82,7 +84,7 @@ void trigger_match(struct network *net, struct irc_data *data)
       if (!strcmp(data->c_params[0],net->nick))
       {
         /* Trigger is either MSG or MSGM */
-        trig = net->trigs->msg;
+        trig = net->trigs->msg_head;
 
         while (trig != NULL)
         {
@@ -91,7 +93,7 @@ void trigger_match(struct network *net, struct irc_data *data)
             if (!strcmp(data->rest[0],trig->mask))
             {
               if (trig->handler != NULL)
-                trig->handler(net,data);
+                trig->handler(net,trig,data);
             }
           }
 
@@ -101,7 +103,7 @@ void trigger_match(struct network *net, struct irc_data *data)
       }
       else 
       {
-        trig = net->trigs->pub;
+        trig = net->trigs->pub_head;
  
         while (trig != NULL)
         {
@@ -110,7 +112,7 @@ void trigger_match(struct network *net, struct irc_data *data)
             if (!strcmp(data->rest[0],trig->mask))
             { 
               if (trig->handler != NULL)
-                trig->handler(net,data);
+                trig->handler(net,trig,data);
             }
         
           }
