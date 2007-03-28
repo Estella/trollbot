@@ -1,93 +1,231 @@
-/******************************
- * Trollbot                   *
- ******************************
- * Written by poutine DALnet  *
- ******************************
- * This software is public    *
- * domain. Free for any use   *
- * whatsoever.                *
- ******************************/
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include <php.h>
-#include <ext/standard/php_smart_str.h"
-#include <ext/standard/info.h"
-#include <ext/standard/head.h"
-#include <php_ini.h>
-#include <SAPI.h>
 
-#include "php_embed.h"
 #include "main.h"
-#include "servers.h"
-#include "scripts.h"
+#include "config_engine.h"
+#include "network.h"
+#include "util.h"
+#include "php_embed.h"
+#include "php_lib.h"
+#include "trigger.h"
 
-PHP_MINIT_FUNCTION(sandwich)
+PHP_FUNCTION(bind)
 {
-  zend_class_entry trollbot;
-  zend_class_entry trollbot_obj;
-  zend_class_entry trollbot_sv;
-  
-  ZEND_INIT_MODULE_GLOBALS(php_trollbot_module, sw_initglobals, NULL);
+  struct network *net;
+  struct trigger *trig;
 
-  INIT_CLASS_ENTRY(trollbot, "Trollbot", trollbot_functions);
-  trollbot_ce = zend_register_internal_class(&trollbot TSRMLS_CC); /* ?? */
-  if (!trollbot_ce)  /* ?? */
+  char *netw;
+  char *type;
+  char *flags;
+  char *mask;
+  char *func;
+  
+  int netw_len;
+  int type_len;
+  int flags_len;
+  int mask_len;
+  int func_len;
+
+  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sssss", 
+                                                       &netw,   /* Network Name */
+                                                       &netw_len, 
+                                                       &type, 
+                                                       &type_len,
+                                                       &flags,
+                                                       &flags_len,
+                                                       &mask,
+                                                       &mask_len,
+                                                       &func,
+                                                       &func_len) == FAILURE)
   {
-    return FAILURE;
+    RETURN_FALSE;
   }
 
-  INIT_CLASS_ENTRY(trollbot_obj, "TrollbotObject", trollbot_obj_functions);
-  
-  trollbot_obj.create_object = trollbot_obj_create_object;
-  trollbot_obj_ce = zend_register_internal_class(&trollbot_obj TSRMLS_CC);
-  if (!trollbot_obj_ce) 
+  net = g_cfg->network_head;
+
+  while (net != NULL)
   {
-    return FAILURE;
+    if (!strcmp(net->label,netw))
+      break;
+
+    net = net->next;
   }
 
-  memcpy(&trollbot_obj_handlers, zend_get_std_object_handlers(), 
-      sizeof(trollbot_obj_handlers));
+  if (net == NULL)
+    RETURN_FALSE;
 
-  trollbot_obj_handlers.read_dimension = sandwich_dim_read;
-  trollbot_obj_handlers.write_dimension = sandwich_dim_write;
-  trollbot_obj_handlers.get_method = sandwich_get_method;
-  trollbot_obj_handlers.call_method = sandwich_call_method;
+  if (!strcmp(type,"pub"))
+  {
+    if (net->trigs->pub == NULL)
+    {
+      net->trigs->pub       = new_trigger(flags,TRIG_PUB,mask,func,&php_handler);
+      net->trigs->pub->prev = NULL;
+      net->trigs->pub_head  = net->trigs->pub;
+      net->trigs->pub_tail  = net->trigs->pub;
+    }
+    else
+    {
+      net->trigs->pub_tail->next = new_trigger(flags,TRIG_PUB,mask,func,&php_handler);
+      net->trigs->pub            = net->trigs->pub_tail->next;
+      net->trigs->pub->prev      = net->trigs->pub_tail;
+      net->trigs->pub_tail       = net->trigs->pub;
+    }
 
-  INIT_CLASS_ENTRY(plsv, "PerlSV", plsv_functions);
-  plsv_ce = zend_register_internal_class(&plsv TSRMLS_CC);
-  plsv_ce->create_object = plsv_create_object;
-  plsv_ce->get_iterator = plsv_iter_get;
-  zend_class_implements(plsv_ce TSRMLS_CC, 1, zend_ce_traversable);
-  if (!plsv_ce) {
-    return FAILURE;
+    net->trigs->pub_tail->next = NULL;
   }
-  memcpy(&plsv_handlers, zend_get_std_object_handlers(), 
-      sizeof(plsv_handlers));
+  else if (!strcmp(type,"pubm"))
+  {
+    if (net->trigs->pubm == NULL)
+    {
+      net->trigs->pubm       = new_trigger(flags,TRIG_PUBM,mask,func,&php_handler);
+      net->trigs->pubm->prev = NULL;
+      net->trigs->pubm_head  = net->trigs->pubm;
+      net->trigs->pubm_tail  = net->trigs->pubm;
+    }
+    else
+    {
+      net->trigs->pubm_tail->next = new_trigger(flags,TRIG_PUBM,mask,func,&php_handler);
+      net->trigs->pubm            = net->trigs->pubm_tail->next;
+      net->trigs->pubm->prev      = net->trigs->pubm_tail;
+      net->trigs->pubm_tail       = net->trigs->pubm;
+    }
 
-  plsv_handlers.read_property = sv_prop_read;
-  plsv_handlers.write_property = sv_prop_write;
-  plsv_handlers.has_property = sv_prop_exists;
-  plsv_handlers.get_method = sv_get_method;
-  plsv_handlers.call_method = sv_call_method;
-  plsv_handlers.get_class_name = sv_get_class_name;
-  
-  return SUCCESS;
+    net->trigs->pubm_tail->next = NULL;
+  }
+  else if (!strcmp(type,"msg"))
+  {
+    if (net->trigs->msg == NULL)
+    {
+      net->trigs->msg       = new_trigger(flags,TRIG_MSG,mask,func,&php_handler);
+      net->trigs->msg->prev = NULL;
+      net->trigs->msg_head  = net->trigs->msg;
+      net->trigs->msg_tail  = net->trigs->msg;
+    }
+    else
+    {
+      net->trigs->msg_tail->next = new_trigger(flags,TRIG_MSG,mask,func,&php_handler);
+      net->trigs->msg            = net->trigs->msg_tail->next;
+      net->trigs->msg->prev      = net->trigs->msg_tail;
+      net->trigs->msg_tail       = net->trigs->msg;
+    }
+
+    net->trigs->msg_tail->next = NULL;
+
+  }
+  else if (!strcmp(type,"msgm"))
+  {
+    if (net->trigs->msgm == NULL)
+    {
+      net->trigs->msgm       = new_trigger(flags,TRIG_MSGM,mask,func,&php_handler);
+      net->trigs->msgm->prev = NULL;
+      net->trigs->msgm_head  = net->trigs->msgm;
+      net->trigs->msgm_tail  = net->trigs->msgm;
+    }
+    else
+    {
+      net->trigs->msgm_tail->next = new_trigger(flags,TRIG_MSGM,mask,func,&php_handler);
+      net->trigs->msgm            = net->trigs->msgm_tail->next;
+      net->trigs->msgm->prev      = net->trigs->msgm_tail;
+      net->trigs->msgm_tail       = net->trigs->msgm;
+    }
+
+    net->trigs->msgm_tail->next = NULL;
+
+  }
+  else if (!strcmp(type,"join"))
+  {
+    if (net->trigs->join == NULL)
+    {
+      net->trigs->join       = new_trigger(flags,TRIG_JOIN,mask,func,&php_handler);
+      net->trigs->join->prev = NULL;
+      net->trigs->join_head  = net->trigs->join;
+      net->trigs->join_tail  = net->trigs->join;
+    }
+    else
+    {
+      net->trigs->join_tail->next = new_trigger(flags,TRIG_JOIN,mask,func,&php_handler);
+      net->trigs->join            = net->trigs->join_tail->next;
+      net->trigs->join->prev      = net->trigs->join_tail;
+      net->trigs->join_tail       = net->trigs->join;
+    }
+
+    net->trigs->join_tail->next = NULL;
+
+  }
+  else if (!strcmp(type,"part"))
+  {
+    if (net->trigs->part == NULL)
+    {
+      net->trigs->part       = new_trigger(flags,TRIG_PART,mask,func,&php_handler);
+      net->trigs->part->prev = NULL;
+      net->trigs->part_head  = net->trigs->part;
+      net->trigs->part_tail  = net->trigs->part;
+    }
+    else
+    {
+      net->trigs->part_tail->next = new_trigger(flags,TRIG_PART,mask,func,&php_handler);
+      net->trigs->part            = net->trigs->part_tail->next;
+      net->trigs->part->prev      = net->trigs->part_tail;
+      net->trigs->part_tail       = net->trigs->part;
+    }
+
+    net->trigs->part_tail->next = NULL;
+  }
+  else if (!strcmp(type,"quit"))
+  {
+    if (net->trigs->quit == NULL)
+    {
+      net->trigs->quit       = new_trigger(flags,TRIG_QUIT,mask,func,&php_handler);
+      net->trigs->quit->prev = NULL;
+      net->trigs->quit_head  = net->trigs->quit;
+      net->trigs->quit_tail  = net->trigs->quit;
+    }
+    else
+    {
+      net->trigs->quit_tail->next = new_trigger(flags,TRIG_QUIT,mask,func,&php_handler);
+      net->trigs->quit            = net->trigs->quit_tail->next;
+      net->trigs->quit->prev      = net->trigs->quit_tail;
+      net->trigs->quit_tail       = net->trigs->quit;
+    }
+
+    net->trigs->quit_tail->next = NULL;
+  }
+  else
+    RETURN_FALSE;
+
+
+  RETURN_TRUE;
 }
 
+PHP_FUNCTION(putserv)
+{
+  struct network *net;
+  char *netw;
+  int netw_len;
+  char *msg;
+  int msg_len;
 
-static function_entry trollbot_functions[] = {
-        PHP_FE(putserv, NULL)
-        {NULL, NULL, NULL}
-};
+  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss", &netw, &netw_len, &msg, &msg_len) == FAILURE)
+  {
+    RETURN_FALSE;
+  }
 
-zend_module_entry php_trollbot_module = {
-        STANDARD_MODULE_HEADER,
-        "trollbot",
-        trollbot_functions,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        NULL,
-        NO_VERSION_YET,
-        STANDARD_MODULE_PROPERTIES
-};
+  net = g_cfg->network_head;
+
+  while (net != NULL)
+  {
+    if (!strcmp(net->label,netw))
+      break;
+    
+    net = net->next;
+  }
+
+  if (net == NULL)
+    RETURN_FALSE;
+ 
+  irc_printf(net->sock,msg);
+}
 

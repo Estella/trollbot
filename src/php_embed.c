@@ -1,19 +1,13 @@
-#include "../config.h"
-#ifdef HAVE_PHP
-/*
-   Modified to make work with trollbot
-
- */
 /*
    +----------------------------------------------------------------------+
    | PHP Version 5                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2004 The PHP Group                                |
+   | Copyright (c) 1997-2007 The PHP Group                                |
    +----------------------------------------------------------------------+
-   | This source file is subject to version 3.0 of the PHP license,       |
+   | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
    | available through the world-wide-web at the following url:           |
-   | http://www.php.net/license/3_0.txt.                                  |
+   | http://www.php.net/license/3_01.txt                                  |
    | If you did not receive a copy of the PHP license and are unable to   |
    | obtain it through the world-wide-web, please send a note to          |
    | license@php.net so we can mail you a copy immediately.               |
@@ -21,143 +15,264 @@
    | Author: Edin Kadribasic <edink@php.net>                              |
    +----------------------------------------------------------------------+
 */
-/* $Id: php_embed.c,v 1.8.2.1 2005/01/25 22:00:14 andrei Exp $ */
-
-#define ZEND_INCLUDE_FULL_WINDOWS_HEADERS
-
-#include <php.h>
-#include <ext/standard/php_smart_str.h>
-#include <ext/standard/info.h>
-#include <ext/standard/head.h>
-#include <php_ini.h>
-#include <SAPI.h>
+/* $Id: php_embed.c,v 1.11.2.1.2.1 2007/01/01 09:36:12 sebastian Exp $ */
 
 #include "php_embed.h"
-#include "main.h"
-#include "servers.h"
-#include "scripts.h"
+
+#include "network.h"
+#include "trigger.h"
+#include "irc.h"
+#include "util.h"
+#include "debug.h"
+#include "php_lib.h"
 
 #ifdef PHP_WIN32
 #include <io.h>
 #include <fcntl.h>
 #endif
 
-static int php_eval(struct irc_data *data, const char *line)
+/* This function loads the PHP interpreter if it doesn't exist already.
+ * then it executes the PHP file
+ */
+void myphp_eval_file(char *filename)
 {
-  char  *tmpbuf = NULL;
-  int    size   = 0;
+  zend_file_handle  file_handle;
+  static int has_started = 0;
 
   TSRMLS_FETCH();
 
-  if (zend_eval_string_ex(line, NULL, "Command line run code", 1 TSRMLS_CC) == FAILURE)
+  if (has_started == 0)
   {
-    printf("Execution failed\n");
+    php_embed_init(0,NULL PTSRMLS_DC);
+    has_started = 1;
   }
 
-  return 1;
+  file_handle.type          = ZEND_HANDLE_FILENAME;
+  file_handle.filename      = filename;
+  file_handle.free_filename = 0;
+  file_handle.opened_path   = NULL;
+
+  if (zend_execute_scripts(ZEND_REQUIRE TSRMLS_CC, NULL, 1, &file_handle) != SUCCESS)
+    troll_debug(LOG_WARN,"PHP Script (%s) could not be run",filename);
+  else
+    troll_debug(LOG_DEBUG,"PHP Script (%s) successfully loaded",filename);
+
+  return;
 }
 
+
+void php_handler(struct network *net, struct trigger *trig, struct irc_data *data)
+{
+  zval *func;
+  zval *netw;
+  zval *nick;
+  zval *uhost;
+  zval *hand;
+  zval *chan;
+  zval *arg;
+  zval *ret;
+  zval *php_args[10]; /* may need changed */
+
+  /* We have to create the arguments for the called function as zvals */
+  TSRMLS_FETCH();
+
+  switch (trig->type)
+  {
+    case TRIG_PUB:
+      ALLOC_INIT_ZVAL(func);
+      ALLOC_INIT_ZVAL(netw);
+      ALLOC_INIT_ZVAL(nick);
+      ALLOC_INIT_ZVAL(uhost);
+      ALLOC_INIT_ZVAL(hand);
+      ALLOC_INIT_ZVAL(chan);
+      ALLOC_INIT_ZVAL(arg);
+
+      ZVAL_STRING(func, trig->command, 1);
+      ZVAL_STRING(netw, net->label, 1);
+      ZVAL_STRING(nick, data->prefix->nick, 1);
+      ZVAL_STRING(uhost, data->prefix->host, 1);
+      ZVAL_STRING(hand, data->prefix->nick, 1);
+      ZVAL_STRING(chan, data->c_params[0], 1);
+      ZVAL_STRING(arg, data->rest_str, 1);
+
+      php_args[0] = netw;
+      php_args[1] = nick;
+      php_args[2] = uhost;
+      php_args[3] = hand;
+      php_args[4] = chan;
+      php_args[5] = arg;
+
+      if (call_user_function(CG(function_table), NULL, func, &ret, 6, php_args) != SUCCESS)
+      {
+        printf("Error calling function\n");
+      }
+
+      zval_ptr_dtor(&netw);
+      zval_ptr_dtor(&nick);
+      zval_ptr_dtor(&uhost);
+      zval_ptr_dtor(&hand);
+      zval_ptr_dtor(&chan);
+      zval_ptr_dtor(&arg);
+
+      break;
+    case TRIG_PUBM:
+      break;
+    case TRIG_MSG:
+      break;
+    case TRIG_MSGM:
+      break;
+    case TRIG_JOIN:
+      break;
+    case TRIG_PART:
+      break;
+    case TRIG_QUIT:
+      break;
+  }
+}
+
+/* Not sure if this is needed */
 static char* php_embed_read_cookies(TSRMLS_D)
 {
-	return NULL;
+  return NULL;
 }
 
+/* Again, probably not needed */
 static int php_embed_deactivate(TSRMLS_D)
 {
-	fflush(stdout);
-	return SUCCESS;
+  /* fflush(stdout); */
+  return SUCCESS;
 }
 
+/* In the case of echoing and other printing, this should go somewhere else
+ * Cannot write to IRC directly due to multiple network setup, and shitty
+ * PHP globalness
+ */
 static inline size_t php_embed_single_write(const char *str, uint str_length)
 {
-  irc_printf(glob_server_head->sock,"%s\n",str);
+#ifdef PHP_WRITE_STDOUT
+  long ret;
+
+  ret = write(STDOUT_FILENO, str, str_length);
+  if (ret <= 0) return 0;
+  return ret;
+#else
+  size_t ret;
+
+  ret = fwrite(str, 1, MIN(str_length, 16384), stdout);
+  return ret;
+#endif
 }
 
 
+/* See comment for above function */
 static int php_embed_ub_write(const char *str, uint str_length TSRMLS_DC)
 {
-  irc_printf(glob_server_head->sock,"%s\n",str);
+  const char *ptr = str;
+  uint remaining = str_length;
+  size_t ret;
+
+  while (remaining > 0) 
+  {
+    ret = php_embed_single_write(ptr, remaining);
+    if (!ret) 
+    {
+      php_handle_aborted_connection();
+    }
+
+    ptr += ret;
+    remaining -= ret;
+  }
+
+  return str_length;
 }
 
+/* Probably not needed */
 static void php_embed_flush(void *server_context)
 {
-	if (fflush(stdout)==EOF) {
-		php_handle_aborted_connection();
-	}
+  if (fflush(stdout) == EOF) 
+  {
+    php_handle_aborted_connection();
+  }
 }
 
+/* Probably not needed, need to verify */
 static void php_embed_send_header(sapi_header_struct *sapi_header, void *server_context TSRMLS_DC)
 {
 }
 
+
+/* This should write to a special log */
 static void php_embed_log_message(char *message)
 {
-	fprintf (stderr, "%s\n", message);
+  fprintf (stderr, "%s\n", message);
 }
 
+/* Everything is really dealt with through functions, not really needed */
 static void php_embed_register_variables(zval *track_vars_array TSRMLS_DC)
 {
-	php_import_environment_variables(track_vars_array TSRMLS_CC);
+  php_import_environment_variables(track_vars_array TSRMLS_CC);
 }
 
+/* Initiate both the PHP module and the zend module */
 static int php_embed_startup(sapi_module_struct *sapi_module)
 {
-	if (php_module_startup(sapi_module, NULL, 0)==FAILURE) {
-		return FAILURE;
-	}
-	return SUCCESS;
+  if (php_module_startup(sapi_module, NULL, 0)==FAILURE || zend_startup_module(&trollbot_module_entry) == FAILURE) {
+    return FAILURE;
+  }
+
+  return SUCCESS;
 }
 
 sapi_module_struct php_embed_module = {
-	"embed",                       /* name */
-	"PHP Embedded Library",        /* pretty name */
+  "embed",                       /* name */
+  "PHP Embedded Library",        /* pretty name */
+ 
+  php_embed_startup,              /* startup */
+  php_module_shutdown_wrapper,   /* shutdown */
+  
+  NULL,                          /* activate */
+  php_embed_deactivate,           /* deactivate */
+  
+  php_embed_ub_write,             /* unbuffered write */
+  php_embed_flush,                /* flush */
+  NULL,                          /* get uid */
+  NULL,                          /* getenv */
+  
+  php_error,                     /* error handler */
+  
+  NULL,                          /* header handler */
+  NULL,                          /* send headers handler */
+  php_embed_send_header,          /* send header handler */
 	
-	php_embed_startup,              /* startup */
-	php_module_shutdown_wrapper,   /* shutdown */
+  NULL,                          /* read POST data */
+  php_embed_read_cookies,         /* read Cookies */
   
-	NULL,                          /* activate */
-	php_embed_deactivate,           /* deactivate */
+  php_embed_register_variables,   /* register server variables */
+  php_embed_log_message,          /* Log message */
+  NULL,							/* Get request time */
   
-	php_embed_ub_write,             /* unbuffered write */
-	php_embed_flush,                /* flush */
-	NULL,                          /* get uid */
-	NULL,                          /* getenv */
-  
-	NULL,                     /* error handler */
-  
-	NULL,                          /* header handler */
-	NULL,                          /* send headers handler */
-	php_embed_send_header,          /* send header handler */
-	
-	NULL,                          /* read POST data */
-	php_embed_read_cookies,         /* read Cookies */
-  
-	php_embed_register_variables,   /* register server variables */
-	php_embed_log_message,          /* Log message */
-  
-	STANDARD_SAPI_MODULE_PROPERTIES
+  STANDARD_SAPI_MODULE_PROPERTIES
 };
-/* }}} */
 
 int php_embed_init(int argc, char **argv PTSRMLS_DC)
 {
-	zend_llist global_vars;
+  zend_llist global_vars;
 #ifdef ZTS
-	zend_compiler_globals *compiler_globals;
-	zend_executor_globals *executor_globals;
-	php_core_globals *core_globals;
-	sapi_globals_struct *sapi_globals;
-	void ***tsrm_ls;
+  zend_compiler_globals *compiler_globals;
+  zend_executor_globals *executor_globals;
+  php_core_globals *core_globals;
+  sapi_globals_struct *sapi_globals;
+  void ***tsrm_ls;
 #endif
 
 #ifdef HAVE_SIGNAL_H
 #if defined(SIGPIPE) && defined(SIG_IGN)
-	signal(SIGPIPE, SIG_IGN); /* ignore SIGPIPE in standalone mode so
-								 that sockets created via fsockopen()
-								 don't kill PHP if the remote site
-								 closes it.  in apache|apxs mode apache
-								 does that for us!  thies@thieso.net
-								 20000419 */
+  signal(SIGPIPE, SIG_IGN); /* ignore SIGPIPE in standalone mode so
+                               that sockets created via fsockopen()
+			       don't kill PHP if the remote site
+			       closes it.  in apache|apxs mode apache
+			       does that for us!  thies@thieso.net
+			       20000419 */
 #endif
 #endif
 
@@ -183,12 +298,14 @@ int php_embed_init(int argc, char **argv PTSRMLS_DC)
 
   sapi_startup(&php_embed_module);
 
-  if (php_embed_module.startup(&php_embed_module)==FAILURE) {
-	  return FAILURE;
+  if (php_embed_module.startup(&php_embed_module) == FAILURE) 
+  {
+    return FAILURE;
   }
  
-  if (argv) {
-	php_embed_module.executable_location = argv[0];
+  if (argv) 
+  {
+    php_embed_module.executable_location = argv[0];
   }
 
   zend_llist_init(&global_vars, sizeof(char *), NULL, 0);  
@@ -203,9 +320,10 @@ int php_embed_init(int argc, char **argv PTSRMLS_DC)
   SG(request_info).argc=argc;
   SG(request_info).argv=argv;
 
-  if (php_request_startup(TSRMLS_C)==FAILURE) {
-	  php_module_shutdown(TSRMLS_C);
-	  return FAILURE;
+  if (php_request_startup(TSRMLS_C) == FAILURE) 
+  {
+    php_module_shutdown(TSRMLS_C);
+    return FAILURE;
   }
   
   SG(headers_sent) = 1;
@@ -215,114 +333,32 @@ int php_embed_init(int argc, char **argv PTSRMLS_DC)
   return SUCCESS;
 }
 
+/* Probably do not want this */
 void php_embed_shutdown(TSRMLS_D)
 {
-	php_request_shutdown((void *) 0);
-	php_module_shutdown(TSRMLS_C);
-	sapi_shutdown();
+  php_request_shutdown((void *) 0);
+  php_module_shutdown(TSRMLS_C);
+  sapi_shutdown();
 #ifdef ZTS
-    tsrm_shutdown();
+  tsrm_shutdown();
 #endif
 }
 
-int php_startup(void)
-{
-  struct scripts    *tmp = php_scripts_head;
-  zend_file_handle  file_handle;
-
-  TSRMLS_FETCH();
-
-  /* Start up the interpreter */
-  php_embed_init(0,NULL PTSRMLS_DC);
-
-  while (tmp != NULL)
-  {
-    file_handle.type = ZEND_HANDLE_FILENAME;
-    file_handle.filename = tmp->filename;
-    file_handle.free_filename = 0;
-    file_handle.opened_path = NULL;
-
-    if (zend_execute_scripts(ZEND_REQUIRE TSRMLS_CC, NULL, 1, &file_handle) != SUCCESS) 
-    {
-      troll_debug(LOG_WARN,"PHP Script (%s) ran unsuccessfully",tmp->filename);
-      tmp->status = 0;
-    } else {
-      printf("Successfully loaded %s\n",tmp->filename);
-      tmp->status = 1;
-    }
-
-    tmp = tmp->next;
-  }
-
-  add_handler("php_eval",
-              NULL,
-              php_eval,
-              NULL,
-              1);
-
-  add_trigger(PUB,
-              "?php",
-              "php_eval",
-              NULL,
-              "foo");
-
-
-  return 1;
-}
-
-int php_handle(struct irc_data *data, const char *line)
-{
-  TSRMLS_FETCH();
-
-  printf("We got called!\n");
-
-  if (zend_eval_string_ex("echo \"I'm a midget!\";", NULL, "Command line run code", 1 TSRMLS_CC) == FAILURE)
-  {
-    printf("Execution failed\n");
-  }
-
-}
-
-int php_shutdown(void)
-{
-  return 1;
-}
-
-
-/* PHP Functions YAY 
-PHP_FUNCTION(putserv)
-{
-  zval **message;
-
-  if (ZEND_NUM_ARGS() != 1 || zend_get_parameters_ex(1, &message) == FAILURE) 
-  {
-    WRONG_PARAM_COUNT;
-  }
-
-  convert_to_string_ex(message);
- 
-  irc_printf(glob_server_head->sock,"%s\n",Z_STRVAL_PP(message));
-}
-*/
-
-
-
-/*static function_entry trollbot_functions[] = {
-        PHP_FE(putserv, NULL)
-        {NULL, NULL, NULL}
+static function_entry trollbot_functions[] = {
+    PHP_FE(putserv, NULL)
+    PHP_FE(bind, NULL)
+    {NULL, NULL, NULL}
 };
 
-zend_module_entry php_trollbot_module = {
-        STANDARD_MODULE_HEADER,
-        "trollbot",
-        trollbot_functions,
-        NULL, 
-        NULL, 
-        NULL,
-        NULL,
-        NULL,
-        NO_VERSION_YET,
-        STANDARD_MODULE_PROPERTIES
-};*/
+zend_module_entry trollbot_module_entry =
+{
+    STANDARD_MODULE_HEADER,
+    "Trollbot",
+    trollbot_functions,
+    NULL, NULL, NULL, NULL, NULL,
+    NO_VERSION_YET,
+    STANDARD_MODULE_PROPERTIES,
+};
 
-#endif /* HAVE_PHP */
+
+

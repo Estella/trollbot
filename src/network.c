@@ -4,7 +4,7 @@
 
 #include "util.h"
 #include "network.h"
-#include "trig_table.h"
+#include "trigger.h"
 
 #ifdef HAVE_TCL
 #include "tcl_embed.h"

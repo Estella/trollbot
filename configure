@@ -272,7 +272,7 @@ PACKAGE_STRING=
 PACKAGE_BUGREPORT=
 
 ac_unique_file="src/main.c"
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE TCLSH TCL_DEFS TCL_LIBS TCL_CPPFLAGS WITH_TCL_TRUE WITH_TCL_FALSE PHP_CFLAGS PHP_LDADD PHP_PREFIX CPP EGREP LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE TCLSH TCL_DEFS TCL_LIBS TCL_CPPFLAGS WITH_TCL_TRUE WITH_TCL_FALSE PHP_CFLAGS PHP_LDADD PHP_PREFIX WITH_PHP_TRUE WITH_PHP_FALSE CPP EGREP LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -2992,16 +2992,19 @@ echo "${ECHO_T}${TCL_CPPFLAGS}" >&6
     if test "${with_tcl}" != no; then
             TCL_LIBS="${TCL_LIB_SPEC} ${TCL_LIBS}"
     fi
+
+    if test "x${TCL_CPPFLAGS}" != "x" -a "x${TCL_LIBS}" != "x" ; then
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_TCL 1
+_ACEOF
+
+    fi
   fi
 fi
 
 
 
-
-
-cat >>confdefs.h <<\_ACEOF
-#define HAVE_TCL 1
-_ACEOF
 
 
 # --- END CMU_TCL ---
@@ -3020,72 +3023,68 @@ fi
 
 
 
-with_php=""
-PHP_PREFIX=""
-PHP_CFLAGS=""
-PHP_LDADD=""
-
-
 # Check whether --with-php or --without-php was given.
 if test "${with_php+set}" = set; then
   withval="$with_php"
-  with_php="${withval}"
+  with_php="$withval"
 fi;
 
-if test -r $with_php/include/php; then
-    PHP_PREFIX="${with_php}"
-    PHP_LDADD="-L${with_php}/lib -lphp5"
-    PHP_CFLAGS="-I${with_php}/include/php/Zend -I${with_php}/include/php/TSRM \
-                -I${with_php}/include/php/sapi -I${with_php}/include/php/main \
-                -I${with_php}/include/php"
+  echo "$as_me:$LINENO: checking Checking whether to use PHP" >&5
+echo $ECHO_N "checking Checking whether to use PHP... $ECHO_C" >&6
+
+  if test "$with_php" != "no" ; then
+    if test -r $with_php/include/php ; then
+      PHP_PREFIX="${with_php}"
+      PHP_LDADD="${with_php}/lib/libphp5.so -R${with_php}/lib `${with_php}/bin/php-config --libs`"
+      PHP_CFLAGS="`${with_php}/bin/php-config --includes`"
+    fi
+
+    if test "x${PHP_PREFIX}" = "x"; then
+      if test -r /usr/lib/libphp5.so; then
+        PHP_PREFIX="/usr"
+        PHP_LDADD="/usr/lib/libphp5.so `/usr/bin/php-config --libs`"
+        PHP_CFLAGS="`/usr/bin/php-config --includes`"
+      fi
+
+      if test -r /usr/local/lib/libphp5.so; then
+        PHP_PREFIX="/usr/local"
+        PHP_LDADD="/usr/local/lib/libphp5.so `/usr/local/bin/php-config --libs`"
+        PHP_CFLAGS="`/usr/local/bin/php-config --includes`"
+      fi
+    fi
+
+    if test "x${PHP_CFLAGS}" != "x" -a "x${PHP_LDADD}" != "x" ; then
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_PHP 1
+_ACEOF
+
+
+
+
+
+
+      echo "$as_me:$LINENO: result: ready to go" >&5
+echo "${ECHO_T}ready to go" >&6
+    else
+      echo "$as_me:$LINENO: result: Could not use PHP" >&5
+echo "${ECHO_T}Could not use PHP" >&6
+    fi
+  else
+    echo "$as_me:$LINENO: result: support disabled" >&5
+echo "${ECHO_T}support disabled" >&6
+  fi
+
+
+
+
+if test "x${PHP_LDADD}" != "x"; then
+  WITH_PHP_TRUE=
+  WITH_PHP_FALSE='#'
 else
-    echo "FOO ${with_php}"
+  WITH_PHP_TRUE='#'
+  WITH_PHP_FALSE=
 fi
-
-if test "x${PHP_PREFIX}" = "x"; then
-    if test -r /usr/lib/libphp5.so; then
-      PHP_PREFIX="/usr"
-      PHP_LDADD="-L/usr/lib -lphp5"
-      PHP_CFLAGS="-I/usr/include/php/Zend -I/usr/include/php/TSRM \
-                  -I/usr/include/php/sapi -I/usr/include/php/main \
-                  -I/usr/include/php"
-    fi
-
-    if test -r /usr/local/lib/libphp5.so; then
-      PHP_PREFIX="/usr/local"
-      PHP_LDADD="-L/usr/local/lib -lphp5"
-      PHP_CFLAGS="-I/usr/local/include/php/Zend -I/usr/local/include/php/TSRM \
-                  -I/usr/local/include/php/sapi -I/usr/local/include/php/main \
-                  -I/usr/local/include/php"
-    fi
-fi
-
-if test "x${PHP_PREFIX}" = "x"; then
-    { echo "$as_me:$LINENO: WARNING: could not find PHP! Disabling support and stealing your wife" >&5
-echo "$as_me: WARNING: could not find PHP! Disabling support and stealing your wife" >&2;}
-    with_php="no"
-else
-    echo "$as_me:$LINENO: checking Looking for PHP " >&5
-echo $ECHO_N "checking Looking for PHP ... $ECHO_C" >&6
-
-    echo "$as_me:$LINENO: result: Found at ${PHP_PREFIX} " >&5
-echo "${ECHO_T}Found at ${PHP_PREFIX} " >&6
-
-    echo "$as_me:$LINENO: checking for PHP specific CFLAGS " >&5
-echo $ECHO_N "checking for PHP specific CFLAGS ... $ECHO_C" >&6
-    echo "$as_me:$LINENO: result: ${PHP_CFLAGS} " >&5
-echo "${ECHO_T}${PHP_CFLAGS} " >&6
-
-    echo "$as_me:$LINENO: checking for PHP specific LDFLAGS " >&5
-echo $ECHO_N "checking for PHP specific LDFLAGS ... $ECHO_C" >&6
-    echo "$as_me:$LINENO: result: ${PHP_LDADD} " >&5
-echo "${ECHO_T}${PHP_LDADD} " >&6
-
-    fi
-
-
-
-
 
 
 echo "$as_me:$LINENO: checking whether ${MAKE-make} sets \$(MAKE)" >&5
@@ -3648,6 +3647,13 @@ if test -z "${WITH_TCL_TRUE}" && test -z "${WITH_TCL_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"WITH_TCL\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 echo "$as_me: error: conditional \"WITH_TCL\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${WITH_PHP_TRUE}" && test -z "${WITH_PHP_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"WITH_PHP\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"WITH_PHP\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -4231,6 +4237,8 @@ s,@WITH_TCL_FALSE@,$WITH_TCL_FALSE,;t t
 s,@PHP_CFLAGS@,$PHP_CFLAGS,;t t
 s,@PHP_LDADD@,$PHP_LDADD,;t t
 s,@PHP_PREFIX@,$PHP_PREFIX,;t t
+s,@WITH_PHP_TRUE@,$WITH_PHP_TRUE,;t t
+s,@WITH_PHP_FALSE@,$WITH_PHP_FALSE,;t t
 s,@CPP@,$CPP,;t t
 s,@EGREP@,$EGREP,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t

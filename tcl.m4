@@ -149,13 +149,16 @@ if test "$with_tcl" != "no"; then
       dnl TCL_LIBS="${TCL_LD_SEARCH_FLAGS} ${TCL_LIB_SPEC}"
       TCL_LIBS="${TCL_LIB_SPEC} ${TCL_LIBS}"
     fi
+
+    if test "x${TCL_CPPFLAGS}" != "x" -a "x${TCL_LIBS}" != "x" ; then
+      AC_DEFINE(HAVE_TCL, 1, [Ability to use TCL scripting])
+    fi
   fi
 fi
 
 AC_SUBST(TCL_DEFS)
 AC_SUBST(TCL_LIBS)
 AC_SUBST(TCL_CPPFLAGS)
-AC_DEFINE(HAVE_TCL, 1, [Ability to use TCL scripting])
 
 # --- END CMU_TCL ---
 ]) dnl CMU_TCL

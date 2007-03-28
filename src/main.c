@@ -14,17 +14,12 @@
 #include "sockets.h"
 #include "config_engine.h"
 #include "user.h"
-#include "network.h"
-#include "trigger.h"
-#include "trig_table.h"
 #include "irc.h"
 
 struct config *g_cfg;
 
 int main(int argc, char *argv[])
 {
-  struct network *net;
-
   printf("#################################################\n");
   printf("# Trollbot, written by poutine/DALnet           #\n");
   printf("#################################################\n");  
@@ -35,25 +30,35 @@ int main(int argc, char *argv[])
     printf("#################################################\n");
     return EXIT_FAILURE;
   }
+
+  printf("# %-45s #\n","Reading configuration");
+  printf("#################################################\n");
+  printf("Configuration Parser Output:\n");
   
   if (argc == 2)
     config_engine_init(argv[1]);
   else
     config_engine_init("trollbot.conf");
 
+  printf("#################################################\n");
+
   printf("# %-45s #\n","Configuration File looks good");
 
   printf("# %-45s #\n","Checking userdb");
-  
+
+  printf("#################################################\n");
+  printf("userdb Parser Output:\n");
+
   user_init();
 
   printf("#################################################\n");
  
   printf("# %-45s #\n","Entering IRC loop");
-  
-  irc_loop();
 
   printf("#################################################\n");
+  printf("IRC Debug Output:\n");
+  
+  irc_loop();
   
   return 0;
 }

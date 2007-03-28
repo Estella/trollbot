@@ -10,7 +10,6 @@
 #include "irc.h"
 #include "util.h"
 #include "trigger.h"
-#include "trig_table.h"
 #include "tcl_embed.h"
 
 int tcl_rand(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])

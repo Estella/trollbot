@@ -9,8 +9,18 @@
 #include "server.h"
 #include "channel.h"
 #include "util.h"
-
+#include "trigger.h"
 #include "config.h"
+
+#ifdef HAVE_TCL
+#include <tcl.h>
+#include "tcl_embed.h"
+#endif /* HAVE_TCL */
+
+#ifdef HAVE_PHP
+#include <php.h>
+#include "php_embed.h"
+#endif /* HAVE_PHP */
 
 /* The configuration process works in 2 steps
  * first it loads the file's data in tree form
@@ -30,8 +40,6 @@ int config_engine_init(char *filename)
   /* Free the old tconfig system */
   free_tconfig(tcfg);
  
-  g_cfg = cfg;
-
   return 0;
 }
 
@@ -44,6 +52,8 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
   struct server *svr;
 
   cfg = tmalloc(sizeof(struct config));
+
+  g_cfg = cfg;
 
   cfg->network_list = NULL;
   cfg->network_head = NULL;
@@ -109,6 +119,15 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
             }
         }
 #endif /* HAVE_TCL */
+#ifdef HAVE_PHP
+        else if (!strcmp(search->key,"phpscript"))
+        {
+            /* PHP only allows us a global interpreter, what a piece of shit
+             * So I'll start it up if and only if a PHP script exists
+             */
+            myphp_eval_file(search->value);
+        }
+#endif /* HAVE_PHP */
         else if (!strcmp(search->key,"realname"))
         {
           if (net->realname != NULL)
