@@ -4,6 +4,7 @@
 
 #include "util.h"
 #include "trigger.h"
+#include "egglib.h"
 
 struct trigger *new_trigger(char *flags, int type, char *mask, char *command, void (*handler)(struct network *, struct trigger *, struct irc_data *))
 {
@@ -97,8 +98,26 @@ void trigger_match(struct network *net, struct irc_data *data)
           }
 
           trig = trig->next;
+        }          
+
+
+        trig = net->trigs->msgm_head;
+
+        while (trig != NULL)
+        {
+          if (data->rest[0] != NULL)
+          {
+            if (!egg_matchwilds(data->rest_str,trig->mask))
+            {
+              if (trig->handler != NULL)
+                trig->handler(net,trig,data);
+            }
+
+          }
+
+          trig = trig->next;
         }
-          
+
       }
       else 
       {
@@ -117,7 +136,25 @@ void trigger_match(struct network *net, struct irc_data *data)
           }
   
           trig = trig->next;
-        } 
+        }
+
+        trig = net->trigs->pubm_head;
+
+        while (trig != NULL)
+        {
+          if (data->rest[0] != NULL)
+          {
+            if (!egg_matchwilds(data->rest_str,trig->mask))
+            {
+              if (trig->handler != NULL)
+                trig->handler(net,trig,data);
+            }
+
+          }
+
+          trig = trig->next;
+        }
+ 
       }
       /* Need to handle PUBM */
     }

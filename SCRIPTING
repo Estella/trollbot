@@ -1,0 +1,10 @@
+############################################################
+# TrollBot v0.0.1 written by poutine                       #
+############################################################
+
+Scripting:
+
+  This help file has been split up into SCRIPTING.TCL,
+SCRIPTING.PHP, SCRIPTING.PERL, and SCRIPTING.PYTHON in the
+doc/ directory for the instructions to use their respective 
+scripting languages on TrollBot.

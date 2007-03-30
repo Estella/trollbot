@@ -6,6 +6,8 @@ struct channel_flags
   char *chan;
   char *flags;
 
+  struct tconfig_block *tindex;
+
   struct channel_flags *next;
   struct channel_flags *prev;
 };
@@ -22,6 +24,8 @@ struct user
 
   char *flags;
   struct channel_flags *chan_flags;
+
+  struct tconfig_block *tindex;
 
   struct user *next;
   struct user *prev;

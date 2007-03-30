@@ -37,8 +37,8 @@ int config_engine_init(char *filename)
   tcfg  = file_to_tconfig(filename);
   cfg   = config_engine_load(tcfg);
 
-  /* Free the old tconfig system */
-  free_tconfig(tcfg);
+  /* keep a copy in the global config */
+  cfg->tcfg = tcfg;
  
   return 0;
 }
@@ -89,6 +89,9 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
       }
 
       net    = cfg->network_tail;
+
+      net->tindex = topmost;
+
       search = topmost->child;
   
       do
@@ -158,8 +161,9 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
             net->server_head = net->server_list;
             net->server_tail = net->server_list;
           }
-
+          
           svr = net->server_tail;
+          svr->tindex = search;
         }
         else if (!strcmp(search->key,"channel"))
         {
@@ -178,6 +182,7 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
             net->channel_tail = net->channel_list;
           }
         }
+        
 
       } while ((search = search->next) != NULL);
     }

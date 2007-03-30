@@ -51,6 +51,15 @@ int main(int argc, char *argv[])
 
   user_init();
 
+  printf("# %-45s #\n","userdb loaded");
+
+  printf("# %-45s #\n","Checking chandb");
+
+  printf("#################################################\n");
+  printf("chandb Parser Output:\n");
+
+  /* chan_init(); */
+
   printf("#################################################\n");
  
   printf("# %-45s #\n","Entering IRC loop");

@@ -34,7 +34,7 @@ set crypto_quotes_file "text/quotes.txt"
 # Set this to enable greedy guesses
 # When this is set to 1, you can use x=y instead of !guess x=y, this 
 # may suck up CPU, disable it if you're having speed problems.
-set greedy_guesses 0
+set greedy_guesses 1
 
 # Set this to 1 to enable !solve
 # Some people may not like it, who knows

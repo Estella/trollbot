@@ -2,41 +2,222 @@
 #include <string.h>
 
 #include "util.h"
+#include "irc.h"
+#include "user.h"
 #include "network.h"
 #include "server.h"
 #include "channel.h"
+#include "debug.h"
 
 /* This is the eggdrop core API that is exported to TCL, PHP, perl, etc */
 
 
-void egg_putserv(struct network *net, const char *text, int option_next);
-void egg_puthelp(struct network *net, const char *text, int option_next);
-void egg_putquick(struct network *net, const char *text, int option_next);
-void egg_putkick(struct network *net, const char *chan, const char *nick_list, const char *reason);
-void egg_putlog(struct network *net, const char *text);
-void egg_putcmdlog(struct network *net, const char *text);
-void egg_putxferlog(struct network *net, const char *text);
-void egg_putloglev(struct network *net, const char *levels, const char *chan, const char *text);
+char *egg_makearg(char *rest, char *mask)
+{
+  char *ret;
+
+  ret = &rest[strlen(mask)];
+
+  while (*ret != '\0' && (*ret == ' ' || *ret == '\t'))
+    ret++;
+
+  if (ret == NULL)
+    return "";
+
+  return ret; 
+}
+
+/* 
+  ?  matches any single character
+  *  matches 0 or more characters of any type
+  %  matches 0 or more non-space characters (can be used to match a single
+     word)
+  ~  matches 1 or more space characters (can be used for whitespace between
+     words)
+*/
+int egg_matchwilds(const char *haystack, const char *needle)
+{
+  if (needle == NULL || haystack == NULL)
+    return 1;
+
+  while (*needle)
+  {
+    /* ? = one single character *haystack is not NULL if *needle isn't */
+    if (*needle == *haystack || *needle == '?')
+    {
+      needle++;
+      haystack++;
+    } 
+    else if (*haystack == '\0' && *needle != '*')
+      return 1;
+    else if (*needle != '%' && *needle != '~' && *needle != '*')
+      return 1;
+    else if (*needle == '~')
+    {
+      /* One or more space characters */
+      if (*haystack != ' ' && *haystack != '\t')
+        return 1;
+
+      while (*haystack)
+      {
+        if (*haystack != ' ' && *haystack != '\t')
+          break;
+         
+        haystack++;
+      }
+
+      needle++;
+    }
+    else if (*needle == '%')
+    {
+      while (*haystack)
+      {
+        if (*haystack == ' ' || *haystack == '\t')
+          break;
+
+        haystack++;
+      }
+
+      needle++;
+    }
+    else if (*needle == '*')
+    {
+      needle++;
+
+      while (*haystack && *needle)
+      {
+        if (*haystack == *needle)
+        {
+          /* Greedy, but works okay */
+          if (!egg_matchwilds(haystack+1,needle-1))
+            return 0;
+         
+          break;
+        }
+
+        haystack++;
+      }
+    }
+  }
+
+  return 0;
+}
+
+        
+
+
+
+
+/* These functions need queue support */
+void egg_putserv(struct network *net, const char *text, int option_next)
+{
+  /* option_next currently ignored */
+  irc_printf(net->sock,text); 
+}
+
+void egg_puthelp(struct network *net, const char *text, int option_next)
+{
+  /* option_next currently ignored */
+  irc_printf(net->sock,text);
+}
+
+void egg_putquick(struct network *net, const char *text, int option_next)
+{
+  /* option_next currently ignored */
+  irc_printf(net->sock,text);
+}
+
+/* Fully compatible */
+void egg_putkick(struct network *net, const char *chan, const char *nick_list, const char *reason)
+{
+  irc_printf(net->sock,"KICK %s %s :%s",chan,nick_list,reason);
+}
+
+/* Fully compatible */
+void egg_putlog(struct network *net, const char *text)
+{
+  troll_debug(LOG_DEBUG,text);
+}
+
+/* Not compatible */
+void egg_putcmdlog(struct network *net, const char *text)
+{
+  troll_debug(LOG_DEBUG,text);
+}
+
+/* Not compatible */
+void egg_putxferlog(struct network *net, const char *text)
+{
+  troll_debug(LOG_DEBUG,text);
+}
+
+/* Not compatible */
+void egg_putloglev(struct network *net, const char *levels, const char *chan, const char *text)
+{
+  troll_debug(LOG_DEBUG,text);
+}
+
 void egg_dumpfile(struct network *net, const char *nick, const char *filename); 
 
-/*    Returns: the number of messages in all queues. If a queue is specified,
+/*    Not Compatible  Returns: the number of messages in all queues. If a queue is specified,
       only the size of this queue is returned. Valid queues are: mode,
       server, help.
  */
-int egg_queuesize(struct network *net, const char *queue);
+int egg_queuesize(struct network *net, const char *queue)
+{
+  return 0;
+}
 
-/* Returns: the number of deleted lines from the specified queue. */
-int egg_clearqueue(struct network *net, const char *queue);
+/* Not compatible Returns: the number of deleted lines from the specified queue. */
+int egg_clearqueue(struct network *net, const char *queue)
+{
+  return 0;
+}
 
-/* Returns: number of users in the bot's database */
-int egg_countusers(struct network *net);
+/* Fully compatible [QUIRK: Works per network] */
+int egg_countusers(struct network *net)
+{
+  struct user *user;
+  int count = 0;  
 
-/* Returns: 1 if a user by that name exists; 0 otherwise  */
-int egg_validuser(struct network *net, const char *handle);
+  if (net->users_head == NULL)
+    return 0;
+
+  user = net->users_head;
+
+  while (user != NULL)
+  {
+    count++;
+    user = user->next;
+  }
+
+  return count;
+}
+
+/* Fully compatible */
+int egg_validuser(struct network *net, const char *handle)
+{
+  struct user *user;
+ 
+  if ((user = net->users_head) == NULL)
+    return 0;
+
+  while (user != NULL)
+  {
+    if (!strcmp(handle,user->username))
+      return 1;
+    user = user->next;
+  }
+
+  return 0;
+}
 
 /* finduser <nick!user@host> */
 /* Returns: the handle found, or "*" if none */
-char *egg_finduser(struct network *net, const char *mask);
+char *egg_finduser(struct network *net, const char *mask)
+{
+  return NULL;
+}
 
 
 
@@ -44,7 +225,26 @@ char *egg_finduser(struct network *net, const char *mask);
 /* Needs returns checked */
 /* userlist [flags] */
 
-/* passwdok <handle> <pass> */
+int egg_passwdok(struct network *net, const char *handle, const char *pass) 
+{
+  struct user *user;
+
+  if ((user = net->users_head) == NULL)
+    return 0;
+
+  while (user != NULL)
+  {
+    if (!strcmp(handle,user->username))
+    {
+      /* NEEDS PASS CHECKED */
+      return 1;
+    }
+    user = user->next;
+  }
+
+  return 0;
+}
+
 /* getuser <handle> <entry-type> [extra info] */
 /* setuser <handle> <entry-type> [extra info] */
 /* chhandle <old-handle> <new-handle> */

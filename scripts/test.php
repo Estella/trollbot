@@ -1,35 +1,28 @@
 <?php
   /* bind(string network, string type, string flags, string mask, string function) */
-  bind("severed","pub","-","poop","doPoop");
-  bind("severed","pub","-","!showphpversion","show_php_version");
-  bind("severed","pub","-","!php","do_php");
+  bind("severed","pub","-","!poo","doTest");
+  bind("severed","pubm","-","*fuck*","no_cuss");
+  bind("severed","msg","-","!test","msgtest");
+  bind("severed","msgm","-","*willis*","willis");
 
-  function do_php($net, $nick, $uhost, $hand, $chan, $arg)
+  function willis($net, $nick, $uhost, $hand, $text)
   {
-    if ($nick != "poutine") return;
-  
-    $arg = str_replace("!php ","",$arg);
-
-    ob_start();
-
-    eval($arg);
-
-    $result = ob_get_contents();
-    ob_end_clean();
+    putserv($net, "PRIVMSG $nick :whatcha talking bout nigger");
   }
 
-  function show_php_version($net, $nick, $uhost, $hand, $chan, $arg)
+  function msgtest($net, $nick, $uhost, $hand, $arg)
   {
-    putserv($net,"PRIVMSG $chan :$nick, " . phpversion());
+    putserv($net, "PRIVMSG #trollbot :$nick, hey fucker no cussing");
   }
 
-  function helloWorld($net, $nick, $uhost, $hand, $chan, $arg)
+  function doTest($net, $nick, $uhost, $hand, $chan, $arg)
   {
-    putserv($net,"PRIVMSG $chan :Hi\n");
+    putserv($net, "PRIVMSG $chan :wee" . ini_get('display_errors'));
   }
 
-  function doPoop($net, $nick, $uhost, $hand, $chan, $arg)
+  function no_cuss($net, $nick, $uhost, $hand, $chan, $arg)
   {
-    putserv($net,"PRIVMSG $chan :I will shit on your mother");
+    putserv($net, "PRIVMSG $chan :$nick, hey fucker no cussing");
+    return 1;
   }
 ?>

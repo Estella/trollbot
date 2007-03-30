@@ -9,6 +9,7 @@
 #include "irc.h"
 #include "tcl_embed.h"
 #include "tcl_lib.h"
+#include "egglib.h"
 
 void net_init_tcl(struct network *net)
 {  
@@ -59,7 +60,7 @@ void tcl_handler(struct network *net, struct trigger *trig, struct irc_data *dat
                         "} {} {", /* hand */
                         data->c_params[0], /* chan */
                         "} {", 
-                        ((&data->rest_str[strlen(trig->mask)] == NULL) || &data->rest_str[strlen(trig->mask)+1] == NULL) ? "" : &data->rest_str[strlen(trig->mask)+1],
+                        egg_makearg(data->rest_str,trig->mask),
                         "}",
                         NULL);
 
@@ -70,6 +71,25 @@ void tcl_handler(struct network *net, struct trigger *trig, struct irc_data *dat
 
       break;
     case TRIG_PUBM:
+      /* nick uhost hand chan arg */
+      ret = Tcl_VarEval(net->tclinterp,
+                        trig->command,
+                        " {",
+                        data->prefix->nick,
+                        "} {",
+                        data->prefix->host,
+                        "} {} {", /* hand */
+                        data->c_params[0], /* chan */
+                        "} {",
+                        data->rest_str,
+                        "}",
+                        NULL);
+
+      if (ret == TCL_ERROR)
+      {
+        printf("TCL Error: %s\n",net->tclinterp->result);
+      }
+
       break;
     case TRIG_MSG:
       ret = Tcl_VarEval(net->tclinterp,

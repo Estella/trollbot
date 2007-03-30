@@ -1,10 +1,14 @@
 #ifndef __SERVER_H__
 #define __SERVER_H__
 
+#include "tconfig.h"
+
 struct server
 {
   char *host;
   int port;
+
+  struct tconfig_block *tindex;
 
   struct server *prev;
   struct server *next;

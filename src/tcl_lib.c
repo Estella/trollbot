@@ -82,7 +82,6 @@ int tcl_putserv(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *co
 int tcl_bind(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]) 
 {
   struct network *net = clientData;
-  struct trigger *trig;
 
   if (objc != 5) 
   {

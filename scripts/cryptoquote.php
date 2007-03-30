@@ -18,6 +18,8 @@
    *   bind                                                            *
    *********************************************************************/
 
+  ini_set('display_errors',1);
+  ini_set('error_reporting','E_ALL');
 
   /* Configuration */
    
@@ -39,14 +41,23 @@
        "pub",                /* Type    */
        "-",                  /* Flags   */
        "!showquote",         /* Mask    */
-       "start_cryptoquote"); /* Func    */
+       "show_cryptoquote");  /* Func    */
 
 
 
   /* Script Portion */
   function start_cryptoquote($net, $nick, $uhost, $hand, $chan, $text)
   {
-    global $quotes_file, $scores_file;
+    global $quotes_file, $scores_file, $game;
+
+    if (isset($game[$net][$chan]['started']))
+    {
+      if ($game[$net][$chan]['started'] == 1)
+      {
+        putserv($net,"PRIVMSG $chan :Cryptoquote game is already running dumbass");
+        return;
+      }
+    } 
 
     if (!file_exists($quotes_file))
     {
@@ -56,13 +67,43 @@
 
     $lines = file($quotes_file);
 
-    $quote = $lines[rand(0,count($lines))];
+    $game[$net][$chan]['quote'] = strtolower($lines[rand(0,count($lines))]);
+    
+    $arr = str_split($game[$net][$chan]['quote']);
+
+    $arr = array_unique($arr);
+ 
+    $str = implode("",$arr);
+
+    $str = preg_replace("/[^a-z]/","",$str);
+
+    $alf = str_split("abcdefghijklmnopqrstuvwxyz");
+
+    shuffle($alf);
+
+//    for($i = count($alf) - count($str);$i>0;$i--)
+//      array_pop($alf);
 
     putserv($net,"PRIVMSG $chan :Cryptoquote starting");
-    putserv($net,"PRIVMSG $chan :$quote");
+    putserv($net,"PRIVMSG $chan :" . $str . " " . $alf);
+    
+    $game[$net][$chan]['started'] = 1;
   }
 
   function show_cryptoquote($net, $nick, $uhost, $hand, $chan, $text)
   {
+    global $game;
+
+    if (isset($game[$net][$chan]['started']))
+    {
+      if ($game[$net][$chan]['started'] == 0)
+      {
+        putserv($net,"PRIVMSG $chan :Cryptoquote game isn't running dumbshit");
+        return;
+      }
+    }
+
+    putserv($net,"PRIVMSG $chan :" . $game[$net][$chan]['quote']);
+
   }
 ?>

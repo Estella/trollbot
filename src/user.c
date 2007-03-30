@@ -22,8 +22,9 @@ struct user *new_user(char *username, char *nick, char *passhash, char *ident, c
   ret->host     = (host != NULL)     ? tstrdup(host)     : NULL;
   ret->flags    = (flags != NULL)    ? tstrdup(flags)    : NULL;
 
-  ret->prev = NULL;
-  ret->next = NULL;
+  ret->tindex = NULL;
+  ret->prev   = NULL;
+  ret->next   = NULL;
 
   return ret;
 }
@@ -107,7 +108,9 @@ void user_init(void)
           }
          
           user = net->users;
-
+         
+          user->tindex = tuser;
+ 
           tparams = tuser->child;
 
           do
@@ -138,9 +141,6 @@ void user_init(void)
       } while ((tuser = tuser->next) != NULL);  
     }
   } while ((tnet = tnet->next) != NULL);
-
-  /* Free up all tconfig related stuff */
-  /* free_tconfig(tcfg); */
       
   return;
 }

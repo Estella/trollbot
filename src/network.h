@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "config.h"
+#include "tconfig.h"
 
 #ifdef HAVE_TCL
 #include <tcl.h>
@@ -51,6 +52,7 @@ struct network
   struct network *prev;
   struct network *next;
 
+  struct tconfig_block *tindex;
 #ifdef HAVE_TCL
   /* Network TCL Interpreter */
   Tcl_Interp *tclinterp;

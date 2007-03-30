@@ -8,6 +8,8 @@ struct channel
   char *name;
   int status;
 
+  struct tconfig_block *tindex;
+
   struct channel *prev;
   struct channel *next;
 };

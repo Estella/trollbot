@@ -30,6 +30,10 @@ struct config
   /* Global users */
   struct user *g_users;  
 
+  struct tconfig_block *tcfg;
+  struct tconfig_block *tusers;
+  struct tconfig_block *tchans;
+  
   /* For TCL */
   /* For PHP */
 };

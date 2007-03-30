@@ -15,7 +15,6 @@
 PHP_FUNCTION(bind)
 {
   struct network *net;
-  struct trigger *trig;
 
   char *netw;
   char *type;

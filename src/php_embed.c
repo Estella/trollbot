@@ -25,6 +25,7 @@
 #include "util.h"
 #include "debug.h"
 #include "php_lib.h"
+#include "egglib.h"
 
 #ifdef PHP_WIN32
 #include <io.h>
@@ -52,10 +53,14 @@ void myphp_eval_file(char *filename)
   file_handle.free_filename = 0;
   file_handle.opened_path   = NULL;
 
-  if (zend_execute_scripts(ZEND_REQUIRE TSRMLS_CC, NULL, 1, &file_handle) != SUCCESS)
-    troll_debug(LOG_WARN,"PHP Script (%s) could not be run",filename);
-  else
-    troll_debug(LOG_DEBUG,"PHP Script (%s) successfully loaded",filename);
+  zend_try 
+  {
+
+    if (zend_execute_scripts(ZEND_REQUIRE TSRMLS_CC, NULL, 1, &file_handle) != SUCCESS)
+      troll_debug(LOG_WARN,"PHP Script (%s) could not be run",filename);
+    else
+      troll_debug(LOG_DEBUG,"PHP Script (%s) successfully loaded",filename);
+  } zend_end_try();
 
   return;
 }
@@ -79,13 +84,57 @@ void php_handler(struct network *net, struct trigger *trig, struct irc_data *dat
   switch (trig->type)
   {
     case TRIG_PUB:
-      ALLOC_INIT_ZVAL(func);
-      ALLOC_INIT_ZVAL(netw);
-      ALLOC_INIT_ZVAL(nick);
-      ALLOC_INIT_ZVAL(uhost);
-      ALLOC_INIT_ZVAL(hand);
-      ALLOC_INIT_ZVAL(chan);
-      ALLOC_INIT_ZVAL(arg);
+      MAKE_STD_ZVAL(func);
+      MAKE_STD_ZVAL(netw);
+      MAKE_STD_ZVAL(nick);
+      MAKE_STD_ZVAL(uhost);
+      MAKE_STD_ZVAL(hand);
+      MAKE_STD_ZVAL(chan);
+      MAKE_STD_ZVAL(arg);
+
+      ALLOC_INIT_ZVAL(ret);
+
+      ZVAL_STRING(func, trig->command, 1);
+      ZVAL_STRING(netw, net->label, 1);
+      ZVAL_STRING(nick, data->prefix->nick, 1);
+      ZVAL_STRING(uhost, data->prefix->host, 1);
+      ZVAL_STRING(hand, data->prefix->nick, 1);
+      ZVAL_STRING(chan, data->c_params[0], 1);
+      ZVAL_STRING(arg, egg_makearg(data->rest_str,trig->mask), 1);
+
+      php_args[0] = netw;
+      php_args[1] = nick;
+      php_args[2] = uhost;
+      php_args[3] = hand;
+      php_args[4] = chan;
+      php_args[5] = arg;
+
+      zend_try
+      {
+        if (call_user_function(CG(function_table), NULL, func, ret, 6, php_args TSRMLS_CC) != SUCCESS)
+          printf("Error calling function\n");
+        else
+          FREE_ZVAL(ret);     
+      } zend_end_try();
+
+      if (netw)  FREE_ZVAL(netw);
+      if (nick)  FREE_ZVAL(nick);
+      if (uhost) FREE_ZVAL(uhost);
+      if (hand)  FREE_ZVAL(hand);
+      if (chan)  FREE_ZVAL(chan);
+      if (arg)   FREE_ZVAL(arg);
+
+      break;
+    case TRIG_PUBM:
+      MAKE_STD_ZVAL(func);
+      MAKE_STD_ZVAL(netw);
+      MAKE_STD_ZVAL(nick);
+      MAKE_STD_ZVAL(uhost);
+      MAKE_STD_ZVAL(hand);
+      MAKE_STD_ZVAL(chan);
+      MAKE_STD_ZVAL(arg);
+
+      ALLOC_INIT_ZVAL(ret);
 
       ZVAL_STRING(func, trig->command, 1);
       ZVAL_STRING(netw, net->label, 1);
@@ -102,24 +151,91 @@ void php_handler(struct network *net, struct trigger *trig, struct irc_data *dat
       php_args[4] = chan;
       php_args[5] = arg;
 
-      if (call_user_function(CG(function_table), NULL, func, &ret, 6, php_args) != SUCCESS)
+      zend_try
       {
-        printf("Error calling function\n");
-      }
+        if (call_user_function(CG(function_table), NULL, func, ret, 6, php_args TSRMLS_CC) != SUCCESS)
+          printf("Error calling function\n");
+        else
+          FREE_ZVAL(ret);
+      } zend_end_try();
 
-      zval_ptr_dtor(&netw);
-      zval_ptr_dtor(&nick);
-      zval_ptr_dtor(&uhost);
-      zval_ptr_dtor(&hand);
-      zval_ptr_dtor(&chan);
-      zval_ptr_dtor(&arg);
+      if (netw)  FREE_ZVAL(netw);
+      if (nick)  FREE_ZVAL(nick);
+      if (uhost) FREE_ZVAL(uhost);
+      if (hand)  FREE_ZVAL(hand);
+      if (chan)  FREE_ZVAL(chan);
+      if (arg)   FREE_ZVAL(arg);
 
-      break;
-    case TRIG_PUBM:
       break;
     case TRIG_MSG:
+      MAKE_STD_ZVAL(func);
+      MAKE_STD_ZVAL(netw);
+      MAKE_STD_ZVAL(nick);
+      MAKE_STD_ZVAL(uhost);
+      MAKE_STD_ZVAL(hand);
+      MAKE_STD_ZVAL(arg);
+
+      ALLOC_INIT_ZVAL(ret);
+
+      ZVAL_STRING(func, trig->command, 1);
+      ZVAL_STRING(netw, net->label, 1);
+      ZVAL_STRING(nick, data->prefix->nick, 1);
+      ZVAL_STRING(uhost, data->prefix->host, 1);
+      ZVAL_STRING(hand, data->prefix->nick, 1);
+      ZVAL_STRING(arg, egg_makearg(data->rest_str,trig->mask), 1);
+
+      php_args[0] = netw;
+      php_args[1] = nick;
+      php_args[2] = uhost;
+      php_args[3] = hand;
+      php_args[4] = arg;
+
+      if (call_user_function(CG(function_table), NULL, func, ret, 5, php_args TSRMLS_CC) != SUCCESS)
+        printf("Error calling function\n");
+      else
+        FREE_ZVAL(ret);
+
+      if (netw)  FREE_ZVAL(netw);
+      if (nick)  FREE_ZVAL(nick);
+      if (uhost) FREE_ZVAL(uhost);
+      if (hand)  FREE_ZVAL(hand);
+      if (arg)   FREE_ZVAL(arg);
+
       break;
     case TRIG_MSGM:
+      MAKE_STD_ZVAL(func);
+      MAKE_STD_ZVAL(netw);
+      MAKE_STD_ZVAL(nick);
+      MAKE_STD_ZVAL(uhost);
+      MAKE_STD_ZVAL(hand);
+      MAKE_STD_ZVAL(arg);
+
+      ALLOC_INIT_ZVAL(ret);
+
+      ZVAL_STRING(func, trig->command, 1);
+      ZVAL_STRING(netw, net->label, 1);
+      ZVAL_STRING(nick, data->prefix->nick, 1);
+      ZVAL_STRING(uhost, data->prefix->host, 1);
+      ZVAL_STRING(hand, data->prefix->nick, 1);
+      ZVAL_STRING(arg, data->rest_str, 1);
+
+      php_args[0] = netw;
+      php_args[1] = nick;
+      php_args[2] = uhost;
+      php_args[3] = hand;
+      php_args[4] = arg;
+
+      if (call_user_function(CG(function_table), NULL, func, ret, 5, php_args TSRMLS_CC) != SUCCESS)
+        printf("Error calling function\n");
+      else
+        FREE_ZVAL(ret);
+
+      if (netw)  FREE_ZVAL(netw);
+      if (nick)  FREE_ZVAL(nick);
+      if (uhost) FREE_ZVAL(uhost);
+      if (hand)  FREE_ZVAL(hand);
+      if (arg)   FREE_ZVAL(arg);
+
       break;
     case TRIG_JOIN:
       break;
@@ -312,6 +428,8 @@ int php_embed_init(int argc, char **argv PTSRMLS_DC)
 
   /* Set some Embedded PHP defaults */
   SG(options) |= SAPI_OPTION_NO_CHDIR;
+  zend_alter_ini_entry("display_errors", 15, "1", 1, PHP_INI_SYSTEM, PHP_INI_STAGE_ACTIVATE);
+  zend_alter_ini_entry("error_reporting", 16, "6143", 1, PHP_INI_SYSTEM, PHP_INI_STAGE_ACTIVATE); 
   zend_alter_ini_entry("register_argc_argv", 19, "1", 1, PHP_INI_SYSTEM, PHP_INI_STAGE_ACTIVATE);
   zend_alter_ini_entry("html_errors", 12, "0", 1, PHP_INI_SYSTEM, PHP_INI_STAGE_ACTIVATE);
   zend_alter_ini_entry("implicit_flush", 15, "1", 1, PHP_INI_SYSTEM, PHP_INI_STAGE_ACTIVATE);
