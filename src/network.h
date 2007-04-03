@@ -57,6 +57,9 @@ struct network
   /* Network TCL Interpreter */
   Tcl_Interp *tclinterp;
 #endif /* HAVE_TCL */  
+
+  char *userfile;
+  char *chanfile;
 };
 
 struct network *new_network(char *label);

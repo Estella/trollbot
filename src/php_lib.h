@@ -3,6 +3,7 @@
 
 #include <php.h>
 
+PHP_FUNCTION(matchwild);
 PHP_FUNCTION(bind);
 PHP_FUNCTION(putserv);
 

@@ -3,7 +3,7 @@ Planned features before trollbot release:
 
 ** NETWORK **
 
-* Multi-network bot, each network capable of having its
+X Multi-network bot, each network capable of having its
   own channel and user databases and also scripting namespaces.
   It will be done by using a simple syntax in the conf file such as
   chan = DALnet:#php
@@ -12,7 +12,8 @@ Planned features before trollbot release:
   also possible per channel namespaces using
   tclscript = DALnet:#php:scripts/foo.tcl
 
-* capable of having different nicknames on different networks 
+
+X capable of having different nicknames on different networks 
 
 * capable of detecting max IRC line sizes and splitting up output
   to wrap instead of just truncating it. (eggdrop annoyance)
@@ -23,15 +24,15 @@ Planned features before trollbot release:
   of switching encryption on password ok, for smooth transitions
   and because you can't decrypt hashed passwords.
 
-* Support for per network users
+X Support for per network users
 
 ** SCRIPTING **
 
-* Eggdrop compatible TCL commands, and similiar commandsets
+/ Eggdrop compatible TCL commands, and similiar commandsets
   in other languages for smooth transition
 
-* Scripting Support for TCL (in release)
-* Scripting Support for PHP (in release)
+/ Scripting Support for TCL (in release)
+/ Scripting Support for PHP (in release)
 * Scripting Support for Perl (post release)
 * Scripting Support for Python (post release)
 * Scripting Support for Javascript (post releast)

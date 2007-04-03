@@ -4,6 +4,7 @@
 enum {
   LOG_NONE  = 0,
   LOG_FATAL,
+  LOG_ERROR,
   LOG_WARN,
   LOG_ALL,
   LOG_DEBUG

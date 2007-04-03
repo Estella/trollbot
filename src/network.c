@@ -43,6 +43,9 @@ struct network *new_network(char *label)
   ret->users_tail   = NULL;
 
   ret->trigs        = new_trig_table();
+ 
+  ret->userfile     = NULL;
+  ret->chanfile     = NULL;
 
 #ifdef HAVE_TCL
   net_init_tcl(ret);

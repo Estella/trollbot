@@ -54,31 +54,51 @@ int egg_matchwilds(const char *haystack, const char *needle)
       return 1;
     else if (*needle == '~')
     {
+      needle++;
+
       /* One or more space characters */
       if (*haystack != ' ' && *haystack != '\t')
         return 1;
 
-      while (*haystack)
+      while (*haystack && *needle)
       {
+        if (*haystack == *needle)
+        {
+          /* Greedy lookahead */
+          if (!egg_matchwilds(haystack+1,needle-1))
+            return 0;
+
+          break;
+        }
+
         if (*haystack != ' ' && *haystack != '\t')
           break;
          
         haystack++;
       }
 
-      needle++;
     }
+    /* 0 or more non-space */
     else if (*needle == '%')
     {
-      while (*haystack)
+      needle++;
+
+      while (*haystack && *needle)
       {
+        if (*haystack == *needle)
+        {
+          /* Greedy lookahead */
+          if (!egg_matchwilds(haystack+1,needle-1))
+            return 0;
+          
+          break;
+        }
+
         if (*haystack == ' ' || *haystack == '\t')
           break;
 
         haystack++;
       }
-
-      needle++;
     }
     else if (*needle == '*')
     {

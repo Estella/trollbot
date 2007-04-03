@@ -1,10 +1,10 @@
 network severed
 {
-  user poutine
+  user phil
   {
-    nick poutine
-    passhash 0x0x0x0x0x0x0x0x0x0
-    flags abc
+    nick phil
+    passhash 1234
+    flags o
   
     channel #php
     {

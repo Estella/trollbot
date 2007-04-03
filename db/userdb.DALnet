@@ -1,4 +1,4 @@
-network severed
+network DALnet
 {
   user poutine
   {

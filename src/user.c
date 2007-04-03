@@ -44,7 +44,24 @@ struct channel_flags *new_channel_flags(char *chan, char *flags)
   return ret;
 }
 
+void user_init(void)
+{
+  struct network *net;
 
+  net  = g_cfg->network_head;
+
+  while (net != NULL)
+  {
+    if (net->userfile != NULL)
+      g_cfg->tcfg = file_to_tconfig(g_cfg->tcfg,net->userfile);
+
+    net = net->next;
+  }
+
+  return;
+}
+
+/*
 void user_init(void)
 {
   struct tconfig_block *tcfg;
@@ -54,17 +71,28 @@ void user_init(void)
   struct user *user;
   struct network *net;
 
-  tcfg = file_to_tconfig("userdb");
+  net  = g_cfg->network_head;
+  tcfg = NULL; 
+
+  while (net != NULL)
+  {
+    if (net->userfile != NULL)  
+      tcfg = file_to_tconfig(tcfg,net->userfile);
+ 
+    net = net->next;
+  }
+
+  g_cfg->tusers = tcfg;
 
   if (tcfg == NULL)
     return;
 
-  /* Should be here already, check won't hurt */
+  g_cfg->tusers = tcfg;
+
   while (tcfg->parent != NULL || tcfg->prev != NULL)
     tcfg = (tcfg->parent == NULL) ? tcfg->prev : tcfg->parent;
 
   tnet = tcfg;
-  
   do
   {
     if (!strcmp(tnet->key,"network"))
@@ -85,7 +113,6 @@ void user_init(void)
 
       tuser = tnet->child;
 
-      /* Scan the users now */
       do
       {
         if (!strcmp(tuser->key,"user"))
@@ -144,4 +171,4 @@ void user_init(void)
       
   return;
 }
-
+*/

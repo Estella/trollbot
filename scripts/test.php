@@ -4,7 +4,17 @@
   bind("severed","pubm","-","*fuck*","no_cuss");
   bind("severed","msg","-","!test","msgtest");
   bind("severed","msgm","-","*willis*","willis");
+  bind("DALnet","pub","-","!matchtest","matchtest");
+  
+  function matchtest($net, $nick, $uhost, $hand, $arg)
+  {
+    $arr = explode(" ",$arg);
 
+    $ret = matchwild($arr[0],$arr[1]);
+
+    putserv($net, "PRIVMSG $chan :Result: $ret");
+  }
+  
   function willis($net, $nick, $uhost, $hand, $text)
   {
     putserv($net, "PRIVMSG $nick :whatcha talking bout nigger");

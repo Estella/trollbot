@@ -463,6 +463,7 @@ void php_embed_shutdown(TSRMLS_D)
 }
 
 static function_entry trollbot_functions[] = {
+    PHP_FE(matchwild, NULL)
     PHP_FE(putserv, NULL)
     PHP_FE(bind, NULL)
     {NULL, NULL, NULL}

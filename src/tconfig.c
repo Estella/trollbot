@@ -4,19 +4,21 @@
 #include <ctype.h>
 
 #include "main.h"
-
-/* Soon to be merged */
+#include "debug.h"
 #include "util.h"
 
 #include "tconfig.h"
 
-struct tconfig_block *file_to_tconfig(const char *filename)
+/* static sets the initial unchangeable structure */
+struct tconfig_block *file_to_tconfig(struct tconfig_block *old, const char *filename)
 {
   FILE   *cfile;
   char   *fbuf   = NULL;
   char   *eip    = NULL;
-  struct tconfig_block *block = NULL;
-  struct tconfig_block *head  = NULL;
+  struct tconfig_block *block  = NULL;
+  struct tconfig_block *head   = NULL;
+  struct tconfig_block *search = NULL;
+  struct tconfig_block *tmp    = NULL;
   size_t  size   = 0;
   size_t  i      = 0;
   size_t  count  = 0;
@@ -40,7 +42,7 @@ struct tconfig_block *file_to_tconfig(const char *filename)
   {
     if ((fbuf = realloc(fbuf,i+1024+1024)) == NULL)
     {
-      fprintf(stderr,"Could not allocate memory for config file, barfing.\n");
+      troll_debug(LOG_FATAL,"Could not allocate memory for config file, barfing.\n");
       exit(EXIT_FAILURE);
     }
   }
@@ -57,18 +59,29 @@ struct tconfig_block *file_to_tconfig(const char *filename)
 
   fclose(cfile);
 
-  block = tmalloc(sizeof(struct tconfig_block));
+  if (old == NULL)
+  {
+    block = tmalloc(sizeof(struct tconfig_block));
 
-  block->parent = NULL;
-  block->child  = NULL;
-  block->prev   = NULL;
-  block->next   = NULL;
+    block->parent = NULL;
+    block->child  = NULL;
+    block->prev   = NULL;
+    block->next   = NULL;
 
-  block->key    = NULL;
-  block->value  = NULL;
+    block->key    = NULL;
+    block->value  = NULL;
 
-  head = block;
-  
+    head = block;
+  } else {
+    block = old;
+
+    /* Go to top left node */
+    while (block->parent != NULL || block->prev != NULL)
+      block = (block->parent != NULL) ? block->parent : block->next;
+
+    head = block;
+  }
+    
   eip = fbuf;
 
   while(*eip)
@@ -76,6 +89,11 @@ struct tconfig_block *file_to_tconfig(const char *filename)
     switch (*eip)
     {
       case '{':
+        if (block->child != NULL)
+        {
+          block = block->child;
+          break;
+        }
         block->child = tmalloc(sizeof(struct tconfig_block));
 
         block->child->parent = block;
@@ -216,17 +234,7 @@ struct tconfig_block *file_to_tconfig(const char *filename)
       case ' ':
         break;
       default:
-        if (block->key != NULL)
-        {
-          block->next = tmalloc(sizeof(struct tconfig_block));
- 
-          block->next->prev = block;
-          block             = block->next;
-          block->next       = NULL;
-          block->parent     = NULL;
-          block->key        = NULL;
-          block->value      = NULL;
-        }
+        tmp        = tmalloc(sizeof(struct tconfig_block));
 
         /* Do a wasteful scan so I don't have to deal with realloc */
         if (*eip == '"')
@@ -254,11 +262,11 @@ struct tconfig_block *file_to_tconfig(const char *filename)
 
         size = i;
   
-        block->key = tmalloc0(size+1);
+        tmp->key = tmalloc0(size+1);
 
         for (i=0;i<size;i++)
         {
-          *(block->key+i) = *(eip++);
+          *(tmp->key+i) = *(eip++);
         }
    
         /* Skip over trailing " if exists, this could be a problem if key is next to value */
@@ -311,15 +319,64 @@ struct tconfig_block *file_to_tconfig(const char *filename)
 
         size = i;
 
-        block->value = tmalloc0(size+1);
+        tmp->value = tmalloc0(size+1);
 
         for (i=0;i<size;i++)
         {
-          *(block->value+i) = *(eip++);
+          *(tmp->value+i) = *(eip++);
         }
 
-        block->value[size] = '\0';
+        tmp->value[size] = '\0';
  
+        /* Now that we've got all the values, we check for dupes
+         * to link more than one tconfig file. It might make more
+         */
+        /* Rewind list */
+        search = block;
+
+        while (search->prev != NULL)
+          search = search->prev;
+
+        while (search != NULL)
+        {
+          if (search->key != NULL && search->value != NULL)
+            if (!strcmp(search->key,tmp->key) && !strcmp(search->value,tmp->value))
+            {
+              free(tmp->key);
+              free(tmp->value);
+              free(tmp);
+              tmp = NULL;
+              block = search;
+              break;
+            } 
+
+          block  = search;
+
+          search = search->next;
+        }
+
+        if (tmp != NULL)
+        {
+          if (block->key == NULL && block->value == NULL)
+          {
+            block->key   = tmp->key;
+            block->value = tmp->value;
+ 
+            /* Keeping above memory */
+            free(tmp);            
+          } 
+          else
+          {
+            /* Make a new block */
+            block->next = tmp;
+            tmp->prev   = block;
+            tmp->next   = NULL;
+            tmp->parent = NULL;
+            tmp->child  = NULL;
+            block       = block->next;
+          }
+        }
+
         break;          
     }   
 
@@ -329,39 +386,309 @@ struct tconfig_block *file_to_tconfig(const char *filename)
   return head;
 }
 
-void free_tconfig_r(struct tconfig_block *tcfg)
+static void tconfig_r_depth_first_write(int depth, FILE *out, struct tconfig_block *tmp)
 {
-  if (tcfg->child)
-    free_tconfig_r(tcfg->child);
+  int i;
 
-  if (tcfg->next)
-    free_tconfig_r(tcfg->next);
-
-  if (tcfg->key != NULL)
-    free(tcfg->key);
-  
-  if (tcfg->value != NULL)
-    free(tcfg->value);
-
-  free(tcfg);
-}
-
-  
-void free_tconfig(struct tconfig_block *tcfg)
-{
-  struct tconfig_block *tmp;
-
-  if (tcfg == NULL)
+  if (tmp == NULL)
     return;
 
-  tmp = tcfg;
+  if (tmp->child != NULL)
+  {
+    fputc('\n',out);
 
-  /* Rewind to the top left, it should be there already */
-  while (tmp->prev != NULL && tmp->parent != NULL)
-    tmp = (tmp->parent) ? tmp->parent : tmp->prev;
+    for(i=0;i<(depth*2);i++)
+      fputc(' ',out);
+
+    if (strchr(tmp->key,' ') || strchr(tmp->key,'\t'))
+      fputc('"',out);
+
+    fprintf(out,"%s",tmp->key);
+
+    if (strchr(tmp->key,' ') || strchr(tmp->key,'\t'))
+      fputc('"',out);
+
+    fputc('\t',out);
+
+    if (strchr(tmp->value,' ') || strchr(tmp->value,'\t'))
+      fputc('"',out);
+
+    fprintf(out,"%s",tmp->value);
+
+    if (strchr(tmp->value,' ') || strchr(tmp->value,'\t'))
+      fputc('"',out);
+
+    fputc('\n',out);
+
+    for(i=0;i<(depth*2);i++)
+      fputc(' ',out);
+
+    fprintf(out,"{\n");
+
+    tmp = tmp->child;
+    depth++;
+  }
+  else if (tmp->next != NULL)
+  {
+    for(i=0;i<(depth*2);i++)
+      fputc(' ',out);
+
+    if (strchr(tmp->key,' ') || strchr(tmp->key,'\t'))
+      fputc('"',out);
+
+    fprintf(out,"%s",tmp->key);
+
+    if (strchr(tmp->key,' ') || strchr(tmp->key,'\t'))
+      fputc('"',out);
+
+    fputc('\t',out);
+
+    if (strchr(tmp->value,' ') || strchr(tmp->value,'\t'))
+      fputc('"',out);
+
+    fprintf(out,"%s",tmp->value);
+
+    if (strchr(tmp->value,' ') || strchr(tmp->value,'\t'))
+      fputc('"',out);
+
+    fputc('\n',out);
+
+    tmp = tmp->next;
+  }
+  else
+  {
+    for(i=0;i<(depth*2);i++)
+      fputc(' ',out);
+
+    if (strchr(tmp->key,' ') || strchr(tmp->key,'\t'))
+      fputc('"',out);
+
+    fprintf(out,"%s",tmp->key);
+
+    if (strchr(tmp->key,' ') || strchr(tmp->key,'\t'))
+      fputc('"',out);
+
+    fputc('\t',out);
+
+    if (strchr(tmp->value,' ') || strchr(tmp->value,'\t'))
+      fputc('"',out);
+
+    fprintf(out,"%s",tmp->value);
+
+    if (strchr(tmp->value,' ') || strchr(tmp->value,'\t'))
+      fputc('"',out);
+
+    fputc('\n',out);
+
+    if (depth > 0)
+    {
+      while (tmp)
+      {
+        if (tmp->next == NULL)
+        {
+          if (depth == 0)
+            return;
+
+          while (tmp->parent == NULL)
+          {
+            tmp = tmp->prev;
+          }
  
-  free_tconfig_r(tcfg);
+          tmp = tmp->parent;
+          depth--;
+
+          for(i=0;i<(depth*2);i++)
+            fputc(' ',out);
+          
+          fprintf(out,"}\n\n");
+
+        } 
+        else
+        {
+          tmp = tmp->next;
+          break;
+        }
+      }
+    } 
+    else
+      return;         
+  }
+
+  tconfig_r_depth_first_write(depth,out,tmp);
+}
+
+
+/* write a tconfig block back out */
+void tconfig_to_file(struct tconfig_block *tcfg, char *filename)
+{
+  FILE *out;
+  struct tconfig_block *tmp = tcfg;
+  struct tconfig_block *search;
+  int indent;
+
+  if (tmp == NULL)
+  {
+    troll_debug(LOG_WARN,"tconfig_to_file() passed a NULL tconfig block.");
+    return;
+  }
+
+  if ((out = fopen(filename,"w")) == NULL)
+  {
+    troll_debug(LOG_ERROR,"Could not open %s for writing.",filename);
+    return;
+  }
  
-  return; 
+  tconfig_r_depth_first_write(0,out,tmp);
+
+
+  fclose(out);
+}
+
+char *tconfig_get_subparam(struct tconfig_block *tcfg, const char *search)
+{
+  tcfg = tcfg->child;
+
+  while (tcfg)
+  {
+    if (!strcmp(tcfg->key,search))
+      return tcfg->value;
+
+    tcfg = tcfg->next;
+  }
+
+  return NULL;
+}
+
+void tconfig_foreach_length(struct tconfig_block *tcfg, int (*cback)(struct tconfig_block *))
+{
+  while (tcfg)
+  {
+    if ((*cback)(tcfg))
+      return;
+    tcfg = tcfg->next;
+  }
+
+  return;
+}
+
+void tconfig_foreach_child(struct tconfig_block *tcfg, int (*cback)(struct tconfig_block *))
+{
+  while (tcfg)
+  {
+    if (!(*cback)(tcfg))
+      return;
+    tcfg = tcfg->child;
+  }
+
+  return;
+}
+
+void tconfig_foreach_depth_first(struct tconfig_block *tcfg, int (*cback)(struct tconfig_block *, int))
+{
+  int depth = 0;
+
+  while (tcfg != NULL)
+  {
+    if (tcfg->child != NULL)
+    {
+      if (!(*cback)(tcfg,depth))
+        return;
+
+      depth++;
+     
+      tcfg = tcfg->child;
+
+      continue;
+    }
+ 
+    if (tcfg->next != NULL)
+    {
+      if (!(*cback)(tcfg,depth))
+        return;
+
+      tcfg = tcfg->next;
+      
+      continue;
+    }
+
+    if (!(*cback)(tcfg,depth))
+      return;
+
+     while (tcfg->next == NULL)
+     {
+       while (tcfg->parent == NULL)
+         tcfg = tcfg->prev;
+     
+       tcfg = tcfg->parent;
+
+       depth--;
+
+       if (depth == 0)
+         break;
+     }
+
+    
+     tcfg = tcfg->next;
+
+  }
+
+  return;    
+}
+
+void free_tconfig(struct tconfig_block *tcfg)
+{
+  struct tconfig_block *oldptr;
+  int depth = 0;
+
+  while (tcfg != NULL)
+  {
+    if (tcfg->child != NULL)
+    {
+      depth++;
+
+      tcfg = tcfg->child;
+
+      continue;
+    }
+
+    if (tcfg->next != NULL)
+    {
+      tcfg = tcfg->next;
+
+      continue;
+    }
+
+    while ((tcfg) && tcfg->next == NULL)
+    {    
+      while ((tcfg) && tcfg->parent == NULL)
+      {
+        free(tcfg->key);
+        free(tcfg->value);
+        
+        oldptr = tcfg;
+
+        tcfg = tcfg->prev;
+
+        free(oldptr);
+      }
+
+      if (tcfg == NULL)
+        return;
+
+      free(tcfg->key);
+      free(tcfg->value);
+
+      tcfg = tcfg->parent;
+       
+      free(tcfg->child);
+
+      depth--;
+    }
+
+    tcfg = tcfg->next;
+
+  }
+
+  return;
 }
 

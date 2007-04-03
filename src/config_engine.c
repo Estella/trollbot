@@ -31,14 +31,12 @@
 int config_engine_init(char *filename)
 {
   struct tconfig_block *tcfg;
-  struct        config *cfg;
-
-
-  tcfg  = file_to_tconfig(filename);
-  cfg   = config_engine_load(tcfg);
+  
+  tcfg  = file_to_tconfig(NULL,filename);
+  g_cfg = config_engine_load(tcfg);
 
   /* keep a copy in the global config */
-  cfg->tcfg = tcfg;
+  g_cfg->tcfg = tcfg;
  
   return 0;
 }
@@ -52,8 +50,6 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
   struct server *svr;
 
   cfg = tmalloc(sizeof(struct config));
-
-  g_cfg = cfg;
 
   cfg->network_list = NULL;
   cfg->network_head = NULL;
@@ -131,6 +127,20 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
             myphp_eval_file(search->value);
         }
 #endif /* HAVE_PHP */
+        else if (!strcmp(search->key,"userfile"))
+        {
+          if (net->userfile != NULL)
+            free(net->userfile);
+ 
+          net->userfile = tstrdup(search->value);
+        }
+        else if (!strcmp(search->key,"chanfile"))
+        {
+          if (net->chanfile != NULL)
+            free(net->chanfile);
+
+          net->chanfile = tstrdup(search->value);
+        }
         else if (!strcmp(search->key,"realname"))
         {
           if (net->realname != NULL)

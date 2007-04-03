@@ -20,11 +20,23 @@ struct tconfig_block {
   struct tconfig_block *child;
 };
 
+/* I/O of tconfig struct */
+struct tconfig_block *file_to_tconfig(struct tconfig_block *old, const char *filename);
+void tconfig_to_file(struct tconfig_block *tcfg, char *filename);
 
-struct tconfig_block *file_to_tconfig(const char *filename);
-void free_tconfig_r(struct tconfig_block *tcfg);
+/* iterative now :) */
 void free_tconfig(struct tconfig_block *tcfg);
 
+/* Utility functions */
+
+/* Searches subkeys (one level of depth) for search, if found returns value else NULL */
+char *tconfig_get_subparam(struct tconfig_block *tcfg, const char *search);
+
+void tconfig_foreach_length(struct tconfig_block *tcfg, int (*cback)(struct tconfig_block *));
+void tconfig_foreach_child(struct tconfig_block *tcfg, int (*cback)(struct tconfig_block *));
+
+/* Goes through the tree depth first calling callback function w/ depth each node */
+void tconfig_foreach_depth_first(struct tconfig_block *tcfg, int (*cback)(struct tconfig_block *, int));
 
 #define __TCONFIG_H__
 

@@ -5,6 +5,7 @@
 #include <php.h>
 
 #include "main.h"
+#include "egglib.h"
 #include "config_engine.h"
 #include "network.h"
 #include "util.h"
@@ -12,6 +13,36 @@
 #include "php_lib.h"
 #include "trigger.h"
 
+/* This operates according to Eggdrop spec */
+PHP_FUNCTION(matchwild)
+{
+  char *haystack;
+  char *needle;
+  int haystack_len;
+  int needle_len;
+  int ret;
+
+  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss", &haystack,
+                                                             &haystack_len,
+                                                             &needle,
+                                                             &needle_len) == FAILURE)
+  {
+    RETURN_TRUE;
+  }
+
+  ret = egg_matchwilds(haystack,needle);
+
+  if (ret)
+  {
+    RETURN_TRUE;
+  }
+  else
+  {
+    RETURN_FALSE;
+  }
+}
+  
+  
 PHP_FUNCTION(bind)
 {
   struct network *net;

@@ -11,6 +11,27 @@
 #include "util.h"
 #include "trigger.h"
 #include "tcl_embed.h"
+#include "egglib.h"
+
+int tcl_matchwild(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+  int ret;
+
+  if (objc != 3)
+  {
+    Tcl_WrongNumArgs(interp,objc,objv,"matchwild haystack needle");
+    return TCL_ERROR;
+  }
+
+  ret = egg_matchwilds(Tcl_GetString(objv[1]),Tcl_GetString(objv[2]));
+
+  if (ret == 0)
+    Tcl_SetResult(interp,"0",NULL);
+  else
+    Tcl_SetResult(interp,"1",NULL);  
+
+  return TCL_OK;
+}
 
 int tcl_rand(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {

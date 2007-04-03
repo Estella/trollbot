@@ -4,8 +4,30 @@
 
 #include "irc.h"
 #include "main.h"
+#include "user.h"
+#include "network.h"
+#include "config_engine.h"
+#include "tconfig.h"
 #include "channel.h"
 #include "util.h"
+
+
+struct chan_user *new_chan_user(const char *nick, int jointime, struct user *urec)
+{
+  struct chan_user *ret;
+
+  ret = tmalloc(sizeof(struct chan_user));
+
+  ret->nick     = (nick != NULL)     ? tstrdup(nick)     : NULL;
+
+  ret->jointime = jointime;
+  ret->urec     = urec;
+
+  ret->prev   = NULL;
+  ret->next   = NULL;
+
+  return ret;
+}
 
 struct channel *new_channel(const char *chan)
 {
@@ -53,3 +75,19 @@ void join_channels(struct network *net)
   return;
 }
 
+void chan_init(void)
+{
+  struct network *net;
+
+  net  = g_cfg->network_head;
+
+  while (net != NULL)
+  {
+    if (net->chanfile != NULL)  
+      g_cfg->tcfg = file_to_tconfig(g_cfg->tcfg,net->chanfile);
+ 
+    net = net->next;
+  }
+
+  return;
+}
