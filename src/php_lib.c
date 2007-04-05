@@ -5,7 +5,7 @@
 #include <php.h>
 
 #include "main.h"
-#include "egglib.h"
+#include "egg_lib.h"
 #include "config_engine.h"
 #include "network.h"
 #include "util.h"
@@ -204,24 +204,24 @@ PHP_FUNCTION(bind)
 
     net->trigs->part_tail->next = NULL;
   }
-  else if (!strcmp(type,"quit"))
+  else if (!strcmp(type,"sign"))
   {
-    if (net->trigs->quit == NULL)
+    if (net->trigs->sign == NULL)
     {
-      net->trigs->quit       = new_trigger(flags,TRIG_QUIT,mask,func,&php_handler);
-      net->trigs->quit->prev = NULL;
-      net->trigs->quit_head  = net->trigs->quit;
-      net->trigs->quit_tail  = net->trigs->quit;
+      net->trigs->sign       = new_trigger(flags,TRIG_SIGN,mask,func,&php_handler);
+      net->trigs->sign->prev = NULL;
+      net->trigs->sign_head  = net->trigs->sign;
+      net->trigs->sign_tail  = net->trigs->sign;
     }
     else
     {
-      net->trigs->quit_tail->next = new_trigger(flags,TRIG_QUIT,mask,func,&php_handler);
-      net->trigs->quit            = net->trigs->quit_tail->next;
-      net->trigs->quit->prev      = net->trigs->quit_tail;
-      net->trigs->quit_tail       = net->trigs->quit;
+      net->trigs->sign_tail->next = new_trigger(flags,TRIG_SIGN,mask,func,&php_handler);
+      net->trigs->sign            = net->trigs->sign_tail->next;
+      net->trigs->sign->prev      = net->trigs->sign_tail;
+      net->trigs->sign_tail       = net->trigs->sign;
     }
 
-    net->trigs->quit_tail->next = NULL;
+    net->trigs->sign_tail->next = NULL;
   }
   else
     RETURN_FALSE;

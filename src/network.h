@@ -40,6 +40,8 @@ struct network
   char *ident;
   char *realname;
 
+  char *vhost;
+
   int status;
 
   /* Users */

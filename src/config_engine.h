@@ -2,6 +2,7 @@
 #define __CONFIG_ENGINE_H__
 
 #include "server.h"
+#include "dcc.h"
 #include "network.h"
 #include "tconfig.h"
 #include "user.h"
@@ -15,6 +16,8 @@ struct config
   struct network *network_list;
   struct network *network_head;
   struct network *network_tail;
+
+  struct dcc_session *dcc_sessions;
 
   /* Global */
   char *g_nick;

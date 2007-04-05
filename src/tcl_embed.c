@@ -9,7 +9,7 @@
 #include "irc.h"
 #include "tcl_embed.h"
 #include "tcl_lib.h"
-#include "egglib.h"
+#include "egg_lib.h"
 
 void net_init_tcl(struct network *net)
 {  
@@ -121,7 +121,7 @@ void tcl_handler(struct network *net, struct trigger *trig, struct irc_data *dat
       break;
     case TRIG_PART:
       break;
-    case TRIG_QUIT:
+    case TRIG_SIGN:
       break;
   }  
 }

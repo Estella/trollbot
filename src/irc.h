@@ -52,8 +52,6 @@ struct irc_data {
 
   char **rest;
   char *rest_str;
-
-  int bind_hint;
 };
 
 void irc_printf(int sock, const char *fmt, ...);

@@ -12,7 +12,8 @@ enum
   TRIG_PART,
   TRIG_NOTC,
   TRIG_JOIN,
-  TRIG_QUIT
+  TRIG_SIGN,
+  TRIG_KICK
 };
 
 struct trig_table
@@ -36,9 +37,12 @@ struct trig_table
   struct trigger *join;
   struct trigger *join_head;
   struct trigger *join_tail;
-  struct trigger *quit;
-  struct trigger *quit_head;
-  struct trigger *quit_tail;
+  struct trigger *sign;
+  struct trigger *sign_head;
+  struct trigger *sign_tail;
+  struct trigger *kick;
+  struct trigger *kick_head;
+  struct trigger *kick_tail;
   struct trigger *notc;
   struct trigger *notc_head;
   struct trigger *notc_tail;

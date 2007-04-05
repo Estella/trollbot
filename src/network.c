@@ -43,6 +43,8 @@ struct network *new_network(char *label)
   ret->users_tail   = NULL;
 
   ret->trigs        = new_trig_table();
+
+  ret->vhost        = NULL;
  
   ret->userfile     = NULL;
   ret->chanfile     = NULL;

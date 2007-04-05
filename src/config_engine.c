@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "main.h"
+#include "dcc.h"
 #include "config_engine.h"
 #include "tconfig.h"
 #include "network.h"
@@ -63,6 +64,8 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
   cfg->owner        = NULL;
   cfg->ohostmask    = NULL;
   cfg->opasshash    = NULL;
+
+  cfg->dcc_sessions = NULL;
   
   do
   {
@@ -154,6 +157,13 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
             free(net->ident);
 
           net->ident = tstrdup(search->value);
+        }
+        else if (!strcmp(search->key,"vhost"))
+        {
+          if (net->vhost != NULL)
+            free(net->vhost);
+ 
+          net->vhost = tstrdup(search->value);
         }
         else if (!strcmp(search->key,"server"))
         {

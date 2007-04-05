@@ -8,6 +8,7 @@
 #include "server.h"
 #include "channel.h"
 #include "debug.h"
+#include "sha1.h"
 
 /* This is the eggdrop core API that is exported to TCL, PHP, perl, etc */
 
@@ -34,6 +35,10 @@ char *egg_makearg(char *rest, char *mask)
      word)
   ~  matches 1 or more space characters (can be used for whitespace between
      words)
+
+  returns 1 if no match, 0 if matched
+  
+  BUG: ~, &, and % don't work
 */
 int egg_matchwilds(const char *haystack, const char *needle)
 {
@@ -122,11 +127,6 @@ int egg_matchwilds(const char *haystack, const char *needle)
 
   return 0;
 }
-
-        
-
-
-
 
 /* These functions need queue support */
 void egg_putserv(struct network *net, const char *text, int option_next)
@@ -236,7 +236,19 @@ int egg_validuser(struct network *net, const char *handle)
 /* Returns: the handle found, or "*" if none */
 char *egg_finduser(struct network *net, const char *mask)
 {
-  return NULL;
+  struct user *user;
+
+  if ((user = net->users_head) == NULL)
+    return 0;
+
+  while (user != NULL)
+  {
+    /*if ()
+      return user->username;*/
+    user = user->next;
+  }
+
+  return "*";
 }
 
 
@@ -247,6 +259,9 @@ char *egg_finduser(struct network *net, const char *mask)
 
 int egg_passwdok(struct network *net, const char *handle, const char *pass) 
 {
+  SHA1_CTX context;
+  unsigned char digest[20];
+
   struct user *user;
 
   if ((user = net->users_head) == NULL)
@@ -257,6 +272,14 @@ int egg_passwdok(struct network *net, const char *handle, const char *pass)
     if (!strcmp(handle,user->username))
     {
       /* NEEDS PASS CHECKED */
+      SHA1Init(&context);
+      SHA1Update(&context, (unsigned char *)pass, strlen(pass));
+      SHA1Final(digest, &context);
+ 
+      /* Pass is all good baby */
+      if (!strcmp(user->passhash,digest))
+        return 0;
+
       return 1;
     }
     user = user->next;

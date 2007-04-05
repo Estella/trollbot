@@ -58,8 +58,8 @@ binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
 am__trollbot_SOURCES_DIST = main.c tconfig.c network.c server.c \
 	config_engine.c sockets.c irc.c util.c debug.c channel.c \
-	trigger.c sha1.c user.c egglib.c die.c tcl_embed.c tcl_lib.c \
-	php_embed.c php_lib.c
+	trigger.c sha1.c user.c egg_lib.c die.c default_triggers.c \
+	tcl_embed.c tcl_lib.c php_embed.c php_lib.c
 @WITH_TCL_TRUE@am__objects_1 = trollbot-tcl_embed.$(OBJEXT) \
 @WITH_TCL_TRUE@	trollbot-tcl_lib.$(OBJEXT)
 @WITH_PHP_TRUE@am__objects_2 = trollbot-php_embed.$(OBJEXT) \
@@ -71,8 +71,9 @@ am_trollbot_OBJECTS = trollbot-main.$(OBJEXT) \
 	trollbot-util.$(OBJEXT) trollbot-debug.$(OBJEXT) \
 	trollbot-channel.$(OBJEXT) trollbot-trigger.$(OBJEXT) \
 	trollbot-sha1.$(OBJEXT) trollbot-user.$(OBJEXT) \
-	trollbot-egglib.$(OBJEXT) trollbot-die.$(OBJEXT) \
-	$(am__objects_1) $(am__objects_2)
+	trollbot-egg_lib.$(OBJEXT) trollbot-die.$(OBJEXT) \
+	trollbot-default_triggers.$(OBJEXT) $(am__objects_1) \
+	$(am__objects_2)
 trollbot_OBJECTS = $(am_trollbot_OBJECTS)
 am__DEPENDENCIES_1 =
 @WITH_TCL_TRUE@am__DEPENDENCIES_2 = $(am__DEPENDENCIES_1)
@@ -174,7 +175,8 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 trollbot_SOURCES = main.c tconfig.c network.c server.c config_engine.c \
 	sockets.c irc.c util.c debug.c channel.c trigger.c sha1.c \
-	user.c egglib.c die.c $(am__append_1) $(am__append_4)
+	user.c egg_lib.c die.c default_triggers.c $(am__append_1) \
+	$(am__append_4)
 trollbot_CFLAGS = -O0 -Wall $(am__append_2) $(am__append_5)
 trollbot_LDADD = $(am__append_3) $(am__append_6)
 all: all-am
@@ -246,8 +248,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-channel.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-config_engine.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-debug.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-default_triggers.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-die.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-egglib.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-egg_lib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-irc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-network.Po@am__quote@
@@ -459,19 +462,19 @@ trollbot-user.obj: user.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-user.obj `if test -f 'user.c'; then $(CYGPATH_W) 'user.c'; else $(CYGPATH_W) '$(srcdir)/user.c'; fi`
 
-trollbot-egglib.o: egglib.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-egglib.o -MD -MP -MF "$(DEPDIR)/trollbot-egglib.Tpo" -c -o trollbot-egglib.o `test -f 'egglib.c' || echo '$(srcdir)/'`egglib.c; \
-@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/trollbot-egglib.Tpo" "$(DEPDIR)/trollbot-egglib.Po"; else rm -f "$(DEPDIR)/trollbot-egglib.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='egglib.c' object='trollbot-egglib.o' libtool=no @AMDEPBACKSLASH@
+trollbot-egg_lib.o: egg_lib.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-egg_lib.o -MD -MP -MF "$(DEPDIR)/trollbot-egg_lib.Tpo" -c -o trollbot-egg_lib.o `test -f 'egg_lib.c' || echo '$(srcdir)/'`egg_lib.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/trollbot-egg_lib.Tpo" "$(DEPDIR)/trollbot-egg_lib.Po"; else rm -f "$(DEPDIR)/trollbot-egg_lib.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='egg_lib.c' object='trollbot-egg_lib.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-egglib.o `test -f 'egglib.c' || echo '$(srcdir)/'`egglib.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-egg_lib.o `test -f 'egg_lib.c' || echo '$(srcdir)/'`egg_lib.c
 
-trollbot-egglib.obj: egglib.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-egglib.obj -MD -MP -MF "$(DEPDIR)/trollbot-egglib.Tpo" -c -o trollbot-egglib.obj `if test -f 'egglib.c'; then $(CYGPATH_W) 'egglib.c'; else $(CYGPATH_W) '$(srcdir)/egglib.c'; fi`; \
-@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/trollbot-egglib.Tpo" "$(DEPDIR)/trollbot-egglib.Po"; else rm -f "$(DEPDIR)/trollbot-egglib.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='egglib.c' object='trollbot-egglib.obj' libtool=no @AMDEPBACKSLASH@
+trollbot-egg_lib.obj: egg_lib.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-egg_lib.obj -MD -MP -MF "$(DEPDIR)/trollbot-egg_lib.Tpo" -c -o trollbot-egg_lib.obj `if test -f 'egg_lib.c'; then $(CYGPATH_W) 'egg_lib.c'; else $(CYGPATH_W) '$(srcdir)/egg_lib.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/trollbot-egg_lib.Tpo" "$(DEPDIR)/trollbot-egg_lib.Po"; else rm -f "$(DEPDIR)/trollbot-egg_lib.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='egg_lib.c' object='trollbot-egg_lib.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-egglib.obj `if test -f 'egglib.c'; then $(CYGPATH_W) 'egglib.c'; else $(CYGPATH_W) '$(srcdir)/egglib.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-egg_lib.obj `if test -f 'egg_lib.c'; then $(CYGPATH_W) 'egg_lib.c'; else $(CYGPATH_W) '$(srcdir)/egg_lib.c'; fi`
 
 trollbot-die.o: die.c
 @am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-die.o -MD -MP -MF "$(DEPDIR)/trollbot-die.Tpo" -c -o trollbot-die.o `test -f 'die.c' || echo '$(srcdir)/'`die.c; \
@@ -486,6 +489,20 @@ trollbot-die.obj: die.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='die.c' object='trollbot-die.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-die.obj `if test -f 'die.c'; then $(CYGPATH_W) 'die.c'; else $(CYGPATH_W) '$(srcdir)/die.c'; fi`
+
+trollbot-default_triggers.o: default_triggers.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-default_triggers.o -MD -MP -MF "$(DEPDIR)/trollbot-default_triggers.Tpo" -c -o trollbot-default_triggers.o `test -f 'default_triggers.c' || echo '$(srcdir)/'`default_triggers.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/trollbot-default_triggers.Tpo" "$(DEPDIR)/trollbot-default_triggers.Po"; else rm -f "$(DEPDIR)/trollbot-default_triggers.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='default_triggers.c' object='trollbot-default_triggers.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-default_triggers.o `test -f 'default_triggers.c' || echo '$(srcdir)/'`default_triggers.c
+
+trollbot-default_triggers.obj: default_triggers.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-default_triggers.obj -MD -MP -MF "$(DEPDIR)/trollbot-default_triggers.Tpo" -c -o trollbot-default_triggers.obj `if test -f 'default_triggers.c'; then $(CYGPATH_W) 'default_triggers.c'; else $(CYGPATH_W) '$(srcdir)/default_triggers.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/trollbot-default_triggers.Tpo" "$(DEPDIR)/trollbot-default_triggers.Po"; else rm -f "$(DEPDIR)/trollbot-default_triggers.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='default_triggers.c' object='trollbot-default_triggers.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-default_triggers.obj `if test -f 'default_triggers.c'; then $(CYGPATH_W) 'default_triggers.c'; else $(CYGPATH_W) '$(srcdir)/default_triggers.c'; fi`
 
 trollbot-tcl_embed.o: tcl_embed.c
 @am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-tcl_embed.o -MD -MP -MF "$(DEPDIR)/trollbot-tcl_embed.Tpo" -c -o trollbot-tcl_embed.o `test -f 'tcl_embed.c' || echo '$(srcdir)/'`tcl_embed.c; \

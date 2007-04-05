@@ -25,7 +25,7 @@
 #include "util.h"
 #include "debug.h"
 #include "php_lib.h"
-#include "egglib.h"
+#include "egg_lib.h"
 
 #ifdef PHP_WIN32
 #include <io.h>
@@ -241,7 +241,7 @@ void php_handler(struct network *net, struct trigger *trig, struct irc_data *dat
       break;
     case TRIG_PART:
       break;
-    case TRIG_QUIT:
+    case TRIG_SIGN:
       break;
   }
 }

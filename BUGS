@@ -1,4 +1,0 @@
-Found: 2006-02-05
-Fixed:
-implentation of GNU build system not portable (especially to cygwin)
-

@@ -11,7 +11,7 @@
 #include "util.h"
 #include "trigger.h"
 #include "tcl_embed.h"
-#include "egglib.h"
+#include "egg_lib.h"
 
 int tcl_matchwild(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {
@@ -227,24 +227,24 @@ int tcl_bind(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const
 
     net->trigs->part_tail->next = NULL;
   }
-  else if (!strcmp(Tcl_GetString(objv[1]),"quit"))
+  else if (!strcmp(Tcl_GetString(objv[1]),"sign"))
   {
-    if (net->trigs->quit == NULL)
+    if (net->trigs->sign == NULL)
     {
-      net->trigs->quit       = new_trigger(Tcl_GetString(objv[2]),TRIG_QUIT,Tcl_GetString(objv[3]),Tcl_GetString(objv[4]),&tcl_handler);
-      net->trigs->quit->prev = NULL;
-      net->trigs->quit_head  = net->trigs->quit;
-      net->trigs->quit_tail  = net->trigs->quit;
+      net->trigs->sign       = new_trigger(Tcl_GetString(objv[2]),TRIG_SIGN,Tcl_GetString(objv[3]),Tcl_GetString(objv[4]),&tcl_handler);
+      net->trigs->sign->prev = NULL;
+      net->trigs->sign_head  = net->trigs->sign;
+      net->trigs->sign_tail  = net->trigs->sign;
     }
     else
     {
-      net->trigs->quit_tail->next = new_trigger(Tcl_GetString(objv[2]),TRIG_QUIT,Tcl_GetString(objv[3]),Tcl_GetString(objv[4]),&tcl_handler);
-      net->trigs->quit            = net->trigs->quit_tail->next;
-      net->trigs->quit->prev      = net->trigs->quit_tail;
-      net->trigs->quit_tail       = net->trigs->quit;
+      net->trigs->sign_tail->next = new_trigger(Tcl_GetString(objv[2]),TRIG_SIGN,Tcl_GetString(objv[3]),Tcl_GetString(objv[4]),&tcl_handler);
+      net->trigs->sign            = net->trigs->sign_tail->next;
+      net->trigs->sign->prev      = net->trigs->sign_tail;
+      net->trigs->sign_tail       = net->trigs->sign;
     }
 
-    net->trigs->quit_tail->next = NULL;
+    net->trigs->sign_tail->next = NULL;
   }
   else
     return TCL_ERROR;

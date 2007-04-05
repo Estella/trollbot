@@ -16,9 +16,6 @@
 
 #include "main.h"
 
-#include "servers.h"
-#include "irc.h"
-
 int dcc_connect(struct irc_data *data, const char *line)
 {
   int dcc_sock = 0;
@@ -34,7 +31,7 @@ int dcc_connect(struct irc_data *data, const char *line)
 
   if ((dcc_sock = socket(AF_INET, SOCK_STREAM, 0)) == -1)
   {
-    troll_debug(LOG_WARN,"Could not create dcc socket");
+    troll_debug(LOG_WARN,"Could not create DCC socket");
     return;
   }
 

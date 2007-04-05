@@ -4,7 +4,7 @@
 
 #include "util.h"
 #include "trigger.h"
-#include "egglib.h"
+#include "egg_lib.h"
 
 struct trigger *new_trigger(char *flags, int type, char *mask, char *command, void (*handler)(struct network *, struct trigger *, struct irc_data *))
 {
@@ -74,6 +74,7 @@ struct trigger *new_trigger(char *flags, int type, char *mask, char *command, vo
 void trigger_match(struct network *net, struct irc_data *data)
 {
   struct trigger *trig;
+  char newmask[1024];
 
   /* First let's determine what trigger table to check */
   if (!strcmp(data->command,"PRIVMSG"))
@@ -90,7 +91,7 @@ void trigger_match(struct network *net, struct irc_data *data)
         {
           if (data->rest[0] != NULL)
           {
-            if (!strcmp(data->rest[0],trig->mask))
+            if (!strncmp(data->rest[0],trig->mask,strlen(trig->mask)))
             {
               if (trig->handler != NULL)
                 trig->handler(net,trig,data);
@@ -127,7 +128,7 @@ void trigger_match(struct network *net, struct irc_data *data)
         {
           if (data->rest[0] != NULL)
           {
-            if (!strcmp(data->rest[0],trig->mask))
+            if (!strncmp(data->rest[0],trig->mask,strlen(trig->mask)))
             { 
               if (trig->handler != NULL)
                 trig->handler(net,trig,data);
@@ -156,10 +157,70 @@ void trigger_match(struct network *net, struct irc_data *data)
         }
  
       }
-      /* Need to handle PUBM */
     }
  
   } 
+  else if (!strcmp(data->command,"JOIN"))
+  {
+    trig = net->trigs->join_head;
+
+    if (data->rest[0] != NULL)
+    {
+      snprintf(newmask,sizeof(newmask),"%s %s!%s@%s",data->rest[0],
+                                                     data->prefix->nick,
+                                                     data->prefix->user,
+                                                     data->prefix->host);
+
+      if (!egg_matchwilds(newmask,trig->mask))
+      {
+        if (trig->handler != NULL)
+          trig->handler(net,trig,data);
+      }
+
+    }
+
+  }
+  else if (!strcmp(data->command,"PART"))
+  {
+    trig = net->trigs->part_head;
+
+    if (data->rest[0] != NULL)
+    {
+      snprintf(newmask,sizeof(newmask),"%s %s!%s@%s",data->rest[0],
+                                                     data->prefix->nick,
+                                                     data->prefix->user,
+                                                     data->prefix->host);
+
+      if (!egg_matchwilds(newmask,trig->mask))
+      {
+        if (trig->handler != NULL)
+          trig->handler(net,trig,data);
+      }
+
+    }
+  }
+  else if (!strcmp(data->command,"QUIT"))
+  {
+
+  }
+  else if (!strcmp(data->command,"KICK"))
+  {
+    trig = net->trigs->kick_head;
+
+    if (data->c_params[0] != NULL && data->c_params[1] != NULL)
+    {
+      snprintf(newmask,sizeof(newmask),"%s %s",data->c_params[0],
+                                               data->c_params[1]);
+
+      if (!egg_matchwilds(newmask,trig->mask))
+      {
+        if (trig->handler != NULL)
+          trig->handler(net,trig,data);
+      }
+
+    }
+
+  }
   else if (!strcmp(data->command,"NOTICE"))
   {
     /* Command is a NOTC */
@@ -193,9 +254,13 @@ struct trig_table *new_trig_table(void)
   ret->part      = NULL;
   ret->part_head = NULL;
   ret->part_tail = NULL;
-  ret->quit      = NULL;
-  ret->quit_head = NULL;
-  ret->quit_tail = NULL;
+  ret->sign      = NULL;
+  ret->sign_head = NULL;
+  ret->sign_tail = NULL;
+  ret->kick      = NULL;
+  ret->kick_head = NULL;
+  ret->kick_tail = NULL;
+
   ret->notc      = NULL;
   ret->notc_head = NULL;
   ret->notc_tail = NULL;

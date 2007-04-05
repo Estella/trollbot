@@ -523,8 +523,6 @@ void tconfig_to_file(struct tconfig_block *tcfg, char *filename)
 {
   FILE *out;
   struct tconfig_block *tmp = tcfg;
-  struct tconfig_block *search;
-  int indent;
 
   if (tmp == NULL)
   {

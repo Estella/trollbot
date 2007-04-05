@@ -10,10 +10,11 @@
 
 #ifndef __DCC_H__
 
-enum {
+enum dcc_status {
   DCC_WAITING = 0,
-  DCC_CONNECT,
-  DCC_AUTH
+  DCC_CONNECTED,
+  DCC_HAVE_USERNAME,
+  DCC_AUTHENTICATED
 };
 
 struct dcc_session
@@ -22,11 +23,12 @@ struct dcc_session
 
   int sock;
 
-  char *user;
+  struct user *user;
 
   int status;
 
-  struct dcc_session *prev, *next;
+  struct dcc_session *prev;
+  struct dcc_session *next;
 };
 
 #define __DCC_H__

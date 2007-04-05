@@ -18,6 +18,8 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
+
 
 #include "main.h"
 #include "network.h"
@@ -25,15 +27,18 @@
 #include "sockets.h"
 #include "config_engine.h"
 #include "irc.h"
+#include "debug.h"
+#include "util.h"
 
 void irc_loop(void)
 {
-  struct hostent *he;
-  struct sockaddr_in serv_addr;
+  struct hostent *he, *vhost;
+  struct sockaddr_in serv_addr, my_addr;
   fd_set socks;
   struct network *net;
   struct server  *svr;
   int numsocks = 0;
+  char *vhostip;
 
   net = g_cfg->network_head;
 
@@ -47,22 +52,54 @@ void irc_loop(void)
       if (svr == NULL)
         break;
 
+      if ((net->sock = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+      {
+        fprintf(stderr, "Could not create socket for server %s in network %s\n",svr->host,net->label);
+        continue;
+      }
+
+      if (net->vhost != NULL)
+      {
+        if ((vhost = gethostbyname(net->vhost)) == NULL)
+        {
+          troll_debug(LOG_WARN,"Could not resolve vhost (%s) using default",net->vhost);
+          free(net->vhost);
+          net->vhost = NULL;
+        } 
+        else
+        {
+          vhostip = tmalloc0(3*4+3+1);
+          sprintf(vhostip,"%s",inet_ntoa(*((struct in_addr *)vhost->h_addr)));
+        }
+      }
+  
       if ((he = gethostbyname(svr->host)) == NULL) 
       { 
         fprintf(stderr,"Could not resolve %s in network %s\n",svr->host,net->label);       
         continue;
       }
 
-      if ((net->sock = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
-      {
-        fprintf(stderr, "Could not create socket for server %s in network %s\n",svr->host,net->label);
-        continue;
-      }  
-
       serv_addr.sin_family = AF_INET;     
       serv_addr.sin_port   = htons(svr->port);   
       serv_addr.sin_addr   = *((struct in_addr *)he->h_addr);
       memset(&(serv_addr.sin_zero), '\0', 8);
+
+      if (net->vhost != NULL)
+      {
+        my_addr.sin_family = AF_INET;
+        my_addr.sin_addr.s_addr = inet_addr(vhostip);
+        free(vhostip);
+        my_addr.sin_port = htons(0);
+        memset(&(my_addr.sin_zero), '\0', 8);
+
+        /* Bind IRC connection to vhost */
+        if (bind(net->sock, (struct sockaddr *)&my_addr, sizeof(my_addr)) == -1) 
+        {
+          troll_debug(LOG_WARN,"Could not use vhost: %s",net->vhost);
+          free(net->vhost);
+          net->vhost = NULL;
+        }
+      }
 
       if (connect(net->sock,(struct sockaddr *)&serv_addr,sizeof(struct sockaddr)) == -1) 
       {
