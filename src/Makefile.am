@@ -23,7 +23,7 @@ endif
 
 if WITH_PERL
 
-trollbot_SOURCES += perl_embed.c perl_lib.h
+trollbot_SOURCES += perl_embed.c perl_lib.c
 trollbot_CFLAGS  += ${PERL_CFLAGS}
 trollbot_LDADD   += ${PERL_LDADD}
 
