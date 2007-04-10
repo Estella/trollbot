@@ -1,16 +1,11 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include "irc.h"
 #include "main.h"
-#include "user.h"
-#include "network.h"
-#include "config_engine.h"
-#include "tconfig.h"
 #include "channel.h"
-#include "util.h"
 
+#include "tconfig.h"
+#include "irc.h"
+#include "util.h"
+#include "network.h"
+#include "user.h"
 
 struct chan_user *new_chan_user(const char *nick, int jointime, struct user *urec)
 {
@@ -79,7 +74,7 @@ void chan_init(void)
 {
   struct network *net;
 
-  net  = g_cfg->network_head;
+  net  = g_cfg->networks;
 
   while (net != NULL)
   {

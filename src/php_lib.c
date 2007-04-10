@@ -1,17 +1,20 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <php.h>
-
 #include "main.h"
-#include "egg_lib.h"
-#include "config_engine.h"
-#include "network.h"
-#include "util.h"
-#include "php_embed.h"
 #include "php_lib.h"
+
+#include <main/php.h>
+#include <main/SAPI.h>
+#include <main/php_main.h>
+#include <main/php_variables.h>
+#include <main/php_ini.h>
+#include <zend_ini.h>
+#undef END_EXTERN_C
+
+#include "config_engine.h"
+#include "php_embed.h"
 #include "trigger.h"
+#include "network.h"
+#include "egg_lib.h"
+#include "irc.h"
 
 /* This operates according to Eggdrop spec */
 PHP_FUNCTION(matchwild)
@@ -74,7 +77,7 @@ PHP_FUNCTION(bind)
     RETURN_FALSE;
   }
 
-  net = g_cfg->network_head;
+  net = g_cfg->networks;
 
   while (net != NULL)
   {
@@ -243,7 +246,7 @@ PHP_FUNCTION(putserv)
     RETURN_FALSE;
   }
 
-  net = g_cfg->network_head;
+  net = g_cfg->networks;
 
   while (net != NULL)
   {

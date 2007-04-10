@@ -1,9 +1,12 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include "util.h"
+#include "main.h"
 #include "trigger.h"
+
+#include "irc.h"
+#include "network.h"
+#include "server.h"
+#include "channel.h"
+#include "user.h"
+
 #include "egg_lib.h"
 
 struct trigger *new_trigger(char *flags, int type, char *mask, char *command, void (*handler)(struct network *, struct trigger *, struct irc_data *))
@@ -91,7 +94,7 @@ void trigger_match(struct network *net, struct irc_data *data)
         {
           if (data->rest[0] != NULL)
           {
-            if (!strncmp(data->rest[0],trig->mask,strlen(trig->mask)))
+            if (!strncmp(data->rest_str,trig->mask,strlen(trig->mask)))
             {
               if (trig->handler != NULL)
                 trig->handler(net,trig,data);
@@ -124,17 +127,14 @@ void trigger_match(struct network *net, struct irc_data *data)
       {
         trig = net->trigs->pub_head;
  
-        while (trig != NULL)
+        if (data->rest_str != NULL)
         {
-          if (data->rest[0] != NULL)
-          {
-            if (!strncmp(data->rest[0],trig->mask,strlen(trig->mask)))
-            { 
-              if (trig->handler != NULL)
-                trig->handler(net,trig,data);
-            }
-        
+          if (!strncmp(data->rest_str,trig->mask,strlen(trig->mask)))
+          { 
+            if (trig->handler != NULL)
+              trig->handler(net,trig,data);
           }
+        
   
           trig = trig->next;
         }
@@ -184,7 +184,7 @@ void trigger_match(struct network *net, struct irc_data *data)
   {
     trig = net->trigs->part_head;
 
-    if (data->rest[0] != NULL)
+    if (data->rest != NULL)
     {
       snprintf(newmask,sizeof(newmask),"%s %s!%s@%s",data->rest[0],
                                                      data->prefix->nick,
@@ -196,7 +196,6 @@ void trigger_match(struct network *net, struct irc_data *data)
         if (trig->handler != NULL)
           trig->handler(net,trig,data);
       }
-
     }
   }
   else if (!strcmp(data->command,"QUIT"))

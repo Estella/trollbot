@@ -1,27 +1,16 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "main.h"
-#include "dcc.h"
 #include "config_engine.h"
-#include "tconfig.h"
+
 #include "network.h"
 #include "server.h"
 #include "channel.h"
-#include "util.h"
+#include "user.h"
 #include "trigger.h"
-#include "config.h"
-
-#ifdef HAVE_TCL
-#include <tcl.h>
-#include "tcl_embed.h"
-#endif /* HAVE_TCL */
 
 #ifdef HAVE_PHP
-#include <php.h>
 #include "php_embed.h"
 #endif /* HAVE_PHP */
+
 
 /* The configuration process works in 2 steps
  * first it loads the file's data in tree form
@@ -52,48 +41,43 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 
   cfg = tmalloc(sizeof(struct config));
 
-  cfg->network_list = NULL;
-  cfg->network_head = NULL;
-  cfg->network_tail = NULL;
-
-  cfg->g_nick       = NULL;
-  cfg->g_altnick    = NULL;
-  cfg->g_realname   = NULL;
-  cfg->g_ident      = NULL;
-
-  cfg->owner        = NULL;
-  cfg->ohostmask    = NULL;
-  cfg->opasshash    = NULL;
-
-  cfg->dcc_sessions = NULL;
+  cfg->networks     = NULL;
+  cfg->dccs         = NULL;
   
-  do
+  g_cfg             = cfg;
+
+  while (topmost != NULL)
   {
     /* Only two global keywords exist right now, 
      * network and owner 
      */
     if (!strcmp(topmost->key,"network"))
     {
-      if (cfg->network_list != NULL)
-      {
-        cfg->network_tail->next       = new_network(topmost->value);
-        cfg->network_tail->next->prev = cfg->network_tail;
-        cfg->network_tail             = cfg->network_tail->next;
-      } else {
-        cfg->network_list       = new_network(topmost->value);
-        cfg->network_list->next = NULL;
-        cfg->network_list->prev = NULL;
-        cfg->network_head       = cfg->network_list;
-        cfg->network_tail       = cfg->network_list;
-      }
+      net = cfg->networks;
 
-      net    = cfg->network_tail;
+      if (net != NULL)
+      {
+        while (net->next != NULL)
+          net = net->next;
+
+        net->next       = new_network(topmost->value);
+        net->next->prev = net;
+        net             = net->next;
+      }
+      else
+      {
+        cfg->networks = new_network(topmost->value);
+         
+        net           = cfg->networks;
+        net->next     = NULL;
+        net->prev     = NULL;
+      }
 
       net->tindex = topmost;
 
       search = topmost->child;
   
-      do
+      while (search != NULL)
       {
         if (!strcmp(search->key,"nick"))
         {
@@ -204,61 +188,12 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
         }
         
 
-      } while ((search = search->next) != NULL);
-    }
-    else if (!strcmp(topmost->key,"owner"))
-    {
-    }
-  } while ((topmost = topmost->next) != NULL);
-
-  /* Fill out global config vars */
-  net = cfg->network_head;
-
-  do
-  {
-    if (!strcmp(net->label,"global"))
-    {
-      if (net->nick != NULL)
-      {
-        cfg->g_nick = net->nick;
-        net->nick   = NULL;
+        search = search->next;
       }
-
-      if (net->ident != NULL)
-      {
-        cfg->g_ident = net->ident;
-        net->ident   = NULL;
-      }
-
-      if (net->realname != NULL)
-      {
-        cfg->g_realname = net->realname;
-        net->realname   = NULL;
-      }
- 
-      break;
     }
-  } while ((net = net->next) != NULL);
 
-  net = cfg->network_head;
-
-  do
-  {
-    if (strcmp(net->label,"global"))
-    {
-      if (net->nick == NULL)
-        net->nick = tstrdup(cfg->g_nick);
-
-      if (net->ident == NULL)
-        net->ident = tstrdup(cfg->g_ident);
-
-      if (net->realname == NULL)
-        net->realname = tstrdup(cfg->g_realname);
-
-      break;
-    }
-  } while ((net = net->next) != NULL);
-
+    topmost = topmost->next;
+  }
 
   return cfg;
 }

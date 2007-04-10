@@ -1,9 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
+#include "main.h"
 #include "server.h"
-#include "util.h"
 
 struct server *new_server(char *hostport)
 {

@@ -20,6 +20,8 @@
 #ifndef _PHP_EMBED_H_
 #define _PHP_EMBED_H_
 
+
+#ifdef HAVE_PHP
 #include <main/php.h>
 #include <main/SAPI.h>
 #include <main/php_main.h>
@@ -27,9 +29,8 @@
 #include <main/php_ini.h>
 #include <zend_ini.h>
 
-#include "network.h"
-#include "irc.h"
-#include "trigger.h"
+#undef END_EXTERN_C
+#endif /* HAVE_PHP */
 
 #ifdef ZTS
 #define PTSRMLS_D        void ****ptsrm_ls
@@ -61,16 +62,19 @@
   php_embed_shutdown(TSRMLS_C); \
 }
 
+struct trigger;
+struct irc_data;
+struct network;
+
 extern zend_module_entry trollbot_module_entry;
 #define phpext_trollbot_ptr &trollbot_module_entry
 
-BEGIN_EXTERN_C() 
 void myphp_eval_file(char *filename);
 void php_handler(struct network *net, struct trigger *trig, struct irc_data *data);
 int php_embed_init(int argc, char **argv PTSRMLS_DC);
 void php_embed_shutdown(TSRMLS_D);
+
 extern sapi_module_struct php_embed_module;
-END_EXTERN_C()
 
 
 #endif /* _PHP_EMBED_H_ */

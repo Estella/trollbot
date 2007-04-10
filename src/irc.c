@@ -7,17 +7,10 @@
  * domain. Free for any use   *
  * whatsoever.                *
  ******************************/
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-
 #include "main.h"
 #include "irc.h"
-#include "util.h"
-#include "debug.h"
+
+#include "network.h"
 #include "channel.h"
 #include "trigger.h"
 

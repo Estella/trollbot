@@ -21,6 +21,7 @@
 
 # Set this to the channels you want this game to run in.
 # Separate the list of channels with spaces
+set crypto_chans "#tcl #fascism #cryptoquote #christian_debate #php #drinkers"
 
 # Set this to where you want the scores file to be stored
 set crypto_scores_file "text/cryptoscores.txt"
@@ -382,7 +383,10 @@ proc cryptoquote:cryptize { chan } {
 }     
     
 proc cryptoquote:get_quote { nick uhost hand chan arg } {
-  global a_chan_in_game l_chan_game_scores l_chan_solved l_quotes a_chan_quote greedy_guesses enable_solve a_chan_number_hints number_hints
+  global crypto_chans a_chan_in_game l_chan_game_scores l_chan_solved l_quotes a_chan_quote greedy_guesses enable_solve a_chan_number_hints number_hints
+
+  # Check whether we operate in this channel
+  if {[lsearch $crypto_chans $chan] == -1} return
 
   # if a game has been played in that channel before, and they're in game, don't continue
   if {[info exists a_chan_in_game($chan)]} {
@@ -526,18 +530,61 @@ proc cryptoquote:show_quote { nick uhost hand chan arg } {
 
   if {[info exists l_chan_solved($chan)]} { array set cur_solved $l_chan_solved($chan) }
 
+  # 0 = unquoted
+  # 1 = unsolved
+  # 2 = solved
+  set last_state 0
+
   foreach letter [split $a_chan_crypt_quote($chan) ""] {
+    set curr_state 0
     if {[info exists cur_solved($letter)]} {
       incr matches
-      append quote [string toupper "${solved_encoding}$cur_solved($letter)\017"]
+      set curr_state 2
     } else {
-      if {[regexp -all {[a-z]} $letter] != 0} { 
-        append quote "${unsolved_encoding}$letter\017"
-      } else {
-        append quote $letter
+      if {[regexp -all {[a-z]} $letter] != 0} {
+        set curr_state 1
       }
     }
+
+    if {$curr_state != $last_state} {
+      if {$last_state == 0} {
+        if {$curr_state == 1} {
+          append quote $unsolved_encoding
+        } else {
+          append quote $solved_encoding
+        }
+      } elseif {$curr_state == 0} {
+        append quote "\017"
+      } else {
+        if {$curr_state == 1} {
+          append quote "\017${unsolved_encoding}"
+        } else {
+          append quote "\017${solved_encoding}"
+        }
+      }
+    }
+
+    if {$curr_state == 2} {
+      append quote [string toupper $cur_solved($letter)]
+    } else {
+      append quote $letter
+    }
+
+    set last_state $curr_state
   }
+
+#  foreach letter [split $a_chan_crypt_quote($chan) ""] {
+#    if {[info exists cur_solved($letter)]} {
+#      incr matches
+#      append quote [string toupper "${solved_encoding}$cur_solved($letter)\017"]
+#    } else {
+#      if {[regexp -all {[a-z]} $letter] != 0} { 
+#        append quote "${unsolved_encoding}$letter\017"
+#      } else {
+#        append quote $letter
+#      }
+#    }
+#  }
 
   set decoded_letters ""
   foreach {k v} [array get cur_solved] {

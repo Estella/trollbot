@@ -17,20 +17,28 @@
 */
 /* $Id: php_embed.c,v 1.11.2.1.2.1 2007/01/01 09:36:12 sebastian Exp $ */
 
+#include "main.h"
 #include "php_embed.h"
 
-#include "network.h"
-#include "trigger.h"
-#include "irc.h"
-#include "util.h"
-#include "debug.h"
+#include <main/php.h>
+#include <main/SAPI.h>
+#include <main/php_main.h>
+#include <main/php_variables.h>
+#include <main/php_ini.h>
+#include <zend_ini.h>
+
 #include "php_lib.h"
-#include "egg_lib.h"
+#undef END_EXTERN_C
 
 #ifdef PHP_WIN32
 #include <io.h>
 #include <fcntl.h>
 #endif
+
+#include "irc.h"
+#include "trigger.h"
+#include "network.h"
+#include "egg_lib.h"
 
 /* This function loads the PHP interpreter if it doesn't exist already.
  * then it executes the PHP file
@@ -428,6 +436,7 @@ int php_embed_init(int argc, char **argv PTSRMLS_DC)
 
   /* Set some Embedded PHP defaults */
   SG(options) |= SAPI_OPTION_NO_CHDIR;
+  zend_alter_ini_entry("log_errors",sizeof("log_errors"),"1", 1,PHP_INI_SYSTEM, PHP_INI_STAGE_RUNTIME);
   zend_alter_ini_entry("display_errors", 15, "1", 1, PHP_INI_SYSTEM, PHP_INI_STAGE_ACTIVATE);
   zend_alter_ini_entry("error_reporting", 16, "6143", 1, PHP_INI_SYSTEM, PHP_INI_STAGE_ACTIVATE); 
   zend_alter_ini_entry("register_argc_argv", 19, "1", 1, PHP_INI_SYSTEM, PHP_INI_STAGE_ACTIVATE);

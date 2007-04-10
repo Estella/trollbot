@@ -7,10 +7,10 @@
  * domain. Free for any use   *
  * whatsoever.                *
  ******************************/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/select.h>
 #include <netdb.h>
 #include <unistd.h>
@@ -20,15 +20,15 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-
 #include "main.h"
+#include "sockets.h"
+
+#include "dcc.h"
+#include "irc.h"
 #include "network.h"
 #include "server.h"
-#include "sockets.h"
-#include "config_engine.h"
-#include "irc.h"
-#include "debug.h"
-#include "util.h"
+#include "channel.h"
+#include "user.h"
 
 void irc_loop(void)
 {
@@ -37,24 +37,23 @@ void irc_loop(void)
   fd_set socks;
   struct network *net;
   struct server  *svr;
+  struct dcc_session *dcc;
   int numsocks = 0;
-  char *vhostip;
+  char *vhostip = NULL;
 
-  net = g_cfg->network_head;
+  net = g_cfg->networks;
 
   /* Connect to one server for each network, or mark network unconnectable */
-  do
+  while (net != NULL)
   {
     svr = net->server_head;
 
-    do
+    while (svr != NULL)
     {
-      if (svr == NULL)
-        break;
-
       if ((net->sock = socket(AF_INET, SOCK_STREAM, 0)) == -1)
       {
         fprintf(stderr, "Could not create socket for server %s in network %s\n",svr->host,net->label);
+        svr = svr->next;
         continue;
       }
 
@@ -75,7 +74,8 @@ void irc_loop(void)
   
       if ((he = gethostbyname(svr->host)) == NULL) 
       { 
-        fprintf(stderr,"Could not resolve %s in network %s\n",svr->host,net->label);       
+        troll_debug(LOG_WARN,"Could not resolve %s in network %s\n",svr->host,net->label);       
+        svr = svr->next;
         continue;
       }
 
@@ -105,43 +105,60 @@ void irc_loop(void)
       {
         fprintf(stderr, "Could not connect to server %s on port %d for network %s\n",svr->host,svr->port,net->label);
         net->sock = -1;
+        svr = svr->next;
         continue;
       }
  
-      printf("Connected to %s port %d for network %s\n",svr->host,svr->port,net->label);
+      troll_debug(LOG_DEBUG,"Connected to %s port %d for network %s\n",svr->host,svr->port,net->label);
       net->cur_server = svr;
       net->status     = STATUS_CONNECTED;     
  
       break;
-    } while ((svr = svr->next) != NULL);
+    } 
     
     if (net->sock == -1)
     {
-      fprintf(stderr, "Could not connect to any servers for network %s\n",net->label);
+      troll_debug(LOG_ERROR,"Could not connect to any servers for network %s\n",net->label);
     }
 
-  } while ((net = net->next) != NULL);
+    net = net->next;
+  }
 
   while (1)
   {
     FD_ZERO(&socks);
 
-    net = g_cfg->network_head;
+    net = g_cfg->networks;
 
-    do
+    while (net != NULL)
     {
       if (net->sock != -1)
       {
         numsocks = (net->sock > numsocks) ? net->sock : numsocks;
         FD_SET(net->sock,&socks);
       }
-    } while ((net = net->next) != NULL);
+ 
+      net = net->next;
+    }
+
+    dcc = g_cfg->dccs;
+ 
+    while (dcc != NULL)
+    {
+      if (dcc->sock != -1)
+      {
+        numsocks = (dcc->sock > numsocks) ? dcc->sock : numsocks;
+        FD_SET(dcc->sock,&socks);
+      }
+
+      dcc = dcc->next;
+    }
 
     select(numsocks+1, &socks, NULL, NULL, NULL);
 
-    net = g_cfg->network_head;
+    net = g_cfg->networks;
 
-    do
+    while (net != NULL)
     {
       if (net->sock != -1)
       {
@@ -157,7 +174,24 @@ void irc_loop(void)
           irc_in(net);
         }
       }
-    } while ((net = net->next) != NULL);
+ 
+      net = net->next;
+    } 
+ 
+    dcc = g_cfg->dccs;
+   
+    while (dcc != NULL)
+    {
+      if (dcc->sock != -1)
+      {
+        if (FD_ISSET(dcc->sock,&socks))
+        {
+          dcc_in(dcc);
+        }
+      }
+      
+      dcc = dcc->next;
+    } 
   }
 
   return;

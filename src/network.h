@@ -1,15 +1,29 @@
 #ifndef __NETWORK_H__
 #define __NETWORK_H__
 
-#include <string.h>
-
 #include "config.h"
-#include "tconfig.h"
+
+struct server;
+struct channel;
+struct user;
+struct network;
+struct trig_table;
+struct tconfig_block;
 
 #ifdef HAVE_TCL
 #include <tcl.h>
+#undef STRINGIFY
+#undef JOIN
+#undef END_EXTERN_C
 #endif /* HAVE_TCL */
 
+#ifdef HAVE_PERL
+#include <EXTERN.h>
+#include <perl.h>
+#undef STRINGIFY
+#undef JOIN
+#undef END_EXTERN_C
+#endif
 
 enum
 {
@@ -46,8 +60,6 @@ struct network
 
   /* Users */
   struct user *users;
-  struct user *users_head;
-  struct user *users_tail;
   
   struct trig_table *trigs;  
 
@@ -55,10 +67,15 @@ struct network
   struct network *next;
 
   struct tconfig_block *tindex;
+
 #ifdef HAVE_TCL
   /* Network TCL Interpreter */
   Tcl_Interp *tclinterp;
 #endif /* HAVE_TCL */  
+
+#ifdef HAVE_PERL
+  PerlInterpreter *perlinterp;
+#endif /* HAVE_PERL */
 
   char *userfile;
   char *chanfile;

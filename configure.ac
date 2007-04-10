@@ -25,6 +25,10 @@ AC_PROG_PHP
 dnl supply automake a WITH_PHP conditional
 AM_CONDITIONAL(WITH_PHP, test "x${PHP_LDADD}" != "x")
 
+AX_PROG_PERL
+
+AM_CONDITIONAL(WITH_PERL, test "x${PERL_LDADD}" != "x")
+
 AC_PROG_MAKE_SET
 
 AC_HEADER_STDC

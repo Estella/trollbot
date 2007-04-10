@@ -1,5 +1,8 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
+/* Ability to use Perl scripting */
+#undef HAVE_PERL
+
 /* Ability to use PHP scripting */
 #undef HAVE_PHP
 

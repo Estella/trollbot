@@ -1,16 +1,13 @@
 /* This file is conditionally built if TCL support is enabled */
-
-#include <stdio.h>
-#include <stdlib.h>
 #include <time.h>
-#include <tcl.h>
 
+#include "main.h"
 #include "tcl_lib.h"
-#include "network.h"
-#include "irc.h"
-#include "util.h"
-#include "trigger.h"
 #include "tcl_embed.h"
+
+#include "network.h"
+#include "trigger.h"
+#include "irc.h"
 #include "egg_lib.h"
 
 int tcl_matchwild(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])

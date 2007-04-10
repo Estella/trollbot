@@ -1,23 +1,20 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <time.h>
 
 #include "main.h"
-#include "trigger.h"
-#include "tconfig.h"
-#include "config_engine.h"
-#include "network.h"
-#include "server.h"
-#include "trigger.h"
 #include "default_triggers.h"
+
 #include "dcc.h"
+#include "irc.h"
+#include "network.h"
+#include "trigger.h"
+#include "user.h"
+#include "sha1.h"
 
 void add_default_triggers(void)
 {
   struct network *net;
 
-  net = g_cfg->network_head;
+  net = g_cfg->networks;
 
   while (net != NULL)
   {
@@ -49,11 +46,17 @@ void add_default_triggers(void)
     net->trigs->msg->prev      = net->trigs->msg_tail;
     net->trigs->msg_tail       = net->trigs->msg;
 
-    /* CTCP DCC CHAT 
-    net->trigs->msg_tail->next = new_trigger(NULL,TRIG_MSG,"\001DCC CHAT\001",NULL,&initiate_dcc_chat);
+    /* CTCP DCC CHAT */
+    net->trigs->msg_tail->next = new_trigger(NULL,TRIG_MSG,"\001DCC CHAT",NULL,&initiate_dcc_chat);
     net->trigs->msg            = net->trigs->msg_tail->next;
     net->trigs->msg->prev      = net->trigs->msg_tail;
-    net->trigs->msg_tail       = net->trigs->msg;*/
+    net->trigs->msg_tail       = net->trigs->msg;
+
+    /* MSG PASS - to change a user's pass [user] <pass> */
+    net->trigs->msg_tail->next = new_trigger(NULL,TRIG_MSG,"ident",NULL,&check_user_pass);
+    net->trigs->msg            = net->trigs->msg_tail->next;
+    net->trigs->msg->prev      = net->trigs->msg_tail;
+    net->trigs->msg_tail       = net->trigs->msg;
 
     /* MSG IDENT - to identify as a user ident [user] <pass> */
     net->trigs->msg_tail->next = new_trigger(NULL,TRIG_MSG,"ident",NULL,&check_user_pass);
@@ -66,6 +69,8 @@ void add_default_triggers(void)
     net->trigs->msg            = net->trigs->msg_tail->next;
     net->trigs->msg->prev      = net->trigs->msg_tail;
     net->trigs->msg_tail       = net->trigs->msg;
+
+
 
     /* To add incoming users to chan lists and to know when to use NAMES */
     if (net->trigs->join == NULL)
@@ -135,11 +140,6 @@ void add_default_triggers(void)
   }
 }
 
-void initiate_dcc_chat(struct network *net, struct trigger *trig, struct irc_data *data)
-{
-}
-
-
 void new_join(struct network *net, struct trigger *trig, struct irc_data *data)
 {
   printf("Got Join\n");
@@ -157,7 +157,14 @@ void new_quit(struct network *net, struct trigger *trig, struct irc_data *data)
 
 void new_kick(struct network *net, struct trigger *trig, struct irc_data *data)
 {
-  printf("Got kick\n");
+  /* Auto Rejoin */
+  if (!strcmp(data->c_params[1],net->nick))
+    irc_printf(net->sock,"JOIN %s",data->c_params[0]);
+}
+
+void new_user_pass(struct network *net, struct trigger *trig, struct irc_data *data)
+{
+  struct user *user;
 }
 
 void check_user_pass(struct network *net, struct trigger *trig, struct irc_data *data)
@@ -167,7 +174,45 @@ void check_user_pass(struct network *net, struct trigger *trig, struct irc_data 
 
 void introduce_user(struct network *net, struct trigger *trig, struct irc_data *data)
 {
-  printf("Got introduction\n");
+  struct user *user;
+
+  if (net->users == NULL)
+  {
+    net->users = new_user(data->prefix->nick,  /* username */
+                          data->prefix->nick,  /* nickname */
+                          NULL,                /* passhash */
+                          data->prefix->user,  /* ident    */
+                          NULL,                /* realname */
+                          data->prefix->host,  /* hostname */
+                          NULL);               /* flags    */
+
+    user       = net->users;
+    user->prev = NULL;
+    user->next = NULL;
+  }
+  else
+  {
+    user       = net->users;
+
+    while (user->next != NULL)   
+      user = user->next;
+
+    user->next       = new_user(data->prefix->nick,  /* username */
+                                data->prefix->nick,  /* nickname */
+                                NULL,                /* passhash */
+                                data->prefix->user,  /* ident    */
+                                NULL,                /* realname */
+                                data->prefix->host,  /* hostname */
+                                NULL);               /* flags    */
+
+    user->next->prev = user;
+    user             = user->next;
+
+    user->next       = NULL;
+  }
+  
+  irc_printf(net->sock,"PRIVMSG %s :Welcome to trollbot, your username is '%s'",data->prefix->nick);
+  irc_printf(net->sock,"PRIVMSG %s :Type '/msg %s pass <your new password>' to continue",data->prefix->nick,net->nick);
 }
 
 void return_ctcp_ping(struct network *net, struct trigger *trig, struct irc_data *data)

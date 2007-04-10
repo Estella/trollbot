@@ -1,7 +1,10 @@
 #ifndef __CHANNEL_H__
 #define __CHANNEL_H__
 
-#include "network.h"
+struct user;
+struct channel;
+struct tconfig_block;
+struct network;
 
 struct chan_user
 {
@@ -12,8 +15,8 @@ struct chan_user
   /* Actual user record */
   struct user *urec;
 
-  struct chan_userlist *prev;
-  struct chan_userlist *next;
+  struct chan_user *prev;
+  struct chan_user *next;
 };
 
 struct channel

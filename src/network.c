@@ -1,14 +1,17 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include "util.h"
+#include "main.h"
 #include "network.h"
+#include "server.h"
+#include "channel.h"
+#include "user.h"
 #include "trigger.h"
 
 #ifdef HAVE_TCL
 #include "tcl_embed.h"
 #endif /* HAVE_TCL */
+
+#ifdef HAVE_PERL
+#include "perl_embed.h"
+#endif /* HAVE_PERL */
 
 struct network *new_network(char *label)
 {
@@ -39,8 +42,6 @@ struct network *new_network(char *label)
   ret->ident        = NULL;
 
   ret->users        = NULL;
-  ret->users_head   = NULL;
-  ret->users_tail   = NULL;
 
   ret->trigs        = new_trig_table();
 
@@ -53,6 +54,9 @@ struct network *new_network(char *label)
   net_init_tcl(ret);
 #endif /* HAVE_TCL */
 
+#ifdef HAVE_PERL
+  net_init_perl(ret);
+#endif /* HAVE_PERL */
   return ret;
 }
     

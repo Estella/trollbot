@@ -1,7 +1,8 @@
 #ifndef __TRIGGER_H__
 #define __TRIGGER_H__
 
-#include "irc.h"
+struct network;
+struct irc_data;
 
 enum
 {

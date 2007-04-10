@@ -1,11 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "main.h"
-#include "config_engine.h"
-#include "tconfig.h"
-#include "util.h"
+#include "network.h"
 #include "user.h"
 
 struct user *new_user(char *username, char *nick, char *passhash, char *ident, char *realname, char *host, char *flags)
@@ -48,7 +42,7 @@ void user_init(void)
 {
   struct network *net;
 
-  net  = g_cfg->network_head;
+  net  = g_cfg->networks;
 
   while (net != NULL)
   {
@@ -61,114 +55,3 @@ void user_init(void)
   return;
 }
 
-/*
-void user_init(void)
-{
-  struct tconfig_block *tcfg;
-  struct tconfig_block *tnet;
-  struct tconfig_block *tuser;
-  struct tconfig_block *tparams;
-  struct user *user;
-  struct network *net;
-
-  net  = g_cfg->network_head;
-  tcfg = NULL; 
-
-  while (net != NULL)
-  {
-    if (net->userfile != NULL)  
-      tcfg = file_to_tconfig(tcfg,net->userfile);
- 
-    net = net->next;
-  }
-
-  g_cfg->tusers = tcfg;
-
-  if (tcfg == NULL)
-    return;
-
-  g_cfg->tusers = tcfg;
-
-  while (tcfg->parent != NULL || tcfg->prev != NULL)
-    tcfg = (tcfg->parent == NULL) ? tcfg->prev : tcfg->parent;
-
-  tnet = tcfg;
-  do
-  {
-    if (!strcmp(tnet->key,"network"))
-    {
-      net = g_cfg->network_head;
-
-      do
-      {
-        if (!strcmp(net->label,tnet->value))
-          break;
-      } while ((net = net->next) != NULL);
-
-      if (net == NULL)
-        continue;
-
-      if (tnet->child == NULL)
-        continue;
-
-      tuser = tnet->child;
-
-      do
-      {
-        if (!strcmp(tuser->key,"user"))
-        {
-          if (net->users_head == NULL)
-          {
-            net->users_head  = new_user(tuser->key,NULL,NULL,NULL,NULL,NULL,NULL);
-            net->users       = net->users_head;
-            net->users_tail  = net->users_head;
-            net->users->prev = NULL;
-            net->users->next = NULL;
-          } 
-          else
-          {
-            net->users_tail->next = new_user(tuser->key,NULL,NULL,NULL,NULL,NULL,NULL);
-            net->users            = net->users_tail->next;
-            net->users->prev      = net->users_tail;
-            net->users->next      = NULL;
-            net->users_tail       = net->users;
-          }
-         
-          user = net->users;
-         
-          user->tindex = tuser;
- 
-          tparams = tuser->child;
-
-          do
-          {
-            if (!strcmp(tparams->key,"nick"))
-            {
-              if (user->nick != NULL)
-                free(user->nick);
-     
-              user->nick = tstrdup(tparams->key);
-            }
-            else if (!strcmp(tparams->key,"passhash"))
-            {
-              if (user->passhash != NULL)
-                free(user->passhash);
-
-              user->passhash = tstrdup(tparams->key);
-            }
-            else if (!strcmp(tparams->key,"flags"))
-            {
-              if (user->flags != NULL)
-                free(user->flags);
-
-              user->flags = tstrdup(tparams->key);
-            }
-          } while ((tparams = tparams->next) != NULL);
-        }
-      } while ((tuser = tuser->next) != NULL);  
-    }
-  } while ((tnet = tnet->next) != NULL);
-      
-  return;
-}
-*/

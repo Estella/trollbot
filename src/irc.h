@@ -11,7 +11,7 @@
 #ifndef __IRC_H__
 #define __IRC_H__
 
-#include "network.h"
+struct network;
 
 enum
 {

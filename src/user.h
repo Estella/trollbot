@@ -1,6 +1,8 @@
 #ifndef __USER_H__
 #define __USER_H__
 
+struct tconfig_block;
+
 struct channel_flags
 {
   char *chan;

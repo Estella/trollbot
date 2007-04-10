@@ -10,10 +10,16 @@
 
 #ifndef __DCC_H__
 
+/* Forward declaration */
+struct user;
+struct irc_data;
+struct trigger;
+struct network;
+
 enum dcc_status {
   DCC_WAITING = 0,
   DCC_CONNECTED,
-  DCC_HAVE_USERNAME,
+  DCC_HAS_USERNAME,
   DCC_AUTHENTICATED
 };
 
@@ -27,9 +33,17 @@ struct dcc_session
 
   int status;
 
+  struct network *net;
+
   struct dcc_session *prev;
   struct dcc_session *next;
 };
+
+struct dcc_session *new_dcc_session(void);
+void free_dcc_sessions(struct dcc_session *dccs);
+void initiate_dcc_chat(struct network *net, struct trigger *trig, struct irc_data *data);
+int dcc_in(struct dcc_session *dcc);
+void parse_dcc_line(struct dcc_session *dcc, const char *buffer);
 
 #define __DCC_H__
 #endif /* __DCC_H__ */

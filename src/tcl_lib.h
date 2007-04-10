@@ -2,7 +2,9 @@
 #define __TCL_LIB_H__
 
 #include <tcl.h>
-
+#undef STRINGIFY
+#undef JOIN
+#undef END_EXTERN_C
 
 /* Function prototypes */
 int tcl_matchwild(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]);

@@ -3,11 +3,7 @@
  * By Steve Reid <steve@edmweb.com>
  * 100% Public Domain
  */
-
-#include <stdio.h>
-#include <string.h>
-
-#include "sha1.h"
+#include "main.h"
 
 /* Hash a single 512-bit block. This is the core of the algorithm. */
 void SHA1Transform(unsigned long state[5], unsigned char buffer[64])

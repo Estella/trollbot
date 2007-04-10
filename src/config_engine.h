@@ -1,11 +1,10 @@
 #ifndef __CONFIG_ENGINE_H__
 #define __CONFIG_ENGINE_H__
 
-#include "server.h"
-#include "dcc.h"
-#include "network.h"
-#include "tconfig.h"
-#include "user.h"
+struct dcc_session;
+struct network;
+struct user;
+struct tconfig_block;
 
 /* This is the main struct that information is loaded
  * into from the config block format.
@@ -13,26 +12,11 @@
  */
 struct config
 {
-  struct network *network_list;
-  struct network *network_head;
-  struct network *network_tail;
+  struct network     *networks;
+  struct dcc_session *dccs;
+  struct user        *g_users;
 
-  struct dcc_session *dcc_sessions;
-
-  /* Global */
-  char *g_nick;
-  char *g_altnick;
-  char *g_realname;
-  char *g_ident;
-
-  /* Owner */
-  char *owner;
-  char *ohostmask;
-  char *opasshash;
-
-  /* Global users */
-  struct user *g_users;  
-
+  /* Unhandled tconfig blocks at toplevel */
   struct tconfig_block *tcfg;
   
   /* For TCL */

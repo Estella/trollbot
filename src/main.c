@@ -7,18 +7,15 @@
  * domain. Free for any use   *
  * whatsoever.                *
  ******************************/
-#include <stdio.h>
-#include <stdlib.h>
 
 #include "main.h"
-#include "sockets.h"
-#include "tconfig.h"
-#include "config_engine.h"
-#include "user.h"
+
+#include "network.h"
+#include "server.h"
 #include "channel.h"
-#include "irc.h"
-#include "tconfig.h"
-#include "die.h"
+#include "user.h"
+#include "sockets.h"
+
 #include "default_triggers.h"
 
 struct config *g_cfg;

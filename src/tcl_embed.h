@@ -1,8 +1,9 @@
 #ifndef __TCL_EMBED_H__
 #define __TCL_EMBED_H__
 
-#include "irc.h"
-#include "trigger.h"
+struct network;
+struct trigger;
+struct irc_data;
 
 void net_init_tcl(struct network *net);
 void tcl_handler(struct network *net, struct trigger *trig, struct irc_data *data);

@@ -1,14 +1,15 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "main.h"
 
-#include <tcl.h>
-
-#include "util.h"
-#include "network.h"
-#include "irc.h"
 #include "tcl_embed.h"
 #include "tcl_lib.h"
+
+#include "trigger.h"
+#include "irc.h"
+#include "network.h"
+#include "server.h"
+#include "channel.h"
+#include "user.h"
+
 #include "egg_lib.h"
 
 void net_init_tcl(struct network *net)

@@ -1,14 +1,10 @@
-#include <stdio.h>
-#include <string.h>
-
-#include "util.h"
-#include "irc.h"
-#include "user.h"
+#include "main.h"
+#include "egg_lib.h"
 #include "network.h"
 #include "server.h"
 #include "channel.h"
-#include "debug.h"
-#include "sha1.h"
+#include "user.h"
+#include "irc.h"
 
 /* This is the eggdrop core API that is exported to TCL, PHP, perl, etc */
 
@@ -199,7 +195,7 @@ int egg_countusers(struct network *net)
 {
   struct user *user;
   int count = 0;  
-
+/*
   if (net->users_head == NULL)
     return 0;
 
@@ -212,6 +208,7 @@ int egg_countusers(struct network *net)
   }
 
   return count;
+*/ return 0; /* FIXME */
 }
 
 /* Fully compatible */
@@ -219,7 +216,7 @@ int egg_validuser(struct network *net, const char *handle)
 {
   struct user *user;
  
-  if ((user = net->users_head) == NULL)
+  if ((user = net->users) == NULL)
     return 0;
 
   while (user != NULL)
@@ -238,7 +235,7 @@ char *egg_finduser(struct network *net, const char *mask)
 {
   struct user *user;
 
-  if ((user = net->users_head) == NULL)
+  if ((user = net->users) == NULL)
     return 0;
 
   while (user != NULL)
@@ -264,7 +261,7 @@ int egg_passwdok(struct network *net, const char *handle, const char *pass)
 
   struct user *user;
 
-  if ((user = net->users_head) == NULL)
+  if ((user = net->users) == NULL)
     return 0;
 
   while (user != NULL)

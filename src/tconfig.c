@@ -1,13 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-
 #include "main.h"
-#include "debug.h"
-#include "util.h"
-
-#include "tconfig.h"
 
 /* static sets the initial unchangeable structure */
 struct tconfig_block *file_to_tconfig(struct tconfig_block *old, const char *filename)
@@ -688,5 +679,29 @@ void free_tconfig(struct tconfig_block *tcfg)
   }
 
   return;
+}
+
+struct tconfig_block *tconfig_isolate(struct tconfig_block *tcfg)
+{
+  if (tcfg->next != NULL)
+  {
+    tcfg->next->prev = tcfg->prev;
+  }
+  
+  if (tcfg->parent != NULL)
+  {
+    tcfg->parent->child = NULL;
+  }
+
+  if (tcfg->prev != NULL)
+  {
+    tcfg->prev->next = tcfg->next;
+  }
+
+  tcfg->prev   = NULL;
+  tcfg->next   = NULL;
+  tcfg->parent = NULL;
+ 
+  return tcfg;
 }
 
