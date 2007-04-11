@@ -21,6 +21,11 @@ struct config
   
   /* For TCL */
   /* For PHP */
+
+  int fork; /* 0 to not fork, 1 to fork */
+  int forked; /* Set to 1 after forking */
+  
+  int debug_level; /* see debug.h */
 };
 
 /* Function Prototypes */

@@ -8,5 +8,7 @@ void egg_putserv(struct network *net, const char *text, int option_next);
 void egg_puthelp(struct network *net, const char *text, int option_next);
 void egg_putquick(struct network *net, const char *text, int option_next);
 
+int egg_passwdok(struct network *net, const char *handle, const char *pass);
+int egg_countusers(struct network *net);
 
 #endif /* __EGGLIB_H__ */

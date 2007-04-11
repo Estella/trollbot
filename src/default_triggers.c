@@ -53,7 +53,7 @@ void add_default_triggers(void)
     net->trigs->msg_tail       = net->trigs->msg;
 
     /* MSG PASS - to change a user's pass [user] <pass> */
-    net->trigs->msg_tail->next = new_trigger(NULL,TRIG_MSG,"ident",NULL,&check_user_pass);
+    net->trigs->msg_tail->next = new_trigger(NULL,TRIG_MSG,"pass",NULL,&new_user_pass);
     net->trigs->msg            = net->trigs->msg_tail->next;
     net->trigs->msg->prev      = net->trigs->msg_tail;
     net->trigs->msg_tail       = net->trigs->msg;
@@ -142,17 +142,14 @@ void add_default_triggers(void)
 
 void new_join(struct network *net, struct trigger *trig, struct irc_data *data)
 {
-  printf("Got Join\n");
 }
 
 void new_part(struct network *net, struct trigger *trig, struct irc_data *data)
 {
-  printf("Got part\n");
 }
 
 void new_quit(struct network *net, struct trigger *trig, struct irc_data *data)
 {
-  printf("Got quit\n");
 }
 
 void new_kick(struct network *net, struct trigger *trig, struct irc_data *data)
@@ -165,11 +162,39 @@ void new_kick(struct network *net, struct trigger *trig, struct irc_data *data)
 void new_user_pass(struct network *net, struct trigger *trig, struct irc_data *data)
 {
   struct user *user;
+  SHA1_CTX context;
+
+  /* Wrong amount of args */  
+  if (data->rest[1] == NULL)
+    return;
+
+  user = net->users;
+
+  while (user != NULL)
+  {
+    if (!strcmp(data->prefix->nick,user->nick))
+      break;
+
+    user = user->next;
+  }
+
+  if (user == NULL)
+  {
+    irc_printf(net->sock,"PRIVMSG %s :I don't know you",data->prefix->nick);
+    return;
+  }
+
+  SHA1Init(&context);
+  SHA1Update(&context, (unsigned char *)data->rest[1], strlen(data->rest[1]));
+
+  user->passhash = tmalloc0(21);
+ 
+  SHA1Final(user->passhash, &context);
+
 }
 
 void check_user_pass(struct network *net, struct trigger *trig, struct irc_data *data)
 {
-  printf("Got check user pass\n");
 }
 
 void introduce_user(struct network *net, struct trigger *trig, struct irc_data *data)
@@ -211,7 +236,7 @@ void introduce_user(struct network *net, struct trigger *trig, struct irc_data *
     user->next       = NULL;
   }
   
-  irc_printf(net->sock,"PRIVMSG %s :Welcome to trollbot, your username is '%s'",data->prefix->nick);
+  irc_printf(net->sock,"PRIVMSG %s :Welcome to trollbot, your username is '%s'",data->prefix->nick,data->prefix->nick);
   irc_printf(net->sock,"PRIVMSG %s :Type '/msg %s pass <your new password>' to continue",data->prefix->nick,net->nick);
 }
 

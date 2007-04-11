@@ -9,6 +9,7 @@
 /* This is the eggdrop core API that is exported to TCL, PHP, perl, etc */
 
 
+/* This could be replaced by a ltrim() */
 char *egg_makearg(char *rest, char *mask)
 {
   char *ret;
@@ -190,16 +191,17 @@ int egg_clearqueue(struct network *net, const char *queue)
   return 0;
 }
 
-/* Fully compatible [QUIRK: Works per network] */
+/* Returns number of users in net, 0 if none */
+/* Ready for export */
 int egg_countusers(struct network *net)
 {
   struct user *user;
   int count = 0;  
-/*
-  if (net->users_head == NULL)
+
+  if (net->users == NULL)
     return 0;
 
-  user = net->users_head;
+  user = net->users;
 
   while (user != NULL)
   {
@@ -208,7 +210,6 @@ int egg_countusers(struct network *net)
   }
 
   return count;
-*/ return 0; /* FIXME */
 }
 
 /* Fully compatible */
@@ -230,13 +231,14 @@ int egg_validuser(struct network *net, const char *handle)
 }
 
 /* finduser <nick!user@host> */
-/* Returns: the handle found, or "*" if none */
-char *egg_finduser(struct network *net, const char *mask)
+/* Eggdrop: Returns: the handle found, or "*" if none */
+/* Trollbot: Returns: a user struct, NULL if none */
+struct user *egg_finduser(struct network *net, const char *mask)
 {
   struct user *user;
 
   if ((user = net->users) == NULL)
-    return 0;
+    return NULL;
 
   while (user != NULL)
   {
@@ -245,7 +247,7 @@ char *egg_finduser(struct network *net, const char *mask)
     user = user->next;
   }
 
-  return "*";
+  return NULL;
 }
 
 
@@ -253,7 +255,6 @@ char *egg_finduser(struct network *net, const char *mask)
 
 /* Needs returns checked */
 /* userlist [flags] */
-
 int egg_passwdok(struct network *net, const char *handle, const char *pass) 
 {
   SHA1_CTX context;
@@ -275,10 +276,11 @@ int egg_passwdok(struct network *net, const char *handle, const char *pass)
  
       /* Pass is all good baby */
       if (!strcmp(user->passhash,digest))
-        return 0;
+        return 1;
 
-      return 1;
+      return 0;
     }
+
     user = user->next;
   }
 
@@ -458,7 +460,6 @@ int egg_passwdok(struct network *net, const char *handle, const char *pass)
 /* strftime <formatstring> [time] */
 /* ctime <unixtime> */
 /* myip */
-/* rand <limit> */
 /* control <idx> <command> */
 /* sendnote <from> <to[@bot]> <message> */
 /* link [via-bot] <bot> */

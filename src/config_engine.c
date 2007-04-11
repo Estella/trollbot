@@ -43,15 +43,43 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 
   cfg->networks     = NULL;
   cfg->dccs         = NULL;
+  cfg->fork         = 0;
+  cfg->forked       = 0;
+  cfg->debug_level  = 0;
   
   g_cfg             = cfg;
+
 
   while (topmost != NULL)
   {
     /* Only two global keywords exist right now, 
      * network and owner 
      */
-    if (!strcmp(topmost->key,"network"))
+    if (!strcmp(topmost->key,"global"))
+    {
+      if (strcmp(topmost->value,"settings"))
+      {
+        topmost = topmost->next;
+        continue;
+      }
+ 
+      search = topmost->child;
+    
+      while (search != NULL)
+      {
+        if (!strcmp(search->key,"fork"))
+        {
+          cfg->fork = atoi(search->value);
+        }
+        else if (!strcmp(search->key,"debuglevel"))
+        {
+          cfg->debug_level = atoi(search->value);
+        }
+
+        search = search->next;
+      }
+    }
+    else if (!strcmp(topmost->key,"network"))
     {
       net = cfg->networks;
 
@@ -85,6 +113,11 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
             free(net->nick);
    
           net->nick = tstrdup(search->value);
+
+          if (net->botnick != NULL)
+            free(net->botnick);
+
+          net->botnick = tstrdup(search->value);
         }
         else if (!strcmp(search->key,"altnick"))
         {
@@ -101,7 +134,7 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
         
             if (Tcl_EvalFile(net->tclinterp, search->value) == TCL_ERROR)
             {
-              printf("TCL Error: %s\n",Tcl_GetStringResult(net->tclinterp));
+              troll_debug(LOG_WARN,"TCL Error: %s\n",Tcl_GetStringResult(net->tclinterp));
             }
         }
 #endif /* HAVE_TCL */

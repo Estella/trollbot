@@ -26,6 +26,7 @@
 #include "user.h"
 #include "sha1.h"
 #include "network.h"
+#include "egg_lib.h"
 
 struct dcc_session *new_dcc_session(void)
 {
@@ -203,8 +204,6 @@ int dcc_in(struct dcc_session *dcc)
 
 void parse_dcc_line(struct dcc_session *dcc, const char *buffer)
 {
-  SHA1_CTX context;
-  unsigned char digest[20];
   struct user *user;
 
   switch (dcc->status)
@@ -234,6 +233,7 @@ void parse_dcc_line(struct dcc_session *dcc, const char *buffer)
  
       break;
     case DCC_HAS_USERNAME:
+      /* No password */
       if (dcc->user->passhash == NULL)
       {
         irc_printf(dcc->sock,"Login failed");
@@ -241,16 +241,14 @@ void parse_dcc_line(struct dcc_session *dcc, const char *buffer)
         dcc->sock = -1;
       }
 
-      /* User entered password */
-      SHA1Init(&context);
-      SHA1Update(&context, (unsigned char *)buffer, strlen(buffer));
-      SHA1Final(digest, &context);
-
-      /* Pass is all good baby */
-      if (!strcmp(dcc->user->passhash,digest))
+      if (egg_passwdok(dcc->net,dcc->user->username,buffer))
+      {
         irc_printf(dcc->sock,"Authenticated!");
+      }
       else
+      {
         irc_printf(dcc->sock,"Incorrect password");
+      }
 
       break;
   }

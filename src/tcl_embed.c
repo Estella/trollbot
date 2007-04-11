@@ -47,13 +47,18 @@ void net_init_tcl(struct network *net)
                        net,
                        NULL);
 
+  Tcl_CreateObjCommand(net->tclinterp,
+                       "countusers",
+                       tcl_countusers,
+                       net,
+                       NULL);
+
 }
 
 void tcl_handler(struct network *net, struct trigger *trig, struct irc_data *data)
 {
   int ret;
 
-  printf("Triggered\n");
   switch (trig->type)
   {
     case TRIG_PUB:      
@@ -73,7 +78,7 @@ void tcl_handler(struct network *net, struct trigger *trig, struct irc_data *dat
 
       if (ret == TCL_ERROR)
       {
-        printf("TCL Error: %s\n",net->tclinterp->result);
+        troll_debug(LOG_WARN,"TCL Error: %s\n",net->tclinterp->result);
       }
 
       break;
@@ -94,7 +99,7 @@ void tcl_handler(struct network *net, struct trigger *trig, struct irc_data *dat
 
       if (ret == TCL_ERROR)
       {
-        printf("TCL Error: %s\n",net->tclinterp->result);
+        troll_debug(LOG_WARN,"TCL Error: %s\n",net->tclinterp->result);
       }
 
       break;
@@ -112,7 +117,7 @@ void tcl_handler(struct network *net, struct trigger *trig, struct irc_data *dat
 
       if (ret == TCL_ERROR)
       {
-        printf("TCL Error: %s\n",net->tclinterp->result);
+        troll_debug(LOG_WARN,"TCL Error: %s\n",net->tclinterp->result);
       }
 
       break;

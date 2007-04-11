@@ -120,7 +120,7 @@ void php_handler(struct network *net, struct trigger *trig, struct irc_data *dat
       zend_try
       {
         if (call_user_function(CG(function_table), NULL, func, ret, 6, php_args TSRMLS_CC) != SUCCESS)
-          printf("Error calling function\n");
+          troll_debug(LOG_WARN,"Error calling function\n");
         else
           FREE_ZVAL(ret);     
       } zend_end_try();
@@ -162,7 +162,7 @@ void php_handler(struct network *net, struct trigger *trig, struct irc_data *dat
       zend_try
       {
         if (call_user_function(CG(function_table), NULL, func, ret, 6, php_args TSRMLS_CC) != SUCCESS)
-          printf("Error calling function\n");
+          troll_debug(LOG_WARN,"Error calling function\n");
         else
           FREE_ZVAL(ret);
       } zend_end_try();
@@ -199,7 +199,7 @@ void php_handler(struct network *net, struct trigger *trig, struct irc_data *dat
       php_args[4] = arg;
 
       if (call_user_function(CG(function_table), NULL, func, ret, 5, php_args TSRMLS_CC) != SUCCESS)
-        printf("Error calling function\n");
+        troll_debug(LOG_WARN,"Error calling function\n");
       else
         FREE_ZVAL(ret);
 
@@ -234,7 +234,7 @@ void php_handler(struct network *net, struct trigger *trig, struct irc_data *dat
       php_args[4] = arg;
 
       if (call_user_function(CG(function_table), NULL, func, ret, 5, php_args TSRMLS_CC) != SUCCESS)
-        printf("Error calling function\n");
+        troll_debug(LOG_WARN,"Error calling function\n");
       else
         FREE_ZVAL(ret);
 
@@ -328,7 +328,7 @@ static void php_embed_send_header(sapi_header_struct *sapi_header, void *server_
 /* This should write to a special log */
 static void php_embed_log_message(char *message)
 {
-  fprintf (stderr, "%s\n", message);
+  troll_debug(LOG_WARN, "%s\n", message);
 }
 
 /* Everything is really dealt with through functions, not really needed */

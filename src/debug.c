@@ -26,7 +26,10 @@ void troll_debug(int level, const char *fmt, ...)
   vsnprintf(buf, sizeof(buf), fmt, va);
   va_end(va);
 
-  printf("%s\n",buf); 
+  if (g_cfg == NULL) 
+    printf("%s\n",buf); 
+  else if (g_cfg->debug_level >= level && g_cfg->forked == 0)
+    printf("%s\n",buf);
 
   return;
 }

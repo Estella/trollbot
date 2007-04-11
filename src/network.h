@@ -10,6 +10,8 @@ struct network;
 struct trig_table;
 struct tconfig_block;
 
+#include <time.h>
+
 #ifdef HAVE_TCL
 #include <tcl.h>
 #undef STRINGIFY
@@ -48,6 +50,9 @@ struct network
   struct channel *channel_tail;
    
   int sock;
+
+  /* This is the actual nick of the bot, nick is the wanted */
+  char *botnick;
   
   char *nick;
   char *altnick;
@@ -57,6 +62,18 @@ struct network
   char *vhost;
 
   int status;
+ 
+  /* This is to implement connection queueing 
+   * connect_try is set to the amount of times 
+   * try connecting before giving up, -1 if never
+   */
+  int connect_try;
+
+  /* Time in seconds to wait before trying to reconnect */
+  time_t connect_delay;
+
+  /* if (connect_try--) if (last_try + connect_delay <= time(NULL)) connect() */
+  time_t last_try;
 
   /* Users */
   struct user *users;

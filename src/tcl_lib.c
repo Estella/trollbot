@@ -250,3 +250,17 @@ int tcl_bind(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const
   return TCL_OK; 
 }
 
+int tcl_countusers(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+  Tcl_Obj *ret;
+  struct network *net;
+
+  net = clientData;
+
+  ret = Tcl_NewIntObj(egg_countusers(net));
+
+  Tcl_SetObjResult(interp,ret);  
+
+  return TCL_OK;
+}
+

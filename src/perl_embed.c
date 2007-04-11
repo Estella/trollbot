@@ -10,7 +10,7 @@ void net_init_perl(struct network *net)
 
   perl_construct(net->perlinterp);
 
-  printf("Perl started\n");
+  troll_debug(LOG_DEBUG,"Started perl interpreter for net (%s)",net->label);
 }
 
 

@@ -7,6 +7,12 @@
  * domain. Free for any use   *
  * whatsoever.                *
  ******************************/
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdarg.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include "main.h"
 
@@ -18,7 +24,7 @@
 
 #include "default_triggers.h"
 
-struct config *g_cfg;
+struct config *g_cfg = NULL;
 
 static int test_func(struct tconfig_block *tcfg, int depth)
 {
@@ -30,6 +36,8 @@ static int test_func(struct tconfig_block *tcfg, int depth)
 
 int main(int argc, char *argv[])
 {
+  pid_t pid;
+
   printf("#################################################\n");
   printf("# Trollbot, written by poutine/DALnet           #\n");
   printf("#################################################\n");  
@@ -73,6 +81,20 @@ int main(int argc, char *argv[])
   printf("IRC Debug Output:\n");
 
   add_default_triggers();
+
+  if (g_cfg->fork == 1)
+  {
+    g_cfg->forked = 1;
+
+    pid = fork();
+
+    if (pid != 0)
+    {
+      printf("Forked with pid: %d\n",pid);
+      return 0;
+    }
+  }
+  
   
   irc_loop();
 

@@ -127,8 +127,11 @@ void trigger_match(struct network *net, struct irc_data *data)
       {
         trig = net->trigs->pub_head;
  
-        if (data->rest_str != NULL)
+        while (trig != NULL)
         {
+          if (data->rest_str == NULL)
+            break; /* not likely, impossible ? */
+
           if (!strncmp(data->rest_str,trig->mask,strlen(trig->mask)))
           { 
             if (trig->handler != NULL)

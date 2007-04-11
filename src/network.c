@@ -24,31 +24,39 @@ struct network *new_network(char *label)
   else
     ret->label = NULL;
 
-  ret->prev         = NULL;
-  ret->next         = NULL;
-  ret->server_head  = NULL;
-  ret->server_list  = NULL;
-  ret->server_tail  = NULL; 
-  ret->channel_list = NULL;
-  ret->channel_head = NULL;
-  ret->channel_tail = NULL;
-  ret->cur_server   = NULL;
-  ret->sock         = -1;
-  ret->status       = 0;
+  ret->prev          = NULL;
+  ret->next          = NULL;
+  ret->server_head   = NULL;
+  ret->server_list   = NULL;
+  ret->server_tail   = NULL; 
+  ret->channel_list  = NULL;
+  ret->channel_head  = NULL;
+  ret->channel_tail  = NULL;
+  ret->cur_server    = NULL;
+  ret->sock          = -1;
+  ret->status        = 0;
 
-  ret->nick         = NULL;
-  ret->altnick      = NULL;
-  ret->realname     = NULL;
-  ret->ident        = NULL;
+  ret->botnick       = NULL;
+  ret->nick          = NULL;
+  ret->altnick       = NULL;
+  ret->realname      = NULL;
+  ret->ident         = NULL;
 
-  ret->users        = NULL;
+  ret->users         = NULL;
 
-  ret->trigs        = new_trig_table();
+  ret->trigs         = new_trig_table();
 
-  ret->vhost        = NULL;
+  ret->vhost         = NULL;
  
-  ret->userfile     = NULL;
-  ret->chanfile     = NULL;
+  ret->userfile      = NULL;
+  ret->chanfile      = NULL;
+
+
+  ret->connect_try   = -1;
+
+  ret->connect_delay = -1;
+
+  ret->last_try      = -1;
 
 #ifdef HAVE_TCL
   net_init_tcl(ret);

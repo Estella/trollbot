@@ -297,6 +297,25 @@ void parse_irc_line(struct network *net, const char *buffer)
     }
   }
 
+  /* Deal with ERR_NICKNAMEINUSE
+   * this should be in default_triggers,
+   * but there's no raw trigger type yet
+   */
+  if (!strcmp("433",data->command))
+  {
+    if (net->altnick != NULL)
+      irc_printf(net->sock,"NICK %s",net->altnick);
+    
+    if (net->botnick != NULL)
+      free(net->botnick);
+
+    /* Should just make this a pointer to nick
+     * or altnick
+     */
+    net->botnick = tstrdup(net->altnick);
+  }
+
+
   trigger_match(net,data);
 
   irc_data_free(data);
