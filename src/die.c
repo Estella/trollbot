@@ -12,12 +12,15 @@
 #include "tconfig.h"
 #include "config_engine.h"
 #include "dcc.h"
+#include "network.h"
 
 /* Needs more cowbell */
 void die_nicely(int ret)
 {
   if (g_cfg != NULL)
   {
+    free_networks(g_cfg->networks);
+
     if (g_cfg->tcfg != NULL)
       free_tconfig(g_cfg->tcfg);
 

@@ -2,6 +2,53 @@
 #include "network.h"
 #include "user.h"
 
+void free_users(struct user *users)
+{
+  struct user *utmp;
+  struct channel_flags *cftmp;
+
+  if (users == NULL)
+    return;
+
+  while (users->prev != NULL)
+    users = users->prev;
+
+  while (users != NULL)
+  {
+    free(users->username);
+    free(users->nick);
+    free(users->ident);
+    free(users->host);
+    free(users->realname);
+    free(users->passhash);
+    free(users->flags); 
+
+    if (users->chan_flags != NULL)
+    {
+      while (users->chan_flags->prev != NULL)
+        users->chan_flags = users->chan_flags->prev;
+
+      while (users->chan_flags != NULL)
+      {
+        free(users->chan_flags->chan);
+        free(users->chan_flags->flags);
+
+        cftmp = users->chan_flags; 
+        
+        users->chan_flags = users->chan_flags->next;
+         
+        free(cftmp);
+      }
+    }
+
+    utmp  = users;
+    users = users->next;
+
+    free(utmp);
+  }
+}
+
+
 struct user *new_user(char *username, char *nick, char *passhash, char *ident, char *realname, char *host, char *flags)
 {
   struct user *ret;
@@ -16,7 +63,9 @@ struct user *new_user(char *username, char *nick, char *passhash, char *ident, c
   ret->host     = (host != NULL)     ? tstrdup(host)     : NULL;
   ret->flags    = (flags != NULL)    ? tstrdup(flags)    : NULL;
 
-  ret->tindex = NULL;
+  ret->chan_flags = NULL;
+
+  ret->extra  = NULL;
   ret->prev   = NULL;
   ret->next   = NULL;
 

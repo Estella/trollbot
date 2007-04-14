@@ -18,11 +18,51 @@ struct chan_user *new_chan_user(const char *nick, int jointime, struct user *ure
   ret->jointime = jointime;
   ret->urec     = urec;
 
-  ret->prev   = NULL;
-  ret->next   = NULL;
+  ret->prev     = NULL;
+  ret->next     = NULL;
 
   return ret;
 }
+
+void free_channels(struct channel *chans)
+{
+  struct chan_user *cusers;
+  struct chan_user *cusertmp;
+  struct channel   *chantmp;
+
+  if (chans == NULL)
+    return;
+
+  while (chans->prev != NULL)
+    chans = chans->prev;
+
+  while (chans != NULL)
+  {
+    free(chans->name);
+    cusers  = chans->user_list;
+  
+    if (cusers != NULL)
+    {
+      while (cusers->prev != NULL)
+        cusers = cusers->prev;
+ 
+      while (cusers != NULL)
+      {
+        free(cusers->nick);
+        cusertmp = cusers;
+        cusers = cusers->next;
+        free(cusertmp);
+      }
+    }
+
+    chantmp = chans;
+    chans   = chans->next;
+    free(chantmp);    
+  }
+
+  return;
+}
+
 
 struct channel *new_channel(const char *chan)
 {
@@ -47,13 +87,13 @@ void join_channels(struct network *net)
 
   joinstr = tmalloc0(BUFFER_SIZE);
 
-  if ((tmpchan = net->channel_head) == NULL)
+  if ((tmpchan = net->chans) == NULL)
     return;
 
   /* "JOIN " */
   numbytes += 5;
 
-  do
+  while (tmpchan != NULL)
   {
     if ((numbytes += strlen(tmpchan->name)) > BUFFER_SIZE-3)
       return;
@@ -61,7 +101,8 @@ void join_channels(struct network *net)
     strcat(joinstr,tmpchan->name);
     strcat(joinstr,",");
     
-  } while ((tmpchan = tmpchan->next) != NULL);
+    tmpchan = tmpchan->next;
+  } 
 
   joinstr[strlen(joinstr)-1] = '\0';
  

@@ -13,6 +13,39 @@
 #include "perl_embed.h"
 #endif /* HAVE_PERL */
 
+void free_networks(struct network *net)
+{
+  struct network *ntmp;
+
+  if (net == NULL)
+    return;
+
+  while (net->prev != NULL)
+    net = net->prev;
+
+  while (net != NULL)
+  {
+    free(net->label);
+    free(net->botnick);
+    free(net->nick);
+    free(net->altnick);
+    free(net->ident);
+    free(net->realname);
+    free(net->vhost);
+ 
+    free_users(net->users);
+
+    free_channels(net->chans);
+
+    ntmp = net;
+    net  = net->next;
+    free(ntmp);
+  }
+
+  return;
+}
+ 
+
 struct network *new_network(char *label)
 {
   struct network *ret;
@@ -26,13 +59,13 @@ struct network *new_network(char *label)
 
   ret->prev          = NULL;
   ret->next          = NULL;
-  ret->server_head   = NULL;
-  ret->server_list   = NULL;
-  ret->server_tail   = NULL; 
-  ret->channel_list  = NULL;
-  ret->channel_head  = NULL;
-  ret->channel_tail  = NULL;
+
+  ret->servers       = NULL; 
+
+  ret->chans         = NULL;
+
   ret->cur_server    = NULL;
+
   ret->sock          = -1;
   ret->status        = 0;
 

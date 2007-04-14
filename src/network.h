@@ -36,18 +36,16 @@ enum
   STATUS_IDLE
 };
 
+/* All lists are at head */
 struct network
 {
   char *label;
 
   struct server *cur_server;
-  struct server *server_head;
-  struct server *server_list;
-  struct server *server_tail;
 
-  struct channel *channel_list;
-  struct channel *channel_head;
-  struct channel *channel_tail;
+  struct server *servers;
+
+  struct channel *chans;
    
   int sock;
 
@@ -97,6 +95,8 @@ struct network
   char *userfile;
   char *chanfile;
 };
+
+void free_networks(struct network *net);
 
 struct network *new_network(char *label);
 

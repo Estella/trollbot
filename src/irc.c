@@ -25,6 +25,7 @@ void irc_printf(int sock, const char *fmt, ...)
   memset(buf2, 0, sizeof(buf2));
 
   va_start(va, fmt);
+
   /* C99 */
   vsnprintf(buf, sizeof(buf), fmt, va);
   va_end(va);
@@ -300,6 +301,11 @@ void parse_irc_line(struct network *net, const char *buffer)
   /* Deal with ERR_NICKNAMEINUSE
    * this should be in default_triggers,
    * but there's no raw trigger type yet
+   */
+  /* Also needs bind time event for changing
+   * nickname back to regular nick. Perhaps
+   * even a custom event for nickserv ghost and
+   * such.
    */
   if (!strcmp("433",data->command))
   {

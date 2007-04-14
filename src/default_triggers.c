@@ -209,7 +209,7 @@ void introduce_user(struct network *net, struct trigger *trig, struct irc_data *
                           data->prefix->user,  /* ident    */
                           NULL,                /* realname */
                           data->prefix->host,  /* hostname */
-                          NULL);               /* flags    */
+                          "p");                /* flags    */
 
     user       = net->users;
     user->prev = NULL;
@@ -228,7 +228,7 @@ void introduce_user(struct network *net, struct trigger *trig, struct irc_data *
                                 data->prefix->user,  /* ident    */
                                 NULL,                /* realname */
                                 data->prefix->host,  /* hostname */
-                                NULL);               /* flags    */
+                                "p");                /* flags    */
 
     user->next->prev = user;
     user             = user->next;

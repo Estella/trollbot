@@ -133,7 +133,7 @@ void trigger_match(struct network *net, struct irc_data *data)
             break; /* not likely, impossible ? */
 
           if (!strncmp(data->rest_str,trig->mask,strlen(trig->mask)))
-          { 
+          {
             if (trig->handler != NULL)
               trig->handler(net,trig,data);
           }

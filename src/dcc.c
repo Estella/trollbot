@@ -215,6 +215,13 @@ void parse_dcc_line(struct dcc_session *dcc, const char *buffer)
       {
         if (!strcmp(user->username,buffer))
         {
+          if (!egg_matchattr(dcc->net,user->username,"p",NULL))
+          {
+            irc_printf(dcc->sock,"You do not have the flags to access DCC.");
+            shutdown(dcc->sock,SHUT_RDWR);
+            dcc->sock = -1;
+            return;
+          }
           dcc->user = user;
           irc_printf(dcc->sock,"Please enter your password.");
           dcc->status = DCC_HAS_USERNAME;

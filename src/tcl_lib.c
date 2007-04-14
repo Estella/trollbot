@@ -250,6 +250,28 @@ int tcl_bind(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const
   return TCL_OK; 
 }
 
+int tcl_matchattr(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+  Tcl_Obj *ret;
+  struct network *net;
+
+  net = clientData;
+
+  if (objc != 3 && objc != 4)
+  {
+    Tcl_WrongNumArgs(interp,objc,objv,"matchattr <handle> <flags> [channel]");
+    return TCL_ERROR;
+  }
+
+  /* No channel flag support FIXME */
+  ret = Tcl_NewIntObj(egg_matchattr(net,Tcl_GetString(objv[1]),Tcl_GetString(objv[2]),NULL));
+
+  Tcl_SetObjResult(interp,ret);
+
+  return TCL_OK;
+}
+
+
 int tcl_countusers(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {
   Tcl_Obj *ret;

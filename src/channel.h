@@ -33,6 +33,7 @@ struct channel
 };
 
 struct chan_user *new_chan_user(const char *nick, int jointime, struct user *urec);
+void free_channels(struct channel *chans);
 struct channel *new_channel(const char *chan);
 void join_channels(struct network *net);
 void chan_init(void);

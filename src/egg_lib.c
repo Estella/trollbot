@@ -290,9 +290,47 @@ int egg_passwdok(struct network *net, const char *handle, const char *pass)
 /* getuser <handle> <entry-type> [extra info] */
 /* setuser <handle> <entry-type> [extra info] */
 /* chhandle <old-handle> <new-handle> */
+
 /* chattr <handle> [changes [channel]] */
+
+
 /* botattr <handle> [changes [channel]] */
+
 /* matchattr <handle> <flags> [channel] */
+int egg_matchattr(struct network *net, const char *handle, const char *flags, const char *channel)
+{
+  struct user *user;
+  int i;
+  
+  /* First find the user */
+  for(user=net->users;user != NULL && strcmp(handle,user->username);user=user->next);
+
+  if (user == NULL)
+    return 0;
+
+  /* Deal with this either as a channel or global, not sure if this should
+   * handle eggdrop notation a|f or whatever.
+   */
+  if (channel != NULL)
+  {
+  } 
+  else
+  {
+    if (user->flags == NULL)
+      return 0;
+
+    /* No channel, just check global flags */
+    for (i=0;*(flags+i) != '\0';i++)
+    {
+      if (strchr(user->flags,*(flags+i)) == NULL)
+        return 0;
+    }
+  }
+
+  return 1;
+ 
+}
+
 /* adduser <handle> [hostmask] */
 /* addbot <handle> <address> */
 /* deluser <handle> */

@@ -1,0 +1,13 @@
+**********************
+* Trollbot ChangeLog *
+**********************
+2007-04-13: * Removed head/tail/generic pointers from network, decided to
+              just have a single list, default at head for servers, channels,
+              and users.
+            * matchattr now works with the exception of channel flags, added
+              TCL matchattr, PHP soon to follow.
+2007-04-12: * Started ChangeLog again.
+            * Added free_ functions for channel and user, they both take 
+              care of children structs.
+            * Added egg_matchattr for use with DCC partyline code.
+            * More connections added with user system

@@ -46,7 +46,7 @@ void irc_loop(void)
   /* Connect to one server for each network, or mark network unconnectable */
   while (net != NULL)
   {
-    svr = net->server_head;
+    svr = net->servers;
 
     while (svr != NULL)
     {

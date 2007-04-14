@@ -233,6 +233,17 @@ PHP_FUNCTION(bind)
   RETURN_TRUE;
 }
 
+/* Need to figure out optional parameters in Zend
+PHP_FUNCTION(matchattr)
+{
+  struct network *net;
+
+  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss", &netw, &netw_len, &msg, &msg_len) == FAILURE)
+  {
+    RETURN_FALSE;
+  }
+*/
+
 PHP_FUNCTION(putserv)
 {
   struct network *net;

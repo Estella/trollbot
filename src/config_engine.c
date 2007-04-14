@@ -38,6 +38,7 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
   struct tconfig_block *search  = tcfg;
   struct network *net;
   struct server *svr;
+  struct channel *chan;
 
   cfg = tmalloc(sizeof(struct config));
 
@@ -184,43 +185,47 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
         }
         else if (!strcmp(search->key,"server"))
         {
-          if (net->server_list != NULL)
+          if (net->servers != NULL)
           {
-            net->server_tail->next         = new_server(search->value);
-            net->server_tail->next->prev   = net->server_tail;
-            net->server_tail               = net->server_tail->next;
-          } 
-          else 
-          {
-            net->server_list = new_server(search->value);
-            net->server_list->next = NULL;
-            net->server_list->prev = NULL;
-            net->server_head = net->server_list;
-            net->server_tail = net->server_list;
-          }
-          
-          svr = net->server_tail;
-          svr->tindex = search;
-        }
-        else if (!strcmp(search->key,"channel"))
-        {
-          if (net->channel_list != NULL)
-          {
-            net->channel_tail->next         = new_channel(search->value);
-            net->channel_tail->next->prev   = net->channel_tail;
-            net->channel_tail               = net->channel_tail->next;
+            svr = net->servers;
+
+            while (svr->next != NULL)
+              svr = svr->next;
+
+            svr->next         = new_server(search->value);
+            svr->next->prev   = svr;
+            svr               = svr->next;
           }
           else
           {
-            net->channel_list = new_channel(search->value);
-            net->channel_list->next = NULL;
-            net->channel_list->prev = NULL;
-            net->channel_head = net->channel_list;
-            net->channel_tail = net->channel_list;
+            net->servers = new_server(search->value);
+            svr          = net->servers;
+            svr->prev    = NULL;
+            svr->next    = NULL;
+          }
+        }
+        else if (!strcmp(search->key,"channel"))
+        {
+          if (net->chans != NULL)
+          {
+            chan = net->chans;
+
+            while (chan->next != NULL)
+              chan = chan->next;
+            
+            chan->next         = new_channel(search->value);
+            chan->next->prev   = chan;
+            chan               = chan->next;
+          }
+          else
+          {
+            net->chans = new_channel(search->value);
+            chan       = net->chans;
+            chan->prev = NULL;
+            chan->next = NULL;
           }
         }
         
-
         search = search->next;
       }
     }

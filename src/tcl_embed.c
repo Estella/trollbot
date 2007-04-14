@@ -48,6 +48,12 @@ void net_init_tcl(struct network *net)
                        NULL);
 
   Tcl_CreateObjCommand(net->tclinterp,
+                       "matchattr",
+                       tcl_matchattr,
+                       net,
+                       NULL);
+
+  Tcl_CreateObjCommand(net->tclinterp,
                        "countusers",
                        tcl_countusers,
                        net,
@@ -55,6 +61,7 @@ void net_init_tcl(struct network *net)
 
 }
 
+/* needs fixed FIXME */
 void tcl_handler(struct network *net, struct trigger *trig, struct irc_data *data)
 {
   int ret;
