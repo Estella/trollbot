@@ -23,7 +23,7 @@ dnl TCL_LIBS, TCL_CPPFLAGS, and TCL_DEFS and SUBSTs them.
 dnl If successful, these have stuff in them.  If not, they're empty.
 dnl If not successful, with_tcl has the value "no".
 
-AC_DEFUN([CMU_TCL], [
+AC_DEFUN([AX_PROG_TCL], [
 # --- BEGIN CMU_TCL ---
 dnl To link against Tcl, configure does several things to make my life
 dnl "easier".
@@ -116,10 +116,13 @@ if test "$with_tcl" != "no"; then
 
     if test "${with_tcl}" != no ; then
       AC_MSG_CHECKING([Tcl configuration on what Tcl needs to compile])
-      . ${TclLibBase}/tclConfig.sh
-      AC_MSG_RESULT(ok)
-      dnl no TK stuff for us.
-      dnl . ${TclLibBase}/tkConfig.sh
+      if test -f ${TclLibBase}/tclConfig.sh; then 
+        AC_MSG_RESULT([ok])
+        . ${TclLibBase}/tclConfig.sh
+      else
+        AC_MSG_RESULT(not found)
+        with_tcl=no
+      fi
     fi
 
     if test "${with_tcl}" != no ; then
@@ -161,4 +164,4 @@ AC_SUBST(TCL_LIBS)
 AC_SUBST(TCL_CPPFLAGS)
 
 # --- END CMU_TCL ---
-]) dnl CMU_TCL
+]) dnl AX_PROG_TCL

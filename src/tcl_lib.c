@@ -243,6 +243,25 @@ int tcl_bind(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const
 
     net->trigs->sign_tail->next = NULL;
   }
+  else if (!strcmp(Tcl_GetString(objv[1]),"dcc"))
+  {
+    if (net->trigs->dcc == NULL)
+    {
+      net->trigs->dcc       = new_trigger(Tcl_GetString(objv[2]),TRIG_DCC,Tcl_GetString(objv[3]),Tcl_GetString(objv[4]),&tcl_handler);
+      net->trigs->dcc->prev = NULL;
+      net->trigs->dcc_head  = net->trigs->dcc;
+      net->trigs->dcc_tail  = net->trigs->dcc;
+    }
+    else
+    {
+      net->trigs->dcc_tail->next = new_trigger(Tcl_GetString(objv[2]),TRIG_DCC,Tcl_GetString(objv[3]),Tcl_GetString(objv[4]),&tcl_handler);
+      net->trigs->dcc            = net->trigs->dcc_tail->next;
+      net->trigs->dcc->prev      = net->trigs->dcc_tail;
+      net->trigs->dcc_tail       = net->trigs->dcc;
+    }
+
+    net->trigs->dcc_tail->next = NULL;
+  }
   else
     return TCL_ERROR;
 

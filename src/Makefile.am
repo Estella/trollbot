@@ -15,7 +15,7 @@ endif
 
 if WITH_PHP
 
-trollbot_SOURCES += php_embed.c php_lib.c
+trollbot_SOURCES += aprcompat.c php_embed.c php_lib.c
 trollbot_CFLAGS  += ${PHP_CFLAGS}
 trollbot_LDADD   += ${PHP_LDADD}
 

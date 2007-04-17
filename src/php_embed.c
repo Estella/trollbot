@@ -35,6 +35,8 @@
 #include <fcntl.h>
 #endif
 
+#include "user.h"
+#include "dcc.h"
 #include "irc.h"
 #include "trigger.h"
 #include "network.h"
@@ -74,7 +76,7 @@ void myphp_eval_file(char *filename)
 }
 
 
-void php_handler(struct network *net, struct trigger *trig, struct irc_data *data)
+void php_handler(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
   zval *func;
   zval *netw;
@@ -84,6 +86,7 @@ void php_handler(struct network *net, struct trigger *trig, struct irc_data *dat
   zval *chan;
   zval *arg;
   zval *ret;
+  zval *idx;
   zval *php_args[10]; /* may need changed */
 
   /* We have to create the arguments for the called function as zvals */
@@ -106,7 +109,8 @@ void php_handler(struct network *net, struct trigger *trig, struct irc_data *dat
       ZVAL_STRING(netw, net->label, 1);
       ZVAL_STRING(nick, data->prefix->nick, 1);
       ZVAL_STRING(uhost, data->prefix->host, 1);
-      ZVAL_STRING(hand, data->prefix->nick, 1);
+      
+      ZVAL_STRING(hand, "*", 1);
       ZVAL_STRING(chan, data->c_params[0], 1);
       ZVAL_STRING(arg, egg_makearg(data->rest_str,trig->mask), 1);
 
@@ -148,7 +152,7 @@ void php_handler(struct network *net, struct trigger *trig, struct irc_data *dat
       ZVAL_STRING(netw, net->label, 1);
       ZVAL_STRING(nick, data->prefix->nick, 1);
       ZVAL_STRING(uhost, data->prefix->host, 1);
-      ZVAL_STRING(hand, data->prefix->nick, 1);
+      ZVAL_STRING(hand, "*", 1);
       ZVAL_STRING(chan, data->c_params[0], 1);
       ZVAL_STRING(arg, data->rest_str, 1);
 
@@ -189,7 +193,7 @@ void php_handler(struct network *net, struct trigger *trig, struct irc_data *dat
       ZVAL_STRING(netw, net->label, 1);
       ZVAL_STRING(nick, data->prefix->nick, 1);
       ZVAL_STRING(uhost, data->prefix->host, 1);
-      ZVAL_STRING(hand, data->prefix->nick, 1);
+      ZVAL_STRING(hand, "*", 1);
       ZVAL_STRING(arg, egg_makearg(data->rest_str,trig->mask), 1);
 
       php_args[0] = netw;
@@ -224,7 +228,7 @@ void php_handler(struct network *net, struct trigger *trig, struct irc_data *dat
       ZVAL_STRING(netw, net->label, 1);
       ZVAL_STRING(nick, data->prefix->nick, 1);
       ZVAL_STRING(uhost, data->prefix->host, 1);
-      ZVAL_STRING(hand, data->prefix->nick, 1);
+      ZVAL_STRING(hand, "*", 1);
       ZVAL_STRING(arg, data->rest_str, 1);
 
       php_args[0] = netw;
@@ -250,6 +254,34 @@ void php_handler(struct network *net, struct trigger *trig, struct irc_data *dat
     case TRIG_PART:
       break;
     case TRIG_SIGN:
+      break;
+    case TRIG_DCC:
+      /* $net, $handle, $idx, $text */
+      MAKE_STD_ZVAL(func);
+      MAKE_STD_ZVAL(hand);
+      MAKE_STD_ZVAL(idx);
+      MAKE_STD_ZVAL(arg);
+
+      ALLOC_INIT_ZVAL(ret);      
+
+      ZVAL_STRING(func, trig->command, 1);
+      ZVAL_STRING(hand, dcc->user->username, 1);
+      ZVAL_LONG(idx, dcc->id);
+      ZVAL_STRING(arg, dccbuf, 1);
+
+      php_args[0] = hand;
+      php_args[1] = idx;
+      php_args[2] = arg;
+
+      if (call_user_function(CG(function_table), NULL, func, ret, 3, php_args TSRMLS_CC) != SUCCESS)
+        troll_debug(LOG_WARN,"Error calling function\n");
+      else
+        FREE_ZVAL(ret);
+
+      if (hand)  FREE_ZVAL(hand);
+      if (idx)   FREE_ZVAL(idx);
+      if (arg)   FREE_ZVAL(arg);
+
       break;
   }
 }
@@ -328,7 +360,7 @@ static void php_embed_send_header(sapi_header_struct *sapi_header, void *server_
 /* This should write to a special log */
 static void php_embed_log_message(char *message)
 {
-  troll_debug(LOG_WARN, "%s\n", message);
+  troll_debug(LOG_WARN, "PHP LOG: %s\n", message);
 }
 
 /* Everything is really dealt with through functions, not really needed */
@@ -438,7 +470,7 @@ int php_embed_init(int argc, char **argv PTSRMLS_DC)
   SG(options) |= SAPI_OPTION_NO_CHDIR;
   zend_alter_ini_entry("log_errors",sizeof("log_errors"),"1", 1,PHP_INI_SYSTEM, PHP_INI_STAGE_RUNTIME);
   zend_alter_ini_entry("display_errors", 15, "1", 1, PHP_INI_SYSTEM, PHP_INI_STAGE_ACTIVATE);
-  zend_alter_ini_entry("error_reporting", 16, "6143", 1, PHP_INI_SYSTEM, PHP_INI_STAGE_ACTIVATE); 
+  zend_alter_ini_entry("error_reporting", 16, "6143", 4, PHP_INI_SYSTEM, PHP_INI_STAGE_ACTIVATE); 
   zend_alter_ini_entry("register_argc_argv", 19, "1", 1, PHP_INI_SYSTEM, PHP_INI_STAGE_ACTIVATE);
   zend_alter_ini_entry("html_errors", 12, "0", 1, PHP_INI_SYSTEM, PHP_INI_STAGE_ACTIVATE);
   zend_alter_ini_entry("implicit_flush", 15, "1", 1, PHP_INI_SYSTEM, PHP_INI_STAGE_ACTIVATE);
@@ -472,6 +504,7 @@ void php_embed_shutdown(TSRMLS_D)
 }
 
 static function_entry trollbot_functions[] = {
+    PHP_FE(putdcc, NULL)
     PHP_FE(matchwild, NULL)
     PHP_FE(putserv, NULL)
     PHP_FE(bind, NULL)

@@ -18,9 +18,10 @@ struct config
 
   /* Unhandled tconfig blocks at toplevel */
   struct tconfig_block *tcfg;
-  
-  /* For TCL */
-  /* For PHP */
+
+  char *dcc_host;
+  int dcc_port;  
+  int dcc_listener;
 
   int fork; /* 0 to not fork, 1 to fork */
   int forked; /* Set to 1 after forking */

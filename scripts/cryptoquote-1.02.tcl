@@ -698,7 +698,8 @@ proc cryptoquote:end_game { chan } {
   putserv $output
 
   cryptoquote:write_scores
-  cryptoquote:show_scores "" "" "" $chan ""
+
+  #cryptoquote:show_scores "" "" "" $chan ""
 
   set a_chan_in_game($chan) 0
 

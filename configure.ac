@@ -13,14 +13,18 @@ AC_PROG_CC
 dnl test C Compiler
 AC_LANG_C
 
+AC_C_CONST
+
+AC_STRUCT_TM
+
 dnl test if TCL exists
-CMU_TCL
+AX_PROG_TCL
 
 dnl set the WITH_TCL for automake's use
 AM_CONDITIONAL(WITH_TCL, test "x${TCL_LIBS}" != "x")
 
 dnl test if PHP exists
-AC_PROG_PHP
+AX_PROG_PHP
 
 dnl supply automake a WITH_PHP conditional
 AM_CONDITIONAL(WITH_PHP, test "x${PHP_LDADD}" != "x")

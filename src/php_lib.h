@@ -9,6 +9,7 @@
 #include <zend_ini.h>
 #undef END_EXTERN_C
 
+PHP_FUNCTION(putdcc);
 PHP_FUNCTION(matchwild);
 PHP_FUNCTION(bind);
 PHP_FUNCTION(putserv);

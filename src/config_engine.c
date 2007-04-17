@@ -44,6 +44,9 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 
   cfg->networks     = NULL;
   cfg->dccs         = NULL;
+  cfg->dcc_host     = NULL;
+  cfg->dcc_port     = NULL;
+  cfg->dcc_listener = -1;
   cfg->fork         = 0;
   cfg->forked       = 0;
   cfg->debug_level  = 0;
@@ -75,6 +78,17 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
         else if (!strcmp(search->key,"debuglevel"))
         {
           cfg->debug_level = atoi(search->value);
+        }
+        else if (!strcmp(search->key,"dcc_host"))
+        {
+          if (cfg->dcc_host != NULL)
+            free(cfg->dcc_host);
+   
+          cfg->dcc_host = tstrdup(search->value);
+        }
+        else if (!strcmp(search->key,"dcc_port"))
+        {
+          cfg->dcc_port = atoi(search->value);
         }
 
         search = search->next;

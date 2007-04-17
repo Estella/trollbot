@@ -480,7 +480,7 @@ AC_MSG_RESULT([$am_cv_prog_tar_$1])])
 AC_SUBST([am__tar])
 AC_SUBST([am__untar])
 ])
-m4trace:acinclude.m4:164: -1- AC_DEFUN([CMU_TCL], [
+m4trace:acinclude.m4:167: -1- AC_DEFUN([AX_PROG_TCL], [
 # --- BEGIN CMU_TCL ---
 dnl To link against Tcl, configure does several things to make my life
 dnl "easier".
@@ -573,10 +573,13 @@ if test "$with_tcl" != "no"; then
 
     if test "${with_tcl}" != no ; then
       AC_MSG_CHECKING([Tcl configuration on what Tcl needs to compile])
-      . ${TclLibBase}/tclConfig.sh
-      AC_MSG_RESULT(ok)
-      dnl no TK stuff for us.
-      dnl . ${TclLibBase}/tkConfig.sh
+      if test -f ${TclLibBase}/tclConfig.sh; then 
+        AC_MSG_RESULT([ok])
+        . ${TclLibBase}/tclConfig.sh
+      else
+        AC_MSG_RESULT(not found)
+        with_tcl=no
+      fi
     fi
 
     if test "${with_tcl}" != no ; then
@@ -619,49 +622,126 @@ AC_SUBST(TCL_CPPFLAGS)
 
 # --- END CMU_TCL ---
 ])
-m4trace:acinclude.m4:208: -1- AC_DEFUN([AC_PROG_PHP], [
-  AC_ARG_WITH(php,      [  --with-php=PATH         use PHP from PATH],
-        with_php="$withval")
+m4trace:acinclude.m4:289: -1- AC_DEFUN([AX_PROG_PHP], [
 
-  AC_MSG_CHECKING([Checking whether to use PHP])
+  AC_ARG_WITH(php-config, [  --with-php=PATH        use php-config from PATH],
+        [ with_php="$withval"])
 
-  if test "$with_php" != "no" ; then
-    if test -r $with_php/include/php ; then
-      PHP_PREFIX="${with_php}"
-      PHP_LDADD="${with_php}/lib/libphp5.so -R${with_php}/lib `${with_php}/bin/php-config --libs`"
-      PHP_CFLAGS="`${with_php}/bin/php-config --includes`"
-    fi
+  if test "x${with_php}" != "xno" ; then
+    AC_MSG_CHECKING([for user specified php-config directory])
 
-    if test "x${PHP_PREFIX}" = "x"; then
-      if test -r /usr/lib/libphp5.so; then
-        PHP_PREFIX="/usr"
-        PHP_LDADD="/usr/lib/libphp5.so `/usr/bin/php-config --libs`"
-        PHP_CFLAGS="`/usr/bin/php-config --includes`"
-      fi
-
-      if test -r /usr/local/lib/libphp5.so; then
-        PHP_PREFIX="/usr/local"
-        PHP_LDADD="/usr/local/lib/libphp5.so `/usr/local/bin/php-config --libs`"
-        PHP_CFLAGS="`/usr/local/bin/php-config --includes`"
-      fi
-    fi
-
-    if test "x${PHP_CFLAGS}" != "x" -a "x${PHP_LDADD}" != "x" ; then
-      AC_DEFINE([HAVE_PHP],1,[Ability to use PHP scripting])
-
-      AC_SUBST(PHP_CFLAGS)
-      AC_SUBST(PHP_LDADD)
-      AC_SUBST(PHP_PREFIX)
-
-      AC_MSG_RESULT([ready to go])
+    if test -f "$with_php/php-config"; then
+      PHPCONFIG="${with_php}/php-config"
+      AC_MSG_RESULT([found])
     else
-      AC_MSG_RESULT([Could not use PHP])
+      AC_MSG_RESULT([Not specified])
+      AC_PATH_PROG(PHPCONFIG,php-config)    
     fi
-  else
-    AC_MSG_RESULT([support disabled])
+
+    AC_MSG_CHECKING([whether if we have proper compiler flags for PHP])
+
+    if test "x${PHPCONFIG}" != "x"; then
+      AC_MSG_RESULT([yes])
+
+      PHP_CFLAGS=`${PHPCONFIG} --includes`
+
+      php_ver="`${PHPCONFIG} --vernum`"
+
+      if test $php_ver -gt 50000; then
+        PHP_LDADD="`${PHPCONFIG} --ldflags` `${PHPCONFIG} --libs` -lphp5"
+      else
+        PHP_LDADD="`${PHPCONFIG} --ldflags` `${PHPCONFIG} --libs` -lphp4"
+      fi
+  
+      dnl not sure if this is needed
+      oldlibs="${LIBS}"
+      oldcppflags="${CPPFLAGS}"
+      CPPFLAGS="${oldcppflags} ${PHP_CFLAGS}"
+      LIBS="${oldlibs} ${PHP_LDADD}"
+
+dnl link      AC_MSG_CHECKING([if PHP cflags and ldflags work])
+
+dnl link     AC_TRY_LINK([#include <main/php.h>
+dnl link                  #include <main/SAPI.h>
+dnl link                   #include <main/php_main.h>
+dnl link                   #include <main/php_variables.h>
+dnl link                   #include <main/php_ini.h>
+dnl link                   #include <zend_ini.h>
+dnl link                   ],[
+dnl link                     const char *ap_auth_type(void) { return 0; }
+dnl link                     const char *ap_loaded_modules(void) { return 0; }
+dnl link                     const char *ap_log_rerror(void) { return 0; }
+dnl link                     const char *ap_hook_post_config(void) { return 0; }
+dnl link                     const char *apr_table_add(void) { return 0; }
+dnl link                     const char *unixd_config(void) { return 0; }
+dnl link                     const char *ap_get_brigade(void) { return 0; }
+dnl link                     const char *ap_hook_handler(void) { return 0; }
+dnl link                     const char *ap_update_mtime(void) { return 0; }
+dnl link                     const char *apr_brigade_flatten(void) { return 0; }
+dnl link                     const char *ap_add_cgi_vars(void) { return 0; }
+dnl link                     const char *ap_server_root_relative(void) { return 0; }
+dnl link                     const char *apr_table_set(void) { return 0; }
+dnl link                     const char *ap_set_content_type(void) { return 0; }
+dnl link                     const char *ap_server_root(void) { return 0; }
+dnl link                     const char *ap_get_server_version(void) { return 0; }
+dnl link                     const char *apr_pool_cleanup_register(void) { return 0; }
+dnl link                     const char *ap_mpm_query(void) { return 0; }
+dnl link                     const char *ap_destroy_sub_req(void) { return 0; }
+dnl link                     const char *ap_pass_brigade(void) { return 0; }
+dnl link                     const char *apr_pstrdup(void) { return 0; }
+dnl link                     const char *apr_table_unset(void) { return 0; }
+dnl link                     const char *apr_snprintf(void) { return 0; }
+dnl link                     const char *ap_log_error(void) { return 0; }
+dnl link                     const char *apr_table_get(void) { return 0; }
+dnl link                     const char *ap_sub_req_lookup_uri(void) { return 0; }
+dnl link                     const char *apr_psprintf(void) { return 0; }
+dnl link                     const char *apr_pool_cleanup_run(void) { return 0; }
+dnl link                     const char *ap_run_sub_req(void) { return 0; }
+dnl link                     const char *apr_palloc(void) { return 0; }
+dnl link                     const char *apr_brigade_cleanup(void) { return 0; }
+dnl link                     const char *ap_hook_pre_config(void) { return 0; }
+dnl link                     const char *ap_rwrite(void) { return 0; }
+dnl link                     const char *apr_table_elts(void) { return 0; }
+dnl link                     const char *ap_add_version_component(void) { return 0; }
+dnl link                     const char *apr_bucket_eos_create(void) { return 0; }
+dnl link                     const char *apr_pool_userdata_set(void) { return 0; }
+dnl link                     const char *apr_brigade_create(void) { return 0; }
+dnl link                     const char *ap_rflush(void) { return 0; }
+dnl link                     const char *apr_pool_cleanup_null(void) { return 0; }
+dnl link                     const char *ap_set_last_modified(void) { return 0; }
+dnl link                     const char *ap_add_common_vars(void) { return 0; }
+dnl link                     const char *apr_pool_userdata_get(void) { return 0; }
+dnl link                   ],[
+dnl link                     php_link="yes"
+dnl link                   ],[
+dnl link                     php_link="no"
+dnl link                   ])
+
+      LIBS="${oldlibs}"
+      CPPFLAGS="${oldcppflags}"
+                    
+dnl link      if test "${php_link}" = "yes"; then
+dnl link        AC_MSG_RESULT([linked fine])
+
+        dnl for Automake
+        AC_DEFINE([HAVE_PHP],1,[Ability to use PHP scripting])
+
+        AC_SUBST(PHP_CFLAGS)
+        AC_SUBST(PHP_LDADD)
+dnl link      else
+dnl link        AC_MSG_RESULT([could not link, PHP support disabled])
+dnl link        PHP_CFLAGS=""
+dnl link        PHP_LDADD=""
+
+dnl link        AC_SUBST(PHP_CFLAGS)
+dnl link        AC_SUBST(PHP_LDADD)
+dnl link      fi
+    else
+      AC_MSG_RESULT([No])
+    fi
   fi
  ])
-m4trace:acinclude.m4:227: -1- AC_DEFUN([AX_PROG_PERL], [
+m4trace:acinclude.m4:333: -1- AC_DEFUN([AX_PROG_PERL], [
   AC_ARG_WITH(perl,      [  --with-perl=PATH         use Perl from PATH],
         with_perl="$withval")
 
@@ -672,9 +752,34 @@ m4trace:acinclude.m4:227: -1- AC_DEFUN([AX_PROG_PERL], [
     if test "x${PERL}" != "x"; then
       PERL_LDADD="`${PERL} -MExtUtils::Embed -e ldopts`"
       PERL_CFLAGS="`${PERL} -MExtUtils::Embed -e ccopts`"
-      AC_SUBST(PERL_LDADD)
-      AC_SUBST(PERL_CFLAGS)
-      AC_DEFINE([HAVE_PERL],1,[Ability to use Perl scripting])
+
+      oldlibs="${LIBS}"
+      oldcppflags="${CPPFLAGS}"
+      CPPFLAGS="${oldcppflags} ${PERL_CFLAGS}"
+      LIBS="${oldlibs} ${PERL_LDADD}"
+
+      AC_MSG_CHECKING([whether we can link with perl])
+      
+      AC_TRY_LINK([#include <EXTERN.h>
+                   #include <perl.h>
+                  ],[
+                   perl_alloc()
+                  ],[
+                   perl_link="yes"
+                  ],[
+                   perl_link="no"])
+
+      LIBS="${oldlibs}"
+      CPPFLAGS="${oldcppflags}"
+
+      if test "x${perl_link}" = "xyes"; then
+        AC_MSG_RESULT([Yes])
+        AC_SUBST(PERL_LDADD)
+        AC_SUBST(PERL_CFLAGS)
+        AC_DEFINE([HAVE_PERL],1,[Ability to use Perl scripting])
+      else
+        AC_MSG_RESULT([No])
+      fi
     fi
   fi
  ])
@@ -835,53 +940,65 @@ m4trace:configure.ac:11: -1- AC_SUBST([am__fastdepCC_FALSE])
 m4trace:configure.ac:14: -1- _m4_warn([obsolete], [The macro `AC_LANG_C' is obsolete.
 You should run autoupdate.], [autoconf/c.m4:71: AC_LANG_C is expanded from...
 configure.ac:14: the top level])
-m4trace:configure.ac:17: -1- CMU_TCL
-m4trace:configure.ac:17: -1- AC_SUBST([TCLSH], [$ac_cv_path_TCLSH])
-m4trace:configure.ac:17: -1- AC_DEFINE_TRACE_LITERAL([HAVE_TCL])
-m4trace:configure.ac:17: -1- AH_OUTPUT([HAVE_TCL], [/* Ability to use TCL scripting */
+m4trace:configure.ac:16: -1- AC_C_CONST
+m4trace:configure.ac:16: -1- AC_DEFINE_TRACE_LITERAL([const])
+m4trace:configure.ac:16: -1- AH_OUTPUT([const], [/* Define to empty if `const\' does not conform to ANSI C. */
+#undef const])
+m4trace:configure.ac:18: -1- AC_STRUCT_TM
+m4trace:configure.ac:18: -1- AC_DEFINE_TRACE_LITERAL([TM_IN_SYS_TIME])
+m4trace:configure.ac:18: -1- AH_OUTPUT([TM_IN_SYS_TIME], [/* Define to 1 if your <sys/time.h> declares `struct tm\'. */
+#undef TM_IN_SYS_TIME])
+m4trace:configure.ac:21: -1- AX_PROG_TCL
+m4trace:configure.ac:21: -1- AC_SUBST([TCLSH], [$ac_cv_path_TCLSH])
+m4trace:configure.ac:21: -1- AC_DEFINE_TRACE_LITERAL([HAVE_TCL])
+m4trace:configure.ac:21: -1- AH_OUTPUT([HAVE_TCL], [/* Ability to use TCL scripting */
 #undef HAVE_TCL])
-m4trace:configure.ac:17: -1- AC_SUBST([TCL_DEFS])
-m4trace:configure.ac:17: -1- AC_SUBST([TCL_LIBS])
-m4trace:configure.ac:17: -1- AC_SUBST([TCL_CPPFLAGS])
-m4trace:configure.ac:20: -1- AM_CONDITIONAL([WITH_TCL], [test "x${TCL_LIBS}" != "x"])
-m4trace:configure.ac:20: -1- AC_SUBST([WITH_TCL_TRUE])
-m4trace:configure.ac:20: -1- AC_SUBST([WITH_TCL_FALSE])
-m4trace:configure.ac:23: -1- AC_PROG_PHP
-m4trace:configure.ac:23: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PHP])
-m4trace:configure.ac:23: -1- AH_OUTPUT([HAVE_PHP], [/* Ability to use PHP scripting */
+m4trace:configure.ac:21: -1- AC_SUBST([TCL_DEFS])
+m4trace:configure.ac:21: -1- AC_SUBST([TCL_LIBS])
+m4trace:configure.ac:21: -1- AC_SUBST([TCL_CPPFLAGS])
+m4trace:configure.ac:24: -1- AM_CONDITIONAL([WITH_TCL], [test "x${TCL_LIBS}" != "x"])
+m4trace:configure.ac:24: -1- AC_SUBST([WITH_TCL_TRUE])
+m4trace:configure.ac:24: -1- AC_SUBST([WITH_TCL_FALSE])
+m4trace:configure.ac:27: -1- AX_PROG_PHP
+m4trace:configure.ac:27: -1- AC_SUBST([PHPCONFIG], [$ac_cv_path_PHPCONFIG])
+m4trace:configure.ac:27: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PHP])
+m4trace:configure.ac:27: -1- AH_OUTPUT([HAVE_PHP], [/* Ability to use PHP scripting */
 #undef HAVE_PHP])
-m4trace:configure.ac:23: -1- AC_SUBST([PHP_CFLAGS])
-m4trace:configure.ac:23: -1- AC_SUBST([PHP_LDADD])
-m4trace:configure.ac:23: -1- AC_SUBST([PHP_PREFIX])
-m4trace:configure.ac:26: -1- AM_CONDITIONAL([WITH_PHP], [test "x${PHP_LDADD}" != "x"])
-m4trace:configure.ac:26: -1- AC_SUBST([WITH_PHP_TRUE])
-m4trace:configure.ac:26: -1- AC_SUBST([WITH_PHP_FALSE])
-m4trace:configure.ac:28: -1- AX_PROG_PERL
-m4trace:configure.ac:28: -1- AC_SUBST([PERL], [$ac_cv_path_PERL])
-m4trace:configure.ac:28: -1- AC_SUBST([PERL_LDADD])
-m4trace:configure.ac:28: -1- AC_SUBST([PERL_CFLAGS])
-m4trace:configure.ac:28: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PERL])
-m4trace:configure.ac:28: -1- AH_OUTPUT([HAVE_PERL], [/* Ability to use Perl scripting */
+m4trace:configure.ac:27: -1- AC_SUBST([PHP_CFLAGS])
+m4trace:configure.ac:27: -1- AC_SUBST([PHP_LDADD])
+m4trace:configure.ac:30: -1- AM_CONDITIONAL([WITH_PHP], [test "x${PHP_LDADD}" != "x"])
+m4trace:configure.ac:30: -1- AC_SUBST([WITH_PHP_TRUE])
+m4trace:configure.ac:30: -1- AC_SUBST([WITH_PHP_FALSE])
+m4trace:configure.ac:32: -1- AX_PROG_PERL
+m4trace:configure.ac:32: -1- AC_SUBST([PERL], [$ac_cv_path_PERL])
+m4trace:configure.ac:32: -1- _m4_warn([obsolete], [The macro `AC_TRY_LINK' is obsolete.
+You should run autoupdate.], [autoconf/general.m4:2223: AC_TRY_LINK is expanded from...
+acinclude.m4:333: AX_PROG_PERL is expanded from...
+configure.ac:32: the top level])
+m4trace:configure.ac:32: -1- AC_SUBST([PERL_LDADD])
+m4trace:configure.ac:32: -1- AC_SUBST([PERL_CFLAGS])
+m4trace:configure.ac:32: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PERL])
+m4trace:configure.ac:32: -1- AH_OUTPUT([HAVE_PERL], [/* Ability to use Perl scripting */
 #undef HAVE_PERL])
-m4trace:configure.ac:30: -1- AM_CONDITIONAL([WITH_PERL], [test "x${PERL_LDADD}" != "x"])
-m4trace:configure.ac:30: -1- AC_SUBST([WITH_PERL_TRUE])
-m4trace:configure.ac:30: -1- AC_SUBST([WITH_PERL_FALSE])
-m4trace:configure.ac:32: -1- AC_PROG_MAKE_SET
-m4trace:configure.ac:32: -1- AC_SUBST([SET_MAKE])
-m4trace:configure.ac:34: -1- AC_HEADER_STDC
-m4trace:configure.ac:34: -1- AC_PROG_CPP
-m4trace:configure.ac:34: -1- AC_SUBST([CPP])
-m4trace:configure.ac:34: -1- AC_SUBST([CPPFLAGS])
-m4trace:configure.ac:34: -1- AC_SUBST([CPP])
-m4trace:configure.ac:34: -1- AC_SUBST([EGREP])
-m4trace:configure.ac:34: -1- AC_DEFINE_TRACE_LITERAL([STDC_HEADERS])
-m4trace:configure.ac:34: -1- AH_OUTPUT([STDC_HEADERS], [/* Define to 1 if you have the ANSI C header files. */
+m4trace:configure.ac:34: -1- AM_CONDITIONAL([WITH_PERL], [test "x${PERL_LDADD}" != "x"])
+m4trace:configure.ac:34: -1- AC_SUBST([WITH_PERL_TRUE])
+m4trace:configure.ac:34: -1- AC_SUBST([WITH_PERL_FALSE])
+m4trace:configure.ac:36: -1- AC_PROG_MAKE_SET
+m4trace:configure.ac:36: -1- AC_SUBST([SET_MAKE])
+m4trace:configure.ac:38: -1- AC_HEADER_STDC
+m4trace:configure.ac:38: -1- AC_PROG_CPP
+m4trace:configure.ac:38: -1- AC_SUBST([CPP])
+m4trace:configure.ac:38: -1- AC_SUBST([CPPFLAGS])
+m4trace:configure.ac:38: -1- AC_SUBST([CPP])
+m4trace:configure.ac:38: -1- AC_SUBST([EGREP])
+m4trace:configure.ac:38: -1- AC_DEFINE_TRACE_LITERAL([STDC_HEADERS])
+m4trace:configure.ac:38: -1- AH_OUTPUT([STDC_HEADERS], [/* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS])
-m4trace:configure.ac:37: -1- AC_CONFIG_FILES([Makefile 
+m4trace:configure.ac:41: -1- AC_CONFIG_FILES([Makefile 
           src/Makefile])
-m4trace:configure.ac:37: -1- _m4_warn([obsolete], [AC_OUTPUT should be used without arguments.
+m4trace:configure.ac:41: -1- _m4_warn([obsolete], [AC_OUTPUT should be used without arguments.
 You should run autoupdate.], [])
-m4trace:configure.ac:37: -1- AC_SUBST([LIB@&t@OBJS], [$ac_libobjs])
-m4trace:configure.ac:37: -1- AC_SUBST([LTLIBOBJS], [$ac_ltlibobjs])
-m4trace:configure.ac:37: -1- _AC_AM_CONFIG_HEADER_HOOK([$ac_file])
-m4trace:configure.ac:37: -1- _AM_OUTPUT_DEPENDENCY_COMMANDS
+m4trace:configure.ac:41: -1- AC_SUBST([LIB@&t@OBJS], [$ac_libobjs])
+m4trace:configure.ac:41: -1- AC_SUBST([LTLIBOBJS], [$ac_ltlibobjs])
+m4trace:configure.ac:41: -1- _AC_AM_CONFIG_HEADER_HOOK([$ac_file])
+m4trace:configure.ac:41: -1- _AM_OUTPUT_DEPENDENCY_COMMANDS

@@ -9,7 +9,8 @@
 
 #include "egg_lib.h"
 
-struct trigger *new_trigger(char *flags, int type, char *mask, char *command, void (*handler)(struct network *, struct trigger *, struct irc_data *))
+struct trigger *new_trigger(char *flags, int type, char *mask, char *command, 
+                            void (*handler)(struct network *, struct trigger *, struct irc_data *, struct dcc_session *, const char *))
 {
   struct trigger *ret;
   char *tmp;
@@ -97,7 +98,7 @@ void trigger_match(struct network *net, struct irc_data *data)
             if (!strncmp(data->rest_str,trig->mask,strlen(trig->mask)))
             {
               if (trig->handler != NULL)
-                trig->handler(net,trig,data);
+                trig->handler(net,trig,data,NULL,NULL);
             }
           }
 
@@ -114,7 +115,7 @@ void trigger_match(struct network *net, struct irc_data *data)
             if (!egg_matchwilds(data->rest_str,trig->mask))
             {
               if (trig->handler != NULL)
-                trig->handler(net,trig,data);
+                trig->handler(net,trig,data,NULL,NULL);
             }
 
           }
@@ -135,7 +136,7 @@ void trigger_match(struct network *net, struct irc_data *data)
           if (!strncmp(data->rest_str,trig->mask,strlen(trig->mask)))
           {
             if (trig->handler != NULL)
-              trig->handler(net,trig,data);
+              trig->handler(net,trig,data,NULL,NULL);
           }
         
   
@@ -151,7 +152,7 @@ void trigger_match(struct network *net, struct irc_data *data)
             if (!egg_matchwilds(data->rest_str,trig->mask))
             {
               if (trig->handler != NULL)
-                trig->handler(net,trig,data);
+                trig->handler(net,trig,data,NULL,NULL);
             }
 
           }
@@ -177,7 +178,7 @@ void trigger_match(struct network *net, struct irc_data *data)
       if (!egg_matchwilds(newmask,trig->mask))
       {
         if (trig->handler != NULL)
-          trig->handler(net,trig,data);
+          trig->handler(net,trig,data,NULL,NULL);
       }
 
     }
@@ -197,7 +198,7 @@ void trigger_match(struct network *net, struct irc_data *data)
       if (!egg_matchwilds(newmask,trig->mask))
       {
         if (trig->handler != NULL)
-          trig->handler(net,trig,data);
+          trig->handler(net,trig,data,NULL,NULL);
       }
     }
   }
@@ -217,7 +218,7 @@ void trigger_match(struct network *net, struct irc_data *data)
       if (!egg_matchwilds(newmask,trig->mask))
       {
         if (trig->handler != NULL)
-          trig->handler(net,trig,data);
+          trig->handler(net,trig,data,NULL,NULL);
       }
 
     }
@@ -263,10 +264,16 @@ struct trig_table *new_trig_table(void)
   ret->kick_head = NULL;
   ret->kick_tail = NULL;
 
+
+
   ret->notc      = NULL;
   ret->notc_head = NULL;
   ret->notc_tail = NULL;
 
+  ret->dcc       = NULL;
+  ret->dcc_head  = NULL;
+  ret->dcc_tail  = NULL;
+ 
   return ret;
 }
 

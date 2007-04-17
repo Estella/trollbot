@@ -272,7 +272,7 @@ PACKAGE_STRING=
 PACKAGE_BUGREPORT=
 
 ac_unique_file="src/main.c"
-ac_subst_vars='VERSION SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE TCLSH TCL_DEFS TCL_LIBS TCL_CPPFLAGS WITH_TCL_TRUE WITH_TCL_FALSE PHP_CFLAGS PHP_LDADD PHP_PREFIX WITH_PHP_TRUE WITH_PHP_FALSE PERL PERL_LDADD PERL_CFLAGS WITH_PERL_TRUE WITH_PERL_FALSE CPP EGREP LIBOBJS LTLIBOBJS'
+ac_subst_vars='VERSION SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE TCLSH TCL_DEFS TCL_LIBS TCL_CPPFLAGS WITH_TCL_TRUE WITH_TCL_FALSE PHPCONFIG PHP_CFLAGS PHP_LDADD WITH_PHP_TRUE WITH_PHP_FALSE PERL PERL_LDADD PERL_CFLAGS WITH_PERL_TRUE WITH_PERL_FALSE CPP EGREP LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -819,7 +819,7 @@ Optional Packages:
   --with-tcl=PATH         use Tcl from PATH
   --with-tclsh=TCLSH      use TCLSH as the tclsh program
                           (let configure find Tcl using this program)
-  --with-php=PATH         use PHP from PATH
+  --with-php=PATH        use php-config from PATH
   --with-perl=PATH         use Perl from PATH
 
 Some influential environment variables:
@@ -2823,6 +2823,179 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
+echo "$as_me:$LINENO: checking for an ANSI C-conforming const" >&5
+echo $ECHO_N "checking for an ANSI C-conforming const... $ECHO_C" >&6
+if test "${ac_cv_c_const+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+int
+main ()
+{
+/* FIXME: Include the comments suggested by Paul. */
+#ifndef __cplusplus
+  /* Ultrix mips cc rejects this.  */
+  typedef int charset[2];
+  const charset x;
+  /* SunOS 4.1.1 cc rejects this.  */
+  char const *const *ccp;
+  char **p;
+  /* NEC SVR4.0.2 mips cc rejects this.  */
+  struct point {int x, y;};
+  static struct point const zero = {0,0};
+  /* AIX XL C 1.02.0.0 rejects this.
+     It does not let you subtract one const X* pointer from another in
+     an arm of an if-expression whose if-part is not a constant
+     expression */
+  const char *g = "string";
+  ccp = &g + (g ? g-g : 0);
+  /* HPUX 7.0 cc rejects these. */
+  ++ccp;
+  p = (char**) ccp;
+  ccp = (char const *const *) p;
+  { /* SCO 3.2v4 cc rejects this.  */
+    char *t;
+    char const *s = 0 ? (char *) 0 : (char const *) 0;
+
+    *t++ = 0;
+  }
+  { /* Someone thinks the Sun supposedly-ANSI compiler will reject this.  */
+    int x[] = {25, 17};
+    const int *foo = &x[0];
+    ++foo;
+  }
+  { /* Sun SC1.0 ANSI compiler rejects this -- but not the above. */
+    typedef const int *iptr;
+    iptr p = 0;
+    ++p;
+  }
+  { /* AIX XL C 1.02.0.0 rejects this saying
+       "k.c", line 2.27: 1506-025 (S) Operand must be a modifiable lvalue. */
+    struct s { int j; const int *ap[3]; };
+    struct s *b; b->j = 5;
+  }
+  { /* ULTRIX-32 V3.1 (Rev 9) vcc rejects this */
+    const int foo = 10;
+  }
+#endif
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_c_const=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_c_const=no
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+echo "$as_me:$LINENO: result: $ac_cv_c_const" >&5
+echo "${ECHO_T}$ac_cv_c_const" >&6
+if test $ac_cv_c_const = no; then
+
+cat >>confdefs.h <<\_ACEOF
+#define const
+_ACEOF
+
+fi
+
+
+echo "$as_me:$LINENO: checking whether struct tm is in sys/time.h or time.h" >&5
+echo $ECHO_N "checking whether struct tm is in sys/time.h or time.h... $ECHO_C" >&6
+if test "${ac_cv_struct_tm+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <sys/types.h>
+#include <time.h>
+
+int
+main ()
+{
+struct tm *tp; tp->tm_sec;
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_struct_tm=time.h
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_struct_tm=sys/time.h
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+echo "$as_me:$LINENO: result: $ac_cv_struct_tm" >&5
+echo "${ECHO_T}$ac_cv_struct_tm" >&6
+if test $ac_cv_struct_tm = sys/time.h; then
+
+cat >>confdefs.h <<\_ACEOF
+#define TM_IN_SYS_TIME 1
+_ACEOF
+
+fi
+
+
+
 # --- BEGIN CMU_TCL ---
 
 
@@ -2963,10 +3136,16 @@ echo "${ECHO_T}${TclLibBase}/" >&6
     if test "${with_tcl}" != no ; then
       echo "$as_me:$LINENO: checking Tcl configuration on what Tcl needs to compile" >&5
 echo $ECHO_N "checking Tcl configuration on what Tcl needs to compile... $ECHO_C" >&6
-      . ${TclLibBase}/tclConfig.sh
-      echo "$as_me:$LINENO: result: ok" >&5
+      if test -f ${TclLibBase}/tclConfig.sh; then
+        echo "$as_me:$LINENO: result: ok" >&5
 echo "${ECHO_T}ok" >&6
-                fi
+        . ${TclLibBase}/tclConfig.sh
+      else
+        echo "$as_me:$LINENO: result: not found" >&5
+echo "${ECHO_T}not found" >&6
+        with_tcl=no
+      fi
+    fi
 
     if test "${with_tcl}" != no ; then
                               echo "$as_me:$LINENO: checking where Tcl includes are" >&5
@@ -3024,37 +3203,93 @@ fi
 
 
 
-# Check whether --with-php or --without-php was given.
-if test "${with_php+set}" = set; then
-  withval="$with_php"
-  with_php="$withval"
+
+# Check whether --with-php-config or --without-php-config was given.
+if test "${with_php_config+set}" = set; then
+  withval="$with_php_config"
+   with_php="$withval"
 fi;
 
-  echo "$as_me:$LINENO: checking Checking whether to use PHP" >&5
-echo $ECHO_N "checking Checking whether to use PHP... $ECHO_C" >&6
+  if test "x${with_php}" != "xno" ; then
+    echo "$as_me:$LINENO: checking for user specified php-config directory" >&5
+echo $ECHO_N "checking for user specified php-config directory... $ECHO_C" >&6
 
-  if test "$with_php" != "no" ; then
-    if test -r $with_php/include/php ; then
-      PHP_PREFIX="${with_php}"
-      PHP_LDADD="${with_php}/lib/libphp5.so -R${with_php}/lib `${with_php}/bin/php-config --libs`"
-      PHP_CFLAGS="`${with_php}/bin/php-config --includes`"
+    if test -f "$with_php/php-config"; then
+      PHPCONFIG="${with_php}/php-config"
+      echo "$as_me:$LINENO: result: found" >&5
+echo "${ECHO_T}found" >&6
+    else
+      echo "$as_me:$LINENO: result: Not specified" >&5
+echo "${ECHO_T}Not specified" >&6
+      # Extract the first word of "php-config", so it can be a program name with args.
+set dummy php-config; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_path_PHPCONFIG+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $PHPCONFIG in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_PHPCONFIG="$PHPCONFIG" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_PHPCONFIG="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+  ;;
+esac
+fi
+PHPCONFIG=$ac_cv_path_PHPCONFIG
+
+if test -n "$PHPCONFIG"; then
+  echo "$as_me:$LINENO: result: $PHPCONFIG" >&5
+echo "${ECHO_T}$PHPCONFIG" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
     fi
 
-    if test "x${PHP_PREFIX}" = "x"; then
-      if test -r /usr/lib/libphp5.so; then
-        PHP_PREFIX="/usr"
-        PHP_LDADD="/usr/lib/libphp5.so `/usr/bin/php-config --libs`"
-        PHP_CFLAGS="`/usr/bin/php-config --includes`"
+    echo "$as_me:$LINENO: checking whether if we have proper compiler flags for PHP" >&5
+echo $ECHO_N "checking whether if we have proper compiler flags for PHP... $ECHO_C" >&6
+
+    if test "x${PHPCONFIG}" != "x"; then
+      echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+
+      PHP_CFLAGS=`${PHPCONFIG} --includes`
+
+      php_ver="`${PHPCONFIG} --vernum`"
+
+      if test $php_ver -gt 50000; then
+        PHP_LDADD="`${PHPCONFIG} --ldflags` `${PHPCONFIG} --libs` -lphp5"
+      else
+        PHP_LDADD="`${PHPCONFIG} --ldflags` `${PHPCONFIG} --libs` -lphp4"
       fi
 
-      if test -r /usr/local/lib/libphp5.so; then
-        PHP_PREFIX="/usr/local"
-        PHP_LDADD="/usr/local/lib/libphp5.so `/usr/local/bin/php-config --libs`"
-        PHP_CFLAGS="`/usr/local/bin/php-config --includes`"
-      fi
-    fi
+            oldlibs="${LIBS}"
+      oldcppflags="${CPPFLAGS}"
+      CPPFLAGS="${oldcppflags} ${PHP_CFLAGS}"
+      LIBS="${oldlibs} ${PHP_LDADD}"
 
-    if test "x${PHP_CFLAGS}" != "x" -a "x${PHP_LDADD}" != "x" ; then
+
+
+      LIBS="${oldlibs}"
+      CPPFLAGS="${oldcppflags}"
+
+
 
 cat >>confdefs.h <<\_ACEOF
 #define HAVE_PHP 1
@@ -3064,16 +3299,10 @@ _ACEOF
 
 
 
-
-      echo "$as_me:$LINENO: result: ready to go" >&5
-echo "${ECHO_T}ready to go" >&6
     else
-      echo "$as_me:$LINENO: result: Could not use PHP" >&5
-echo "${ECHO_T}Could not use PHP" >&6
+      echo "$as_me:$LINENO: result: No" >&5
+echo "${ECHO_T}No" >&6
     fi
-  else
-    echo "$as_me:$LINENO: result: support disabled" >&5
-echo "${ECHO_T}support disabled" >&6
   fi
 
 
@@ -3143,12 +3372,85 @@ fi
       PERL_LDADD="`${PERL} -MExtUtils::Embed -e ldopts`"
       PERL_CFLAGS="`${PERL} -MExtUtils::Embed -e ccopts`"
 
+      oldlibs="${LIBS}"
+      oldcppflags="${CPPFLAGS}"
+      CPPFLAGS="${oldcppflags} ${PERL_CFLAGS}"
+      LIBS="${oldlibs} ${PERL_LDADD}"
+
+      echo "$as_me:$LINENO: checking whether we can link with perl" >&5
+echo $ECHO_N "checking whether we can link with perl... $ECHO_C" >&6
+
+      cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <EXTERN.h>
+                   #include <perl.h>
+
+int
+main ()
+{
+
+                   perl_alloc()
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+
+                   perl_link="yes"
+
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+
+                   perl_link="no"
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+
+      LIBS="${oldlibs}"
+      CPPFLAGS="${oldcppflags}"
+
+      if test "x${perl_link}" = "xyes"; then
+        echo "$as_me:$LINENO: result: Yes" >&5
+echo "${ECHO_T}Yes" >&6
+
 
 
 cat >>confdefs.h <<\_ACEOF
 #define HAVE_PERL 1
 _ACEOF
 
+      else
+        echo "$as_me:$LINENO: result: No" >&5
+echo "${ECHO_T}No" >&6
+      fi
     fi
   fi
 
@@ -3192,7 +3494,6 @@ else
 echo "${ECHO_T}no" >&6
   SET_MAKE="MAKE=${MAKE-make}"
 fi
-
 
 
 ac_ext=c
@@ -4316,9 +4617,9 @@ s,@TCL_LIBS@,$TCL_LIBS,;t t
 s,@TCL_CPPFLAGS@,$TCL_CPPFLAGS,;t t
 s,@WITH_TCL_TRUE@,$WITH_TCL_TRUE,;t t
 s,@WITH_TCL_FALSE@,$WITH_TCL_FALSE,;t t
+s,@PHPCONFIG@,$PHPCONFIG,;t t
 s,@PHP_CFLAGS@,$PHP_CFLAGS,;t t
 s,@PHP_LDADD@,$PHP_LDADD,;t t
-s,@PHP_PREFIX@,$PHP_PREFIX,;t t
 s,@WITH_PHP_TRUE@,$WITH_PHP_TRUE,;t t
 s,@WITH_PHP_FALSE@,$WITH_PHP_FALSE,;t t
 s,@PERL@,$PERL,;t t

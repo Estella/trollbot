@@ -154,6 +154,12 @@ void irc_loop(void)
       dcc = dcc->next;
     }
 
+    if (g_cfg->dcc_listener != -1)
+    {
+      FD_SET(g_cfg->dcc_listener,&socks);
+      numsocks = (g_cfg->dcc_listener > numsocks) ? g_cfg->dcc_listener : numsocks;
+    }
+
     select(numsocks+1, &socks, NULL, NULL, NULL);
 
     net = g_cfg->networks;
@@ -191,6 +197,11 @@ void irc_loop(void)
       }
       
       dcc = dcc->next;
+    }
+
+    if (g_cfg->dcc_listener != -1)
+    {
+      new_dcc_connection(g_cfg->dcc_listener);
     } 
   }
 

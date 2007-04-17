@@ -118,48 +118,60 @@ m4trace:configure.ac:11: -1- AC_SUBST([am__fastdepCC_FALSE])
 m4trace:configure.ac:14: -1- _m4_warn([obsolete], [The macro `AC_LANG_C' is obsolete.
 You should run autoupdate.], [autoconf/c.m4:71: AC_LANG_C is expanded from...
 configure.ac:14: the top level])
-m4trace:configure.ac:17: -1- AC_SUBST([TCLSH], [$ac_cv_path_TCLSH])
-m4trace:configure.ac:17: -1- AC_DEFINE_TRACE_LITERAL([HAVE_TCL])
-m4trace:configure.ac:17: -1- AH_OUTPUT([HAVE_TCL], [/* Ability to use TCL scripting */
+m4trace:configure.ac:16: -1- AC_C_CONST
+m4trace:configure.ac:16: -1- AC_DEFINE_TRACE_LITERAL([const])
+m4trace:configure.ac:16: -1- AH_OUTPUT([const], [/* Define to empty if `const\' does not conform to ANSI C. */
+#undef const])
+m4trace:configure.ac:18: -1- AC_STRUCT_TM
+m4trace:configure.ac:18: -1- AC_DEFINE_TRACE_LITERAL([TM_IN_SYS_TIME])
+m4trace:configure.ac:18: -1- AH_OUTPUT([TM_IN_SYS_TIME], [/* Define to 1 if your <sys/time.h> declares `struct tm\'. */
+#undef TM_IN_SYS_TIME])
+m4trace:configure.ac:21: -1- AC_SUBST([TCLSH], [$ac_cv_path_TCLSH])
+m4trace:configure.ac:21: -1- AC_DEFINE_TRACE_LITERAL([HAVE_TCL])
+m4trace:configure.ac:21: -1- AH_OUTPUT([HAVE_TCL], [/* Ability to use TCL scripting */
 #undef HAVE_TCL])
-m4trace:configure.ac:17: -1- AC_SUBST([TCL_DEFS])
-m4trace:configure.ac:17: -1- AC_SUBST([TCL_LIBS])
-m4trace:configure.ac:17: -1- AC_SUBST([TCL_CPPFLAGS])
-m4trace:configure.ac:20: -1- AM_CONDITIONAL([WITH_TCL], [test "x${TCL_LIBS}" != "x"])
-m4trace:configure.ac:20: -1- AC_SUBST([WITH_TCL_TRUE])
-m4trace:configure.ac:20: -1- AC_SUBST([WITH_TCL_FALSE])
-m4trace:configure.ac:23: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PHP])
-m4trace:configure.ac:23: -1- AH_OUTPUT([HAVE_PHP], [/* Ability to use PHP scripting */
+m4trace:configure.ac:21: -1- AC_SUBST([TCL_DEFS])
+m4trace:configure.ac:21: -1- AC_SUBST([TCL_LIBS])
+m4trace:configure.ac:21: -1- AC_SUBST([TCL_CPPFLAGS])
+m4trace:configure.ac:24: -1- AM_CONDITIONAL([WITH_TCL], [test "x${TCL_LIBS}" != "x"])
+m4trace:configure.ac:24: -1- AC_SUBST([WITH_TCL_TRUE])
+m4trace:configure.ac:24: -1- AC_SUBST([WITH_TCL_FALSE])
+m4trace:configure.ac:27: -1- AC_SUBST([PHPCONFIG], [$ac_cv_path_PHPCONFIG])
+m4trace:configure.ac:27: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PHP])
+m4trace:configure.ac:27: -1- AH_OUTPUT([HAVE_PHP], [/* Ability to use PHP scripting */
 #undef HAVE_PHP])
-m4trace:configure.ac:23: -1- AC_SUBST([PHP_CFLAGS])
-m4trace:configure.ac:23: -1- AC_SUBST([PHP_LDADD])
-m4trace:configure.ac:23: -1- AC_SUBST([PHP_PREFIX])
-m4trace:configure.ac:26: -1- AM_CONDITIONAL([WITH_PHP], [test "x${PHP_LDADD}" != "x"])
-m4trace:configure.ac:26: -1- AC_SUBST([WITH_PHP_TRUE])
-m4trace:configure.ac:26: -1- AC_SUBST([WITH_PHP_FALSE])
-m4trace:configure.ac:28: -1- AC_SUBST([PERL], [$ac_cv_path_PERL])
-m4trace:configure.ac:28: -1- AC_SUBST([PERL_LDADD])
-m4trace:configure.ac:28: -1- AC_SUBST([PERL_CFLAGS])
-m4trace:configure.ac:28: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PERL])
-m4trace:configure.ac:28: -1- AH_OUTPUT([HAVE_PERL], [/* Ability to use Perl scripting */
+m4trace:configure.ac:27: -1- AC_SUBST([PHP_CFLAGS])
+m4trace:configure.ac:27: -1- AC_SUBST([PHP_LDADD])
+m4trace:configure.ac:30: -1- AM_CONDITIONAL([WITH_PHP], [test "x${PHP_LDADD}" != "x"])
+m4trace:configure.ac:30: -1- AC_SUBST([WITH_PHP_TRUE])
+m4trace:configure.ac:30: -1- AC_SUBST([WITH_PHP_FALSE])
+m4trace:configure.ac:32: -1- AC_SUBST([PERL], [$ac_cv_path_PERL])
+m4trace:configure.ac:32: -1- _m4_warn([obsolete], [The macro `AC_TRY_LINK' is obsolete.
+You should run autoupdate.], [autoconf/general.m4:2223: AC_TRY_LINK is expanded from...
+acinclude.m4:333: AX_PROG_PERL is expanded from...
+configure.ac:32: the top level])
+m4trace:configure.ac:32: -1- AC_SUBST([PERL_LDADD])
+m4trace:configure.ac:32: -1- AC_SUBST([PERL_CFLAGS])
+m4trace:configure.ac:32: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PERL])
+m4trace:configure.ac:32: -1- AH_OUTPUT([HAVE_PERL], [/* Ability to use Perl scripting */
 #undef HAVE_PERL])
-m4trace:configure.ac:30: -1- AM_CONDITIONAL([WITH_PERL], [test "x${PERL_LDADD}" != "x"])
-m4trace:configure.ac:30: -1- AC_SUBST([WITH_PERL_TRUE])
-m4trace:configure.ac:30: -1- AC_SUBST([WITH_PERL_FALSE])
-m4trace:configure.ac:32: -1- AC_PROG_MAKE_SET
-m4trace:configure.ac:32: -1- AC_SUBST([SET_MAKE])
-m4trace:configure.ac:34: -1- AC_HEADER_STDC
-m4trace:configure.ac:34: -1- AC_PROG_CPP
-m4trace:configure.ac:34: -1- AC_SUBST([CPP])
-m4trace:configure.ac:34: -1- AC_SUBST([CPPFLAGS])
-m4trace:configure.ac:34: -1- AC_SUBST([CPP])
-m4trace:configure.ac:34: -1- AC_SUBST([EGREP])
-m4trace:configure.ac:34: -1- AC_DEFINE_TRACE_LITERAL([STDC_HEADERS])
-m4trace:configure.ac:34: -1- AH_OUTPUT([STDC_HEADERS], [/* Define to 1 if you have the ANSI C header files. */
+m4trace:configure.ac:34: -1- AM_CONDITIONAL([WITH_PERL], [test "x${PERL_LDADD}" != "x"])
+m4trace:configure.ac:34: -1- AC_SUBST([WITH_PERL_TRUE])
+m4trace:configure.ac:34: -1- AC_SUBST([WITH_PERL_FALSE])
+m4trace:configure.ac:36: -1- AC_PROG_MAKE_SET
+m4trace:configure.ac:36: -1- AC_SUBST([SET_MAKE])
+m4trace:configure.ac:38: -1- AC_HEADER_STDC
+m4trace:configure.ac:38: -1- AC_PROG_CPP
+m4trace:configure.ac:38: -1- AC_SUBST([CPP])
+m4trace:configure.ac:38: -1- AC_SUBST([CPPFLAGS])
+m4trace:configure.ac:38: -1- AC_SUBST([CPP])
+m4trace:configure.ac:38: -1- AC_SUBST([EGREP])
+m4trace:configure.ac:38: -1- AC_DEFINE_TRACE_LITERAL([STDC_HEADERS])
+m4trace:configure.ac:38: -1- AH_OUTPUT([STDC_HEADERS], [/* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS])
-m4trace:configure.ac:37: -1- AC_CONFIG_FILES([Makefile 
+m4trace:configure.ac:41: -1- AC_CONFIG_FILES([Makefile 
           src/Makefile])
-m4trace:configure.ac:37: -1- _m4_warn([obsolete], [AC_OUTPUT should be used without arguments.
+m4trace:configure.ac:41: -1- _m4_warn([obsolete], [AC_OUTPUT should be used without arguments.
 You should run autoupdate.], [])
-m4trace:configure.ac:37: -1- AC_SUBST([LIB@&t@OBJS], [$ac_libobjs])
-m4trace:configure.ac:37: -1- AC_SUBST([LTLIBOBJS], [$ac_ltlibobjs])
+m4trace:configure.ac:41: -1- AC_SUBST([LIB@&t@OBJS], [$ac_libobjs])
+m4trace:configure.ac:41: -1- AC_SUBST([LTLIBOBJS], [$ac_ltlibobjs])

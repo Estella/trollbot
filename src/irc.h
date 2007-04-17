@@ -13,24 +13,6 @@
 
 struct network;
 
-enum
-{
-  PUB = 0x0,
-  PUBM,
-  MSG,
-  MSGM,
-  KICK,
-  MODE,
-  NICK,
-  QUIT,
-  JOIN,
-  PART,
-  RAW,
-  CTCP,
-  CTCR,
-  NOTC
-};
-
 /* <servername> | <nick> [ '!' <user> ] [ '@' <host> ] */
 struct irc_prefix {
   char *servername;

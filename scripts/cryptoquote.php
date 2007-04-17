@@ -4,7 +4,7 @@
    *********************************************************************
    * Description:                                                      *
    *   This script was developed as part of a proof of concept for     *
-   * TrollBot's PHP scripting ability.                                 *
+   * TrollBot's PHP scripting ability. Now with OOP.                   *
    *********************************************************************
    * Triggers:                                                         *
    *   pub:                                                            *
@@ -34,73 +34,55 @@
        "!cryptoquote",       /* Mask    */
        "start_cryptoquote"); /* Func    */
 
-  bind("severed",            /* Network */
+  bind("DALnet",             /* Network */
        "pub",                /* Type    */
        "-",                  /* Flags   */
-       "!showquote",         /* Mask    */
-       "show_cryptoquote");  /* Func    */
+       "!cryptoquote",       /* Mask    */
+       "start_cryptoquote"); /* Func    */
 
-
-
-  /* Script Portion */
-  function start_cryptoquote($net, $nick, $uhost, $hand, $chan, $text)
+  class Cryptoquote
   {
-    global $quotes_file, $scores_file, $game;
+    // Strings    
+    var $quote;
 
-    if (isset($game[$net][$chan]['started']))
+    // Arrays
+    var $game_scores; // $game_scores[$nick] = game score
+    var $turn_scores; // $turn_scores[$nick] = turn score
+    
+    var $key;
+    var $solved;
+   
+    // Boolean
+    var $running;
+    
+    // ctor mofo
+    function Cryptoquote($net, $chan)
     {
-      if ($game[$net][$chan]['started'] == 1)
-      {
-        putserv($net,"PRIVMSG $chan :Cryptoquote game is already running dumbass");
-        return;
-      }
-    } 
-
-    if (!file_exists($quotes_file))
-    {
-      putserv($net,"PRIVMSG $chan :Could not open $quotes_file");
-      return;
+      $this->running = false;
+      $this->net     = $net;
+      $this->chan    = $chan
     }
 
-    $lines = file($quotes_file);
+    function start($net, $nick, $chan)
+    {
+      if ($running == true)
+      {
+        putserv($net,"PRIVMSG $chan :A cryptoquote game is already in play.");
+        return;
+      }
 
-    $game[$net][$chan]['quote'] = strtolower($lines[rand(0,count($lines))]);
+      
+    }
     
-    $arr = str_split($game[$net][$chan]['quote']);
-
-    $arr = array_unique($arr);
- 
-    $str = implode("",$arr);
-
-    $str = preg_replace("/[^a-z]/","",$str);
-
-    $alf = str_split("abcdefghijklmnopqrstuvwxyz");
-
-    shuffle($alf);
-
-//    for($i = count($alf) - count($str);$i>0;$i--)
-//      array_pop($alf);
-
-    putserv($net,"PRIVMSG $chan :Cryptoquote starting");
-    putserv($net,"PRIVMSG $chan :" . $str . " " . $alf);
-    
-    $game[$net][$chan]['started'] = 1;
   }
 
-  function show_cryptoquote($net, $nick, $uhost, $hand, $chan, $text)
+  function start_cryptoquote($net, $nick, $uhost, $hand, $chan, $text)
   {
     global $game;
 
-    if (isset($game[$net][$chan]['started']))
-    {
-      if ($game[$net][$chan]['started'] == 0)
-      {
-        putserv($net,"PRIVMSG $chan :Cryptoquote game isn't running dumbshit");
-        return;
-      }
-    }
-
-    putserv($net,"PRIVMSG $chan :" . $game[$net][$chan]['quote']);
-
+    if (!isset($game[$net][$chan]))
+      $game[$net][$chan] = new Cryptoquote();
+    
+    $game[$net][$chan]->start($net,$nick,$chan));
   }
 ?>

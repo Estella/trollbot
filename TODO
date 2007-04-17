@@ -19,6 +19,11 @@ X = fully finished
 
 ** AUTOCONF **
 
+* Deal with time.h issues properly using autoconf
+
+* Make it so autogen.sh properly detects autotools, 
+  bitch if not.
+
 * When --with-php --with-python --with-perl --with-tcl are used
   or it is detected, it needs to try and compile a file for the
   ultimate decision to compile the specific files and code

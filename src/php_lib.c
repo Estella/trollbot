@@ -16,6 +16,26 @@
 #include "egg_lib.h"
 #include "irc.h"
 
+
+PHP_FUNCTION(putdcc)
+{
+  long idx;
+  char *message;
+  int message_len;
+
+  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ls",  &idx,
+                                                              &message,
+                                                              &message_len) == FAILURE)
+  {
+    RETURN_FALSE;
+  }
+
+  egg_putdcc((int)idx,message);
+
+  RETURN_TRUE;
+}
+
+
 /* This operates according to Eggdrop spec */
 PHP_FUNCTION(matchwild)
 {

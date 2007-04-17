@@ -14,7 +14,8 @@ enum
   TRIG_NOTC,
   TRIG_JOIN,
   TRIG_SIGN,
-  TRIG_KICK
+  TRIG_KICK,
+  TRIG_DCC
 };
 
 struct trig_table
@@ -47,6 +48,9 @@ struct trig_table
   struct trigger *notc;
   struct trigger *notc_head;
   struct trigger *notc_tail;
+  struct trigger *dcc;
+  struct trigger *dcc_head;
+  struct trigger *dcc_tail;
 };
 
 struct trigger
@@ -59,7 +63,7 @@ struct trigger
   /* What triggers are matched against */
   char *mask;  
 
-  void (*handler)(struct network *, struct trigger *, struct irc_data *);
+  void (*handler)(struct network *, struct trigger *, struct irc_data *, struct dcc_session *, const char *);
 
   char *command;
 
@@ -67,7 +71,7 @@ struct trigger
   struct trigger *next;  
 };
 
-struct trigger *new_trigger(char *flags, int type, char *mask, char *command, void (*handler)(struct network *, struct trigger *, struct irc_data *));
+struct trigger *new_trigger(char *flags, int type, char *mask, char *command, void (*handler)(struct network *, struct trigger *, struct irc_data *, struct dcc_session *, const char *));
 void trigger_match(struct network *net, struct irc_data *data);
 struct trig_table *new_trig_table(void);
 

@@ -7,14 +7,18 @@
  * domain. Free for any use   *
  * whatsoever.                *
  ******************************/
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+
 #include "main.h"
 #include "irc.h"
-
 #include "network.h"
 #include "channel.h"
 #include "trigger.h"
 
 /* Simple printf like function that outputs to a socket, buffer work needs to be more dynamic */
+/* Should be sock_printf() */
 void irc_printf(int sock, const char *fmt, ...)
 {
   va_list va;
@@ -321,10 +325,12 @@ void parse_irc_line(struct network *net, const char *buffer)
     net->botnick = tstrdup(net->altnick);
   }
 
-
+  /* Go through triggers for the net */
   trigger_match(net,data);
 
   irc_data_free(data);
+
+  /* Get yourself an aspirin */
 }
 
 int irc_in(struct network *net)

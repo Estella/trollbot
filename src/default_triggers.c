@@ -34,6 +34,12 @@ void add_default_triggers(void)
       net->trigs->msg_tail       = net->trigs->msg;
     }
 
+    /* CTCP CHAT */
+    net->trigs->msg_tail->next = new_trigger(NULL,TRIG_MSG,"\001CHAT\001",NULL,&reverse_dcc_chat);
+    net->trigs->msg            = net->trigs->msg_tail->next;
+    net->trigs->msg->prev      = net->trigs->msg_tail;
+    net->trigs->msg_tail       = net->trigs->msg;
+
     /* CTCP PING */
     net->trigs->msg_tail->next = new_trigger(NULL,TRIG_MSG,"\001PING\001",NULL,&return_ctcp_ping);
     net->trigs->msg            = net->trigs->msg_tail->next;
@@ -140,26 +146,26 @@ void add_default_triggers(void)
   }
 }
 
-void new_join(struct network *net, struct trigger *trig, struct irc_data *data)
+void new_join(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
 }
 
-void new_part(struct network *net, struct trigger *trig, struct irc_data *data)
+void new_part(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
 }
 
-void new_quit(struct network *net, struct trigger *trig, struct irc_data *data)
+void new_quit(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
 }
 
-void new_kick(struct network *net, struct trigger *trig, struct irc_data *data)
+void new_kick(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
   /* Auto Rejoin */
   if (!strcmp(data->c_params[1],net->nick))
     irc_printf(net->sock,"JOIN %s",data->c_params[0]);
 }
 
-void new_user_pass(struct network *net, struct trigger *trig, struct irc_data *data)
+void new_user_pass(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
   struct user *user;
   SHA1_CTX context;
@@ -193,11 +199,11 @@ void new_user_pass(struct network *net, struct trigger *trig, struct irc_data *d
 
 }
 
-void check_user_pass(struct network *net, struct trigger *trig, struct irc_data *data)
+void check_user_pass(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
 }
 
-void introduce_user(struct network *net, struct trigger *trig, struct irc_data *data)
+void introduce_user(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
   struct user *user;
 
@@ -240,13 +246,13 @@ void introduce_user(struct network *net, struct trigger *trig, struct irc_data *
   irc_printf(net->sock,"PRIVMSG %s :Type '/msg %s pass <your new password>' to continue",data->prefix->nick,net->nick);
 }
 
-void return_ctcp_ping(struct network *net, struct trigger *trig, struct irc_data *data)
+void return_ctcp_ping(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
   irc_printf(net->sock,"NOTICE %s :\001PING %d\001",data->prefix->nick,time(NULL));
   return;
 }
 
-void return_ctcp_time(struct network *net, struct trigger *trig, struct irc_data *data)
+void return_ctcp_time(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
   char tdate[100];
   struct tm *now;
@@ -263,7 +269,7 @@ void return_ctcp_time(struct network *net, struct trigger *trig, struct irc_data
   irc_printf(net->sock,"NOTICE %s :\001TIME %s\001",data->prefix->nick,tdate);
 }
 
-void return_ctcp_version(struct network *net, struct trigger *trig, struct irc_data *data)
+void return_ctcp_version(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
   irc_printf(net->sock,"NOTICE %s :\001VERSION Trollbot v1.0 by poutine\001",data->prefix->nick);
 

@@ -5,6 +5,7 @@
 #include "channel.h"
 #include "user.h"
 #include "irc.h"
+#include "dcc.h"
 
 /* This is the eggdrop core API that is exported to TCL, PHP, perl, etc */
 
@@ -425,7 +426,27 @@ int egg_matchattr(struct network *net, const char *handle, const char *flags, co
 /* topic <channel> */
 /* validchan <channel> */
 /* isdynamic <channel> */
-/* putdcc <idx> <text> */
+
+void egg_putdcc(int idx, const char *text)
+{
+  struct dcc_session *dtmp;
+ 
+  dtmp = g_cfg->dccs;
+
+  while (dtmp != NULL)
+  {
+    if (dtmp->id == idx)
+    {
+      irc_printf(dtmp->sock,text);
+      return;
+    }
+  
+    dtmp = dtmp->next;
+  }
+
+  return; 
+}
+
 /* dccbroadcast <message> */
 /* dccputchan <channel> <message> */
 /* boot <user@bot> [reason] */
