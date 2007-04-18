@@ -819,7 +819,11 @@ Optional Packages:
   --with-tcl=PATH         use Tcl from PATH
   --with-tclsh=TCLSH      use TCLSH as the tclsh program
                           (let configure find Tcl using this program)
-  --with-php=PATH        use php-config from PATH
+  --with-php-cflags=FLAGS  CFLAGS to use for PHP
+  --with-php-ldflags=FLAGS LDFLAGS to use PHP
+  --with-php-config=PATH   use php-config from PATH
+  --with-php-lib=PATH      PATH to libphp5.so or libphp4.so
+  --with-php=(4|5)         configure with PHP4 or 5 support
   --with-perl=PATH         use Perl from PATH
 
 Some influential environment variables:
@@ -3203,24 +3207,47 @@ fi
 
 
 
+# Check whether --with-php-cflags or --without-php-cflags was given.
+if test "${with_php_cflags+set}" = set; then
+  withval="$with_php_cflags"
+   with_php_cflags="$withval"
+fi;
+
+# Check whether --with-php-ldflags or --without-php-ldflags was given.
+if test "${with_php_ldflags+set}" = set; then
+  withval="$with_php_ldflags"
+   with_php_ldflags="$withval"
+fi;
 
 # Check whether --with-php-config or --without-php-config was given.
 if test "${with_php_config+set}" = set; then
   withval="$with_php_config"
+   with_php_config="$withval"
+fi;
+
+# Check whether --with-php-lib or --without-php-lib was given.
+if test "${with_php_lib+set}" = set; then
+  withval="$with_php_lib"
+   with_php_lib="$withval"
+fi;
+
+# Check whether --with-php or --without-php was given.
+if test "${with_php+set}" = set; then
+  withval="$with_php"
    with_php="$withval"
 fi;
 
-  if test "x${with_php}" != "xno" ; then
-    echo "$as_me:$LINENO: checking for user specified php-config directory" >&5
-echo $ECHO_N "checking for user specified php-config directory... $ECHO_C" >&6
+    if test "x${with_php}" != "xno" ; then
+    echo "$as_me:$LINENO: checking if there's a valid user specified php-config" >&5
+echo $ECHO_N "checking if there's a valid user specified php-config... $ECHO_C" >&6
 
     if test -f "$with_php/php-config"; then
       PHPCONFIG="${with_php}/php-config"
-      echo "$as_me:$LINENO: result: found" >&5
-echo "${ECHO_T}found" >&6
+      echo "$as_me:$LINENO: result: Found at ${PHPCONFIG}" >&5
+echo "${ECHO_T}Found at ${PHPCONFIG}" >&6
     else
-      echo "$as_me:$LINENO: result: Not specified" >&5
-echo "${ECHO_T}Not specified" >&6
+      echo "$as_me:$LINENO: result: Not specified, checking elsewhere" >&5
+echo "${ECHO_T}Not specified, checking elsewhere" >&6
       # Extract the first word of "php-config", so it can be a program name with args.
 set dummy php-config; ac_word=$2
 echo "$as_me:$LINENO: checking for $ac_word" >&5
@@ -3262,34 +3289,175 @@ fi
 
     fi
 
-    echo "$as_me:$LINENO: checking whether if we have proper compiler flags for PHP" >&5
-echo $ECHO_N "checking whether if we have proper compiler flags for PHP... $ECHO_C" >&6
-
     if test "x${PHPCONFIG}" != "x"; then
-      echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6
+      echo "$as_me:$LINENO: checking for CFLAGS to use with PHP" >&5
+echo $ECHO_N "checking for CFLAGS to use with PHP... $ECHO_C" >&6
 
-      PHP_CFLAGS=`${PHPCONFIG} --includes`
-
-      php_ver="`${PHPCONFIG} --vernum`"
-
-      if test $php_ver -gt 50000; then
-        PHP_LDADD="`${PHPCONFIG} --ldflags` `${PHPCONFIG} --libs` -lphp5"
+      if test "x${with_php_cflags}" != "x"; then
+        PHP_CFLAGS="${with_php_cflags} `${PHPCONFIG} --includes`"
       else
-        PHP_LDADD="`${PHPCONFIG} --ldflags` `${PHPCONFIG} --libs` -lphp4"
+        PHP_CFLAGS="`${PHPCONFIG} --includes`"
       fi
 
-            oldlibs="${LIBS}"
+      echo "$as_me:$LINENO: result: ${PHP_CFLAGS}" >&5
+echo "${ECHO_T}${PHP_CFLAGS}" >&6
+
+      echo "$as_me:$LINENO: checking whether our test PHP program compiles" >&5
+echo $ECHO_N "checking whether our test PHP program compiles... $ECHO_C" >&6
+
       oldcppflags="${CPPFLAGS}"
+
       CPPFLAGS="${oldcppflags} ${PHP_CFLAGS}"
-      LIBS="${oldlibs} ${PHP_LDADD}"
+
+      cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <main/php.h>
+                      #include <main/SAPI.h>
+                      #include <main/php_main.h>
+                      #include <main/php_variables.h>
+                      #include <main/php_ini.h>
+                      #include <zend_ini.h>
+
+int
+main ()
+{
+
+                        zval *test;
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+
+                        php_compile="yes"
+
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
 
 
+                        php_compile="no"
 
-      LIBS="${oldlibs}"
-      CPPFLAGS="${oldcppflags}"
+fi
+rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
+
+      if test "${php_compile}" = "yes"; then
+        echo "$as_me:$LINENO: result: Wonderbar" >&5
+echo "${ECHO_T}Wonderbar" >&6
+
+        if test "${with_php}" = "5" || test "x${with_php}" = "x"; then
+          echo "$as_me:$LINENO: checking for LDFLAGS to use with PHP5" >&5
+echo $ECHO_N "checking for LDFLAGS to use with PHP5... $ECHO_C" >&6
+
+          if test "x${with_php_ldflags}" != "x"; then
+            PHP_LDADD="${with_php_ldflags} `${PHPCONFIG} --libs` `${PHPCONFIG} --ldflags` -lphp5 -Wl,--unresolved-symbols=ignore-all"
+          else
+            PHP_LDADD="`${PHPCONFIG} --libs` `${PHPCONFIG} --ldflags` -lphp5 -Wl,--unresolved-symbols=ignore-all"
+          fi
+
+          if test "x${with_php_lib}" != "x"; then
+            PHP_LDADD="-L${with_php_lib} -Wl,-rpath=${with_php_lib} ${PHP_LDADD}"
+          fi
+
+          echo "$as_me:$LINENO: result: ${PHP_LDADD}" >&5
+echo "${ECHO_T}${PHP_LDADD}" >&6
+
+          echo "$as_me:$LINENO: checking whether our test PHP5 program can link" >&5
+echo $ECHO_N "checking whether our test PHP5 program can link... $ECHO_C" >&6
+
+          oldlibs="${LIBS}"
+          LIBS="${oldlibs} ${PHP_LDADD}"
+
+          cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <main/php.h>
+                       #include <main/SAPI.h>
+                       #include <main/php_main.h>
+                       #include <main/php_variables.h>
+                       #include <main/php_ini.h>
+                       #include <zend_ini.h>
+
+int
+main ()
+{
+
+                         zval *test;
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+
+                         php_link="yes"
+
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
 
 
+                         php_link="no"
+
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+
+          LIBS="${oldlibs}"
+
+          if test "${php_link}" = "yes"; then
+            echo "$as_me:$LINENO: result: Wonderbar" >&5
+echo "${ECHO_T}Wonderbar" >&6
 
 cat >>confdefs.h <<\_ACEOF
 #define HAVE_PHP 1
@@ -3298,11 +3466,126 @@ _ACEOF
 
 
 
+          else
+            echo "$as_me:$LINENO: result: Error, cannot use PHP5" >&5
+echo "${ECHO_T}Error, cannot use PHP5" >&6
+          fi
+        fi
 
+        if test "${with_php}" = "4" || test "${php_link}" = "no"; then
+          echo "$as_me:$LINENO: checking for LDFLAGS to use with PHP4" >&5
+echo $ECHO_N "checking for LDFLAGS to use with PHP4... $ECHO_C" >&6
+
+          if test "x${with_php_ldflags}" != "x"; then
+            PHP_LDADD="${with_php_ldflags} `${PHPCONFIG} --libs` `${PHPCONFIG} --ldflags` -lphp4 -Wl,--unresolved-symbols=ignore-all"
+          else
+            PHP_LDADD="`${PHPCONFIG} --libs` `${PHPCONFIG} --ldflags` -lphp4 -Wl,--unresolved-symbols=ignore-all"
+          fi
+
+          if test "x${with_php_lib}" != "x"; then
+            PHP_LDADD="-L${with_php_lib} -Wl,-rpath=${with_php_lib} ${PHP_LDADD}"
+          fi
+
+          echo "$as_me:$LINENO: result: ${PHP_LDADD}" >&5
+echo "${ECHO_T}${PHP_LDADD}" >&6
+
+          echo "$as_me:$LINENO: checking whether our test PHP4 program can link" >&5
+echo $ECHO_N "checking whether our test PHP4 program can link... $ECHO_C" >&6
+
+          oldlibs="${LIBS}"
+          LIBS="${oldlibs} ${PHP_LDADD}"
+
+          cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <main/php.h>
+                       #include <main/SAPI.h>
+                       #include <main/php_main.h>
+                       #include <main/php_variables.h>
+                       #include <main/php_ini.h>
+                       #include <zend_ini.h>
+
+int
+main ()
+{
+
+                         zval *test;
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+
+                         php_link="yes"
+
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+
+                         php_link="no"
+
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+
+          LIBS="${oldlibs}"
+
+          if test "${php_link}" = "yes"; then
+            echo "$as_me:$LINENO: result: Wonderbar" >&5
+echo "${ECHO_T}Wonderbar" >&6
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_PHP 1
+_ACEOF
+
+
+
+
+          else
+            echo "$as_me:$LINENO: result: Error, cannot use PHP4" >&5
+echo "${ECHO_T}Error, cannot use PHP4" >&6
+          fi
+
+        fi
+      else
+        echo "$as_me:$LINENO: result: Did not compile. PHP disabled" >&5
+echo "${ECHO_T}Did not compile. PHP disabled" >&6
+      fi
+
+      CPPFLAGS="${oldcppflags}"
     else
-      echo "$as_me:$LINENO: result: No" >&5
-echo "${ECHO_T}No" >&6
+      { echo "$as_me:$LINENO: WARNING: No php-config found or specified, PHP disabled." >&5
+echo "$as_me: WARNING: No php-config found or specified, PHP disabled." >&2;}
     fi
+  else
+    { echo "$as_me:$LINENO: WARNING: PHP Support disabled" >&5
+echo "$as_me: WARNING: PHP Support disabled" >&2;}
   fi
 
 

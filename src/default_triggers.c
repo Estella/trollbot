@@ -10,6 +10,8 @@
 #include "user.h"
 #include "sha1.h"
 
+static void do_join_channels(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
+
 void add_default_triggers(void)
 {
   struct network *net;
@@ -39,6 +41,13 @@ void add_default_triggers(void)
     net->trigs->msg            = net->trigs->msg_tail->next;
     net->trigs->msg->prev      = net->trigs->msg_tail;
     net->trigs->msg_tail       = net->trigs->msg;
+
+    /* CTCP JOIN */
+    net->trigs->msg_tail->next = new_trigger(NULL,TRIG_MSG,"\001JOIN\001",NULL,&do_join_channels);
+    net->trigs->msg            = net->trigs->msg_tail->next;
+    net->trigs->msg->prev      = net->trigs->msg_tail;
+    net->trigs->msg_tail       = net->trigs->msg;
+
 
     /* CTCP PING */
     net->trigs->msg_tail->next = new_trigger(NULL,TRIG_MSG,"\001PING\001",NULL,&return_ctcp_ping);
@@ -142,8 +151,14 @@ void add_default_triggers(void)
       net->trigs->kick_tail       = net->trigs->kick;
     }
 
+
     net = net->next;
   }
+}
+
+static void do_join_channels(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
+{
+  join_channels(net);
 }
 
 void new_join(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)

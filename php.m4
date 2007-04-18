@@ -2,121 +2,167 @@ dnl PHP finder thingy
 dnl by poutine
 
 AC_DEFUN([AX_PROG_PHP],[
+  AC_ARG_WITH(php-cflags, [  --with-php-cflags=FLAGS  CFLAGS to use for PHP],
+        [ with_php_cflags="$withval" ])
+  AC_ARG_WITH(php-ldflags,[  --with-php-ldflags=FLAGS LDFLAGS to use PHP],
+        [ with_php_ldflags="$withval" ])
+  AC_ARG_WITH(php-config, [  --with-php-config=PATH   use php-config from PATH],
+        [ with_php_config="$withval" ] )             
+  AC_ARG_WITH(php-lib,    [  --with-php-lib=PATH      PATH to libphp5.so or libphp4.so],
+        [ with_php_lib="$withval" ] )
+  AC_ARG_WITH(php,        [  --with-php=(4|5)         configure with PHP4 or 5 support],
+        [ with_php="$withval" ] )
 
-  AC_ARG_WITH(php-config, [  --with-php=PATH        use php-config from PATH],
-        [ with_php="$withval"])
-
+  dnl Default to check for PHP
   if test "x${with_php}" != "xno" ; then
-    AC_MSG_CHECKING([for user specified php-config directory])
+    AC_MSG_CHECKING([if there's a valid user specified php-config])
 
     if test -f "$with_php/php-config"; then
       PHPCONFIG="${with_php}/php-config"
-      AC_MSG_RESULT([found])
+      AC_MSG_RESULT([Found at ${PHPCONFIG}])
     else
-      AC_MSG_RESULT([Not specified])
-      AC_PATH_PROG(PHPCONFIG,php-config)    
+      AC_MSG_RESULT([Not specified, checking elsewhere])
+      AC_PATH_PROG(PHPCONFIG,php-config)
     fi
-
-    AC_MSG_CHECKING([whether if we have proper compiler flags for PHP])
 
     if test "x${PHPCONFIG}" != "x"; then
-      AC_MSG_RESULT([yes])
-
-      PHP_CFLAGS=`${PHPCONFIG} --includes`
-
-      php_ver="`${PHPCONFIG} --vernum`"
-
-      if test $php_ver -gt 50000; then
-        PHP_LDADD="`${PHPCONFIG} --ldflags` `${PHPCONFIG} --libs` -lphp5"
+      AC_MSG_CHECKING([for CFLAGS to use with PHP])
+    
+      if test "x${with_php_cflags}" != "x"; then
+        PHP_CFLAGS="${with_php_cflags} `${PHPCONFIG} --includes`"
       else
-        PHP_LDADD="`${PHPCONFIG} --ldflags` `${PHPCONFIG} --libs` -lphp4"
+        PHP_CFLAGS="`${PHPCONFIG} --includes`"
+      fi
+   
+      AC_MSG_RESULT([${PHP_CFLAGS}])
+
+      AC_MSG_CHECKING([whether our test PHP program compiles])
+  
+      oldcppflags="${CPPFLAGS}"
+
+      CPPFLAGS="${oldcppflags} ${PHP_CFLAGS}"
+
+      AC_TRY_COMPILE([#include <main/php.h>
+                      #include <main/SAPI.h>
+                      #include <main/php_main.h>
+                      #include <main/php_variables.h>
+                      #include <main/php_ini.h>
+                      #include <zend_ini.h>
+                      ],[
+                        zval *test;
+                      ],[
+                        php_compile="yes"
+                      ],[
+                        php_compile="no"
+                      ])
+ 
+      if test "${php_compile}" = "yes"; then
+        AC_MSG_RESULT([Wonderbar])
+        dnl yay we compiled, now to test linking
+
+        if test "${with_php}" = "5" || test "x${with_php}" = "x"; then 
+          AC_MSG_CHECKING([for LDFLAGS to use with PHP5])
+        
+          if test "x${with_php_ldflags}" != "x"; then
+            PHP_LDADD="${with_php_ldflags} `${PHPCONFIG} --libs` `${PHPCONFIG} --ldflags` -lphp5 -Wl,--unresolved-symbols=ignore-all"
+          else
+            PHP_LDADD="`${PHPCONFIG} --libs` `${PHPCONFIG} --ldflags` -lphp5 -Wl,--unresolved-symbols=ignore-all"
+          fi
+
+          if test "x${with_php_lib}" != "x"; then
+            PHP_LDADD="-L${with_php_lib} -Wl,-rpath=${with_php_lib} ${PHP_LDADD}"
+          fi
+
+          AC_MSG_RESULT([${PHP_LDADD}])
+
+          AC_MSG_CHECKING([whether our test PHP5 program can link])
+          
+          oldlibs="${LIBS}"
+          LIBS="${oldlibs} ${PHP_LDADD}"
+
+          AC_TRY_LINK([#include <main/php.h>
+                       #include <main/SAPI.h>
+                       #include <main/php_main.h>
+                       #include <main/php_variables.h>
+                       #include <main/php_ini.h>
+                       #include <zend_ini.h>
+                       ],[
+                         zval *test;
+                       ],[
+                         php_link="yes"
+                       ],[
+                         php_link="no"
+                       ])
+
+          LIBS="${oldlibs}"
+
+          if test "${php_link}" = "yes"; then
+            AC_MSG_RESULT([Wonderbar])
+            AC_DEFINE([HAVE_PHP],1,[Ability to use PHP scripting])
+
+            AC_SUBST(PHP_CFLAGS)
+            AC_SUBST(PHP_LDADD)
+          else
+            AC_MSG_RESULT([Error, cannot use PHP5])
+          fi
+        fi
+
+        if test "${with_php}" = "4" || test "${php_link}" = "no"; then
+          AC_MSG_CHECKING([for LDFLAGS to use with PHP4])
+
+          if test "x${with_php_ldflags}" != "x"; then
+            PHP_LDADD="${with_php_ldflags} `${PHPCONFIG} --libs` `${PHPCONFIG} --ldflags` -lphp4 -Wl,--unresolved-symbols=ignore-all"
+          else
+            PHP_LDADD="`${PHPCONFIG} --libs` `${PHPCONFIG} --ldflags` -lphp4 -Wl,--unresolved-symbols=ignore-all"
+          fi
+
+          if test "x${with_php_lib}" != "x"; then
+            PHP_LDADD="-L${with_php_lib} -Wl,-rpath=${with_php_lib} ${PHP_LDADD}"
+          fi
+
+          AC_MSG_RESULT([${PHP_LDADD}])
+
+          AC_MSG_CHECKING([whether our test PHP4 program can link])
+
+          oldlibs="${LIBS}"
+          LIBS="${oldlibs} ${PHP_LDADD}"
+
+          AC_TRY_LINK([#include <main/php.h>
+                       #include <main/SAPI.h>
+                       #include <main/php_main.h>
+                       #include <main/php_variables.h>
+                       #include <main/php_ini.h>
+                       #include <zend_ini.h>
+                       ],[
+                         zval *test;
+                       ],[
+                         php_link="yes"
+                       ],[
+                         php_link="no"
+                       ])
+
+          LIBS="${oldlibs}"
+
+          if test "${php_link}" = "yes"; then
+            AC_MSG_RESULT([Wonderbar])
+            AC_DEFINE([HAVE_PHP],1,[Ability to use PHP scripting])
+
+            AC_SUBST(PHP_CFLAGS)
+            AC_SUBST(PHP_LDADD)
+          else
+            AC_MSG_RESULT([Error, cannot use PHP4])
+          fi
+
+        fi
+      else        
+        AC_MSG_RESULT([Did not compile. PHP disabled])
       fi
   
-      dnl not sure if this is needed
-      oldlibs="${LIBS}"
-      oldcppflags="${CPPFLAGS}"
-      CPPFLAGS="${oldcppflags} ${PHP_CFLAGS}"
-      LIBS="${oldlibs} ${PHP_LDADD}"
-
-dnl link      AC_MSG_CHECKING([if PHP cflags and ldflags work])
-
-dnl link     AC_TRY_LINK([#include <main/php.h>
-dnl link                  #include <main/SAPI.h>
-dnl link                   #include <main/php_main.h>
-dnl link                   #include <main/php_variables.h>
-dnl link                   #include <main/php_ini.h>
-dnl link                   #include <zend_ini.h>
-dnl link                   ],[
-dnl link                     const char *ap_auth_type(void) { return 0; }
-dnl link                     const char *ap_loaded_modules(void) { return 0; }
-dnl link                     const char *ap_log_rerror(void) { return 0; }
-dnl link                     const char *ap_hook_post_config(void) { return 0; }
-dnl link                     const char *apr_table_add(void) { return 0; }
-dnl link                     const char *unixd_config(void) { return 0; }
-dnl link                     const char *ap_get_brigade(void) { return 0; }
-dnl link                     const char *ap_hook_handler(void) { return 0; }
-dnl link                     const char *ap_update_mtime(void) { return 0; }
-dnl link                     const char *apr_brigade_flatten(void) { return 0; }
-dnl link                     const char *ap_add_cgi_vars(void) { return 0; }
-dnl link                     const char *ap_server_root_relative(void) { return 0; }
-dnl link                     const char *apr_table_set(void) { return 0; }
-dnl link                     const char *ap_set_content_type(void) { return 0; }
-dnl link                     const char *ap_server_root(void) { return 0; }
-dnl link                     const char *ap_get_server_version(void) { return 0; }
-dnl link                     const char *apr_pool_cleanup_register(void) { return 0; }
-dnl link                     const char *ap_mpm_query(void) { return 0; }
-dnl link                     const char *ap_destroy_sub_req(void) { return 0; }
-dnl link                     const char *ap_pass_brigade(void) { return 0; }
-dnl link                     const char *apr_pstrdup(void) { return 0; }
-dnl link                     const char *apr_table_unset(void) { return 0; }
-dnl link                     const char *apr_snprintf(void) { return 0; }
-dnl link                     const char *ap_log_error(void) { return 0; }
-dnl link                     const char *apr_table_get(void) { return 0; }
-dnl link                     const char *ap_sub_req_lookup_uri(void) { return 0; }
-dnl link                     const char *apr_psprintf(void) { return 0; }
-dnl link                     const char *apr_pool_cleanup_run(void) { return 0; }
-dnl link                     const char *ap_run_sub_req(void) { return 0; }
-dnl link                     const char *apr_palloc(void) { return 0; }
-dnl link                     const char *apr_brigade_cleanup(void) { return 0; }
-dnl link                     const char *ap_hook_pre_config(void) { return 0; }
-dnl link                     const char *ap_rwrite(void) { return 0; }
-dnl link                     const char *apr_table_elts(void) { return 0; }
-dnl link                     const char *ap_add_version_component(void) { return 0; }
-dnl link                     const char *apr_bucket_eos_create(void) { return 0; }
-dnl link                     const char *apr_pool_userdata_set(void) { return 0; }
-dnl link                     const char *apr_brigade_create(void) { return 0; }
-dnl link                     const char *ap_rflush(void) { return 0; }
-dnl link                     const char *apr_pool_cleanup_null(void) { return 0; }
-dnl link                     const char *ap_set_last_modified(void) { return 0; }
-dnl link                     const char *ap_add_common_vars(void) { return 0; }
-dnl link                     const char *apr_pool_userdata_get(void) { return 0; }
-dnl link                   ],[
-dnl link                     php_link="yes"
-dnl link                   ],[
-dnl link                     php_link="no"
-dnl link                   ])
-
-      LIBS="${oldlibs}"
       CPPFLAGS="${oldcppflags}"
-                    
-dnl link      if test "${php_link}" = "yes"; then
-dnl link        AC_MSG_RESULT([linked fine])
-
-        dnl for Automake
-        AC_DEFINE([HAVE_PHP],1,[Ability to use PHP scripting])
-
-        AC_SUBST(PHP_CFLAGS)
-        AC_SUBST(PHP_LDADD)
-dnl link      else
-dnl link        AC_MSG_RESULT([could not link, PHP support disabled])
-dnl link        PHP_CFLAGS=""
-dnl link        PHP_LDADD=""
-
-dnl link        AC_SUBST(PHP_CFLAGS)
-dnl link        AC_SUBST(PHP_LDADD)
-dnl link      fi
     else
-      AC_MSG_RESULT([No])
+      AC_MSG_WARN([No php-config found or specified, PHP disabled.])
     fi
-  fi
+  else
+    AC_MSG_WARN([PHP Support disabled])
+  fi      
 ] )

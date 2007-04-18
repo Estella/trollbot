@@ -21,8 +21,10 @@
 int config_engine_init(char *filename)
 {
   struct tconfig_block *tcfg;
-  
+    
   tcfg  = file_to_tconfig(NULL,filename);
+/*  tcfg  = file_to_tconfig(tcfg,"defaults.conf");*/
+
   g_cfg = config_engine_load(tcfg);
 
   /* keep a copy in the global config */
@@ -115,8 +117,6 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
         net->next     = NULL;
         net->prev     = NULL;
       }
-
-      net->tindex = topmost;
 
       search = topmost->child;
   

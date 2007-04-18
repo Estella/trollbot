@@ -297,6 +297,7 @@ void parse_irc_line(struct network *net, const char *buffer)
   {
     if (net->status == STATUS_AUTHORIZED)
     {
+      irc_printf(net->sock,"USERHOST %s",net->nick);
       join_channels(net);
       net->status = STATUS_IDLE;
     }
@@ -323,6 +324,24 @@ void parse_irc_line(struct network *net, const char *buffer)
      * or altnick
      */
     net->botnick = tstrdup(net->altnick);
+  }
+
+  /* 302, Ip? */
+  if (!strcmp("302",data->command))
+  {    
+    if (net->shost == NULL)
+    {
+      if (data->rest_str != NULL)
+      {
+        /* I think I can reliably use this to get the IP from server */
+        if ((tmp = strchr(data->rest_str,'@')) != NULL)
+        {
+          tmp++; /* Skip over @ */
+          net->shost = tstrdup(tmp);
+          printf("\n\n\n\n\n%s\n\n\n\n",net->shost);
+        }
+      }
+    }
   }
 
   /* Go through triggers for the net */

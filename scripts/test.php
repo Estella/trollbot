@@ -2,8 +2,14 @@
   /* bind(string network, string type, string flags, string mask, string function) */
   bind("severed","pub","-","hi","testing");
   bind("severed","dcc","-",".help","do_help");
+  bind("DALnet","pub","-",".version","do_version");
 
-  function do_help($net, $handle, $idx, $text)
+  function do_version($net, $nick, $uhost, $hand, $chan, $arg)
+  {
+    putserv($net,"PRIVMSG $chan :" . phpversion());
+  }
+
+  function do_help($handle, $idx, $text)
   {
     putserv($net, "PRIVMSG poutine :this is a test");
   }

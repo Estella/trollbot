@@ -60,11 +60,6 @@ int main(int argc, char *argv[])
 
   printf("#################################################\n");
   printf("# %-45s #\n","Channel databases loaded");
-
-  printf("# %-45s #\n","Initiating dcc listener");
-
-  init_dcc_listener();
-
   printf("# %-45s #\n","Entering IRC loop");
   printf("#################################################\n");
   printf("IRC Debug Output:\n");
@@ -83,6 +78,8 @@ int main(int argc, char *argv[])
       return 0;
     }
   }
+
+  tconfig_to_file(g_cfg->tcfg,"out.txt");
     
   irc_loop();
   

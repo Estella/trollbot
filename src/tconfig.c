@@ -23,7 +23,7 @@ struct tconfig_block *file_to_tconfig(struct tconfig_block *old, const char *fil
   if ((cfile = fopen(filename,"r")) == NULL)
   {
     fprintf(stderr,"Could not open configuration file: %s\n",filename);
-    exit(EXIT_FAILURE);
+    return old;
   }
 
   fbuf = tmalloc0(BUFFER_SIZE);
@@ -42,7 +42,7 @@ struct tconfig_block *file_to_tconfig(struct tconfig_block *old, const char *fil
   if (!feof(cfile))
   {
     fprintf(stderr, "An error occurred while reading the config file\n");
-    exit(EXIT_FAILURE);
+    return old;
   }
  
   /* Terminate it with a NULL */
@@ -331,8 +331,11 @@ struct tconfig_block *file_to_tconfig(struct tconfig_block *old, const char *fil
         while (search != NULL)
         {
           if (search->key != NULL && search->value != NULL)
+          {
             if (!strcmp(search->key,tmp->key) && !strcmp(search->value,tmp->value))
             {
+              /* Same block and key, if previous block was a block with children,
+               * jump into that block, elsewise, put in a dupe */
               free(tmp->key);
               free(tmp->value);
               free(tmp);
@@ -340,6 +343,7 @@ struct tconfig_block *file_to_tconfig(struct tconfig_block *old, const char *fil
               block = search;
               break;
             } 
+          }
 
           block  = search;
 

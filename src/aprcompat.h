@@ -1,3 +1,6 @@
+#ifndef __APRCOMPAT_H__
+#define __APRCOMPAT_H__
+
 const char *ap_auth_type(void);
 const char *ap_loaded_modules(void);
 const char *ap_log_rerror(void);
@@ -42,3 +45,4 @@ const char *ap_set_last_modified(void);
 const char *ap_add_common_vars(void);
 const char *apr_pool_userdata_get(void);
 
+#endif /* __APRCOMPAT_H__ */

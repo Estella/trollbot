@@ -1,3 +1,6 @@
+/* This file merely just provides libphp4.so or libphp5.so with apache symbols
+ * so it will link
+ */
 #include "aprcompat.h"
 
 const char *ap_auth_type(void) { return 0; }

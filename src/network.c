@@ -4,6 +4,7 @@
 #include "channel.h"
 #include "user.h"
 #include "trigger.h"
+#include "dcc.h"
 
 #ifdef HAVE_TCL
 #include "tcl_embed.h"
@@ -32,10 +33,13 @@ void free_networks(struct network *net)
     free(net->ident);
     free(net->realname);
     free(net->vhost);
+    free(net->shost);
  
     free_users(net->users);
 
     free_channels(net->chans);
+
+    free_dcc_sessions(net->dccs);
 
     ntmp = net;
     net  = net->next;
@@ -80,10 +84,10 @@ struct network *new_network(char *label)
   ret->trigs         = new_trig_table();
 
   ret->vhost         = NULL;
+  ret->shost         = NULL;
  
   ret->userfile      = NULL;
   ret->chanfile      = NULL;
-
 
   ret->connect_try   = -1;
 
@@ -91,6 +95,9 @@ struct network *new_network(char *label)
 
   ret->last_try      = -1;
 
+  ret->dccs          = NULL;
+
+  ret->dcc_listener  = -1;
 #ifdef HAVE_TCL
   net_init_tcl(ret);
 #endif /* HAVE_TCL */

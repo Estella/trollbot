@@ -29,40 +29,42 @@
 #include "egg_lib.h"
 #include "trigger.h"
 
-void init_dcc_listener(void)
+void init_dcc_listener(struct network *net)
 {
   char *dcchostip;
+  char *dcchost;
   struct sockaddr_in dccaddr;
   struct hostent *he;
   int yes=1;
 
-  if (g_cfg->dcc_host != NULL)
+  if (net->shost == NULL)
   {
-    if ((he = gethostbyname(g_cfg->dcc_host)) == NULL)
+    if (net->vhost == NULL)
     {
-      troll_debug(LOG_WARN,"Could not resolve host (%s) for DCC listening",g_cfg->dcc_host);
-      free(g_cfg->dcc_host);
-      g_cfg->dcc_host = NULL;
-    }
-    else
-    {
-      dcchostip = tmalloc0(3*4+3+1);
-      sprintf(dcchostip,"%s",inet_ntoa(*((struct in_addr *)he->h_addr)));
+      troll_debug(LOG_WARN,"Neither a valid vhost, nor a valid server host exists for a DCC connection");
+      return;
     }
   }
-  else
+
+  dcchost   = (net->shost != NULL) ? net->shost : net->vhost;
+  dcchostip = NULL;
+
+  if ((he = gethostbyname(dcchost)) == NULL)
   {
-    troll_debug(LOG_ERROR,"No host for DCC specified in conf file");
+    troll_debug(LOG_WARN,"Could not resolve host (%s) for DCC listening",dcchost);
     return;
   }
+
+  dcchostip = tmalloc0(3*4+3+1);
+  sprintf(dcchostip,"%s",inet_ntoa(*((struct in_addr *)he->h_addr)));
  
-  if ((g_cfg->dcc_listener = socket(PF_INET, SOCK_STREAM, 0)) == -1) 
+  if ((net->dcc_listener = socket(PF_INET, SOCK_STREAM, 0)) == -1) 
   {
     troll_debug(LOG_ERROR,"Could not create socket for DCC listener");
     return;
   }
 
-  if (setsockopt(g_cfg->dcc_listener, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1) 
+  if (setsockopt(net->dcc_listener, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1) 
   {
     troll_debug(LOG_ERROR,"Could not set socket options");
     return;

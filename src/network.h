@@ -9,6 +9,7 @@ struct user;
 struct network;
 struct trig_table;
 struct tconfig_block;
+struct dcc_session;
 
 #include <time.h>
 
@@ -58,6 +59,7 @@ struct network
   char *realname;
 
   char *vhost;
+  char *shost; /* Server given host */
 
   int status;
  
@@ -75,13 +77,17 @@ struct network
 
   /* Users */
   struct user *users;
-  
+ 
+  /* DCCs */
+  struct dcc_session *dccs;
+ 
+  /* Each network has its own DCC listener */
+  int dcc_listener;
+
   struct trig_table *trigs;  
 
   struct network *prev;
   struct network *next;
-
-  struct tconfig_block *tindex;
 
 #ifdef HAVE_TCL
   /* Network TCL Interpreter */
