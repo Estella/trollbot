@@ -281,8 +281,7 @@ void initiate_dcc_chat(struct network *net, struct trigger *trig, struct irc_dat
   return;
 }
 
-/* Weak */
-void show_dcc_menu(struct dcc_session *dcc)
+void dcc_help_menu(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
   irc_printf(dcc->sock,"TrollBot v1.0 DCC MENU\n"
                        "----------------------\n\n"
@@ -375,7 +374,6 @@ void dcc_command_handler(struct dcc_session *dcc, const char *command)
 
   while (trig != NULL)
   {
-    printf("(%s) (%s)\n",trig->mask,command);
     if (!strncmp(trig->mask,command,strlen(trig->mask)))
     {
       if (trig->handler != NULL)
@@ -389,6 +387,7 @@ void dcc_command_handler(struct dcc_session *dcc, const char *command)
   }
 
   dcc_partyline_handler(dcc,command);
+
   return;
 }
 
@@ -396,7 +395,7 @@ void dcc_partyline_handler(struct dcc_session *dcc, const char *message)
 {
   struct dcc_session *tmp;
 
-  if ((tmp = g_cfg->dccs) == NULL)
+  if ((tmp = dcc->net->dccs) == NULL)
     return;
 
   while (tmp != NULL)
@@ -477,3 +476,15 @@ void parse_dcc_line(struct dcc_session *dcc, const char *buffer)
   
   return;
 }
+
+void dcc_add_chan(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
+{
+  /* hack */
+  irc_printf(dcc->net->sock,"JOIN %s",dccbuf[strlen(trig->mask)]);
+}
+
+void dcc_del_chan(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
+{
+  irc_printf(dcc->net->sock,"PART %s",dccbuf[strlen(trig->mask)]);
+}
+

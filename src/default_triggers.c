@@ -151,6 +151,35 @@ void add_default_triggers(void)
       net->trigs->kick_tail       = net->trigs->kick;
     }
 
+    /* DCC .help */
+    if (net->trigs->dcc == NULL)
+    {
+      net->trigs->dcc       = new_trigger(NULL,TRIG_DCC,".help",NULL,&dcc_help_menu);
+      net->trigs->dcc->prev = NULL;
+      net->trigs->dcc_head  = net->trigs->dcc;
+      net->trigs->dcc_tail  = net->trigs->dcc;
+    }
+    else
+    {
+      net->trigs->dcc_tail->next = new_trigger(NULL,TRIG_DCC,".help",NULL,&dcc_help_menu);
+      net->trigs->dcc            = net->trigs->dcc_tail->next;
+      net->trigs->dcc->prev      = net->trigs->dcc_tail;
+      net->trigs->dcc_tail       = net->trigs->dcc;
+    }
+
+    /* DCC .+chan */
+    net->trigs->dcc_tail->next = new_trigger(NULL,TRIG_DCC,".+chan",NULL,&dcc_add_chan);
+    net->trigs->dcc            = net->trigs->dcc_tail->next;
+    net->trigs->dcc->prev      = net->trigs->dcc_tail;
+    net->trigs->dcc_tail       = net->trigs->dcc;
+
+    /* DCC .-chan */
+    net->trigs->dcc_tail->next = new_trigger(NULL,TRIG_DCC,".-chan",NULL,&dcc_del_chan);
+    net->trigs->dcc            = net->trigs->dcc_tail->next;
+    net->trigs->dcc->prev      = net->trigs->dcc_tail;
+    net->trigs->dcc_tail       = net->trigs->dcc;
+
+
 
     net = net->next;
   }

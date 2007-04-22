@@ -3241,8 +3241,8 @@ fi;
     echo "$as_me:$LINENO: checking if there's a valid user specified php-config" >&5
 echo $ECHO_N "checking if there's a valid user specified php-config... $ECHO_C" >&6
 
-    if test -f "$with_php/php-config"; then
-      PHPCONFIG="${with_php}/php-config"
+    if test -f "${with_php_config}/php-config"; then
+      PHPCONFIG="${with_php_config}/php-config"
       echo "$as_me:$LINENO: result: Found at ${PHPCONFIG}" >&5
 echo "${ECHO_T}Found at ${PHPCONFIG}" >&6
     else

@@ -276,8 +276,11 @@ int egg_passwdok(struct network *net, const char *handle, const char *pass)
       SHA1Final(digest, &context);
  
       /* Pass is all good baby */
-      if (!strcmp(user->passhash,digest))
-        return 1;
+      if (user->passhash != NULL)
+      {
+        if (!strcmp(user->passhash,digest))
+          return 1;
+      }
 
       return 0;
     }

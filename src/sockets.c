@@ -35,6 +35,7 @@ void irc_loop(void)
   struct hostent *he, *vhost;
   struct sockaddr_in serv_addr, my_addr;
   fd_set socks;
+  struct timeval timeout;
   struct network *net;
   struct server  *svr;
   struct dcc_session *dcc;
@@ -130,8 +131,17 @@ void irc_loop(void)
 
     net = g_cfg->networks;
 
+    timeout.tv_sec = 1;
+    timeout.tv_usec = 0;
+
     while (net != NULL)
     {
+      if (net->dcc_listener != -1)
+      {
+        FD_SET(net->dcc_listener,&socks);
+        numsocks = (net->dcc_listener > numsocks) ? net->dcc_listener : numsocks;
+      }
+
       dcc = net->dccs;
 
       while (dcc != NULL)
@@ -145,12 +155,6 @@ void irc_loop(void)
         dcc = dcc->next;
       }
 
-      if (net->dcc_listener != -1)
-      {
-        FD_SET(net->dcc_listener,&socks);
-        numsocks = (net->dcc_listener > numsocks) ? net->dcc_listener : numsocks;
-      }
-
       if (net->sock != -1)
       {
         numsocks = (net->sock > numsocks) ? net->sock : numsocks;
@@ -160,12 +164,20 @@ void irc_loop(void)
       net = net->next;
     }
 
-    select(numsocks+1, &socks, NULL, NULL, NULL);
+    select(numsocks+1, &socks, NULL, NULL, &timeout);
 
     net = g_cfg->networks;
 
     while (net != NULL)
     {
+      if (net->dcc_listener != -1)
+      {
+        if (FD_ISSET(net->dcc_listener,&socks))
+        {
+          new_dcc_connection(net);
+        }
+      }
+
       dcc = net->dccs;
 
       while (dcc != NULL)
@@ -179,14 +191,6 @@ void irc_loop(void)
         }
 
         dcc = dcc->next;
-      }
-
-      if (net->dcc_listener != -1)
-      {
-        if (FD_ISSET(net->dcc_listener,&socks))
-        {
-          new_dcc_connection(net);
-        }
       }
 
       if (net->sock != -1)

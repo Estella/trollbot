@@ -20,12 +20,9 @@ struct dcc_session;
 #undef END_EXTERN_C
 #endif /* HAVE_TCL */
 
+
 #ifdef HAVE_PERL
-#include <EXTERN.h>
-#include <perl.h>
-#undef STRINGIFY
-#undef JOIN
-#undef END_EXTERN_C
+struct interpreter;
 #endif /* HAVE_PERL */
 
 #ifdef HAVE_PYTHON
@@ -104,7 +101,7 @@ struct network
 #endif /* HAVE_TCL */  
 
 #ifdef HAVE_PERL
-  PerlInterpreter *perlinterp;
+  struct interpreter *perlinterp;
 #endif /* HAVE_PERL */
 
 #ifdef HAVE_PYTHON

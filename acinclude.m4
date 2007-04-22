@@ -184,8 +184,8 @@ AC_DEFUN([AX_PROG_PHP],[
   if test "x${with_php}" != "xno" ; then
     AC_MSG_CHECKING([if there's a valid user specified php-config])
 
-    if test -f "$with_php/php-config"; then
-      PHPCONFIG="${with_php}/php-config"
+    if test -f "${with_php_config}/php-config"; then
+      PHPCONFIG="${with_php_config}/php-config"
       AC_MSG_RESULT([Found at ${PHPCONFIG}])
     else
       AC_MSG_RESULT([Not specified, checking elsewhere])
