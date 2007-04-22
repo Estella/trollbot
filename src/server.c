@@ -35,6 +35,8 @@ struct server *new_server(char *hostport)
     ret->port = 6667;
   }
 
+  ret->tcfg = NULL;
+
   ret->prev = NULL;
   ret->next = NULL;
 

@@ -132,6 +132,25 @@ void irc_loop(void)
 
     while (net != NULL)
     {
+      dcc = net->dccs;
+
+      while (dcc != NULL)
+      {
+        if (dcc->sock != -1)
+        {
+          numsocks = (dcc->sock > numsocks) ? dcc->sock : numsocks;
+          FD_SET(dcc->sock,&socks);
+        }
+
+        dcc = dcc->next;
+      }
+
+      if (net->dcc_listener != -1)
+      {
+        FD_SET(net->dcc_listener,&socks);
+        numsocks = (net->dcc_listener > numsocks) ? net->dcc_listener : numsocks;
+      }
+
       if (net->sock != -1)
       {
         numsocks = (net->sock > numsocks) ? net->sock : numsocks;
@@ -141,31 +160,35 @@ void irc_loop(void)
       net = net->next;
     }
 
-    dcc = g_cfg->dccs;
- 
-    while (dcc != NULL)
-    {
-      if (dcc->sock != -1)
-      {
-        numsocks = (dcc->sock > numsocks) ? dcc->sock : numsocks;
-        FD_SET(dcc->sock,&socks);
-      }
-
-      dcc = dcc->next;
-    }
-
-    if (g_cfg->dcc_listener != -1)
-    {
-      FD_SET(g_cfg->dcc_listener,&socks);
-      numsocks = (g_cfg->dcc_listener > numsocks) ? g_cfg->dcc_listener : numsocks;
-    }
-
     select(numsocks+1, &socks, NULL, NULL, NULL);
 
     net = g_cfg->networks;
 
     while (net != NULL)
     {
+      dcc = net->dccs;
+
+      while (dcc != NULL)
+      {
+        if (dcc->sock != -1)
+        {
+          if (FD_ISSET(dcc->sock,&socks))
+          {
+            dcc_in(dcc);
+          }
+        }
+
+        dcc = dcc->next;
+      }
+
+      if (net->dcc_listener != -1)
+      {
+        if (FD_ISSET(net->dcc_listener,&socks))
+        {
+          new_dcc_connection(net);
+        }
+      }
+
       if (net->sock != -1)
       {
         if (FD_ISSET(net->sock,&socks))
@@ -182,27 +205,7 @@ void irc_loop(void)
       }
  
       net = net->next;
-    } 
- 
-    dcc = g_cfg->dccs;
-   
-    while (dcc != NULL)
-    {
-      if (dcc->sock != -1)
-      {
-        if (FD_ISSET(dcc->sock,&socks))
-        {
-          dcc_in(dcc);
-        }
-      }
-      
-      dcc = dcc->next;
-    }
-
-    if (g_cfg->dcc_listener != -1)
-    {
-      new_dcc_connection(g_cfg->dcc_listener);
-    } 
+    }  
   }
 
   return;

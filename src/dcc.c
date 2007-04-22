@@ -29,7 +29,7 @@
 #include "egg_lib.h"
 #include "trigger.h"
 
-void init_dcc_listener(struct network *net)
+void dcc_init_listener(struct network *net)
 {
   char *dcchostip;
   char *dcchost;
@@ -43,7 +43,8 @@ void init_dcc_listener(struct network *net)
     {
       troll_debug(LOG_WARN,"Neither a valid vhost, nor a valid server host exists for a DCC connection");
       return;
-    }
+    } else
+      net->shost = tstrdup(net->vhost);
   }
 
   dcchost   = (net->shost != NULL) ? net->shost : net->vhost;
@@ -75,32 +76,35 @@ void init_dcc_listener(struct network *net)
   dccaddr.sin_addr.s_addr = inet_addr(dcchostip);
   free(dcchostip);
 
-  if (g_cfg->dcc_port == -1)
-    dccaddr.sin_port = htons(4928);
-  else
-    dccaddr.sin_port = htons(g_cfg->dcc_port);
+  if (net->dcc_port == -1)
+  {
+    net->dcc_port = 4928;
+  }
+
+  dccaddr.sin_port = htons(net->dcc_port);
 
   memset(&(dccaddr.sin_zero), '\0', 8);
 
-  if (bind(g_cfg->dcc_listener, (struct sockaddr *)&dccaddr, sizeof(dccaddr)) == -1) 
+  if (bind(net->dcc_listener, (struct sockaddr *)&dccaddr, sizeof(dccaddr)) == -1) 
   {
     troll_debug(LOG_ERROR,"Could not bind to DCC socket");
     return;
   }
 
-  if (listen(g_cfg->dcc_listener, DCC_MAX) == -1) 
+  if (listen(net->dcc_listener, DCC_MAX) == -1) 
   {
     troll_debug(LOG_ERROR,"Could not listen on DCC socket");
     return;
   }
 
+  troll_debug(LOG_DEBUG,"Listening on %s port %d\n",net->shost,net->dcc_port);
+
   return;
 }
 
 /* This creates a new connection from a listening socket */
-void new_dcc_connection(int listensock)
+void new_dcc_connection(struct network *net)
 {
-  struct network *net;
   struct dcc_session *newdcc;
   struct dcc_session *tmpdcc;
   struct sockaddr_in client_addr;
@@ -110,19 +114,20 @@ void new_dcc_connection(int listensock)
  
   newdcc = new_dcc_session();
 
-  if ((newdcc->sock = accept(listensock,(struct sockaddr *)&client_addr,&sin_size)) == -1)
+  if ((newdcc->sock = accept(net->dcc_listener,(struct sockaddr *)&client_addr,&sin_size)) == -1)
   {
+    perror("accept");
     troll_debug(LOG_WARN,"Could not accept DCC connection");
     return;
   }
 
-  newdcc->status = DCC_GETNETWORK;
+  newdcc->status = DCC_CONNECTED;
   
-  if (g_cfg->dccs == NULL)
-    g_cfg->dccs = newdcc;
+  if (net->dccs == NULL)
+    net->dccs = newdcc;
   else
   {
-    tmpdcc = g_cfg->dccs;
+    tmpdcc = net->dccs;
 
     while (tmpdcc->next != NULL)
       tmpdcc = tmpdcc->next;
@@ -131,16 +136,9 @@ void new_dcc_connection(int listensock)
     newdcc->prev = tmpdcc;
   }
 
-  irc_printf(newdcc->sock,"Please type the name of the network you are connecting from");
-  irc_printf(newdcc->sock,"Available choices are:");
-  
-  net = g_cfg->networks;
-   
-  while (net != NULL)
-  {
-    irc_printf(newdcc->sock,"  * %s",net->label);
-    net = net->next;
-  }
+  newdcc->net = net;
+
+  irc_printf(newdcc->sock,"Welcome to Trollbot, enter your username to continue.");
   
   return; 
 }
@@ -173,7 +171,29 @@ void free_dcc_sessions(struct dcc_session *dccs)
 
 void reverse_dcc_chat(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
-  /* This function should listen(), then pass the socket off to the irc_loop */
+  struct hostent *he;
+  char *dcchostip;
+
+  if (net->shost == NULL)
+  {
+    if (net->vhost == NULL)
+    {
+      irc_printf(net->sock,"PRIVMSG %s :No suitable IP/Port combination found.",data->prefix->nick);
+      return;
+    } else
+      net->shost = tstrdup(net->vhost);
+  }
+
+  if ((he = gethostbyname(net->shost)) == NULL)
+  {
+    troll_debug(LOG_WARN,"Could not resolve host (%s) for DCC message",net->shost);
+    return;
+  }
+
+  dcchostip = tmalloc0(3*4+3+1);
+  sprintf(dcchostip,"%s",inet_ntoa(*((struct in_addr *)he->h_addr)));
+
+  irc_printf(net->sock,"PRIVMSG %s :\001DCC CHAT chat %d %d\001",data->prefix->nick,htonl(inet_addr(dcchostip)),net->dcc_port);
 }
 
 void initiate_dcc_chat(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
@@ -232,14 +252,14 @@ void initiate_dcc_chat(struct network *net, struct trigger *trig, struct irc_dat
   irc_printf(newdcc->sock,"Enter your username to continue.");
  
   /* Insert it into the global DCC list */
-  if (g_cfg->dccs == NULL)
+  if (net->dccs == NULL)
   {
     newdcc->id     = 1;
-    g_cfg->dccs = newdcc;
+    net->dccs = newdcc;
     return;
   }
 
-  tmp = g_cfg->dccs;
+  tmp = net->dccs;
 
   while (tmp->prev != NULL)
     tmp = tmp->prev;
@@ -355,6 +375,7 @@ void dcc_command_handler(struct dcc_session *dcc, const char *command)
 
   while (trig != NULL)
   {
+    printf("(%s) (%s)\n",trig->mask,command);
     if (!strncmp(trig->mask,command,strlen(trig->mask)))
     {
       if (trig->handler != NULL)
@@ -396,24 +417,6 @@ void parse_dcc_line(struct dcc_session *dcc, const char *buffer)
 
   switch (dcc->status)
   {
-    case DCC_GETNETWORK:
-      net = g_cfg->networks;
-
-      while (net != NULL)
-      {
-        if (!strcmp(net->label,buffer))
-        {
-          irc_printf(dcc->sock,"Switching to network %s",net->label);
-          dcc->net = net;
-          dcc->status = DCC_CONNECTED;
-          irc_printf(dcc->sock,"Enter your username to continue.");
-          break;
-        }
-       
-        net = net->next;
-      }
-
-      break;
     case DCC_CONNECTED:
       user = dcc->net->users;
 

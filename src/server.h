@@ -8,7 +8,8 @@ struct server
   char *host;
   int port;
 
-  struct tconfig_block *tindex;
+  /* Unhandled blocks go here */
+  struct tconfig_block *tcfg;
 
   struct server *prev;
   struct server *next;

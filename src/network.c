@@ -1,3 +1,10 @@
+#include "config.h"
+
+/* I have to do this */
+#ifdef HAVE_PYTHON
+#include "python_embed.h"
+#endif /* HAVE_PYTHON */
+
 #include "main.h"
 #include "network.h"
 #include "server.h"
@@ -98,6 +105,9 @@ struct network *new_network(char *label)
   ret->dccs          = NULL;
 
   ret->dcc_listener  = -1;
+  ret->dcc_port      = -1;
+
+  ret->tcfg          = NULL;
 #ifdef HAVE_TCL
   net_init_tcl(ret);
 #endif /* HAVE_TCL */
@@ -105,6 +115,11 @@ struct network *new_network(char *label)
 #ifdef HAVE_PERL
   net_init_perl(ret);
 #endif /* HAVE_PERL */
+
+#ifdef HAVE_PYTHON
+  ret->pydict = NULL;
+#endif /* HAVE_PYTHON */
+
   return ret;
 }
     

@@ -28,3 +28,11 @@ trollbot_CFLAGS  += ${PERL_CFLAGS}
 trollbot_LDADD   += ${PERL_LDADD}
 
 endif
+
+if WITH_PYTHON
+
+trollbot_SOURCES += python_embed.c python_lib.c
+trollbot_CFLAGS  += ${PYTHON_CFLAGS}
+trollbot_LDADD   += ${PYTHON_LDADD}
+
+endif

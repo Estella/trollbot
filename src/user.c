@@ -65,7 +65,7 @@ struct user *new_user(char *username, char *nick, char *passhash, char *ident, c
 
   ret->chan_flags = NULL;
 
-  ret->extra  = NULL;
+  ret->tcfg   = NULL;
   ret->prev   = NULL;
   ret->next   = NULL;
 

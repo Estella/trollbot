@@ -26,7 +26,11 @@ struct dcc_session;
 #undef STRINGIFY
 #undef JOIN
 #undef END_EXTERN_C
-#endif
+#endif /* HAVE_PERL */
+
+#ifdef HAVE_PYTHON
+#include <Python.h>
+#endif /* HAVE_PYTHON */
 
 enum
 {
@@ -84,7 +88,12 @@ struct network
   /* Each network has its own DCC listener */
   int dcc_listener;
 
+  int dcc_port;
+
   struct trig_table *trigs;  
+
+  /* Unhandled blocks go here */
+  struct tconfig_block *tcfg;
 
   struct network *prev;
   struct network *next;
@@ -97,6 +106,10 @@ struct network
 #ifdef HAVE_PERL
   PerlInterpreter *perlinterp;
 #endif /* HAVE_PERL */
+
+#ifdef HAVE_PYTHON
+  PyObject *pydict;
+#endif /* HAVE_PYTHON */
 
   char *userfile;
   char *chanfile;

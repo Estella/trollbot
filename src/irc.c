@@ -16,6 +16,7 @@
 #include "network.h"
 #include "channel.h"
 #include "trigger.h"
+#include "dcc.h"
 
 /* Simple printf like function that outputs to a socket, buffer work needs to be more dynamic */
 /* Should be sock_printf() */
@@ -338,7 +339,9 @@ void parse_irc_line(struct network *net, const char *buffer)
         {
           tmp++; /* Skip over @ */
           net->shost = tstrdup(tmp);
-          printf("\n\n\n\n\n%s\n\n\n\n",net->shost);
+          if (net->shost != NULL)
+            dcc_init_listener(net);
+          
         }
       }
     }

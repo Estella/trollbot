@@ -272,7 +272,7 @@ PACKAGE_STRING=
 PACKAGE_BUGREPORT=
 
 ac_unique_file="src/main.c"
-ac_subst_vars='VERSION SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE TCLSH TCL_DEFS TCL_LIBS TCL_CPPFLAGS WITH_TCL_TRUE WITH_TCL_FALSE PHPCONFIG PHP_CFLAGS PHP_LDADD WITH_PHP_TRUE WITH_PHP_FALSE PERL PERL_LDADD PERL_CFLAGS WITH_PERL_TRUE WITH_PERL_FALSE CPP EGREP LIB@&t@OBJS LTLIBOBJS'
+ac_subst_vars='VERSION SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE TCLSH TCL_DEFS TCL_LIBS TCL_CPPFLAGS WITH_TCL_TRUE WITH_TCL_FALSE PHPCONFIG PHP_CFLAGS PHP_LDADD WITH_PHP_TRUE WITH_PHP_FALSE PERL PERL_LDADD PERL_CFLAGS WITH_PERL_TRUE WITH_PERL_FALSE WITH_PYTHON_TRUE WITH_PYTHON_FALSE CPP EGREP LIB@&t@OBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -3749,6 +3749,18 @@ else
 fi
 
 
+
+ 
+
+if test "x${PYTHON_LDADD}" != "x"; then
+  WITH_PYTHON_TRUE=
+  WITH_PYTHON_FALSE='#'
+else
+  WITH_PYTHON_TRUE='#'
+  WITH_PYTHON_FALSE=
+fi
+
+
 echo "$as_me:$LINENO: checking whether ${MAKE-make} sets \$(MAKE)" >&5
 echo $ECHO_N "checking whether ${MAKE-make} sets \$(MAKE)... $ECHO_C" >&6
 set dummy ${MAKE-make}; ac_make=`echo "$2" | sed 'y,:./+-,___p_,'`
@@ -4320,6 +4332,13 @@ if test -z "${WITH_PERL_TRUE}" && test -z "${WITH_PERL_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"WITH_PERL\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 echo "$as_me: error: conditional \"WITH_PERL\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${WITH_PYTHON_TRUE}" && test -z "${WITH_PYTHON_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"WITH_PYTHON\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"WITH_PYTHON\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -4910,6 +4929,8 @@ s,@PERL_LDADD@,$PERL_LDADD,;t t
 s,@PERL_CFLAGS@,$PERL_CFLAGS,;t t
 s,@WITH_PERL_TRUE@,$WITH_PERL_TRUE,;t t
 s,@WITH_PERL_FALSE@,$WITH_PERL_FALSE,;t t
+s,@WITH_PYTHON_TRUE@,$WITH_PYTHON_TRUE,;t t
+s,@WITH_PYTHON_FALSE@,$WITH_PYTHON_FALSE,;t t
 s,@CPP@,$CPP,;t t
 s,@EGREP@,$EGREP,;t t
 s,@LIB@&t@OBJS@,$LIB@&t@OBJS,;t t

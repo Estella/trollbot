@@ -42,8 +42,8 @@ struct dcc_session
   struct dcc_session *next;
 };
 
-void init_dcc_listener(struct network *net);
-void new_dcc_connection(int listensock);
+void dcc_init_listener(struct network *net);
+void new_dcc_connection(struct network *net);
 struct dcc_session *new_dcc_session(void);
 void free_dcc_sessions(struct dcc_session *dccs);
 void reverse_dcc_chat(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);

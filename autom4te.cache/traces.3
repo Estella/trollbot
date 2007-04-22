@@ -175,20 +175,23 @@ m4trace:configure.ac:32: -1- AH_OUTPUT([HAVE_PERL], [/* Ability to use Perl scri
 m4trace:configure.ac:34: -1- AM_CONDITIONAL([WITH_PERL], [test "x${PERL_LDADD}" != "x"])
 m4trace:configure.ac:34: -1- AC_SUBST([WITH_PERL_TRUE])
 m4trace:configure.ac:34: -1- AC_SUBST([WITH_PERL_FALSE])
-m4trace:configure.ac:36: -1- AC_PROG_MAKE_SET
-m4trace:configure.ac:36: -1- AC_SUBST([SET_MAKE])
-m4trace:configure.ac:38: -1- AC_HEADER_STDC
-m4trace:configure.ac:38: -1- AC_PROG_CPP
-m4trace:configure.ac:38: -1- AC_SUBST([CPP])
-m4trace:configure.ac:38: -1- AC_SUBST([CPPFLAGS])
-m4trace:configure.ac:38: -1- AC_SUBST([CPP])
-m4trace:configure.ac:38: -1- AC_SUBST([EGREP])
-m4trace:configure.ac:38: -1- AC_DEFINE_TRACE_LITERAL([STDC_HEADERS])
-m4trace:configure.ac:38: -1- AH_OUTPUT([STDC_HEADERS], [/* Define to 1 if you have the ANSI C header files. */
+m4trace:configure.ac:38: -1- AM_CONDITIONAL([WITH_PYTHON], [test "x${PYTHON_LDADD}" != "x"])
+m4trace:configure.ac:38: -1- AC_SUBST([WITH_PYTHON_TRUE])
+m4trace:configure.ac:38: -1- AC_SUBST([WITH_PYTHON_FALSE])
+m4trace:configure.ac:40: -1- AC_PROG_MAKE_SET
+m4trace:configure.ac:40: -1- AC_SUBST([SET_MAKE])
+m4trace:configure.ac:42: -1- AC_HEADER_STDC
+m4trace:configure.ac:42: -1- AC_PROG_CPP
+m4trace:configure.ac:42: -1- AC_SUBST([CPP])
+m4trace:configure.ac:42: -1- AC_SUBST([CPPFLAGS])
+m4trace:configure.ac:42: -1- AC_SUBST([CPP])
+m4trace:configure.ac:42: -1- AC_SUBST([EGREP])
+m4trace:configure.ac:42: -1- AC_DEFINE_TRACE_LITERAL([STDC_HEADERS])
+m4trace:configure.ac:42: -1- AH_OUTPUT([STDC_HEADERS], [/* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS])
-m4trace:configure.ac:41: -1- AC_CONFIG_FILES([Makefile 
+m4trace:configure.ac:45: -1- AC_CONFIG_FILES([Makefile 
           src/Makefile])
-m4trace:configure.ac:41: -1- _m4_warn([obsolete], [AC_OUTPUT should be used without arguments.
+m4trace:configure.ac:45: -1- _m4_warn([obsolete], [AC_OUTPUT should be used without arguments.
 You should run autoupdate.], [])
-m4trace:configure.ac:41: -1- AC_SUBST([LIB@&t@OBJS], [$ac_libobjs])
-m4trace:configure.ac:41: -1- AC_SUBST([LTLIBOBJS], [$ac_ltlibobjs])
+m4trace:configure.ac:45: -1- AC_SUBST([LIB@&t@OBJS], [$ac_libobjs])
+m4trace:configure.ac:45: -1- AC_SUBST([LTLIBOBJS], [$ac_ltlibobjs])

@@ -17,7 +17,7 @@ struct chan_user *new_chan_user(const char *nick, int jointime, struct user *ure
 
   ret->jointime = jointime;
   ret->urec     = urec;
-
+ 
   ret->prev     = NULL;
   ret->next     = NULL;
 
@@ -72,6 +72,8 @@ struct channel *new_channel(const char *chan)
   
   if (chan != NULL)
     ret->name = tstrdup(chan);
+
+  ret->tcfg = NULL;
 
   ret->prev = NULL;
   ret->next = NULL;

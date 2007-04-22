@@ -1,3 +1,9 @@
+#include "config.h"
+
+#ifdef HAVE_PYTHON
+#include "python_embed.h"
+#endif /* HAVE_PYTHON */
+
 #include "main.h"
 #include "config_engine.h"
 
@@ -41,18 +47,20 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
   struct network *net;
   struct server *svr;
   struct channel *chan;
+#ifdef HAVE_PYTHON
+  FILE *fp;
+#endif /* HAVE_PYTHON */
 
   cfg = tmalloc(sizeof(struct config));
 
   cfg->networks     = NULL;
-  cfg->dccs         = NULL;
-  cfg->dcc_host     = NULL;
-  cfg->dcc_port     = NULL;
-  cfg->dcc_listener = -1;
   cfg->fork         = 0;
   cfg->forked       = 0;
   cfg->debug_level  = 0;
-  
+#ifdef HAVE_PYTHON
+  cfg->py_main      = NULL;
+  cfg->py_main_dict = NULL;
+#endif /* HAVE_PYTHON */
   g_cfg             = cfg;
 
 
@@ -80,17 +88,6 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
         else if (!strcmp(search->key,"debuglevel"))
         {
           cfg->debug_level = atoi(search->value);
-        }
-        else if (!strcmp(search->key,"dcc_host"))
-        {
-          if (cfg->dcc_host != NULL)
-            free(cfg->dcc_host);
-   
-          cfg->dcc_host = tstrdup(search->value);
-        }
-        else if (!strcmp(search->key,"dcc_port"))
-        {
-          cfg->dcc_port = atoi(search->value);
         }
 
         search = search->next;
@@ -162,6 +159,22 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
             myphp_eval_file(search->value);
         }
 #endif /* HAVE_PHP */
+#ifdef HAVE_PYTHON
+        else if (!strcmp(search->key,"pythonscript") || !strcmp(search->key,"pyscript"))
+        {
+          cfg_init_python(cfg);
+
+          net_init_python(cfg,net);
+
+          if ((fp = fopen(search->value,"r")) == NULL)
+          {
+            troll_debug(LOG_WARN,"Could not open file %s\n",search->value);
+            continue;
+          }
+
+          PyRun_File(fp, search->value, Py_file_input, net->pydict, net->pydict);
+        }
+#endif /* HAVE_PYTHON */
         else if (!strcmp(search->key,"userfile"))
         {
           if (net->userfile != NULL)

@@ -21,7 +21,7 @@
 
 # Set this to the channels you want this game to run in.
 # Separate the list of channels with spaces
-set crypto_chans "#tcl #fascism #cryptoquote #php #drinkers"
+set crypto_chans "#tcl #fascism #cryptoquote #php #drinkers #christian_debate #" 
 
 # Set this to where you want the scores file to be stored
 set crypto_scores_file "text/cryptoscores.txt"
@@ -699,7 +699,7 @@ proc cryptoquote:end_game { chan } {
 
   cryptoquote:write_scores
 
-  #cryptoquote:show_scores "" "" "" $chan ""
+  cryptoquote:show_scores "" "" "" $chan ""
 
   set a_chan_in_game($chan) 0
 

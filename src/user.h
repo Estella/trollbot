@@ -28,7 +28,8 @@ struct user
 
   struct channel_flags *chan_flags;
 
-  struct tconfig_block *extra;
+  /* Unhandled blocks go here */
+  struct tconfig_block *tcfg;
 
   struct user *next;
   struct user *prev;

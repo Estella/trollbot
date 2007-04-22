@@ -26,7 +26,8 @@ struct channel
 
   struct chan_user *user_list;
 
-  struct tconfig_block *tindex;
+  /* Unhandled blocks get stuck here */
+  struct tconfig_block *tcfg;
 
   struct channel *prev;
   struct channel *next;
