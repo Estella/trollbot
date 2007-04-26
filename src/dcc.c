@@ -370,7 +370,7 @@ void dcc_command_handler(struct dcc_session *dcc, const char *command)
 {
   struct trigger *trig;
 
-  trig = dcc->net->trigs->dcc_head;
+  trig = dcc->net->trigs->dcc;
 
   while (trig != NULL)
   {
@@ -412,7 +412,6 @@ void dcc_partyline_handler(struct dcc_session *dcc, const char *message)
 void parse_dcc_line(struct dcc_session *dcc, const char *buffer)
 {
   struct user *user;
-  struct network *net;
 
   switch (dcc->status)
   {
@@ -480,11 +479,15 @@ void parse_dcc_line(struct dcc_session *dcc, const char *buffer)
 void dcc_add_chan(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
   /* hack */
-  irc_printf(dcc->net->sock,"JOIN %s",dccbuf[strlen(trig->mask)]);
+  irc_printf(dcc->net->sock,"JOIN %s",egg_makearg(dccbuf,trig->mask));
 }
 
 void dcc_del_chan(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
-  irc_printf(dcc->net->sock,"PART %s",dccbuf[strlen(trig->mask)]);
+  irc_printf(dcc->net->sock,"PART %s",egg_makearg(dccbuf,trig->mask));
 }
 
+void dcc_rehash(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
+{
+  /* Crude rehash mechanism */
+}

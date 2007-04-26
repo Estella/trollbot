@@ -122,8 +122,11 @@ void chan_init(void)
   while (net != NULL)
   {
     if (net->chanfile != NULL)  
-      g_cfg->tcfg = file_to_tconfig(g_cfg->tcfg,net->chanfile);
- 
+    {
+      /* FIXME */
+      /* g_cfg->tcfg = file_to_tconfig(net->chanfile); */
+    }
+
     net = net->next;
   }
 

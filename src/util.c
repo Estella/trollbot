@@ -10,7 +10,6 @@
 
 #include "main.h"
 
-
 /* because some implementations don't have strdup()? */
 char *tstrdup(const char *ptr)
 {

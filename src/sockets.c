@@ -204,7 +204,10 @@ void irc_loop(void)
             net->status = STATUS_AUTHORIZED;
           } 
 
-          irc_in(net);
+          if (!irc_in(net))
+          {
+            /* Socket disconnected, Try reconnect */
+          }
         }
       }
  

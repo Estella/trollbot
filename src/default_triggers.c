@@ -6,9 +6,11 @@
 #include "dcc.h"
 #include "irc.h"
 #include "network.h"
+#include "channel.h"
 #include "trigger.h"
 #include "user.h"
 #include "sha1.h"
+#include "util.h"
 
 static void do_join_channels(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
 
@@ -151,35 +153,10 @@ void add_default_triggers(void)
       net->trigs->kick_tail       = net->trigs->kick;
     }
 
-    /* DCC .help */
-    if (net->trigs->dcc == NULL)
-    {
-      net->trigs->dcc       = new_trigger(NULL,TRIG_DCC,".help",NULL,&dcc_help_menu);
-      net->trigs->dcc->prev = NULL;
-      net->trigs->dcc_head  = net->trigs->dcc;
-      net->trigs->dcc_tail  = net->trigs->dcc;
-    }
-    else
-    {
-      net->trigs->dcc_tail->next = new_trigger(NULL,TRIG_DCC,".help",NULL,&dcc_help_menu);
-      net->trigs->dcc            = net->trigs->dcc_tail->next;
-      net->trigs->dcc->prev      = net->trigs->dcc_tail;
-      net->trigs->dcc_tail       = net->trigs->dcc;
-    }
-
-    /* DCC .+chan */
-    net->trigs->dcc_tail->next = new_trigger(NULL,TRIG_DCC,".+chan",NULL,&dcc_add_chan);
-    net->trigs->dcc            = net->trigs->dcc_tail->next;
-    net->trigs->dcc->prev      = net->trigs->dcc_tail;
-    net->trigs->dcc_tail       = net->trigs->dcc;
-
-    /* DCC .-chan */
-    net->trigs->dcc_tail->next = new_trigger(NULL,TRIG_DCC,".-chan",NULL,&dcc_del_chan);
-    net->trigs->dcc            = net->trigs->dcc_tail->next;
-    net->trigs->dcc->prev      = net->trigs->dcc_tail;
-    net->trigs->dcc_tail       = net->trigs->dcc;
-
-
+    trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".help",NULL,&dcc_help_menu));
+    trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".+chan",NULL,&dcc_add_chan));
+    trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".-chan",NULL,&dcc_del_chan));
+    /* trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".rehash",NULL,&dcc_rehash)); */
 
     net = net->next;
   }

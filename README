@@ -1,6 +1,5 @@
-############################################################
-# TrollBot v0.0.1 written by poutine                       #
-############################################################
+Trollbot:
+---------
 
 Description:
   
@@ -14,6 +13,6 @@ functions (such as reading the config file). Eggdrop did have
 a comprehensive library so tcl scripts could use all possible
 information that the bot has. I have duplicated this library
 and extended it to PHP, Perl, and Python, as well as added
-some improvements of my own, see SCRIPTING.
+some improvements of my own, see doc/SCRIPTING.
 
 

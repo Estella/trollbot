@@ -41,7 +41,45 @@ AC_PROG_MAKE_SET
 
 AC_HEADER_STDC
 
+dnl Set the prefix to /home/trollbot if none exists
+if test $prefix = NONE; then
+    prefix=${HOME}/trollbot
+fi
+
 AC_OUTPUT(Makefile 
-          src/Makefile)
+          src/Makefile
+          doc/Makefile
+          scripts/Makefile)
 
 
+
+echo ""
+echo "  ********** Trollbot Configuration **********  "
+
+if test "x${TCL_LIBS}" != "x"; then
+  echo "  TCL    Support: Yes"             
+else
+  echo "  TCL    Support: No"
+fi
+
+if test "x${PHP_LDADD}" != "x"; then
+  echo "  PHP    Support: Yes"
+else
+  echo "  PHP    Support: No"
+fi
+
+if test "x${PERL_LDADD}" != "x"; then
+  echo "  Perl   Support: Yes"
+else
+  echo "  Perl   Support: No"
+fi
+
+if test "x${PYTHON_LDADD}" != "x"; then
+  echo "  Python Support: Yes"
+else
+  echo "  Python Support: No"
+fi
+
+echo ""
+echo "  Files will be installed to: $prefix "
+echo ""

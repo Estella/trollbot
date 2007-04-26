@@ -155,6 +155,9 @@ if test "$with_tcl" != "no"; then
 
     if test "x${TCL_CPPFLAGS}" != "x" -a "x${TCL_LIBS}" != "x" ; then
       AC_DEFINE(HAVE_TCL, 1, [Ability to use TCL scripting])
+    else
+      TCL_CPPFLAGS=""
+      TCL_LIBS=""
     fi
   fi
 fi
@@ -270,6 +273,8 @@ AC_DEFUN([AX_PROG_PHP],[
             AC_SUBST(PHP_CFLAGS)
             AC_SUBST(PHP_LDADD)
           else
+            PHP_CFLAGS=""
+            PHP_LDADD=""
             AC_MSG_RESULT([Error, cannot use PHP5])
           fi
         fi
@@ -317,6 +322,8 @@ AC_DEFUN([AX_PROG_PHP],[
             AC_SUBST(PHP_CFLAGS)
             AC_SUBST(PHP_LDADD)
           else
+            PHP_CFLAGS=""
+            PHP_LDADD=""
             AC_MSG_RESULT([Error, cannot use PHP4])
           fi
 
@@ -327,6 +334,8 @@ AC_DEFUN([AX_PROG_PHP],[
   
       CPPFLAGS="${oldcppflags}"
     else
+      PHP_CFLAGS=""
+      PHP_LDADD=""
       AC_MSG_WARN([No php-config found or specified, PHP disabled.])
     fi
   else
@@ -372,6 +381,8 @@ AC_DEFUN([AX_PROG_PERL], [
         AC_SUBST(PERL_CFLAGS)
         AC_DEFINE([HAVE_PERL],1,[Ability to use Perl scripting])
       else
+        PERL_LDADD=""
+        PERL_CFLAGS=""
         AC_MSG_RESULT([No])
       fi
     fi

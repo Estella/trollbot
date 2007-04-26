@@ -480,7 +480,7 @@ AC_MSG_RESULT([$am_cv_prog_tar_$1])])
 AC_SUBST([am__tar])
 AC_SUBST([am__untar])
 ])
-m4trace:acinclude.m4:167: -1- AC_DEFUN([AX_PROG_TCL], [
+m4trace:acinclude.m4:170: -1- AC_DEFUN([AX_PROG_TCL], [
 # --- BEGIN CMU_TCL ---
 dnl To link against Tcl, configure does several things to make my life
 dnl "easier".
@@ -612,6 +612,9 @@ if test "$with_tcl" != "no"; then
 
     if test "x${TCL_CPPFLAGS}" != "x" -a "x${TCL_LIBS}" != "x" ; then
       AC_DEFINE(HAVE_TCL, 1, [Ability to use TCL scripting])
+    else
+      TCL_CPPFLAGS=""
+      TCL_LIBS=""
     fi
   fi
 fi
@@ -622,7 +625,7 @@ AC_SUBST(TCL_CPPFLAGS)
 
 # --- END CMU_TCL ---
 ])
-m4trace:acinclude.m4:335: -1- AC_DEFUN([AX_PROG_PHP], [
+m4trace:acinclude.m4:344: -1- AC_DEFUN([AX_PROG_PHP], [
   AC_ARG_WITH(php-cflags, [  --with-php-cflags=FLAGS  CFLAGS to use for PHP],
         [ with_php_cflags="$withval" ])
   AC_ARG_WITH(php-ldflags,[  --with-php-ldflags=FLAGS LDFLAGS to use PHP],
@@ -724,6 +727,8 @@ m4trace:acinclude.m4:335: -1- AC_DEFUN([AX_PROG_PHP], [
             AC_SUBST(PHP_CFLAGS)
             AC_SUBST(PHP_LDADD)
           else
+            PHP_CFLAGS=""
+            PHP_LDADD=""
             AC_MSG_RESULT([Error, cannot use PHP5])
           fi
         fi
@@ -771,6 +776,8 @@ m4trace:acinclude.m4:335: -1- AC_DEFUN([AX_PROG_PHP], [
             AC_SUBST(PHP_CFLAGS)
             AC_SUBST(PHP_LDADD)
           else
+            PHP_CFLAGS=""
+            PHP_LDADD=""
             AC_MSG_RESULT([Error, cannot use PHP4])
           fi
 
@@ -781,13 +788,15 @@ m4trace:acinclude.m4:335: -1- AC_DEFUN([AX_PROG_PHP], [
   
       CPPFLAGS="${oldcppflags}"
     else
+      PHP_CFLAGS=""
+      PHP_LDADD=""
       AC_MSG_WARN([No php-config found or specified, PHP disabled.])
     fi
   else
     AC_MSG_WARN([PHP Support disabled])
   fi      
  ])
-m4trace:acinclude.m4:379: -1- AC_DEFUN([AX_PROG_PERL], [
+m4trace:acinclude.m4:390: -1- AC_DEFUN([AX_PROG_PERL], [
   AC_ARG_WITH(perl,      [  --with-perl=PATH         use Perl from PATH],
         with_perl="$withval")
 
@@ -824,12 +833,14 @@ m4trace:acinclude.m4:379: -1- AC_DEFUN([AX_PROG_PERL], [
         AC_SUBST(PERL_CFLAGS)
         AC_DEFINE([HAVE_PERL],1,[Ability to use Perl scripting])
       else
+        PERL_LDADD=""
+        PERL_CFLAGS=""
         AC_MSG_RESULT([No])
       fi
     fi
   fi
  ])
-m4trace:acinclude.m4:581: -1- AC_DEFUN([AC_PYTHON_DEVEL], [
+m4trace:acinclude.m4:592: -1- AC_DEFUN([AC_PYTHON_DEVEL], [
         #
         # Allow the use of a (user set) custom python version
         #
@@ -1209,11 +1220,11 @@ m4trace:configure.ac:27: -1- AX_PROG_PHP
 m4trace:configure.ac:27: -1- AC_SUBST([PHPCONFIG], [$ac_cv_path_PHPCONFIG])
 m4trace:configure.ac:27: -1- _m4_warn([obsolete], [The macro `AC_TRY_COMPILE' is obsolete.
 You should run autoupdate.], [autoconf/general.m4:2180: AC_TRY_COMPILE is expanded from...
-acinclude.m4:335: AX_PROG_PHP is expanded from...
+acinclude.m4:344: AX_PROG_PHP is expanded from...
 configure.ac:27: the top level])
 m4trace:configure.ac:27: -1- _m4_warn([obsolete], [The macro `AC_TRY_LINK' is obsolete.
 You should run autoupdate.], [autoconf/general.m4:2223: AC_TRY_LINK is expanded from...
-acinclude.m4:335: AX_PROG_PHP is expanded from...
+acinclude.m4:344: AX_PROG_PHP is expanded from...
 configure.ac:27: the top level])
 m4trace:configure.ac:27: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PHP])
 m4trace:configure.ac:27: -1- AH_OUTPUT([HAVE_PHP], [/* Ability to use PHP scripting */
@@ -1222,7 +1233,7 @@ m4trace:configure.ac:27: -1- AC_SUBST([PHP_CFLAGS])
 m4trace:configure.ac:27: -1- AC_SUBST([PHP_LDADD])
 m4trace:configure.ac:27: -1- _m4_warn([obsolete], [The macro `AC_TRY_LINK' is obsolete.
 You should run autoupdate.], [autoconf/general.m4:2223: AC_TRY_LINK is expanded from...
-acinclude.m4:335: AX_PROG_PHP is expanded from...
+acinclude.m4:344: AX_PROG_PHP is expanded from...
 configure.ac:27: the top level])
 m4trace:configure.ac:27: -1- AC_DEFINE_TRACE_LITERAL([HAVE_PHP])
 m4trace:configure.ac:27: -1- AH_OUTPUT([HAVE_PHP], [/* Ability to use PHP scripting */
@@ -1236,7 +1247,7 @@ m4trace:configure.ac:32: -1- AX_PROG_PERL
 m4trace:configure.ac:32: -1- AC_SUBST([PERL], [$ac_cv_path_PERL])
 m4trace:configure.ac:32: -1- _m4_warn([obsolete], [The macro `AC_TRY_LINK' is obsolete.
 You should run autoupdate.], [autoconf/general.m4:2223: AC_TRY_LINK is expanded from...
-acinclude.m4:379: AX_PROG_PERL is expanded from...
+acinclude.m4:390: AX_PROG_PERL is expanded from...
 configure.ac:32: the top level])
 m4trace:configure.ac:32: -1- AC_SUBST([PERL_LDADD])
 m4trace:configure.ac:32: -1- AC_SUBST([PERL_CFLAGS])
@@ -1260,11 +1271,13 @@ m4trace:configure.ac:42: -1- AC_SUBST([EGREP])
 m4trace:configure.ac:42: -1- AC_DEFINE_TRACE_LITERAL([STDC_HEADERS])
 m4trace:configure.ac:42: -1- AH_OUTPUT([STDC_HEADERS], [/* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS])
-m4trace:configure.ac:45: -1- AC_CONFIG_FILES([Makefile 
-          src/Makefile])
-m4trace:configure.ac:45: -1- _m4_warn([obsolete], [AC_OUTPUT should be used without arguments.
+m4trace:configure.ac:52: -1- AC_CONFIG_FILES([Makefile 
+          src/Makefile
+          doc/Makefile
+          scripts/Makefile])
+m4trace:configure.ac:52: -1- _m4_warn([obsolete], [AC_OUTPUT should be used without arguments.
 You should run autoupdate.], [])
-m4trace:configure.ac:45: -1- AC_SUBST([LIB@&t@OBJS], [$ac_libobjs])
-m4trace:configure.ac:45: -1- AC_SUBST([LTLIBOBJS], [$ac_ltlibobjs])
-m4trace:configure.ac:45: -1- _AC_AM_CONFIG_HEADER_HOOK([$ac_file])
-m4trace:configure.ac:45: -1- _AM_OUTPUT_DEPENDENCY_COMMANDS
+m4trace:configure.ac:52: -1- AC_SUBST([LIB@&t@OBJS], [$ac_libobjs])
+m4trace:configure.ac:52: -1- AC_SUBST([LTLIBOBJS], [$ac_ltlibobjs])
+m4trace:configure.ac:52: -1- _AC_AM_CONFIG_HEADER_HOOK([$ac_file])
+m4trace:configure.ac:52: -1- _AM_OUTPUT_DEPENDENCY_COMMANDS

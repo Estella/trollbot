@@ -1,0 +1,2 @@
+select() allows only 1024 descriptors
+tconfig_to_file only supports INT_MAX levels of nesting solely for the purpose of indentation

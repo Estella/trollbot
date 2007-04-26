@@ -3183,6 +3183,9 @@ cat >>confdefs.h <<\_ACEOF
 #define HAVE_TCL 1
 _ACEOF
 
+    else
+      TCL_CPPFLAGS=""
+      TCL_LIBS=""
     fi
   fi
 fi
@@ -3467,6 +3470,8 @@ _ACEOF
 
 
           else
+            PHP_CFLAGS=""
+            PHP_LDADD=""
             echo "$as_me:$LINENO: result: Error, cannot use PHP5" >&5
 echo "${ECHO_T}Error, cannot use PHP5" >&6
           fi
@@ -3568,6 +3573,8 @@ _ACEOF
 
 
           else
+            PHP_CFLAGS=""
+            PHP_LDADD=""
             echo "$as_me:$LINENO: result: Error, cannot use PHP4" >&5
 echo "${ECHO_T}Error, cannot use PHP4" >&6
           fi
@@ -3580,6 +3587,8 @@ echo "${ECHO_T}Did not compile. PHP disabled" >&6
 
       CPPFLAGS="${oldcppflags}"
     else
+      PHP_CFLAGS=""
+      PHP_LDADD=""
       { echo "$as_me:$LINENO: WARNING: No php-config found or specified, PHP disabled." >&5
 echo "$as_me: WARNING: No php-config found or specified, PHP disabled." >&2;}
     fi
@@ -3731,6 +3740,8 @@ cat >>confdefs.h <<\_ACEOF
 _ACEOF
 
       else
+        PERL_LDADD=""
+        PERL_CFLAGS=""
         echo "$as_me:$LINENO: result: No" >&5
 echo "${ECHO_T}No" >&6
       fi
@@ -4208,7 +4219,11 @@ _ACEOF
 fi
 
 
-                    ac_config_files="$ac_config_files Makefile src/Makefile"
+if test $prefix = NONE; then
+    prefix=${HOME}/trollbot
+fi
+
+                                        ac_config_files="$ac_config_files Makefile src/Makefile doc/Makefile scripts/Makefile"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -4788,6 +4803,8 @@ do
   # Handling of arguments.
   "Makefile" ) CONFIG_FILES="$CONFIG_FILES Makefile" ;;
   "src/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
+  "doc/Makefile" ) CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;
+  "scripts/Makefile" ) CONFIG_FILES="$CONFIG_FILES scripts/Makefile" ;;
   "depfiles" ) CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
   "config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
@@ -5652,3 +5669,34 @@ fi
 
 
 
+
+echo ""
+echo "  ********** Trollbot Configuration **********  "
+
+if test "x${TCL_LIBS}" != "x"; then
+  echo "  TCL    Support: Yes"
+else
+  echo "  TCL    Support: No"
+fi
+
+if test "x${PHP_LDADD}" != "x"; then
+  echo "  PHP    Support: Yes"
+else
+  echo "  PHP    Support: No"
+fi
+
+if test "x${PERL_LDADD}" != "x"; then
+  echo "  Perl   Support: Yes"
+else
+  echo "  Perl   Support: No"
+fi
+
+if test "x${PYTHON_LDADD}" != "x"; then
+  echo "  Python Support: Yes"
+else
+  echo "  Python Support: No"
+fi
+
+echo ""
+echo "  Files will be installed to: $prefix "
+echo ""

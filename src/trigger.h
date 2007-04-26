@@ -71,6 +71,7 @@ struct trigger
   struct trigger *next;  
 };
 
+void trigger_list_add(struct trigger **orig, struct trigger *new);
 struct trigger *new_trigger(char *flags, int type, char *mask, char *command, void (*handler)(struct network *, struct trigger *, struct irc_data *, struct dcc_session *, const char *));
 void trigger_match(struct network *net, struct irc_data *data);
 struct trig_table *new_trig_table(void);

@@ -21,7 +21,7 @@ struct tconfig_block {
 };
 
 /* I/O of tconfig struct */
-struct tconfig_block *file_to_tconfig(struct tconfig_block *old, const char *filename);
+struct tconfig_block *file_to_tconfig(const char *filename);
 void tconfig_to_file(struct tconfig_block *tcfg, char *filename);
 
 /* iterative now :) */
@@ -36,7 +36,9 @@ void tconfig_foreach_length(struct tconfig_block *tcfg, int (*cback)(struct tcon
 void tconfig_foreach_child(struct tconfig_block *tcfg, int (*cback)(struct tconfig_block *));
 
 /* Goes through the tree depth first calling callback function w/ depth each node */
-void tconfig_foreach_depth_first(struct tconfig_block *tcfg, int (*cback)(struct tconfig_block *, int));
+void tconfig_foreach_depth_first(struct tconfig_block *tcfg, int (*cback)(struct tconfig_block *, int, void *), void *extra);
+
+void tconfig_merge(struct tconfig_block *src, struct tconfig_block *dst);
 
 #define __TCONFIG_H__
 

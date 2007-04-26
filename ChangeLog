@@ -1,6 +1,18 @@
 **********************
 * Trollbot ChangeLog *
 **********************
+2007-04-26: * Fixed autoconf stuff so make install now works as expected :)
+            * added egg_chattr()
+            * added crude python support
+            * Started implementing a rehashing routine
+            * fixed crash in trigger.c checking if foo->rest[0] was null instead of foo->rest
+            * Reverse DCC now works
+            * bind DCC now works
+            * made changes so pub/msg binds are no longer stackable as per eggdrop specs
+            * tconfig algo changes, added tconfig_merge for stacking config files instead
+              of running them all through the file_to_tconfig()
+           
+
 2007-04-13: * Removed head/tail/generic pointers from network, decided to
               just have a single list, default at head for servers, channels,
               and users.

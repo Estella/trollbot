@@ -103,6 +103,8 @@ AC_DEFUN([AX_PROG_PHP],[
             AC_SUBST(PHP_CFLAGS)
             AC_SUBST(PHP_LDADD)
           else
+            PHP_CFLAGS=""
+            PHP_LDADD=""
             AC_MSG_RESULT([Error, cannot use PHP5])
           fi
         fi
@@ -150,6 +152,8 @@ AC_DEFUN([AX_PROG_PHP],[
             AC_SUBST(PHP_CFLAGS)
             AC_SUBST(PHP_LDADD)
           else
+            PHP_CFLAGS=""
+            PHP_LDADD=""
             AC_MSG_RESULT([Error, cannot use PHP4])
           fi
 
@@ -160,6 +164,8 @@ AC_DEFUN([AX_PROG_PHP],[
   
       CPPFLAGS="${oldcppflags}"
     else
+      PHP_CFLAGS=""
+      PHP_LDADD=""
       AC_MSG_WARN([No php-config found or specified, PHP disabled.])
     fi
   else

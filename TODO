@@ -24,7 +24,7 @@ X = fully finished
 * Make it so autogen.sh properly detects autotools, 
   bitch if not.
 
-* When --with-php --with-python --with-perl --with-tcl are used
+/ When --with-php --with-python --with-perl --with-tcl are used
   or it is detected, it needs to try and compile a file for the
   ultimate decision to compile the specific files and code
 
@@ -32,7 +32,7 @@ X = fully finished
   and runs missing --autoheader and does a configure again before
   compiling.
 
-* Something needs to be worked out for the make install, having to
+X Something needs to be worked out for the make install, having to
   do ln -s src/trollbot ./ is ridiculous.
 
 * I know there's some code that could be more portable that are fixed
@@ -74,7 +74,7 @@ X capable of having different nicknames on different networks
 
 X Support for per network users
 
-* Support for optional global users
+* Support for optional global users (Don't think I'll be doing this)
 
 ** SCRIPTING **
 
@@ -99,8 +99,8 @@ X Support for per network users
   * php_lib needs to use a Zend resource instead of string $net
   * php_lib.c needs error messages for custom funcs
 
-* Scripting Support for Perl (post release)
-* Scripting Support for Python (post release)
+/ Scripting Support for Perl (post release)
+/ Scripting Support for Python (post release)
 * Scripting Support for Javascript (post releast)
 
 ** MODULE INTERFACE **

@@ -37,6 +37,8 @@ AC_DEFUN([AX_PROG_PERL], [
         AC_SUBST(PERL_CFLAGS)
         AC_DEFINE([HAVE_PERL],1,[Ability to use Perl scripting])
       else
+        PERL_LDADD=""
+        PERL_CFLAGS=""
         AC_MSG_RESULT([No])
       fi
     fi

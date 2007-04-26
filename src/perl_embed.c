@@ -1,3 +1,6 @@
+#include <EXTERN.h>
+#include <perl.h>
+
 #include "main.h"
 #include "perl_embed.h"
 #include "perl_lib.h"

@@ -1,15 +1,15 @@
 #include "main.h"
 
 /* static sets the initial unchangeable structure */
-struct tconfig_block *file_to_tconfig(struct tconfig_block *old, const char *filename)
+struct tconfig_block *file_to_tconfig(const char *filename)
 {
   FILE   *cfile;
   char   *fbuf   = NULL;
   char   *eip    = NULL;
-  struct tconfig_block *block  = NULL;
-  struct tconfig_block *head   = NULL;
-  struct tconfig_block *search = NULL;
-  struct tconfig_block *tmp    = NULL;
+  struct tconfig_block *block    = NULL;
+  struct tconfig_block *head     = NULL;
+  struct tconfig_block *search   = NULL;
+  struct tconfig_block *tmp      = NULL;
   size_t  size   = 0;
   size_t  i      = 0;
   size_t  count  = 0;
@@ -23,7 +23,7 @@ struct tconfig_block *file_to_tconfig(struct tconfig_block *old, const char *fil
   if ((cfile = fopen(filename,"r")) == NULL)
   {
     fprintf(stderr,"Could not open configuration file: %s\n",filename);
-    return old;
+    return NULL;
   }
 
   fbuf = tmalloc0(BUFFER_SIZE);
@@ -41,8 +41,8 @@ struct tconfig_block *file_to_tconfig(struct tconfig_block *old, const char *fil
   /* If NOT the end-of-file, we must have had an error of some sort, barf and die */
   if (!feof(cfile))
   {
-    fprintf(stderr, "An error occurred while reading the config file\n");
-    return old;
+    troll_debug(LOG_ERROR,"An error occurred while reading the config file");
+    return NULL;
   }
  
   /* Terminate it with a NULL */
@@ -50,28 +50,17 @@ struct tconfig_block *file_to_tconfig(struct tconfig_block *old, const char *fil
 
   fclose(cfile);
 
-  if (old == NULL)
-  {
-    block = tmalloc(sizeof(struct tconfig_block));
+  block = tmalloc(sizeof(struct tconfig_block));
 
-    block->parent = NULL;
-    block->child  = NULL;
-    block->prev   = NULL;
-    block->next   = NULL;
+  block->parent = NULL;
+  block->child  = NULL;
+  block->prev   = NULL;
+  block->next   = NULL;
 
-    block->key    = NULL;
-    block->value  = NULL;
+  block->key    = NULL;
+  block->value  = NULL;
 
-    head = block;
-  } else {
-    block = old;
-
-    /* Go to top left node */
-    while (block->parent != NULL || block->prev != NULL)
-      block = (block->parent != NULL) ? block->parent : block->next;
-
-    head = block;
-  }
+  head = block;
     
   eip = fbuf;
 
@@ -319,9 +308,6 @@ struct tconfig_block *file_to_tconfig(struct tconfig_block *old, const char *fil
 
         tmp->value[size] = '\0';
  
-        /* Now that we've got all the values, we check for dupes
-         * to link more than one tconfig file. It might make more
-         */
         /* Rewind list */
         search = block;
 
@@ -335,7 +321,8 @@ struct tconfig_block *file_to_tconfig(struct tconfig_block *old, const char *fil
             if (!strcmp(search->key,tmp->key) && !strcmp(search->value,tmp->value))
             {
               /* Same block and key, if previous block was a block with children,
-               * jump into that block, elsewise, put in a dupe */
+               * jump into that block, elsewise, put in a dupe 
+               */
               free(tmp->key);
               free(tmp->value);
               free(tmp);
@@ -576,7 +563,7 @@ void tconfig_foreach_child(struct tconfig_block *tcfg, int (*cback)(struct tconf
   return;
 }
 
-void tconfig_foreach_depth_first(struct tconfig_block *tcfg, int (*cback)(struct tconfig_block *, int))
+void tconfig_foreach_depth_first(struct tconfig_block *tcfg, int (*cback)(struct tconfig_block *, int, void *), void *extra)
 {
   int depth = 0;
 
@@ -584,7 +571,7 @@ void tconfig_foreach_depth_first(struct tconfig_block *tcfg, int (*cback)(struct
   {
     if (tcfg->child != NULL)
     {
-      if (!(*cback)(tcfg,depth))
+      if (!(*cback)(tcfg,depth,extra))
         return;
 
       depth++;
@@ -596,7 +583,7 @@ void tconfig_foreach_depth_first(struct tconfig_block *tcfg, int (*cback)(struct
  
     if (tcfg->next != NULL)
     {
-      if (!(*cback)(tcfg,depth))
+      if (!(*cback)(tcfg,depth,extra))
         return;
 
       tcfg = tcfg->next;
@@ -604,7 +591,7 @@ void tconfig_foreach_depth_first(struct tconfig_block *tcfg, int (*cback)(struct
       continue;
     }
 
-    if (!(*cback)(tcfg,depth))
+    if (!(*cback)(tcfg,depth,extra))
       return;
 
      while (tcfg->next == NULL)
@@ -709,3 +696,136 @@ struct tconfig_block *tconfig_isolate(struct tconfig_block *tcfg)
   return tcfg;
 }
 
+
+void tconfig_merge(struct tconfig_block *src, struct tconfig_block *dst)
+{
+  struct tconfig_block *tmp;
+  int depth = 0;
+  /* int wild_depth = -1; */
+
+  /* We want to start at the initial positions and traverse down from 
+   * there, copying the keys and values and subkeys maintaining current
+   * order if it already exists.
+   */
+  if (src == NULL || dst == NULL)
+    return;
+
+  while (src != NULL)
+  {
+    if (src->child != NULL)
+    {
+      tmp = dst;
+
+      /* Make sure it's at the beginning */
+      while (tmp->prev != NULL) tmp = tmp->prev;
+
+      while (tmp != NULL)
+      {
+        if (tmp->key != NULL)
+        {
+          if (!strcmp(src->key,tmp->key) && !strcmp(src->value,tmp->value))
+          {
+            /* It's a match, merely attach to it */
+            dst = tmp->child;
+            break;
+          }
+        }
+
+        tmp = tmp->next;
+      }
+
+      if (tmp == NULL)
+      {
+        /* No matches, create they key/value parent node */
+        while (dst->next != NULL && dst->key != NULL) dst = dst->next;
+        
+        if (dst->key != NULL)
+        {
+          dst->next = tmalloc(sizeof(struct tconfig_block));
+        
+          dst->next->prev    = dst; 
+          dst->next->next    = NULL;
+          dst                = dst->next;
+        }
+       
+        dst->key           = tstrdup(src->key);
+        dst->value         = tstrdup(src->value);
+        dst->parent        = NULL;
+
+        dst->child         = tmalloc(sizeof(struct tconfig_block));
+        dst->child->parent = dst;
+        dst                = dst->child;
+        
+        dst->key           = NULL;
+        dst->value         = NULL;
+        dst->child         = NULL;
+        dst->prev          = NULL;
+        dst->next          = NULL;
+      } 
+
+      depth++;
+
+      src = src->child;
+    }
+
+    tmp = dst;
+
+    /* Make sure it's at the beginning */
+    while (tmp->prev != NULL) tmp = tmp->prev;
+
+    while (tmp != NULL)
+    {
+      if (tmp->key != NULL)
+      {
+        if (!strcmp(src->key,tmp->key) && !strcmp(src->value,tmp->value))
+        {
+          /* Ignore dupes */
+          break;
+        }
+      }
+
+      tmp = tmp->next;
+    }
+
+    if (tmp == NULL)
+    {
+      /* go to the end of the list */
+      while (dst->next != NULL && dst->key != NULL) dst = dst->next;
+
+      if (dst->key != NULL)
+      {
+        dst->next       = tmalloc(sizeof(struct tconfig_block));
+        dst->next->prev = dst;
+        dst             = dst->next;
+        dst->next       = NULL;
+        dst->parent     = NULL;
+        dst->child      = NULL;
+      }
+
+      dst->key        = tstrdup(src->key);
+      dst->value      = tstrdup(src->value);
+      dst->next       = NULL;
+    }
+
+    while (src->next == NULL)
+    {
+      if (depth == 0)
+        return;
+
+      while (src->prev != NULL) src = src->prev;
+      
+      /* Do the same to dst */
+      while (dst->prev != NULL) dst = dst->prev;      
+
+      src = src->parent;
+      dst = dst->parent;
+
+      depth--; 
+    }
+     
+    
+    src = src->next;
+  }
+
+  
+}

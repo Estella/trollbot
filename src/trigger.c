@@ -9,6 +9,29 @@
 
 #include "egg_lib.h"
 
+void trigger_list_add(struct trigger **orig, struct trigger *new)
+{
+  struct trigger *tmp;
+
+  if (*orig == NULL)
+  {
+    *orig = new;
+    new->prev = NULL;
+    new->next = NULL;
+  } 
+  else
+  {
+    tmp = *orig;
+
+    while (tmp->next != NULL) 
+      tmp = tmp->next;
+
+    tmp->next       = new;
+    tmp->next->prev = tmp;
+    tmp->next->next = NULL;
+  }
+}
+
 struct trigger *new_trigger(char *flags, int type, char *mask, char *command, 
                             void (*handler)(struct network *, struct trigger *, struct irc_data *, struct dcc_session *, const char *))
 {
@@ -126,6 +149,7 @@ void trigger_match(struct network *net, struct irc_data *data)
       }
       else 
       {
+        /* Check bind PUB, not STACKABLE */
         trig = net->trigs->pub_head;
  
         while (trig != NULL)
@@ -137,12 +161,14 @@ void trigger_match(struct network *net, struct irc_data *data)
           {
             if (trig->handler != NULL)
               trig->handler(net,trig,data,NULL,NULL);
+            break;
           }
         
   
           trig = trig->next;
         }
 
+        /* Check bind PUBM, STACKABLE */
         trig = net->trigs->pubm_head;
 
         while (trig != NULL)
@@ -168,7 +194,7 @@ void trigger_match(struct network *net, struct irc_data *data)
   {
     trig = net->trigs->join_head;
 
-    if (data->rest[0] != NULL)
+    if (data->rest != NULL)
     {
       snprintf(newmask,sizeof(newmask),"%s %s!%s@%s",data->rest[0],
                                                      data->prefix->nick,

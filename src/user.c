@@ -96,7 +96,9 @@ void user_init(void)
   while (net != NULL)
   {
     if (net->userfile != NULL)
-      g_cfg->tcfg = file_to_tconfig(g_cfg->tcfg,net->userfile);
+    {
+      /* g_cfg->tcfg = file_to_tconfig(g_cfg->tcfg,net->userfile); FIXME */
+    }
 
     net = net->next;
   }

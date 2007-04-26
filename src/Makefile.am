@@ -1,3 +1,4 @@
+bindir = ${prefix}
 bin_PROGRAMS = trollbot
 trollbot_SOURCES = main.c tconfig.c network.c server.c config_engine.c sockets.c irc.c util.c debug.c channel.c trigger.c sha1.c \
 		   user.c egg_lib.c die.c default_triggers.c dcc.c

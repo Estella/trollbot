@@ -255,6 +255,7 @@ struct user *egg_finduser(struct network *net, const char *mask)
 
 
 /* Needs returns checked */
+/* Also needs to support different encryption types */
 /* userlist [flags] */
 int egg_passwdok(struct network *net, const char *handle, const char *pass) 
 {
@@ -293,10 +294,156 @@ int egg_passwdok(struct network *net, const char *handle, const char *pass)
 
 /* getuser <handle> <entry-type> [extra info] */
 /* setuser <handle> <entry-type> [extra info] */
-/* chhandle <old-handle> <new-handle> */
 
+/* All good */
+int egg_chhandle(struct network *net, const char *old, const char *new)
+{
+  struct user *olduser;
+  struct user *users;
+
+  if ((users = net->users) == NULL)
+    return 0;
+
+  if (old == NULL || new == NULL)
+    return 0;
+
+  olduser = NULL;
+
+  while (users != NULL)
+  {
+    /* Store the found user for after the loop */
+    if (!strcmp(users->username,old))
+      olduser = users;
+ 
+    /* Duplicate username */
+    if (!strcmp(users->username,new))
+      return 0;
+ 
+    users = users->next;
+  }
+
+  free(olduser->username);
+  
+  olduser->username = tstrdup(new);
+
+  return 1;
+}
+#ifdef CLOWNS
 /* chattr <handle> [changes [channel]] */
+char *egg_chattr(struct network *net, const char *handle, const char *changes, const char *channel)
+{
+  struct user *user;
+  struct channel_flags *cflags;
+  char *glob_changes;
+  char *chan_changes;
+  char *new_chan_flags;
+  char *new_glob_flags;
+  char *tmp;
+  int op=-1; /* opinvalid = -1, op- = 0, op+ = 1 */
 
+  /* I know it's cheesy to dynamically allocate a constant, but output is freed by user */
+  if (changes == NULL)
+    return tstrdup("*");
+
+  /* Find the user */
+  for(user=net->users;user != NULL && strcmp(handle,user->username);user=user->next);
+
+  if (user == NULL)
+    return tstrdup("*");
+
+  if (channel != NULL)
+  {
+    if (user->chan_flags == NULL)
+    {
+      /* Make a new one here */
+      user->chan_flags = new_channel_flags(channel,NULL);
+      user->chan_flags->prev = NULL;
+      user->chan_flags->next = NULL;
+    }
+    else
+    {
+      /* Find the channel to get the flags */
+      for(cflags=user->chan_flags;cflags != NULL && strcmp(channel,cflags->chan);cflags=cflags->next);
+         
+      /* Channel not found, make a new record */
+      if (cflags == NULL)
+      {
+        cflags = user->chan_flags;
+
+        while(cflags->next != NULL)
+          cflags = cflags->next;
+
+        cflags->next = new_channel_flags(channel,NULL);
+        cflags->next->prev = cflags;
+        cflags->next->next = NULL;
+      }
+    }
+
+    /* If | is in there, global flags are in there also */
+    if ((tmp = strchr(changes,"|")) != NULL)
+    {
+      glob_changes = tmalloc0((strlen(changes) - strlen(tmp)) + 1);
+      tmp++;
+      chan_changes = tstrdup(tmp);
+
+      strncpy(glob_changes,changes,(strlen(changes) - strlen(tmp)));
+
+      new_glob_flags = tmalloc0(strlen(user->flags) + strlen(glob_changes) + 1);
+
+      /* Do changes to global flags */
+      for (i=0;*(glob_changes+i) != NULL;i++)
+      {
+        switch(*(glob_changes+i));
+        {
+          case '+':
+            op = 1;
+            break;
+          case '-':
+            op = 0;
+            break;
+          default:
+            switch (op)
+            {
+              case -1:
+                break;
+              case  1: /* add to flags */
+                tmp = user->flags;
+
+                while (*tmp != '\0')
+                  if (*tmp == *(glob_changes+i))
+                    break;
+                  else
+                    tmp++;
+
+                if (*tmp == '\0')
+                {
+                  tmp = new_glob_flags;
+                  while (*tmp != '\0')
+                    tmp++;
+
+                  *tmp = *(glob_changes+i);
+                }
+                    
+                break;
+              case  1:
+                break;
+            }
+        }
+    }
+    else
+    {
+      glob_flags = NULL;
+      chan_flags = tstrdup(changes);
+    }
+
+    /* The new chan flags can only be as large as 
+     * strlen(oldflags) + glob_flags|chan_flags
+     * I'll use that instead of being more accurate
+     */
+  }
+}    
+#endif /* CLOWNS */    
+      
 
 /* botattr <handle> [changes [channel]] */
 
@@ -314,6 +461,7 @@ int egg_matchattr(struct network *net, const char *handle, const char *flags, co
 
   /* Deal with this either as a channel or global, not sure if this should
    * handle eggdrop notation a|f or whatever.
+   * FIXME
    */
   if (channel != NULL)
   {
@@ -541,7 +689,30 @@ void egg_putdcc(int idx, const char *text)
 /* unloadhelp <helpfile-name> */
 /* reloadhelp */
 /* restart */
-/* rehash */
+
+#ifdef CLOWNS
+void egg_rehash(void)
+{
+  struct tconfig_block *cfg;
+  struct config *oldcfg;
+
+  oldcfg = g_cfg;
+
+  tcfg  = file_to_tconfig(NULL,filename);
+
+  g_cfg = config_engine_load(tcfg);
+
+  /* keep a copy in the global config */
+  g_cfg->tcfg = tcfg;
+ 
+  /* We need to match the old networks to new ones
+   * in case they were renamed, deleted, or added
+   * to properly disconnect or connect  
+   */
+}
+
+#endif /* CLOWNS */
+
 /* botnick */
 /* botname */
 /* version */

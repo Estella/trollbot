@@ -13,6 +13,8 @@ int egg_matchattr(struct network *net, const char *handle, const char *flags, co
 int egg_passwdok(struct network *net, const char *handle, const char *pass);
 int egg_countusers(struct network *net);
 
+int egg_chhandle(struct network *net, const char *old, const char *new);
+
 void egg_putdcc(int idx, const char *text);
 
 #endif /* __EGGLIB_H__ */

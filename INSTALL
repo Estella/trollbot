@@ -1,7 +1,39 @@
 Trollbot v1.0 Installation Instructions
 ---------------------------------------
 
-
 Trollbot uses the GNU Build System.
 
+
+Simple Install:
+
+./configure
+make
+make install
+
+This should be enough for most users, it will install all required
+files to trollbot/ in your home directory.
+
+Advanced Install:
+  --prefix=PREFIX          install files to PREFIX (ex: /home/poutine/clowns)
+  --with-tclconfig=PATH    use tclConfig.sh from PATH
+                           (configure gets Tcl configuration from here)
+  --with-tcl=PATH          use Tcl from PATH
+  --with-tclsh=TCLSH       use TCLSH as the tclsh program
+                           (let configure find Tcl using this program)
+  --with-php-cflags=FLAGS  CFLAGS to use for PHP
+  --with-php-ldflags=FLAGS LDFLAGS to use PHP
+  --with-php-config=PATH   use php-config from PATH
+  --with-php-lib=PATH      PATH to libphp5.so or libphp4.so
+  --with-php=(4|5)         configure with PHP4 or 5 support
+  --with-perl=PATH         use Perl from PATH
+
+
+Trollbot can use the libphp4.so or libphp5.so that Apache uses. To use
+it you usually have to specify these configure flags.
+
+For PHP 5
+./configure --with-php=5 --with-php-config=/usr/local/bin --with-php-lib=/usr/local/apache2/modules
+
+For PHP 4
+./configure --with-php=4 --with-php-config=/usr/local/bin --with-php-lib=/usr/local/apache2/modules
 

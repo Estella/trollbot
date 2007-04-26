@@ -155,6 +155,9 @@ if test "$with_tcl" != "no"; then
 
     if test "x${TCL_CPPFLAGS}" != "x" -a "x${TCL_LIBS}" != "x" ; then
       AC_DEFINE(HAVE_TCL, 1, [Ability to use TCL scripting])
+    else
+      TCL_CPPFLAGS=""
+      TCL_LIBS=""
     fi
   fi
 fi

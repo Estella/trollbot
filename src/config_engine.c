@@ -28,8 +28,7 @@ int config_engine_init(char *filename)
 {
   struct tconfig_block *tcfg;
     
-  tcfg  = file_to_tconfig(NULL,filename);
-/*  tcfg  = file_to_tconfig(tcfg,"defaults.conf");*/
+  tcfg      = file_to_tconfig(filename);
 
   g_cfg = config_engine_load(tcfg);
 
@@ -121,22 +120,22 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
       {
         if (!strcmp(search->key,"nick"))
         {
-          if (net->nick != NULL)
-            free(net->nick);
-   
-          net->nick = tstrdup(search->value);
+          /* Use the first value (for stacking configs) */
+          if (net->nick == NULL)
+          {
+            net->nick = tstrdup(search->value);
 
-          if (net->botnick != NULL)
-            free(net->botnick);
+            if (net->botnick != NULL)
+              free(net->botnick);
 
-          net->botnick = tstrdup(search->value);
+            net->botnick = tstrdup(search->value);
+          }
         }
         else if (!strcmp(search->key,"altnick"))
         {
-          if (net->altnick != NULL)
-            free(net->altnick);
-
-          net->altnick = tstrdup(search->value);
+          /* Use first value only */
+          if (net->altnick == NULL)
+            net->altnick = tstrdup(search->value);
         }
 #ifdef HAVE_TCL
         else if (!strcmp(search->key,"tclscript"))
@@ -177,38 +176,28 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 #endif /* HAVE_PYTHON */
         else if (!strcmp(search->key,"userfile"))
         {
-          if (net->userfile != NULL)
-            free(net->userfile);
- 
-          net->userfile = tstrdup(search->value);
+          if (net->userfile == NULL)
+            net->userfile = tstrdup(search->value);
         }
         else if (!strcmp(search->key,"chanfile"))
         {
-          if (net->chanfile != NULL)
-            free(net->chanfile);
-
-          net->chanfile = tstrdup(search->value);
+          if (net->chanfile == NULL)
+            net->chanfile = tstrdup(search->value);
         }
         else if (!strcmp(search->key,"realname"))
         {
-          if (net->realname != NULL)
-            free(net->realname);
-
-          net->realname = tstrdup(search->value);
+          if (net->realname == NULL)
+            net->realname = tstrdup(search->value);
         }
         else if (!strcmp(search->key,"ident"))
         {
-          if (net->ident != NULL)
-            free(net->ident);
-
-          net->ident = tstrdup(search->value);
+          if (net->ident == NULL)
+            net->ident = tstrdup(search->value);
         }
         else if (!strcmp(search->key,"vhost"))
         {
-          if (net->vhost != NULL)
-            free(net->vhost);
- 
-          net->vhost = tstrdup(search->value);
+          if (net->vhost == NULL)
+            net->vhost = tstrdup(search->value);
         }
         else if (!strcmp(search->key,"server"))
         {
