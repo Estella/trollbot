@@ -1,4 +1,1 @@
-confdir = ${prefix}
-conf_DATA = trollbot.conf defaults.conf
-
-SUBDIRS = src scripts doc
+SUBDIRS = src scripts_dist doc_dist conf_dist

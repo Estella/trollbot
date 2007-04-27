@@ -30,6 +30,12 @@ int config_engine_init(char *filename)
     
   tcfg      = file_to_tconfig(filename);
 
+  if (tcfg == NULL)
+  {
+    troll_debug(LOG_ERROR,"Did you remember to rename trollbot.conf.dist to trollbot.conf and edit it?");
+    exit(EXIT_FAILURE);
+  }
+
   g_cfg = config_engine_load(tcfg);
 
   /* keep a copy in the global config */

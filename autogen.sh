@@ -2,10 +2,10 @@
 
 
 # Prep
-cat tcl.m4 > acinclude.m4
-cat php.m4 >> acinclude.m4
-cat perl.m4 >> acinclude.m4
-cat python.m4 >> acinclude.m4
+cat m4/tcl.m4 > acinclude.m4
+cat m4/php.m4 >> acinclude.m4
+cat m4/perl.m4 >> acinclude.m4
+cat m4/python.m4 >> acinclude.m4
 
 aclocal
 autoconf

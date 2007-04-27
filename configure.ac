@@ -48,8 +48,9 @@ fi
 
 AC_OUTPUT(Makefile 
           src/Makefile
-          doc/Makefile
-          scripts/Makefile)
+          doc_dist/Makefile
+          scripts_dist/Makefile
+          conf_dist/Makefile)
 
 
 
