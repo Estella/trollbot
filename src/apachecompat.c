@@ -1,7 +1,8 @@
 /* This file merely just provides libphp4.so or libphp5.so with apache symbols
  * so it will link
+ * not sure if this is portable, or even needed with -Wl,--unresolved-symbols=ignore-all
  */
-#include "aprcompat.h"
+#include "apachecompat.h"
 
 const char *ap_auth_type(void) { return 0; }
 const char *ap_loaded_modules(void) { return 0; }

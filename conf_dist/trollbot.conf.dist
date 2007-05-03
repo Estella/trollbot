@@ -59,7 +59,7 @@ network DALnet
 
 
 
-network undernet
+network MudPortal
 {
     nick TrollBot
     altnick kittens
@@ -80,15 +80,12 @@ network undernet
     userlisten 61324
 
     tclscript scripts/test.tcl
-    phpscript scripts/mirckey.php
-    phpscript scripts/bmi.php
-    phpscript scripts/testpg.php
-    pythonscript scripts/test.py
+    phpscript scripts/test.php
 
 //    userfile db/userdb.severed
 //    chanfile db/chandb.severed
 
-    server 66.206.25.96
+    server irc.mudportal.com
 }
 
 

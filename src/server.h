@@ -15,6 +15,9 @@ struct server
   struct server *next;
 };
 
+
+
+void user_list_add(struct user **orig, struct user *new);
 struct server *new_server(char *hostport);
 #endif /* __SERVER_H__ */
 

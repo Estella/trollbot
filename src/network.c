@@ -108,6 +108,12 @@ struct network *new_network(char *label)
   ret->dcc_port      = -1;
 
   ret->tcfg          = NULL;
+
+  /* This is the queueing BS */
+  ret->connect_delay = 10; 
+  ret->connect_try   = 3;
+  ret->last_try      = 0;  
+  
 #ifdef HAVE_TCL
   net_init_tcl(ret);
 #endif /* HAVE_TCL */

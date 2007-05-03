@@ -136,5 +136,7 @@ void tcl_handler(struct network *net, struct trigger *trig, struct irc_data *dat
       break;
     case TRIG_SIGN:
       break;
+    case TRIG_DCC:
+      break;
   }  
 }

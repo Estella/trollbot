@@ -40,7 +40,7 @@ bin_PROGRAMS = trollbot$(EXEEXT)
 @WITH_TCL_TRUE@am__append_1 = tcl_embed.c tcl_lib.c
 @WITH_TCL_TRUE@am__append_2 = ${TCL_CPPFLAGS}
 @WITH_TCL_TRUE@am__append_3 = ${TCL_LIBS}
-@WITH_PHP_TRUE@am__append_4 = aprcompat.c php_embed.c php_lib.c
+@WITH_PHP_TRUE@am__append_4 = apachecompat.c php_embed.c php_lib.c
 @WITH_PHP_TRUE@am__append_5 = ${PHP_CFLAGS}
 @WITH_PHP_TRUE@am__append_6 = ${PHP_LDADD}
 @WITH_PERL_TRUE@am__append_7 = perl_embed.c perl_lib.c
@@ -65,11 +65,11 @@ PROGRAMS = $(bin_PROGRAMS)
 am__trollbot_SOURCES_DIST = main.c tconfig.c network.c server.c \
 	config_engine.c sockets.c irc.c util.c debug.c channel.c \
 	trigger.c sha1.c user.c egg_lib.c die.c default_triggers.c \
-	dcc.c tcl_embed.c tcl_lib.c aprcompat.c php_embed.c php_lib.c \
-	perl_embed.c perl_lib.c python_embed.c python_lib.c
+	dcc.c tcl_embed.c tcl_lib.c apachecompat.c php_embed.c \
+	php_lib.c perl_embed.c perl_lib.c python_embed.c python_lib.c
 @WITH_TCL_TRUE@am__objects_1 = trollbot-tcl_embed.$(OBJEXT) \
 @WITH_TCL_TRUE@	trollbot-tcl_lib.$(OBJEXT)
-@WITH_PHP_TRUE@am__objects_2 = trollbot-aprcompat.$(OBJEXT) \
+@WITH_PHP_TRUE@am__objects_2 = trollbot-apachecompat.$(OBJEXT) \
 @WITH_PHP_TRUE@	trollbot-php_embed.$(OBJEXT) \
 @WITH_PHP_TRUE@	trollbot-php_lib.$(OBJEXT)
 @WITH_PERL_TRUE@am__objects_3 = trollbot-perl_embed.$(OBJEXT) \
@@ -135,6 +135,9 @@ LDFLAGS = @LDFLAGS@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
 LTLIBOBJS = @LTLIBOBJS@
+MAINT = @MAINT@
+MAINTAINER_MODE_FALSE = @MAINTAINER_MODE_FALSE@
+MAINTAINER_MODE_TRUE = @MAINTAINER_MODE_TRUE@
 MAKEINFO = @MAKEINFO@
 OBJEXT = @OBJEXT@
 PACKAGE = @PACKAGE@
@@ -200,15 +203,15 @@ trollbot_SOURCES = main.c tconfig.c network.c server.c config_engine.c \
 	user.c egg_lib.c die.c default_triggers.c dcc.c \
 	$(am__append_1) $(am__append_4) $(am__append_7) \
 	$(am__append_10)
-trollbot_CFLAGS = -O0 -Wall $(am__append_2) $(am__append_5) \
-	$(am__append_8) $(am__append_11)
+trollbot_CFLAGS = -O0 -Wall -std=c99 -pedantic $(am__append_2) \
+	$(am__append_5) $(am__append_8) $(am__append_11)
 trollbot_LDADD = $(am__append_3) $(am__append_6) $(am__append_9) \
 	$(am__append_12)
 all: all-am
 
 .SUFFIXES:
 .SUFFIXES: .c .o .obj
-$(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
+$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -233,9 +236,9 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 
-$(top_srcdir)/configure:  $(am__configure_deps)
+$(top_srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
-$(ACLOCAL_M4):  $(am__aclocal_m4_deps)
+$(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 install-binPROGRAMS: $(bin_PROGRAMS)
 	@$(NORMAL_INSTALL)
@@ -270,7 +273,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-aprcompat.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-apachecompat.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-channel.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-config_engine.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-dcc.Po@am__quote@
@@ -577,19 +580,19 @@ trollbot-tcl_lib.obj: tcl_lib.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-tcl_lib.obj `if test -f 'tcl_lib.c'; then $(CYGPATH_W) 'tcl_lib.c'; else $(CYGPATH_W) '$(srcdir)/tcl_lib.c'; fi`
 
-trollbot-aprcompat.o: aprcompat.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-aprcompat.o -MD -MP -MF "$(DEPDIR)/trollbot-aprcompat.Tpo" -c -o trollbot-aprcompat.o `test -f 'aprcompat.c' || echo '$(srcdir)/'`aprcompat.c; \
-@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/trollbot-aprcompat.Tpo" "$(DEPDIR)/trollbot-aprcompat.Po"; else rm -f "$(DEPDIR)/trollbot-aprcompat.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='aprcompat.c' object='trollbot-aprcompat.o' libtool=no @AMDEPBACKSLASH@
+trollbot-apachecompat.o: apachecompat.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-apachecompat.o -MD -MP -MF "$(DEPDIR)/trollbot-apachecompat.Tpo" -c -o trollbot-apachecompat.o `test -f 'apachecompat.c' || echo '$(srcdir)/'`apachecompat.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/trollbot-apachecompat.Tpo" "$(DEPDIR)/trollbot-apachecompat.Po"; else rm -f "$(DEPDIR)/trollbot-apachecompat.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='apachecompat.c' object='trollbot-apachecompat.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-aprcompat.o `test -f 'aprcompat.c' || echo '$(srcdir)/'`aprcompat.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-apachecompat.o `test -f 'apachecompat.c' || echo '$(srcdir)/'`apachecompat.c
 
-trollbot-aprcompat.obj: aprcompat.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-aprcompat.obj -MD -MP -MF "$(DEPDIR)/trollbot-aprcompat.Tpo" -c -o trollbot-aprcompat.obj `if test -f 'aprcompat.c'; then $(CYGPATH_W) 'aprcompat.c'; else $(CYGPATH_W) '$(srcdir)/aprcompat.c'; fi`; \
-@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/trollbot-aprcompat.Tpo" "$(DEPDIR)/trollbot-aprcompat.Po"; else rm -f "$(DEPDIR)/trollbot-aprcompat.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='aprcompat.c' object='trollbot-aprcompat.obj' libtool=no @AMDEPBACKSLASH@
+trollbot-apachecompat.obj: apachecompat.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-apachecompat.obj -MD -MP -MF "$(DEPDIR)/trollbot-apachecompat.Tpo" -c -o trollbot-apachecompat.obj `if test -f 'apachecompat.c'; then $(CYGPATH_W) 'apachecompat.c'; else $(CYGPATH_W) '$(srcdir)/apachecompat.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/trollbot-apachecompat.Tpo" "$(DEPDIR)/trollbot-apachecompat.Po"; else rm -f "$(DEPDIR)/trollbot-apachecompat.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='apachecompat.c' object='trollbot-apachecompat.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-aprcompat.obj `if test -f 'aprcompat.c'; then $(CYGPATH_W) 'aprcompat.c'; else $(CYGPATH_W) '$(srcdir)/aprcompat.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-apachecompat.obj `if test -f 'apachecompat.c'; then $(CYGPATH_W) 'apachecompat.c'; else $(CYGPATH_W) '$(srcdir)/apachecompat.c'; fi`
 
 trollbot-php_embed.o: php_embed.c
 @am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-php_embed.o -MD -MP -MF "$(DEPDIR)/trollbot-php_embed.Tpo" -c -o trollbot-php_embed.o `test -f 'php_embed.c' || echo '$(srcdir)/'`php_embed.c; \

@@ -1,4 +1,11 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "main.h"
+
+#include "util.h"
+#include "tconfig.h"
 
 /* static sets the initial unchangeable structure */
 struct tconfig_block *file_to_tconfig(const char *filename)
@@ -672,6 +679,7 @@ void free_tconfig(struct tconfig_block *tcfg)
   return;
 }
 
+/* Isolate a tconfig block and its children */
 struct tconfig_block *tconfig_isolate(struct tconfig_block *tcfg)
 {
   if (tcfg->next != NULL)
@@ -696,12 +704,11 @@ struct tconfig_block *tconfig_isolate(struct tconfig_block *tcfg)
   return tcfg;
 }
 
-
+/* Modifies dst, but never the actual dst pointer */
 void tconfig_merge(struct tconfig_block *src, struct tconfig_block *dst)
 {
   struct tconfig_block *tmp;
-  int depth = 0;
-  /* int wild_depth = -1; */
+  int depth      = 0;
 
   /* We want to start at the initial positions and traverse down from 
    * there, copying the keys and values and subkeys maintaining current
@@ -711,9 +718,55 @@ void tconfig_merge(struct tconfig_block *src, struct tconfig_block *dst)
     return;
 
   while (src != NULL)
-  {
+  {      
     if (src->child != NULL)
     {
+      /* Do wildcards recursively, I only figure it will
+       * get a few levels in depth
+       */
+      if ((src->value != NULL) && !strcmp(src->value,"*"))
+      {
+        /* The trick is to loop through the current depth
+         * matching the key to the wildcard's key, if so,
+         * and call this function after going to child of each
+         * making them both in the toplevel during the merge
+         */
+        tmp = dst;
+
+        while (tmp->prev != NULL) tmp = tmp->prev;
+        
+        while (tmp != NULL)
+        {
+          if (tmp->key != NULL)
+          {
+            if (!strcmp(src->key,tmp->key))
+            {
+              if (tmp->child == NULL)
+              {
+                tmp->child         = tmalloc(sizeof(struct tconfig_block));
+                tmp->child->parent = tmp;
+                tmp                = tmp->child;
+                tmp->key           = NULL;
+                tmp->value         = NULL;
+                tmp->prev          = NULL;
+                tmp->next          = NULL;
+                tmp->child         = NULL;
+                tmp                = tmp->parent; /* Return back to the parent */
+              } 
+
+              tconfig_merge(src->child,tmp->child);
+
+            }
+
+          }
+ 
+          tmp = tmp->next;
+        } 
+
+        src = src->next;
+        continue;
+      }
+
       tmp = dst;
 
       /* Make sure it's at the beginning */
@@ -766,6 +819,7 @@ void tconfig_merge(struct tconfig_block *src, struct tconfig_block *dst)
       depth++;
 
       src = src->child;
+      continue;
     }
 
     tmp = dst;
@@ -777,7 +831,8 @@ void tconfig_merge(struct tconfig_block *src, struct tconfig_block *dst)
     {
       if (tmp->key != NULL)
       {
-        if (!strcmp(src->key,tmp->key) && !strcmp(src->value,tmp->value))
+        /* No Duplicate keys on merge unless prepended with @ */
+        if (!strcmp(src->key,tmp->key) && src->key[0] != '@')
         {
           /* Ignore dupes */
           break;
@@ -802,7 +857,11 @@ void tconfig_merge(struct tconfig_block *src, struct tconfig_block *dst)
         dst->child      = NULL;
       }
 
-      dst->key        = tstrdup(src->key);
+      if (src->key[0] == '@')
+        dst->key      = tstrdup(&src->key[1]);
+      else
+        dst->key      = tstrdup(src->key);
+
       dst->value      = tstrdup(src->value);
       dst->next       = NULL;
     }
@@ -823,7 +882,6 @@ void tconfig_merge(struct tconfig_block *src, struct tconfig_block *dst)
       depth--; 
     }
      
-    
     src = src->next;
   }
 

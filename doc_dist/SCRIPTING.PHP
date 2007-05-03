@@ -1,5 +1,5 @@
 ############################################################
-# TrollBot v0.0.1 written by poutine                       #
+# TrollBot v1.0.0 written by poutine                       #
 ############################################################
 
 PHP Scripting:
@@ -30,7 +30,7 @@ bind("testnet",   /* Only works on testnet, can be * or all  */
 
 
   When someone says "!hi" (without the quotes stupid), 
-somefunc() is called with the params specified in TYPES.
+somefunc() is called with the params specified in BINDS.
 for pub, the params are network, nickname, userhost, handle, 
 channel, arg. $arg is the IRC line minus the trigger and
 trailing whitespace. Here's what somefunc() should look like
@@ -55,6 +55,4 @@ somefunc("testnet",
          "someweirdo", /* Username */
          "#trollbot",
          "this is a test"); /* arg */
-
-
 

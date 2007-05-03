@@ -1,6 +1,12 @@
 **********************
 * Trollbot ChangeLog *
 **********************
+2007-05-01: * tconfigs merge properly now, also did some fixup on dcc in the select() loop
+
+2007-04-30: * Documentation fixups
+            * eliminated some bloat by getting rid of trigger head/tails
+              the lists should always be aligned at head
+           
 2007-04-26: * Fixed autoconf stuff so make install now works as expected :)
             * added egg_chattr()
             * added crude python support

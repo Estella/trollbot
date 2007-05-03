@@ -5,18 +5,23 @@ struct user;
 struct channel;
 struct tconfig_block;
 struct network;
+struct trigger;
+struct dcc_session;
+struct irc_data;
 
-struct chan_user
+
+struct channel_user
 {
   char *nick;
+  char *uhost;
   
   int jointime;
 
   /* Actual user record */
   struct user *urec;
 
-  struct chan_user *prev;
-  struct chan_user *next;
+  struct channel_user *prev;
+  struct channel_user *next;
 };
 
 struct channel
@@ -24,7 +29,7 @@ struct channel
   char *name;
   int status;
 
-  struct chan_user *user_list;
+  struct channel_user *user_list;
 
   /* Unhandled blocks get stuck here */
   struct tconfig_block *tcfg;
@@ -33,10 +38,14 @@ struct channel
   struct channel *next;
 };
 
-struct chan_user *new_chan_user(const char *nick, int jointime, struct user *urec);
+void channel_list_add(struct channel **orig, struct channel *new);
+void channel_user_add(struct channel_user **orig, struct channel_user *new);
+struct channel_user *new_channel_user(const char *nick, int jointime, struct user *urec);
 void free_channels(struct channel *chans);
 struct channel *new_channel(const char *chan);
 void join_channels(struct network *net);
 void chan_init(void);
+void channel_list_populate(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
+
 
 #endif /* __CHANNEL_H__ */

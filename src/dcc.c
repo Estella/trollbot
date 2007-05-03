@@ -29,6 +29,70 @@
 #include "egg_lib.h"
 #include "trigger.h"
 
+void dcc_list_del(struct dcc_session **orig, struct dcc_session *old)
+{
+  struct dcc_session *tmp;
+
+  if (*orig == NULL || old == NULL)
+    return;
+
+  if (orig == old)
+  {
+    /* Original pointer is modified */
+    free(old);
+    *orig = NULL;
+  } else {
+    /* original pointer is unmodified */
+    tmp = old;
+
+    while (tmp->prev != NULL) tmp = tmp->prev;
+
+    while (tmp != NULL)
+    {
+      if (tmp == old)
+      {
+        /* match */
+        if (tmp->prev != NULL)
+          tmp->prev->next = tmp->next;
+
+        if (tmp->next != NULL)
+          tmp->next->prev = tmp->prev;
+
+        free(tmp);
+        return;
+      }
+
+      tmp = tmp->next;
+    }
+  }
+
+  return;
+}
+
+void dcc_list_add(struct dcc_session **orig, struct dcc_session *new)
+{
+  struct user *tmp;
+
+  if (*orig == NULL)
+  {
+    *orig = new;
+    new->prev = NULL;
+    new->next = NULL;
+  }
+  else
+  {
+    tmp = *orig;
+
+    while (tmp->next != NULL)
+      tmp = tmp->next;
+
+    tmp->next       = new;
+    tmp->next->prev = tmp;
+    tmp->next->next = NULL;
+  }
+}
+
+
 void dcc_init_listener(struct network *net)
 {
   char *dcchostip;
@@ -121,7 +185,7 @@ void new_dcc_connection(struct network *net)
     return;
   }
 
-  newdcc->status = DCC_CONNECTED;
+  newdcc->status = DCC_NOTREADY;
   
   if (net->dccs == NULL)
     net->dccs = newdcc;
@@ -138,7 +202,8 @@ void new_dcc_connection(struct network *net)
 
   newdcc->net = net;
 
-  irc_printf(newdcc->sock,"Welcome to Trollbot, enter your username to continue.");
+  irc_printf(newdcc->sock,"Welcome to Trollbot");
+  irc_printf(newdcc->sock,"enter your username to continue.");
   
   return; 
 }
@@ -286,7 +351,8 @@ void dcc_help_menu(struct network *net, struct trigger *trig, struct irc_data *d
   irc_printf(dcc->sock,"TrollBot v1.0 DCC MENU\n"
                        "----------------------\n\n"
                        " +chan -chan +user -user\n"
-                       " chattr rehash tcl\n");
+                       " chattr rehash tcl tbinds\n"
+                       " msg\n");
                       
   return;
                                                           
@@ -378,6 +444,7 @@ void dcc_command_handler(struct dcc_session *dcc, const char *command)
     {
       if (trig->handler != NULL)
       {
+        trig->usecount++;
         trig->handler(dcc->net,trig,NULL,dcc,command);
         return;
       }
@@ -490,4 +557,109 @@ void dcc_del_chan(struct network *net, struct trigger *trig, struct irc_data *da
 void dcc_rehash(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
   /* Crude rehash mechanism */
+}
+
+void dcc_tbinds(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
+{
+  struct trigger *tmp_trig;
+
+ 
+  irc_printf(dcc->sock,"Trollbot bind table:");
+
+  irc_printf(dcc->sock,"bind PUB:");
+  tmp_trig = net->trigs->pub;
+
+  if (tmp_trig == NULL) irc_printf(dcc->sock,"None.");
+
+  while (tmp_trig != NULL)
+  {
+    if (tmp_trig->command != NULL)
+      irc_printf(dcc->sock,"Mask: (%s) Usecount: %d Command: (%s)",tmp_trig->mask,tmp_trig->usecount,tmp_trig->command);
+    else
+      irc_printf(dcc->sock,"Mask: (%s) Usecount: %d Command: Internal",tmp_trig->mask,tmp_trig->usecount);
+
+    tmp_trig = tmp_trig->next;
+  } 
+
+
+  irc_printf(dcc->sock,"bind PUBM:");
+  tmp_trig = net->trigs->pubm;
+
+  if (tmp_trig == NULL) irc_printf(dcc->sock,"None.");
+       
+  while (tmp_trig != NULL)
+  {    
+    if (tmp_trig->command != NULL)
+      irc_printf(dcc->sock,"Mask: (%s) Usecount: %d Command: (%s)",tmp_trig->mask,tmp_trig->usecount,tmp_trig->command);
+    else
+      irc_printf(dcc->sock,"Mask: (%s) Usecount: %d Command: Internal",tmp_trig->mask,tmp_trig->usecount);     
+        
+    tmp_trig = tmp_trig->next;
+  }   
+
+
+  irc_printf(dcc->sock,"bind MSG:");
+  tmp_trig = net->trigs->msg;
+
+  if (tmp_trig == NULL) irc_printf(dcc->sock,"None.");
+       
+  while (tmp_trig != NULL)
+  {    
+    if (tmp_trig->command != NULL)
+      irc_printf(dcc->sock,"Mask: (%s) Usecount: %d Command: (%s)",tmp_trig->mask,tmp_trig->usecount,tmp_trig->command);
+    else
+      irc_printf(dcc->sock,"Mask: (%s) Usecount: %d Command: Internal",tmp_trig->mask,tmp_trig->usecount);     
+        
+    tmp_trig = tmp_trig->next;
+  }   
+
+
+  irc_printf(dcc->sock,"bind MSGM:");
+  tmp_trig = net->trigs->msgm;
+
+  if (tmp_trig == NULL) irc_printf(dcc->sock,"None.");
+       
+  while (tmp_trig != NULL)
+  {    
+    if (tmp_trig->command != NULL)
+      irc_printf(dcc->sock,"Mask: (%s) Usecount: %d Command: (%s)",tmp_trig->mask,tmp_trig->usecount,tmp_trig->command);
+    else
+      irc_printf(dcc->sock,"Mask: (%s) Usecount: %d Command: Internal",tmp_trig->mask,tmp_trig->usecount);     
+        
+    tmp_trig = tmp_trig->next;
+  }   
+
+
+  irc_printf(dcc->sock,"bind JOIN:");
+  tmp_trig = net->trigs->join;
+
+  if (tmp_trig == NULL) irc_printf(dcc->sock,"None.");
+       
+  while (tmp_trig != NULL)
+  {    
+    if (tmp_trig->command != NULL)
+      irc_printf(dcc->sock,"Mask: (%s) Usecount: %d Command: (%s)",tmp_trig->mask,tmp_trig->usecount,tmp_trig->command);
+    else
+      irc_printf(dcc->sock,"Mask: (%s) Usecount: %d Command: Internal",tmp_trig->mask,tmp_trig->usecount);     
+        
+    tmp_trig = tmp_trig->next;
+  }   
+
+
+  irc_printf(dcc->sock,"bind PART:");
+  tmp_trig = net->trigs->part;
+       
+  if (tmp_trig == NULL) irc_printf(dcc->sock,"None.");
+
+  while (tmp_trig != NULL)
+  {    
+    if (tmp_trig->command != NULL)
+      irc_printf(dcc->sock,"Mask: (%s) Usecount: %d Command: (%s)",tmp_trig->mask,tmp_trig->usecount,tmp_trig->command);
+    else
+      irc_printf(dcc->sock,"Mask: (%s) Usecount: %d Command: Internal",tmp_trig->mask,tmp_trig->usecount);     
+        
+    tmp_trig = tmp_trig->next;
+  }
+
+  return;
 }

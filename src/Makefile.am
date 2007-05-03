@@ -3,7 +3,7 @@ bin_PROGRAMS = trollbot
 trollbot_SOURCES = main.c tconfig.c network.c server.c config_engine.c sockets.c irc.c util.c debug.c channel.c trigger.c sha1.c \
 		   user.c egg_lib.c die.c default_triggers.c dcc.c
 
-trollbot_CFLAGS = -O0 -Wall
+trollbot_CFLAGS = -O0 -Wall -std=c99 -pedantic
 trollbot_LDADD  = 
 
 if WITH_TCL
@@ -16,7 +16,7 @@ endif
 
 if WITH_PHP
 
-trollbot_SOURCES += aprcompat.c php_embed.c php_lib.c
+trollbot_SOURCES += apachecompat.c php_embed.c php_lib.c
 trollbot_CFLAGS  += ${PHP_CFLAGS}
 trollbot_LDADD   += ${PHP_LDADD}
 

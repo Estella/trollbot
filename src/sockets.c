@@ -104,7 +104,7 @@ void irc_loop(void)
 
       if (connect(net->sock,(struct sockaddr *)&serv_addr,sizeof(struct sockaddr)) == -1) 
       {
-        fprintf(stderr, "Could not connect to server %s on port %d for network %s\n",svr->host,svr->port,net->label);
+        troll_debug(LOG_WARN,"Could not connect to server %s on port %d for network %s\n",svr->host,svr->port,net->label);
         net->sock = -1;
         svr = svr->next;
         continue;
@@ -119,6 +119,7 @@ void irc_loop(void)
     
     if (net->sock == -1)
     {
+      net->status     = STATUS_DISCONNECTED;
       troll_debug(LOG_ERROR,"Could not connect to any servers for network %s\n",net->label);
     }
 
@@ -150,6 +151,10 @@ void irc_loop(void)
         {
           numsocks = (dcc->sock > numsocks) ? dcc->sock : numsocks;
           FD_SET(dcc->sock,&socks);
+
+          if (dcc->status == DCC_NOTREADY)
+            dcc->status = DCC_CONNECTED;
+            
         }
 
         dcc = dcc->next;
@@ -182,11 +187,17 @@ void irc_loop(void)
 
       while (dcc != NULL)
       {
-        if (dcc->sock != -1)
+        if (dcc->sock != -1 && dcc->status != DCC_NOTREADY)
         {
           if (FD_ISSET(dcc->sock,&socks))
           {
-            dcc_in(dcc);
+            if (!dcc_in(dcc))
+            {
+              dcc_list_del(net->dccs,dcc);
+              /* Socket disconnected, remove from list */
+              dcc->sock = -1;
+
+            }
           }
         }
 

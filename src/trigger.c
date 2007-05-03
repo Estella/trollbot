@@ -86,13 +86,15 @@ struct trigger *new_trigger(char *flags, int type, char *mask, char *command,
   }
 
   
-  ret->type    = type;
-  ret->mask    = tstrdup(mask);
-  ret->command = tstrdup(command);
-  ret->handler = handler;
+  ret->type     = type;
+  ret->mask     = tstrdup(mask);
+  ret->command  = tstrdup(command);
+  ret->handler  = handler;
+  ret->usecount = 0;
 
-  ret->prev    = NULL;
-  ret->next    = NULL;
+
+  ret->prev     = NULL;
+  ret->next     = NULL;
 
   return ret;
 }
@@ -112,7 +114,7 @@ void trigger_match(struct network *net, struct irc_data *data)
       if (!strcmp(data->c_params[0],net->nick))
       {
         /* Trigger is either MSG or MSGM */
-        trig = net->trigs->msg_head;
+        trig = net->trigs->msg;
 
         while (trig != NULL)
         {
@@ -121,7 +123,10 @@ void trigger_match(struct network *net, struct irc_data *data)
             if (!strncmp(data->rest_str,trig->mask,strlen(trig->mask)))
             {
               if (trig->handler != NULL)
+              {
+                trig->usecount++;
                 trig->handler(net,trig,data,NULL,NULL);
+              }
             }
           }
 
@@ -129,7 +134,7 @@ void trigger_match(struct network *net, struct irc_data *data)
         }          
 
 
-        trig = net->trigs->msgm_head;
+        trig = net->trigs->msgm;
 
         while (trig != NULL)
         {
@@ -138,7 +143,10 @@ void trigger_match(struct network *net, struct irc_data *data)
             if (!egg_matchwilds(data->rest_str,trig->mask))
             {
               if (trig->handler != NULL)
+              {
+                trig->usecount++;
                 trig->handler(net,trig,data,NULL,NULL);
+              }
             }
 
           }
@@ -150,7 +158,7 @@ void trigger_match(struct network *net, struct irc_data *data)
       else 
       {
         /* Check bind PUB, not STACKABLE */
-        trig = net->trigs->pub_head;
+        trig = net->trigs->pub;
  
         while (trig != NULL)
         {
@@ -160,7 +168,10 @@ void trigger_match(struct network *net, struct irc_data *data)
           if (!strncmp(data->rest_str,trig->mask,strlen(trig->mask)))
           {
             if (trig->handler != NULL)
+            {
+              trig->usecount++;
               trig->handler(net,trig,data,NULL,NULL);
+            }
             break;
           }
         
@@ -169,7 +180,7 @@ void trigger_match(struct network *net, struct irc_data *data)
         }
 
         /* Check bind PUBM, STACKABLE */
-        trig = net->trigs->pubm_head;
+        trig = net->trigs->pubm;
 
         while (trig != NULL)
         {
@@ -178,7 +189,10 @@ void trigger_match(struct network *net, struct irc_data *data)
             if (!egg_matchwilds(data->rest_str,trig->mask))
             {
               if (trig->handler != NULL)
+              {
+                trig->usecount++;
                 trig->handler(net,trig,data,NULL,NULL);
+              }
             }
 
           }
@@ -192,7 +206,7 @@ void trigger_match(struct network *net, struct irc_data *data)
   } 
   else if (!strcmp(data->command,"JOIN"))
   {
-    trig = net->trigs->join_head;
+    trig = net->trigs->join;
 
     if (data->rest != NULL)
     {
@@ -204,7 +218,10 @@ void trigger_match(struct network *net, struct irc_data *data)
       if (!egg_matchwilds(newmask,trig->mask))
       {
         if (trig->handler != NULL)
+        {
+          trig->usecount++;
           trig->handler(net,trig,data,NULL,NULL);
+        }
       }
 
     }
@@ -212,7 +229,7 @@ void trigger_match(struct network *net, struct irc_data *data)
   }
   else if (!strcmp(data->command,"PART"))
   {
-    trig = net->trigs->part_head;
+    trig = net->trigs->part;
 
     if (data->rest != NULL)
     {
@@ -224,7 +241,10 @@ void trigger_match(struct network *net, struct irc_data *data)
       if (!egg_matchwilds(newmask,trig->mask))
       {
         if (trig->handler != NULL)
+        {
+          trig->usecount++;
           trig->handler(net,trig,data,NULL,NULL);
+        }
       }
     }
   }
@@ -234,7 +254,7 @@ void trigger_match(struct network *net, struct irc_data *data)
   }
   else if (!strcmp(data->command,"KICK"))
   {
-    trig = net->trigs->kick_head;
+    trig = net->trigs->kick;
 
     if (data->c_params[0] != NULL && data->c_params[1] != NULL)
     {
@@ -244,7 +264,10 @@ void trigger_match(struct network *net, struct irc_data *data)
       if (!egg_matchwilds(newmask,trig->mask))
       {
         if (trig->handler != NULL)
+        {
+          trig->usecount++;
           trig->handler(net,trig,data,NULL,NULL);
+        }
       }
 
     }
@@ -253,6 +276,22 @@ void trigger_match(struct network *net, struct irc_data *data)
   else if (!strcmp(data->command,"NOTICE"))
   {
     /* Command is a NOTC */
+  }
+  else
+  {
+    /* Check for RAW */
+    trig = net->trigs->raw;
+
+    while (trig != NULL)
+    {
+      if (!strcmp(trig->mask,data->command))
+      {
+        trig->usecount++;
+        trig->handler(net,trig,data,NULL,NULL);
+      }
+
+      trig = trig->next;
+    }
   }
  
   return;
@@ -266,39 +305,16 @@ struct trig_table *new_trig_table(void)
   ret = tmalloc(sizeof(struct trig_table));
 
   ret->pub       = NULL;
-  ret->pub_head  = NULL;
-  ret->pub_tail  = NULL;
   ret->pubm      = NULL;
-  ret->pubm_head = NULL;
-  ret->pubm_tail = NULL;
   ret->msg       = NULL;
-  ret->msg_head  = NULL;
-  ret->msg_tail  = NULL;
   ret->msgm      = NULL;
-  ret->msgm_head = NULL;
-  ret->msgm_tail = NULL;
   ret->join      = NULL;
-  ret->join_head = NULL;
-  ret->join_tail = NULL;
   ret->part      = NULL;
-  ret->part_head = NULL;
-  ret->part_tail = NULL;
   ret->sign      = NULL;
-  ret->sign_head = NULL;
-  ret->sign_tail = NULL;
   ret->kick      = NULL;
-  ret->kick_head = NULL;
-  ret->kick_tail = NULL;
-
-
-
   ret->notc      = NULL;
-  ret->notc_head = NULL;
-  ret->notc_tail = NULL;
-
   ret->dcc       = NULL;
-  ret->dcc_head  = NULL;
-  ret->dcc_tail  = NULL;
+  ret->raw       = NULL;
  
   return ret;
 }

@@ -40,6 +40,8 @@ void tconfig_foreach_depth_first(struct tconfig_block *tcfg, int (*cback)(struct
 
 void tconfig_merge(struct tconfig_block *src, struct tconfig_block *dst);
 
+struct tconfig_block *tconfig_isolate(struct tconfig_block *tcfg);
+
 #define __TCONFIG_H__
 
 #endif /* __TCONFIG_H__ */

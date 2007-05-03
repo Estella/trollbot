@@ -36,4 +36,3 @@ For PHP 5
 
 For PHP 4
 ./configure --with-php=4 --with-php-config=/usr/local/bin --with-php-lib=/usr/local/apache2/modules
-

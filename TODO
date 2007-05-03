@@ -19,7 +19,7 @@ X = fully finished
 
 ** AUTOCONF **
 
-* Deal with time.h issues properly using autoconf
+/ Deal with time.h issues properly using autoconf
 
 * Make it so autogen.sh properly detects autotools, 
   bitch if not.

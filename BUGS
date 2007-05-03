@@ -1,0 +1,9 @@
+AUTOCONF:
+  * php-config lies, check whether paths given actually exist
+
+CYGWIN:
+  * trollbot crashes when compiled with TCL support.
+
+TROLLBOT:
+ * Trollbot tries to run scripts in conf file before g_cfg is realized,
+   this will cause problems during rehashing.

@@ -22,7 +22,8 @@ struct user
 
   char *ident;
   char *realname;
-  char *host;
+  char *host;  /* regular hostname/ip */
+  char *uhost; /* nick!ident@hostname/ip */
 
   char *flags;
 
@@ -36,6 +37,7 @@ struct user
 };
 
 
+void user_list_add(struct user **orig, struct user *new);
 void free_users(struct user *users);
 struct user *new_user(char *username, char *nick, char *passhash, char *ident, char *realname, char *host, char *flags);
 struct channel_flags *new_channel_flags(char *chan, char *flags);

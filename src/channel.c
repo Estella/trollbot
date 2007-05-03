@@ -7,16 +7,64 @@
 #include "network.h"
 #include "user.h"
 
-struct chan_user *new_chan_user(const char *nick, int jointime, struct user *urec)
+void channel_list_add(struct channel **orig, struct channel *new)
 {
-  struct chan_user *ret;
+  struct channel *tmp;
 
-  ret = tmalloc(sizeof(struct chan_user));
+  if (*orig == NULL)
+  {
+    *orig = new;
+    new->prev = NULL;
+    new->next = NULL;
+  }
+  else
+  {
+    tmp = *orig;
+
+    while (tmp->next != NULL)
+      tmp = tmp->next;
+
+    tmp->next       = new;
+    tmp->next->prev = tmp;
+    tmp->next->next = NULL;
+  }
+}
+
+void channel_user_add(struct channel_user **orig, struct channel_user *new)
+{
+  struct channel_user *tmp;      
+
+  if (*orig == NULL)
+  {
+    *orig = new;
+    new->prev = NULL;
+    new->next = NULL;
+  }
+  else
+  {
+    tmp = *orig;
+
+    while (tmp->next != NULL)
+      tmp = tmp->next;
+
+    tmp->next       = new;
+    tmp->next->prev = tmp;
+    tmp->next->next = NULL;
+  }
+}
+
+struct channel_user *new_channel_user(const char *nick, int jointime, struct user *urec)
+{
+  struct channel_user *ret;
+
+  ret = tmalloc(sizeof(struct channel_user));
 
   ret->nick     = (nick != NULL)     ? tstrdup(nick)     : NULL;
 
   ret->jointime = jointime;
   ret->urec     = urec;
+  ret->uhost    = NULL;
+
  
   ret->prev     = NULL;
   ret->next     = NULL;
@@ -26,8 +74,8 @@ struct chan_user *new_chan_user(const char *nick, int jointime, struct user *ure
 
 void free_channels(struct channel *chans)
 {
-  struct chan_user *cusers;
-  struct chan_user *cusertmp;
+  struct channel_user *cusers;
+  struct channel_user *cusertmp;
   struct channel   *chantmp;
 
   if (chans == NULL)
@@ -49,6 +97,7 @@ void free_channels(struct channel *chans)
       while (cusers != NULL)
       {
         free(cusers->nick);
+        free(cusers->uhost);
         cusertmp = cusers;
         cusers = cusers->next;
         free(cusertmp);
@@ -131,4 +180,10 @@ void chan_init(void)
   }
 
   return;
+}
+
+void channel_list_populate(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
+{
+  /* 353 toodle @ #java :toodle */
+  
 }

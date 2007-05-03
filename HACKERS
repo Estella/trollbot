@@ -1,0 +1,16 @@
+Trollbot has the following coding standards.
+
+* Indentation of 2 or 4 characters, never tab
+* includes follow the following order:
+    A. Standard Includes
+    B. conditional includes
+    C. config.h (for autoheader defines)
+    D. trollbot includes (irc.h, trigger.h, etc)
+* all declarations of structs and defines are to be put in
+  the header file, never the .c files.
+* curly braces get their own line
+* no uppercase letters in trollbot functions or variables.
+* no external dependancies other than stdlib and scripting libraries.
+* all macros should be uppercase
+* typedefs are highly discouraged.
+

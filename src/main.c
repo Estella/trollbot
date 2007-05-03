@@ -2,18 +2,24 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+
+#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
+#endif /* HAVE_SYS_TYPES_H */
+
+#ifdef UNIX
 #include <unistd.h>
+#endif /* UNIX */
+
+#include "config.h"
 
 #include "main.h"
-
 #include "network.h"
 #include "server.h"
 #include "channel.h"
 #include "user.h"
 #include "sockets.h"
 #include "dcc.h"
-
 #include "default_triggers.h"
 
 struct config *g_cfg = NULL;
@@ -23,7 +29,7 @@ int main(int argc, char *argv[])
   pid_t pid;
 
   printf("#################################################\n");
-  printf("# Trollbot v1.0, written by poutine/DALnet      #\n");
+  printf("# Trollbot v1.0.0, written by poutine/DALnet    #\n");
   printf("#################################################\n");  
 
   if (argc > 2)
@@ -66,6 +72,8 @@ int main(int argc, char *argv[])
 
   add_default_triggers();
 
+
+#ifdef HAVE_WORKING_FORK
   if (g_cfg->fork == 1)
   {
     g_cfg->forked = 1;
@@ -78,8 +86,7 @@ int main(int argc, char *argv[])
       return 0;
     }
   }
-
-  tconfig_to_file(g_cfg->tcfg,"out.txt");
+#endif /* HAVE_WORKING_FORK */
     
   irc_loop();
   

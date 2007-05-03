@@ -1,8 +1,0 @@
-network severed
-{
-  channel #trollbot
-  {
-    in_chan true
-  }
-}
-

@@ -1,5 +1,45 @@
-#include "main.h"
+/******************************
+ * Trollbot                   *
+ ******************************
+ * Written by poutine DALnet  *
+ ******************************
+ * This software is public    *
+ * domain. Free for any use   *
+ * whatsoever.                *
+ ******************************
+ * Last Audit: 2007-04-30     *
+ ******************************/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "server.h"
+#include "util.h"
+
+
+void server_list_add(struct server **orig, struct server *new)
+{
+  struct server *tmp;
+
+  if (*orig == NULL)
+  {
+    *orig = new;
+    new->prev = NULL;
+    new->next = NULL;
+  }
+  else
+  {
+    tmp = *orig;
+
+    while (tmp->next != NULL)
+      tmp = tmp->next;
+
+    tmp->next       = new;
+    tmp->next->prev = tmp;
+    tmp->next->next = NULL;
+  }
+}
 
 struct server *new_server(char *hostport)
 {

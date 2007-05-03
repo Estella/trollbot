@@ -1,12 +1,15 @@
-VERSION = "0.0.1"
+VERSION = "1.0.0"
+
 AC_SUBST(VERSION)
 
 dnl set the default prefix to be /home/user/trollbot
 
 AC_INIT(src/main.c)
-AM_INIT_AUTOMAKE(trollbot,0.0.1)
+AM_INIT_AUTOMAKE(trollbot,1.0.0)
 
 AC_CONFIG_HEADER(config.h)
+
+AM_MAINTAINER_MODE
 
 AC_PROG_CC
 
@@ -16,6 +19,14 @@ AC_LANG_C
 AC_C_CONST
 
 AC_STRUCT_TM
+
+AC_CHECK_HEADERS([time.h])
+AC_CHECK_HEADERS([sys/time.h])
+
+dnl set HAVE_WORKING_FORK if system supports forking
+AC_FUNC_FORK
+
+AC_TYPE_PID_T
 
 dnl test if TCL exists
 AX_PROG_TCL
@@ -83,4 +94,5 @@ fi
 
 echo ""
 echo "  Files will be installed to: $prefix "
+echo "  Type 'make' then 'make install' to continue"
 echo ""

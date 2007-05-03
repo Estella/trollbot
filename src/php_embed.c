@@ -75,6 +75,24 @@ void myphp_eval_file(char *filename)
   return;
 }
 
+#ifdef CLOWNS
+void dcc_php(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
+{
+  zval *ret;
+
+  TSRMLS_FETCH();
+
+  ALLOC_INIT_ZVAL(ret);
+
+  zend_try
+  {
+    if(zend_eval_string_ex(egg_makearg(dccbuf,trig->mask),&ret,"DCC Code",1 TSRMLS_CC) != SUCCESS)
+    {
+    }
+  }
+
+}
+#endif /* CLOWNS */
 
 void php_handler(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
@@ -129,12 +147,12 @@ void php_handler(struct network *net, struct trigger *trig, struct irc_data *dat
           FREE_ZVAL(ret);     
       } zend_end_try();
 
-      if (netw)  FREE_ZVAL(netw);
-      if (nick)  FREE_ZVAL(nick);
-      if (uhost) FREE_ZVAL(uhost);
-      if (hand)  FREE_ZVAL(hand);
-      if (chan)  FREE_ZVAL(chan);
-      if (arg)   FREE_ZVAL(arg);
+      /*if (netw)  FREE_ZVAL(netw);
+        if (nick)  FREE_ZVAL(nick);
+        if (uhost) FREE_ZVAL(uhost);
+        if (hand)  FREE_ZVAL(hand);
+        if (chan)  FREE_ZVAL(chan);
+        if (arg)   FREE_ZVAL(arg);*/
 
       break;
     case TRIG_PUBM:
@@ -171,12 +189,12 @@ void php_handler(struct network *net, struct trigger *trig, struct irc_data *dat
           FREE_ZVAL(ret);
       } zend_end_try();
 
-      if (netw)  FREE_ZVAL(netw);
+      /* if (netw)  FREE_ZVAL(netw);
       if (nick)  FREE_ZVAL(nick);
       if (uhost) FREE_ZVAL(uhost);
       if (hand)  FREE_ZVAL(hand);
       if (chan)  FREE_ZVAL(chan);
-      if (arg)   FREE_ZVAL(arg);
+      if (arg)   FREE_ZVAL(arg); */
 
       break;
     case TRIG_MSG:
@@ -207,11 +225,11 @@ void php_handler(struct network *net, struct trigger *trig, struct irc_data *dat
       else
         FREE_ZVAL(ret);
 
-      if (netw)  FREE_ZVAL(netw);
+      /* if (netw)  FREE_ZVAL(netw);
       if (nick)  FREE_ZVAL(nick);
       if (uhost) FREE_ZVAL(uhost);
       if (hand)  FREE_ZVAL(hand);
-      if (arg)   FREE_ZVAL(arg);
+      if (arg)   FREE_ZVAL(arg); */
 
       break;
     case TRIG_MSGM:
@@ -242,11 +260,11 @@ void php_handler(struct network *net, struct trigger *trig, struct irc_data *dat
       else
         FREE_ZVAL(ret);
 
-      if (netw)  FREE_ZVAL(netw);
+      /* if (netw)  FREE_ZVAL(netw);
       if (nick)  FREE_ZVAL(nick);
       if (uhost) FREE_ZVAL(uhost);
       if (hand)  FREE_ZVAL(hand);
-      if (arg)   FREE_ZVAL(arg);
+      if (arg)   FREE_ZVAL(arg); */
 
       break;
     case TRIG_JOIN:
@@ -258,6 +276,7 @@ void php_handler(struct network *net, struct trigger *trig, struct irc_data *dat
     case TRIG_DCC:
       /* $net, $handle, $idx, $text */
       MAKE_STD_ZVAL(func);
+      MAKE_STD_ZVAL(netw);
       MAKE_STD_ZVAL(hand);
       MAKE_STD_ZVAL(idx);
       MAKE_STD_ZVAL(arg);
@@ -265,22 +284,24 @@ void php_handler(struct network *net, struct trigger *trig, struct irc_data *dat
       ALLOC_INIT_ZVAL(ret);      
 
       ZVAL_STRING(func, trig->command, 1);
+      ZVAL_STRING(netw, dcc->net->label, 1);
       ZVAL_STRING(hand, dcc->user->username, 1);
       ZVAL_LONG(idx, dcc->id);
       ZVAL_STRING(arg, dccbuf, 1);
 
       php_args[0] = hand;
-      php_args[1] = idx;
-      php_args[2] = arg;
+      php_args[1] = netw;
+      php_args[2] = idx;
+      php_args[3] = arg;
 
-      if (call_user_function(CG(function_table), NULL, func, ret, 3, php_args TSRMLS_CC) != SUCCESS)
+      if (call_user_function(CG(function_table), NULL, func, ret, 4, php_args TSRMLS_CC) != SUCCESS)
         troll_debug(LOG_WARN,"Error calling function\n");
       else
         FREE_ZVAL(ret);
 
-      if (hand)  FREE_ZVAL(hand);
+      /*if (hand)  FREE_ZVAL(hand);
       if (idx)   FREE_ZVAL(idx);
-      if (arg)   FREE_ZVAL(arg);
+      if (arg)   FREE_ZVAL(arg);*/
 
       break;
   }

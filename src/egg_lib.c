@@ -6,6 +6,7 @@
 #include "user.h"
 #include "irc.h"
 #include "dcc.h"
+#include "trigger.h"
 
 /* This is the eggdrop core API that is exported to TCL, PHP, perl, etc */
 
@@ -243,8 +244,9 @@ struct user *egg_finduser(struct network *net, const char *mask)
 
   while (user != NULL)
   {
-    /*if ()
-      return user->username;*/
+    if (!egg_matchwilds(user->uhost,mask))
+      return user;
+
     user = user->next;
   }
 
@@ -328,6 +330,7 @@ int egg_chhandle(struct network *net, const char *old, const char *new)
 
   return 1;
 }
+
 #ifdef CLOWNS
 /* chattr <handle> [changes [channel]] */
 char *egg_chattr(struct network *net, const char *handle, const char *changes, const char *channel)
@@ -446,6 +449,7 @@ char *egg_chattr(struct network *net, const char *handle, const char *changes, c
       
 
 /* botattr <handle> [changes [channel]] */
+/* Should be part of chattr */
 
 /* matchattr <handle> <flags> [channel] */
 int egg_matchattr(struct network *net, const char *handle, const char *flags, const char *channel)
@@ -550,7 +554,13 @@ int egg_matchattr(struct network *net, const char *handle, const char *flags, co
 /* ishalfop <nickname> [channel] */
 /* wasop <nickname> <channel> */
 /* washalfop <nickname> <channel> */
-/* isvoice <nickname> [channel] */
+
+/* isvoice <nickname> [channel]
+int egg_isvoice(struct network *net, const char *nick, const char *channel)
+{
+  
+}*/
+ 
 /* onchan <nickname> [channel] */
 /* nick2hand <nickname> [channel] */
 /* hand2nick <handle> [channel] */
@@ -599,6 +609,27 @@ void egg_putdcc(int idx, const char *text)
 }
 
 /* dccbroadcast <message> */
+/* Trollbot: Only broadcasts on the net specified */
+void egg_dccbroadcast(struct network *net, const char *message)
+{
+  struct dcc_session *dtmp;
+  
+  dtmp = net->dccs;
+
+  while (dtmp != NULL)
+  {
+    if (dtmp->status >= DCC_NOTREADY)
+    {
+      irc_printf(dtmp->sock,message);
+      return;
+    }
+  
+    dtmp = dtmp->next;
+  }
+
+  return;
+}
+
 /* dccputchan <channel> <message> */
 /* boot <user@bot> [reason] */
 /* dccsimul <idx> <text> */
@@ -654,18 +685,68 @@ void egg_putdcc(int idx, const char *text)
 /* cp <file> <destination> */
 /* getflags <dir> */
 /* setflags <dir> [<flags> [channel]] */
-/* bind <type> <flags> <keyword/mask> [proc-name] */
+
+/* Returns 0 if it didn't work */
+int egg_bind(struct network *net, char *type, char *flags, char *mask, char *cmd, void (*handler)(struct network *, struct trigger *, struct irc_data *, struct dcc_session *, const char *))
+{
+  /* Needs to check stackable, and whether dupes exist FIXME */
+  if (!strcmp("pub",type))
+  {
+    trigger_list_add(&net->trigs->pub,new_trigger(NULL,TRIG_PUB,mask,cmd,handler));
+  }
+  else if (!strcmp("pubm",type))
+  {
+    trigger_list_add(&net->trigs->pubm,new_trigger(NULL,TRIG_PUBM,mask,cmd,handler));
+  }
+  else if (!strcmp("msg",type))
+  {
+    trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,mask,cmd,handler));
+  }
+  else if (!strcmp("msgm",type))
+  {
+    trigger_list_add(&net->trigs->msgm,new_trigger(NULL,TRIG_MSGM,mask,cmd,handler));
+  }
+  else if (!strcmp("notc",type))
+  {
+    trigger_list_add(&net->trigs->notc,new_trigger(NULL,TRIG_NOTC,mask,cmd,handler));
+  }  
+  else if (!strcmp("join",type))
+  {
+    trigger_list_add(&net->trigs->join,new_trigger(NULL,TRIG_JOIN,mask,cmd,handler));
+  }
+  else if (!strcmp("part",type))
+  { 
+    trigger_list_add(&net->trigs->part,new_trigger(NULL,TRIG_PART,mask,cmd,handler));
+  }
+  else if (!strcmp("dcc",type))
+  {
+    trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,mask,cmd,handler));
+  }
+  else if (!strcmp("raw",type))
+  {
+    trigger_list_add(&net->trigs->raw,new_trigger(NULL,TRIG_RAW,mask,cmd,handler));    
+  }
+
+  return 1;
+}
+
 /* unbind <type> <flags> <keyword/mask> <proc-name> */
 /* binds ?type/mask? */
 /* logfile [<modes> <channel> <filename>] */
 /* maskhost <nick!user@host> */
 /* timer <minutes> <tcl-command> */
 /* utimer <seconds> <tcl-command> */
+
 /* timers */
 /* utimers */
 /* killtimer <timerID> */
 /* killutimer <timerID> */
-/* unixtime */
+
+time_t egg_unixtime(void)
+{
+  return time(NULL);
+}
+
 /* duration <seconds> */
 /* strftime <formatstring> [time] */
 /* ctime <unixtime> */
@@ -713,7 +794,11 @@ void egg_rehash(void)
 
 #endif /* CLOWNS */
 
-/* botnick */
+char *egg_botnick(struct network *net)
+{
+  return net->botnick;
+}
+
 /* botname */
 /* version */
 /* numversion */

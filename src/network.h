@@ -29,11 +29,13 @@ struct interpreter;
 #include <Python.h>
 #endif /* HAVE_PYTHON */
 
-enum
+enum network_status
 {
   STATUS_IGNORED      = -1,
   STATUS_DISCONNECTED =  0,
-  STATUS_CONNECTED    =  1,
+  STATUS_NOTREADY     =  1,
+  STATUS_WANTDISC,
+  STATUS_CONNECTED,
   STATUS_AUTHORIZED,
   STATUS_IDLE
 };

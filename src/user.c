@@ -2,6 +2,30 @@
 #include "network.h"
 #include "user.h"
 
+
+void user_list_add(struct user **orig, struct user *new)
+{
+  struct user *tmp;
+
+  if (*orig == NULL)
+  {
+    *orig = new;
+    new->prev = NULL;
+    new->next = NULL;
+  }
+  else
+  {
+    tmp = *orig;
+
+    while (tmp->next != NULL)
+      tmp = tmp->next;
+
+    tmp->next       = new;
+    tmp->next->prev = tmp;
+    tmp->next->next = NULL;
+  }
+}
+
 void free_users(struct user *users)
 {
   struct user *utmp;
@@ -19,6 +43,7 @@ void free_users(struct user *users)
     free(users->nick);
     free(users->ident);
     free(users->host);
+    free(users->uhost);
     free(users->realname);
     free(users->passhash);
     free(users->flags); 
@@ -63,6 +88,8 @@ struct user *new_user(char *username, char *nick, char *passhash, char *ident, c
   ret->host     = (host != NULL)     ? tstrdup(host)     : NULL;
   ret->flags    = (flags != NULL)    ? tstrdup(flags)    : NULL;
 
+  ret->uhost = NULL;
+  
   ret->chan_flags = NULL;
 
   ret->tcfg   = NULL;
