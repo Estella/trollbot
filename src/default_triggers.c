@@ -55,6 +55,7 @@ void add_default_triggers(void)
     trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".+chan",NULL,&dcc_add_chan));
     trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".-chan",NULL,&dcc_del_chan));
     trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".tbinds",NULL,&dcc_tbinds));
+    trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".who",NULL,&dcc_who));
     /* trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".rehash",NULL,&dcc_rehash)); */
 
 #ifdef HAVE_TCL
@@ -173,7 +174,7 @@ void introduce_user(struct network *net, struct trigger *trig, struct irc_data *
     while (user->next != NULL && strcmp(user->username,data->prefix->nick))  
       user = user->next;
 
-    if (user != NULL)
+    if (!strcmp(user,data->prefix->nick))
     {
       irc_printf(net->sock,"PRIVMSG %s :I'm sorry hal, another user already exists by that nick",data->prefix->nick);
       return;

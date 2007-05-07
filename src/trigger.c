@@ -111,7 +111,7 @@ void trigger_match(struct network *net, struct irc_data *data)
     /* Could be PUB, PUBM, MSG, MSGM atm */
     if (data->c_params[0] != NULL)
     {
-      if (!strcmp(data->c_params[0],net->nick))
+      if (!strcasecmp(data->c_params[0],net->botnick))
       {
         /* Trigger is either MSG or MSGM */
         trig = net->trigs->msg;

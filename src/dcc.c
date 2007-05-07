@@ -19,6 +19,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <fcntl.h>
+#include <errno.h>
 
 #include "main.h"
 #include "irc.h"
@@ -28,6 +30,7 @@
 #include "network.h"
 #include "egg_lib.h"
 #include "trigger.h"
+#include "sockets.h"
 
 void dcc_list_del(struct dcc_session **orig, struct dcc_session *old)
 {
@@ -36,11 +39,15 @@ void dcc_list_del(struct dcc_session **orig, struct dcc_session *old)
   if (*orig == NULL || old == NULL)
     return;
 
-  if (orig == old)
+  if (*orig == old)
   {
     /* Original pointer is modified */
+    if (old->next != NULL)
+      *orig = old->next;
+    else
+      *orig = NULL;
+
     free(old);
-    *orig = NULL;
   } else {
     /* original pointer is unmodified */
     tmp = old;
@@ -71,7 +78,7 @@ void dcc_list_del(struct dcc_session **orig, struct dcc_session *old)
 
 void dcc_list_add(struct dcc_session **orig, struct dcc_session *new)
 {
-  struct user *tmp;
+  struct dcc_session *tmp;
 
   if (*orig == NULL)
   {
@@ -291,6 +298,8 @@ void initiate_dcc_chat(struct network *net, struct trigger *trig, struct irc_dat
     return;
   }
 
+  socket_set_nonblocking(dcc_sock);
+
   req_addr.sin_family      = AF_INET;
   req_addr.sin_addr.s_addr = htonl(ip);
   req_addr.sin_port        = htons(port);
@@ -299,23 +308,35 @@ void initiate_dcc_chat(struct network *net, struct trigger *trig, struct irc_dat
 
   if (connect(dcc_sock,(struct sockaddr *)&req_addr,sizeof(struct sockaddr)) == -1)
   {
-    troll_debug(LOG_WARN,"Could not connect to dcc user at %d",port);
-    return;
+    if (errno == EINPROGRESS)
+    {
+      troll_debug(LOG_DEBUG,"Non-blocking connect() in progress");
+    }
+    else
+    {
+      troll_debug(LOG_WARN,"Could not connect to dcc user at %d",port);
+      return;
+    }
   }
-    
-  /* We are connected at this point, allocate a dcc session */
+
+  /* We're not sure if we're connected at this point, let's make a struct for
+   * it anyways
+   */    
   newdcc = new_dcc_session();
 
   newdcc->sock   = dcc_sock;
-  newdcc->status = DCC_CONNECTED;
+
+  /* Mark it so the select() loop knows what to do */
+  newdcc->status = DCC_NONBLOCKCONNECT;
   
   /* So we know which userdb to read from */
   newdcc->net    = net; 
 
-  /* Print the welcome message */
+  /* Print the welcome message NOT NOW
   irc_printf(newdcc->sock,"Welcome to Trollbot.");
   irc_printf(newdcc->sock,"Enter your username to continue.");
- 
+  */ 
+
   /* Insert it into the global DCC list */
   if (net->dccs == NULL)
   {
@@ -341,6 +362,7 @@ void initiate_dcc_chat(struct network *net, struct trigger *trig, struct irc_dat
   newdcc->id = ++highest_idx;
 
   tmp->next = newdcc;
+
   newdcc->prev = tmp;
 
   return;
@@ -494,6 +516,7 @@ void parse_dcc_line(struct dcc_session *dcc, const char *buffer)
             irc_printf(dcc->sock,"You do not have the flags to access DCC.");
             shutdown(dcc->sock,SHUT_RDWR);
             dcc->sock = -1;
+            dcc_list_del(&dcc->net->dccs,dcc);
             return;
           }
           dcc->user = user;
@@ -510,6 +533,7 @@ void parse_dcc_line(struct dcc_session *dcc, const char *buffer)
         irc_printf(dcc->sock,"Incorrect username.");
         shutdown(dcc->sock,SHUT_RDWR);
         dcc->sock = -1;
+        dcc_list_del(&dcc->net->dccs,dcc);
       }
  
       break;
@@ -532,6 +556,7 @@ void parse_dcc_line(struct dcc_session *dcc, const char *buffer)
         irc_printf(dcc->sock,"Incorrect password");
         shutdown(dcc->sock,SHUT_RDWR);
         dcc->sock = -1;
+        dcc_list_del(&dcc->net->dccs,dcc);
       }
       
       break;
@@ -557,6 +582,25 @@ void dcc_del_chan(struct network *net, struct trigger *trig, struct irc_data *da
 void dcc_rehash(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
   /* Crude rehash mechanism */
+}
+
+void dcc_who(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
+{
+  struct dcc_session *dtmp;
+
+  dtmp = dcc->net->dccs;
+
+  irc_printf(dcc->sock,"Users currently connected:");
+
+  while (dtmp != NULL)
+  {
+    if (dtmp->user != NULL)
+      irc_printf(dcc->sock,"Username: %s Host: %s",dtmp->user->username,dtmp->user->uhost);
+ 
+    dtmp = dtmp->next;
+  }
+
+  return;
 }
 
 void dcc_tbinds(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)

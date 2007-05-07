@@ -20,7 +20,9 @@ struct network;
 
 enum dcc_status {
   DCC_WAITING = 0,
-  DCC_NOTREADY,
+  DCC_NONBLOCKCONNECT, /* A connect() call has been made, it is not in any fd set */
+  DCC_WAITINGCONNECT,  /* A connect() call has been made, it's now in a fd set    */
+  DCC_NOTREADY,        /* Socket has been accept()ed but not added to FD set      */
   DCC_CONNECTED,
   DCC_HAS_USERNAME,
   DCC_AUTHENTICATED
@@ -28,7 +30,7 @@ enum dcc_status {
 
 struct dcc_session
 {
-  int id;
+  int id; /* IDX is per network */
 
   int sock;
 
@@ -57,6 +59,7 @@ void dcc_command_handler(struct dcc_session *dcc, const char *command);
 void dcc_partyline_handler(struct dcc_session *dcc, const char *message);
 int dcc_in(struct dcc_session *dcc);
 void parse_dcc_line(struct dcc_session *dcc, const char *buffer);
+void dcc_who(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
 void dcc_tbinds(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
 
 #define __DCC_H__

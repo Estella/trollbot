@@ -281,6 +281,7 @@ int egg_passwdok(struct network *net, const char *handle, const char *pass)
       /* Pass is all good baby */
       if (user->passhash != NULL)
       {
+        /* Passhash should be unsigned */
         if (!strcmp(user->passhash,digest))
           return 1;
       }
@@ -588,11 +589,11 @@ int egg_isvoice(struct network *net, const char *nick, const char *channel)
 /* validchan <channel> */
 /* isdynamic <channel> */
 
-void egg_putdcc(int idx, const char *text)
+void egg_putdcc(struct network *net, int idx, const char *text)
 {
   struct dcc_session *dtmp;
  
-  dtmp = g_cfg->dccs;
+  dtmp = net->dccs;
 
   while (dtmp != NULL)
   {
@@ -633,8 +634,51 @@ void egg_dccbroadcast(struct network *net, const char *message)
 /* dccputchan <channel> <message> */
 /* boot <user@bot> [reason] */
 /* dccsimul <idx> <text> */
-/* hand2idx <handle> */
-/* idx2hand <idx> */
+
+/* Returns 0 on error, an idx if successful */
+int egg_hand2idx(struct network *net, const char *handle)
+{
+  struct dcc_session *dtmp;
+
+  dtmp = net->dccs;
+
+  while (dtmp != NULL)
+  {
+    if (dtmp->status >= DCC_NOTREADY)
+    {
+      if (dtmp->user != NULL)
+      {
+        if (!strcmp(dtmp->user->username,handle))
+          return dtmp->id;
+      }
+    }
+
+    dtmp = dtmp->next;
+  }
+
+  return 0;
+}
+ 
+
+
+/* returns a user struct or NULL based on whether it's found */
+struct user *egg_idx2hand(struct network *net, int idx)
+{
+  struct dcc_session *dtmp;
+
+  dtmp = net->dccs;
+
+  while (dtmp != NULL)
+  {
+    if (dtmp->status >= DCC_NOTREADY)
+      return dtmp;
+
+    dtmp = dtmp->next;
+  }
+
+  return NULL;
+} 
+
 /* valididx <idx> */
 /* getchan <idx> */
 /* setchan <idx> <channel> */

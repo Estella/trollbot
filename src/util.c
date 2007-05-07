@@ -8,7 +8,61 @@
  * whatsoever.                *
  ******************************/
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
 #include "main.h"
+
+/* case insensitive string compare */
+int tstrncasecmp(const char *first, const char *second, int check_size)
+{
+  while (*first != '\0' && check_size > 0) 
+  {
+    if (*second == '\0')
+      return 1;
+
+    if (tolower(*first) != tolower(*second))
+    {
+      /* Need better return values FIXME */
+      return 1;
+    }
+
+    first++;
+    second++;
+    check_size--;
+  }
+
+  if (*first != '\0' || *second != '\0')
+    return 1;
+
+  return 0;
+}
+
+int tstrcasecmp(const char *first, const char *second)
+{
+  while (*first != '\0')
+  {
+    if (*second == '\0')
+      return 1;
+
+    if (tolower(*first) != tolower(*second))
+    {
+      /* Need better return values FIXME */
+      return 1;
+    }
+
+    first++;
+    second++;
+  }
+
+  if (*first != '\0' || *second != '\0')
+    return 1;
+
+  return 0;
+}
+
 
 /* because some implementations don't have strdup()? */
 char *tstrdup(const char *ptr)

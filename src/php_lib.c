@@ -20,17 +20,37 @@
 PHP_FUNCTION(putdcc)
 {
   long idx;
+  char *network;
   char *message;
+  int network_len;
   int message_len;
+  struct network *net;
 
-  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ls",  &idx,
+
+  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sls", &network,
+                                                              &network_len,
+                                                              &idx,
                                                               &message,
                                                               &message_len) == FAILURE)
   {
     RETURN_FALSE;
   }
 
-  egg_putdcc((int)idx,message);
+  net = g_cfg->networks;
+
+  while (net != NULL)
+  {
+    if (!strcmp(net->label,network))
+      break;
+
+    net = net->next;
+  }
+
+  if (net == NULL)
+    RETURN_FALSE;
+
+
+  egg_putdcc(net,(int)idx,message);
 
   RETURN_TRUE;
 }
@@ -63,8 +83,9 @@ PHP_FUNCTION(matchwild)
   {
     RETURN_FALSE;
   }
+
 }
-  
+
   
 PHP_FUNCTION(bind)
 {

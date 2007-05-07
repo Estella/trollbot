@@ -16,6 +16,8 @@
                            while (x->prev != NULL) x = x->prev; \
                          }
 
+int tstrncasecmp(const char *first, const char *second, int check_size);
+int tstrcasecmp(const char *first, const char *second);
 char *tstrdup(const char *ptr);
 void tstrfreev(char *ptr[]);
 char *tstrtrim(char *data);

@@ -16,28 +16,51 @@ struct irc_data;
 struct trigger;
 struct dcc_session;
 
+/* This is a band-aid function to make an arg to match against FIXME */
 char *egg_makearg(char *rest, char *mask);
+
+/* This is an eggdrop compliant pattern matching recursive function */
 int egg_matchwilds(const char *haystack, const char *needle);
 
+/* These put data to the server */
 void egg_putserv(struct network *net, const char *text, int option_next);
 void egg_puthelp(struct network *net, const char *text, int option_next);
 void egg_putquick(struct network *net, const char *text, int option_next);
 
+/* Matches a users flags, and optionally channel flags, uses glob|chan notation */
 int egg_matchattr(struct network *net, const char *handle, const char *flags, const char *channel);
 
+/* Checks SHA-1 hash, should be configurable */
 int egg_passwdok(struct network *net, const char *handle, const char *pass);
+
+/* Counts the users for a network */
 int egg_countusers(struct network *net);
 
+/* Finds a user based on their hostmask */
 struct user *egg_finduser(struct network *net, const char *mask);
+
+/* Changes a users handle (username) */
 int egg_chhandle(struct network *net, const char *old, const char *new);
 
+/* Returns time as a UNIX timestamp */
 time_t egg_unixtime(void);
 
-void egg_putdcc(int idx, const char *text);
+/* puts a message to dcc idx based on network */
+void egg_putdcc(struct network *net, int idx, const char *text);
+
+/* Sends a message to all DCC users on a specific net */
 void egg_dccbroadcast(struct network *net, const char *message);
 
+/* Returns a user for a dcc ID */
+struct user *egg_idx2hand(struct network *net, int idx);
+
+/* Returns 0 on error, an idx if successful */
+int egg_hand2idx(struct network *net, const char *handle);
+
+/* Binds an event handler to an event */
 int egg_bind(struct network *net, char *type, char *flags, char *mask, char *cmd, void (*handler)(struct network *, struct trigger *, struct irc_data *, struct dcc_session *, const char *));
 
+/* Returns the bot's nickname */
 char *egg_botnick(struct network *net);
 
 #endif /* __EGGLIB_H__ */

@@ -5,7 +5,8 @@ Trollbot has the following coding standards.
     A. Standard Includes
     B. conditional includes
     C. config.h (for autoheader defines)
-    D. trollbot includes (irc.h, trigger.h, etc)
+    D. main.h
+    E. trollbot includes (irc.h, trigger.h, etc)
 * all declarations of structs and defines are to be put in
   the header file, never the .c files.
 * curly braces get their own line
@@ -14,3 +15,22 @@ Trollbot has the following coding standards.
 * all macros should be uppercase
 * typedefs are highly discouraged.
 
+
+Notes:
+
+NAMING CONVENTIONS:
+
+  * try to have the verb after the noun in utility funcs
+    ie dcc_list_add, user_init, etc
+
+  * handle and username are synonymous, perhaps one should
+    be ommitted.
+
+
+
+CHECK CASE SENSITIVITY OF IRC, use funcs in util.c over
+non-standard funcs.
+
+ie strcasecmp is part of a UNIX standard, not std C
+
+Sockets are an exception to this.
