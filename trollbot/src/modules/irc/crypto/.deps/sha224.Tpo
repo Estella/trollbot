@@ -1,0 +1,1 @@
+sha224.lo .libs/sha224.o: sha224.c

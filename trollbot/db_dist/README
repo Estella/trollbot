@@ -1,0 +1,4 @@
+The files in this directory are IN USE by trollbot, if you edit them, there's
+no guarantee that the changes won't be overwritten. For static definitions put
+your extra settings in trollbot.conf
+

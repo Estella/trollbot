@@ -1,0 +1,5 @@
+Trollbot is distributed as PUBLIC DOMAIN code, free for whatever use whatsoever.
+
+Exceptions:
+  python.m4   - Distributed under the GNU GPL version 2, see doc/GPL.
+  php_embed.c - Distributed under the PHP License version 3, see doc/PHP.

@@ -1,0 +1,87 @@
+Trollbot has shifted design patterns.
+
+It will now heavily use libltdl in the most portable fashion
+for trollbot to the work on hosts which do not support shared
+libraries. There are quite a few changes that must be made in
+order for this to occur. 
+
+
+The following design patterns are noted in libtool's documentation:
+
+       main            .---> main                main
+         |             |       |                   |
+    .----+----,        |  .----+----,         .----+----,
+    v         v        |  v         v         v         v
+   liba      libb      liba        libb      liba<-----libb
+    |                     |                   |         ^
+    v                     v                   v         |
+   libc                  libc                libc-------'
+
+     Tree: good        Backlinking: bad       Cyclic: bad
+
+This is no easy task, how does one make a program that has self
+contained modules and still maintain a usable program?
+
+I have some solutions for this problem. I will deal with strictly
+tconfig structures throughout the entire tree of modules. It will
+pass any information in a generic way through the tree. I will have
+to tighten up the algorithms for tconfig structs to allow for more
+effecient data use. It is very small, and should be fine to add to
+every module to eliminate the dependency of trollbot to compile
+modules. It will support a small messaging system protocol to
+allow for inter module communication and passing of certain data such
+as sockets to the main trollbot application and perhaps to other
+points in the application tree.
+
+The current design chart looks somewhat like this:
+
+                    .__________.
+                    | Trollbot |
+                    |__________|
+    .____________________|____________________.
+ .__|__.              .__|__.          .______|______.
+ | WWW |              | IRC |          | AIM/MSN/ICQ |
+ |_____|              |_____|          |_____________|
+                .________|_______.       ._____|_____.
+             .__|_____.     .____|______.| Scripting |
+             | Crypto |     | Scripting ||___________|
+             |________|     |___________|            
+                                                      
+
+
+Description of trollbot's inner workings from start to finish:
+
+1. Trollbot starts
+2. ltdl is initialized, it's done here because if it doesn't work there's
+   no point in continuing.
+3. Trollbot loads config file
+4. Trollbot goes through config file's toplevel, loading all module calls
+5. Trollbot calls tmodule_init() on each of the modules, supplying the 
+   tconfig block's child for the module to use.
+6. Trollbot enters loop, grabbing sockets from modules to deal with them
+   and various messages to pass to other modules.
+7. natural exit
+
+
+Socket Classifications:
+
+To trollbot, a fd is a either a read or write fd, While that status is
+dealt with differently through modules (IE, non-blocking connect() call 
+may be waiting for writable fd, accept() also), to trollbot it's simply
+read or write. All modules are responsible for dealing with socket 
+states and structures. Each module defines the following functions if 
+they use said functionality.
+
+int **tmodule_get_readfds(void)
+int **tmodule_get_writefds(void)
+
+Each of these is only called once per time through the select() loop.
+a
+
+Messaging:
+
+Trollbot should have the concept of inter-module communication, to 
+facilitate this, a messaging subsystem must exist. Therefore the
+following symbols should be in a module to facilitate this.
+
+

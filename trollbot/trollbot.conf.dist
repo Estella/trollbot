@@ -1,0 +1,93 @@
+/* Comments can be c++ style or c */
+
+// brackets can be on their own line, or at the beginning or end of
+// content, but cannot be touching
+// global settings { fork 1 } GOOD
+// global settings {fork 1}   BAD
+
+
+// module <module name>
+// provides namespace for a trollbot module
+// and instructs trollbot to load that module
+
+module irc
+{
+    //   network <Network Label>
+    //   {
+    //     nick <nickname to use on network>
+    //     altnick <nickname to use if nick is taken>
+    //     
+    //     realname <Whatever you want in your realname slot>
+    //
+    //     // The bot listens to this port for DCC/telnet for users
+    //     userlisten <Whatever port you want to listen on for DCC conole>
+    //
+    //     channel <channel to join>
+    //   }
+
+
+    network DALnet
+    {
+        nick Trollbot
+        altnick othertroll
+        ident rawr
+        realname "http://www.sourceforge.net/projects/trollbot"
+   
+        vhost dark.severed.org
+        
+        // How many cycles of the server list
+        // to go through before giving up entirely
+        // set to -1 to continue forever
+        connect-tries 300
+
+        // How long to wait between connections to a network
+        connect-delay 60
+
+        channel #php
+        channel #tcl
+        channel #christian_debate 
+        //channel #
+
+        //userfile db/userdb.DALnet
+        //chanfile db/chandb.DALnet
+
+        userlisten 64121
+
+        tclscript scripts/cryptoquote-1.02.tcl
+        phpscript scripts/bmi.php
+        phpscript scripts/test.php
+        tclscript scripts/test.tcl
+
+        server dragons.dal.net
+    }
+
+    network MudPortal
+    {
+        nick TrollBot
+        altnick kittens
+        ident kittens
+        realname "I love kittens!"
+
+        vhost dark.severed.org
+        channel #trollbot
+
+        // How many cycles of the server list
+        // to go through before giving up entirely
+        // set to -1 to continue forever
+        connect-tries 300
+
+        // How long to wait between connections to a network
+        connect-delay 60
+
+        userlisten 61324
+
+        tclscript scripts/test.tcl
+        phpscript scripts/test.php
+
+        //    userfile db/userdb.severed
+        //    chanfile db/chandb.severed
+
+        server irc.mudportal.com
+    }
+}
+

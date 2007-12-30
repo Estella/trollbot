@@ -1,0 +1,56 @@
+Description of aspects of trollbot:
+
+Events:
+  In order to maintain a somewhat generic format for different protocols, I need a way to make events, and match event handlers to the events if
+they occur. each event will consist of matchtext, the raw data, and a matching function. For instance:
+
+raw data = PING irc.mudportal.com
+
+int matchfunc(void *, void *)
+
+matchtext "PING"
+
+
+core - deals with sockets, registers events, registers event handlers, registers modules, supplies API for modules. registers config file extensions,
+maintains config namespaces, provides utility functions.
+
+
+Modules:
+
+irc       - Deals with everything IRC related, sets up the events, adds sockets to socket loop.
+scripting - registers event handlers for events
+dcc       - Supplies a partyline and management console
+crypto    - Provides a cryptographic library for hashing of passwords and other uses
+
+if WITH_TCL
+
+trollbot_SOURCES += tcl_embed.c tcl_lib.c tcl_embed.h tcl_lib.h
+trollbot_CFLAGS  += ${TCL_CPPFLAGS}
+trollbot_LDADD   += ${TCL_LIBS}
+
+endif
+
+if WITH_PHP
+
+trollbot_SOURCES += apachecompat.c php_embed.c php_lib.c apachecompat.h php_embed.h php_lib.h
+trollbot_CFLAGS  += ${PHP_CFLAGS}
+trollbot_LDADD   += ${PHP_LDADD}
+
+endif
+
+if WITH_PERL
+
+trollbot_SOURCES += perl_embed.c perl_lib.c perl_embed.h perl_lib.h
+trollbot_CFLAGS  += ${PERL_CFLAGS}
+trollbot_LDADD   += ${PERL_LDADD}
+
+endif
+
+if WITH_PYTHON
+
+trollbot_SOURCES += python_embed.c python_lib.c python_embed.h python_lib.h
+trollbot_CFLAGS  += ${PYTHON_CFLAGS}
+trollbot_LDADD   += ${PYTHON_LDADD}
+
+endif
+

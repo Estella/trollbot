@@ -1,0 +1,18 @@
+Trollbot:
+---------
+
+Description:
+  
+  TrollBot is a multi-network capable bot designed to be a
+replacement for eggdrop. Eggdrop has grown stale, and people
+have been asking for perl scripting forever. It seems like
+their branch will never come, so I created a bot that will
+be scriptable in TCL, PHP, Perl, and Python. I also removed
+the need for any scripting language to exist for basic core
+functions (such as reading the config file). Eggdrop did have
+a comprehensive library so tcl scripts could use all possible
+information that the bot has. I have duplicated this library
+and extended it to PHP, Perl, and Python, as well as added
+some improvements of my own, see doc/SCRIPTING.
+
+

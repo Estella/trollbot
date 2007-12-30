@@ -1,0 +1,124 @@
+Planned features before trollbot release:
+-----------------------------------------
+
+** Key **
+/ = partially finished
+X = fully finished
+* = untouched 
+
+** GENERAL **
+
+* Code needs major cleanups and optimizations.
+  There's a lot of redundancy. Also lots of redundancy.
+  
+  * tcl_lib.c - bind adding could be fixed up and code reduced
+  * php_lib.c - bind adding could be fixed up and code reduced
+  * default_config.c - Need a better way of handling tconfig
+  * tconfig.c - Needs better utility functions
+
+
+** AUTOCONF **
+
+/ Deal with time.h issues properly using autoconf
+
+* Make it so autogen.sh properly detects autotools, 
+  bitch if not.
+
+/ When --with-php --with-python --with-perl --with-tcl are used
+  or it is detected, it needs to try and compile a file for the
+  ultimate decision to compile the specific files and code
+
+* For some fucking reason, It's not storing autoheader's results
+  and runs missing --autoheader and does a configure again before
+  compiling.
+
+X Something needs to be worked out for the make install, having to
+  do ln -s src/trollbot ./ is ridiculous.
+
+* I know there's some code that could be more portable that are fixed
+  by common autoconf/automake hackery, such as the time.h functions
+  and header location.
+ 
+* tcl.m4 and php.m4 could really use a rewrite.
+ 
+** NETWORK **
+
+X Multi-network bot, each network capable of having its
+  own channel and user databases and also scripting namespaces.
+
+X capable of having different nicknames on different networks 
+
+* capable of detecting max IRC line sizes and splitting up output
+  to wrap instead of just truncating it. (eggdrop annoyance)
+
+* Queues like eggdrop's (for putquick, putserv, puthelp, etc)
+
+** CHAN FILE **
+
+* chan_to_tconfig() function needs done for net specific chandbs
+
+* Needs eggdrop compatible flags
+
+* needs to generate NEED-OP, NEED-UNBAN, NEED-INVITE, etc
+
+* need to support channel redirection (freenode)
+
+
+** USER FILE **
+
+* user_to_tconfig() function needs done for net specific userdbs
+
+* Support for multiple types of encryption, with the possibility
+  of switching encryption on password ok, for smooth transitions
+  and because you can't decrypt hashed passwords.
+
+X Support for per network users
+
+* Support for optional global users (Don't think I'll be doing this)
+
+** SCRIPTING **
+
+* Eggdrop semantics need looked up to verify behaviour with
+  stackable binds and multiple bind matching, also why the fuck
+  bind type SIGN has a channel in the match mask.
+
+/ Eggdrop compatible TCL commands, and similiar commandsets
+  in other languages for smooth transition
+
+/ Scripting Support for TCL (in release)
+  * Error reporting is lacking, I'd prefer an optional tcl.log
+    for helping devs to fix problems in their TCL scripts
+  * tcl_lib.c needs to wrap the egg_lib library
+  * tcl_embed.c needs eggdrop global vars
+  * tcl_embed.c needs to handle function calling better
+
+/ Scripting Support for PHP (in release)
+  * Error reporting in php_embed.c is broke
+  * php_lib.c needs to wrap the egg_lib library
+  * php_embed needs eggdrop global vars
+  * php_lib needs to use a Zend resource instead of string $net
+  * php_lib.c needs error messages for custom funcs
+
+/ Scripting Support for Perl (post release)
+/ Scripting Support for Python (post release)
+* Scripting Support for Javascript (post releast)
+
+** MODULE INTERFACE **
+
+* hey. it needs one
+
+** DCC MENU **
+
+* Partyline support, and inner partyline "channels" like eggdrop
+
+* ability to configure any aspect of the bot
+
+** BUILT IN HTTP SERVER **
+
+* This is a hopeful, a mini http server for configuration of the bot to 
+  make it easier than staring at a vi session
+
+** LINKING **
+
+* Examine possibility of eggdrop compatible link.
+
