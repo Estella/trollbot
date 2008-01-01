@@ -16,6 +16,8 @@ struct tsocket
   int sock;
 
   int status;
+
+  void *data;
 };
 
 struct slist_node

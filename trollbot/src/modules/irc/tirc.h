@@ -5,6 +5,9 @@
 #define tmodule_get_read_fds  irc_LTX_tmodule_get_read_fds
 #define tmodule_get_write_fds irc_LTX_tmodule_get_write_fds
 #define tmodule_init          irc_LTX_tmodule_init
+#define connections_init      irc_LTX_connections_init
+
+// connections.c
 #define tmodule_read_cb       irc_LTX_tmodule_read_cb
 #define tmodule_write_cb      irc_LTX_tmodule_write_cb
 

@@ -47,6 +47,7 @@ int tmodule_init(void *init_data)
   printf("IRC: Loaded module\n");
 
   /* Initiate IRC connections */
+  connections_init(tcfg);
 
   return 1;
 }

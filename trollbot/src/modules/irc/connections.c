@@ -36,21 +36,6 @@
 
 #define BUFFER_SIZE 1024
 
-/* aliases for the exported symbols */
-#define tmodule_init	    foo_LTX_tmodule_init
-#define tmodule_get_readfds foo_LTX_tmodule_get_readfds
-#define testsock	    foo_LTX_testsock
-#define readfds             foo_LTX_readfds
-#define writefds            foo_LTX_writefds
-#define tmodule_read_cb     foo_LTX_tmodule_read_cb
-#define tmodule_write_cb    foo_LTX_tmodule_write_cb
-
-
-struct tsocket *testsock;
-struct slist   *readfds;
-struct slist   *writefds;
-
-
 void tmodule_read_cb(struct tsocket *sock)
 {
   static char         *buffer  = NULL;
@@ -142,18 +127,80 @@ void tmodule_write_cb(struct tsocket *sock)
   /* sock is writeable */
 }
 
-struct slist *tmodule_get_writefds(void)
+void connections_init(struct tconfig_block *tcfg)
 {
-  return writefds;
-}
+  int sock = -1;
+  struct hostent *he;
+  struct sockaddr_in serv_addr;
+  struct sockaddr_in my_addr;
+  struct tconfig_block *toplevel;
+  struct tsocket *tsock = NULL;
 
-struct slist *tmodule_get_readfds(void)
-{
-  return readfds;
-}
+  toplevel = tcfg;
 
+  while (tcfg != NULL)
+  {
+    if (!strcmp(tcfg->name,"network"))
+    {
+      /* Found a network, initiate a tsocket, find a suitable server,
+       * then try a non-blocking connection.
+       */
+      tcfg = tcfg->child;
+      
+      while (tcfg != NULL)
+      {
+        if (!strcmp(tcfg->key,"server"))
+        {
+          /* found a server */
+          if ((sock = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+          {
+            printf("Error getting socket for network %s\n",tcfg->value);
+            break;
+          }
 
-/* an exported function */
+          if ((he = gethostbyname(tcfg->value)) == NULL)
+          {
+            printf("Could not resolve %s\n",tcfg->value);
+            break;
+          }
+          
+          serv_addr.sin_family = AF_INET;
+          /* Fixme */
+          serv_addr.sin_port   = htons(6667);  
+          serv_addr.sin_addr   = *((struct in_addr *)he->h_addr);
+          memset(&(serv_addr.sin_zero), '\0', 8);
+
+          if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(struct sockaddr)) == -1)
+          {
+            printf("Could not connect to %s\n",tcfg->value);
+            break;
+          }
+
+          tsock = tmalloc0(sizeof(struct tsocket));
+ 
+          tsock->sock   = sock;
+          tsock->status = 0;
+
+          tsock->status |= STATUS_NOTINLOOP;
+
+          if (writefds != NULL)
+            slist_init(&writefds,NULL);
+
+          slist_insert_next(writefds, NULL, tsock);
+
+          if (readfds != NULL)
+            slist_init(&readfds,NULL);
+
+          slist_insert_next(readfds, NULL, tsock);
+
+          tcfg = NULL; /* To bypass the nex */
+        }
+
+        tcfg = tcfg->next;
+        
+  
+
+/* an exported function 
 int tmodule_init(void *init_data) 
 {
   int sock = -1;
@@ -207,4 +254,4 @@ int tmodule_init(void *init_data)
   return 1;
 }
 
-
+*/
