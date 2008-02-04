@@ -108,17 +108,16 @@ void dcc_init_listener(struct network *net)
   struct hostent *he;
   int yes=1;
 
-  if (net->shost == NULL)
+  if (net->vhost == NULL)
   {
-    if (net->vhost == NULL)
+    if (net->shost == NULL)
     {
       troll_debug(LOG_WARN,"Neither a valid vhost, nor a valid server host exists for a DCC connection");
       return;
-    } else
-      net->shost = tstrdup(net->vhost);
+    } 
   }
 
-  dcchost   = (net->shost != NULL) ? net->shost : net->vhost;
+  dcchost   = (net->vhost != NULL) ? net->vhost : net->shost;
   dcchostip = NULL;
 
   if ((he = gethostbyname(dcchost)) == NULL)
@@ -168,7 +167,7 @@ void dcc_init_listener(struct network *net)
     return;
   }
 
-  troll_debug(LOG_DEBUG,"Listening on %s port %d\n",net->shost,net->dcc_port);
+  troll_debug(LOG_DEBUG,"Listening on %s port %d\n",dcchostip,net->dcc_port);
 
   return;
 }
@@ -180,18 +179,18 @@ void new_dcc_connection(struct network *net)
   struct dcc_session *tmpdcc;
   struct sockaddr_in client_addr;
   socklen_t sin_size;
+	int sock = 0;
 
-  sin_size = sizeof(struct sockaddr_in);
- 
-  newdcc = new_dcc_session();
-
-  if ((newdcc->sock = accept(net->dcc_listener,(struct sockaddr *)&client_addr,&sin_size)) == -1)
+  if ((sock = accept(net->dcc_listener,(struct sockaddr *)&client_addr,&sin_size)) == -1)
   {
-    perror("accept");
-    troll_debug(LOG_WARN,"Could not accept DCC connection");
     return;
   }
 
+	sin_size = sizeof(struct sockaddr_in);
+
+	newdcc = new_dcc_session();
+
+	newdcc->sock   = sock;
   newdcc->status = DCC_NOTREADY;
   
   if (net->dccs == NULL)

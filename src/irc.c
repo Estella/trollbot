@@ -210,7 +210,8 @@ void parse_irc_line(struct network *net, const char *buffer)
 
       j = 0;
 
-      data->c_params[bufindex] = tmalloc0(strlen(&buffer[m]) + 1);
+      data->c_params[bufindex]   = tmalloc0(strlen(&buffer[m]) + 1);
+			data->c_params[bufindex+1] = NULL;
     }
 
     data->c_params[bufindex][j] = buffer[m];
@@ -256,6 +257,7 @@ void parse_irc_line(struct network *net, const char *buffer)
       j = 0;
 
       data->rest[bufindex] = tmalloc0(strlen(&buffer[m]) + 1);
+			data->rest[bufindex+1] = NULL;
     }
 
     data->rest[bufindex][j] = buffer[m];
