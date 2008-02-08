@@ -1,4 +1,5 @@
 <?php
+	ini_set("max_execution_time",0);
 
   bind("DALnet","pub","-","!bmi","do_bmi");
   bind("severed","pub","-","!bmi","do_bmi");

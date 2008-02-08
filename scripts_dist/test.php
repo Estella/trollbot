@@ -1,4 +1,6 @@
 <?php
+	ini_set("max_execution_time",0);
+
   /* bind(string network, string type, string flags, string mask, string function) */
   bind("severed","pub","-","hi","testing");
   bind("severed","dcc","-",".help","do_help");

@@ -78,9 +78,9 @@ JSBool js_putserv(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 
 	str = JS_ValueToString(cx, argv[0]);
 
-	irc_printf(net->sock,"%s",JS_StringGetBytes(str));
+	irc_printf(net->sock,"%s",JS_GetStringBytes(str));
 
-	return 1;
+	return JS_TRUE;
 }
 
 void js_handler(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
@@ -88,14 +88,20 @@ void js_handler(struct network *net, struct trigger *trig, struct irc_data *data
 	jsval rval;
 	jsval argv[10];
 
+	if (net->global == NULL || net->cx == NULL)
+	{
+		printf("js_handler called with NULL context.\n");
+		return;
+	}
+
   switch (trig->type)
   {
     case TRIG_PUB:
-			argv[0] = JS_NewStringCopyZ(net->cx, data->prefix->nick);
-			argv[1] = JS_NewStringCopyZ(net->cx, data->prefix->host);
-			argv[2]	= JS_NewStringCopyZ(net->cx, "*");
-      argv[3] = JS_NewStringCopyZ(net->cx, data->c_params[0]);
-			argv[4] = JS_NewStringCopyZ(net->cx, data->rest_str);
+			argv[0] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->prefix->nick));
+			argv[1] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->prefix->host));
+			argv[2]	= STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, "*"));
+      argv[3] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->c_params[0]));
+			argv[4] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->rest_str));
 
 			JS_CallFunctionName(net->cx, net->global, trig->command, 5, argv, &rval);
 			break;
