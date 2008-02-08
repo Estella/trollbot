@@ -5,6 +5,7 @@
 #include <jsapi.h>
 
 #include "js_lib.h"
+#include "js_embed.h"
 
 JSBool js_bind(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {

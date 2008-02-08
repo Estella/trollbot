@@ -17,6 +17,10 @@
 #include "php_embed.h"
 #endif /* HAVE_PHP */
 
+#ifdef HAVE_JS
+#include "js_embed.h"
+#endif /* HAVE_JS */
+
 
 /* The configuration process works in 2 steps
  * first it loads the file's data in tree form
@@ -156,7 +160,7 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 				{
 					if (net->cx == NULL)
 					{
-						net->cx = net_init_js(net);
+						net_init_js(net);
 					}
 					
 					js_eval_file(net, search->value);
