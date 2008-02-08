@@ -21,6 +21,10 @@
 #include "perl_embed.h"
 #endif /* HAVE_PERL */
 
+#ifdef HAVE_JS
+#include "js_embed.h"
+#endif /* HAVE_JS */
+
 void free_networks(struct network *net)
 {
   struct network *ntmp;
@@ -125,6 +129,10 @@ struct network *new_network(char *label)
 #ifdef HAVE_PYTHON
   ret->pydict = NULL;
 #endif /* HAVE_PYTHON */
+
+#ifdef HAVE_JS
+	net_init_js(ret);
+#endif /* HAVE_JS */
 
   return ret;
 }

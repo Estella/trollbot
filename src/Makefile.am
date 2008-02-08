@@ -6,6 +6,15 @@ trollbot_SOURCES = main.c tconfig.c network.c server.c config_engine.c sockets.c
 trollbot_CFLAGS = -O0 -Wall -std=c99 -pedantic
 trollbot_LDADD  = 
 
+if WITH_JS
+
+trollbot_SOURCES += js_embed.c js_lib.c
+trollbot_CFLAGS  += ${JS_CFLAGS}
+trollbot_LDADD   += ${JS_LDADD}
+
+endif
+
+
 if WITH_TCL
 
 trollbot_SOURCES += tcl_embed.c tcl_lib.c

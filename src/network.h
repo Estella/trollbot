@@ -29,6 +29,10 @@ struct interpreter;
 #include <Python.h>
 #endif /* HAVE_PYTHON */
 
+#ifdef HAVE_JS
+#include <jsapi.h>
+#endif /* HAVE_JS */
+
 enum network_status
 {
   STATUS_IGNORED      = -1,
@@ -109,6 +113,10 @@ struct network
 #ifdef HAVE_PYTHON
   PyObject *pydict;
 #endif /* HAVE_PYTHON */
+
+#ifdef HAVE_JS
+	JSContext *cx;
+#endif /* HAVE_JS */
 
   char *userfile;
   char *chanfile;

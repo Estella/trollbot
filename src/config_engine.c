@@ -151,6 +151,17 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
           if (net->altnick == NULL)
             net->altnick = tstrdup(search->value);
         }
+#ifdef HAVE_JS
+				else if (!strcmp(search->key,"javascript"))
+				{
+					if (net->cx == NULL)
+					{
+						net->cx = net_init_js(net);
+					}
+					
+					js_eval_file(net, search->value);
+				}
+#endif /* HAVE_JS */
 #ifdef HAVE_TCL
         else if (!strcmp(search->key,"tclscript"))
         {

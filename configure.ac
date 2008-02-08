@@ -28,6 +28,18 @@ AC_FUNC_FORK
 
 AC_TYPE_PID_T
 
+dnl test if javascript exists
+PKG_CHECK_MODULES(JS, xulrunner-js)
+
+AC_SUBST(JS_LIBS)
+AC_SUBST(JS_CFLAGS)
+
+if test "x${JS_LIBS}" != "x"; then
+	AC_DEFINE([HAVE_JS],1,[Ability to use Javascript scripting])
+fi
+
+AM_CONDITIONAL(WITH_JS, test "x${JS_LIBS}" != "x")
+
 dnl test if TCL exists
 AX_PROG_TCL
 
@@ -91,6 +103,13 @@ if test "x${PYTHON_LDADD}" != "x"; then
 else
   echo "  Python Support: No"
 fi
+
+if test "x${JS_LIBS}" != "x"; then
+	echo "  Javascript Support: Yes"
+else
+	echo "  Javascript Support: No"
+fi
+
 
 echo ""
 echo "  Files will be installed to: $prefix "
