@@ -101,15 +101,36 @@ void js_handler(struct network *net, struct trigger *trig, struct irc_data *data
 			argv[1] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->prefix->host));
 			argv[2]	= STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, "*"));
       argv[3] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->c_params[0]));
-			argv[4] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->rest_str));
+			argv[4] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, egg_makearg(data->rest_str,trig->mask)));
 
 			JS_CallFunctionName(net->cx, net->global, trig->command, 5, argv, &rval);
 			break;
 		case TRIG_PUBM:
+      argv[0] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->prefix->nick));
+      argv[1] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->prefix->host));
+      argv[2] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, "*"));
+      argv[3] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->c_params[0]));
+      argv[4] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->rest_str));
+
+      JS_CallFunctionName(net->cx, net->global, trig->command, 5, argv, &rval);
 			break;
 		case TRIG_MSG:
+      argv[0] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->prefix->nick));
+      argv[1] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->prefix->host));
+      argv[2] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, "*"));
+      argv[3] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, egg_makearg(data->rest_str,trig->mask)));
+
+      JS_CallFunctionName(net->cx, net->global, trig->command, 4, argv, &rval);
+
 			break;
 		case TRIG_MSGM:
+      argv[0] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->prefix->nick));
+      argv[1] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->prefix->host));
+      argv[2] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, "*"));
+      argv[3] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->rest_str));
+
+      JS_CallFunctionName(net->cx, net->global, trig->command, 4, argv, &rval);
+
 			break;
 		case TRIG_JOIN:	
 			break;
