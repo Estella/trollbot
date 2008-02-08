@@ -73,7 +73,12 @@ JSBool js_bind(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 
 JSBool js_putserv(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-	printf("We fucking get called with %d args\n",argc);
+  struct network *net = JS_GetContextPrivate(cx);
+	jsval str;
+
+	str = JS_ValueToString(cx, argv[0]);
+
+	irc_printf(net->sock,"%s",JS_StringGetBytes(str));
 
 	return 1;
 }
@@ -86,13 +91,13 @@ void js_handler(struct network *net, struct trigger *trig, struct irc_data *data
   switch (trig->type)
   {
     case TRIG_PUB:
-			argv[0] = JS_NewStringCopyN(net->cx, data->prefix->nick, strlen(data->prefix->nick));
-			argv[0] = JS_NewStringCopyN(net->cx, data->prefix->host, strlen(data->prefix->host));
-			argv[1]	= JS_NewStringCopyN(net->cx, "*", 1);
-      argv[2] = JS_NewStringCopyN(net->cx, data->c_params[0], strlen(data->c_params[0]));
-			argv[3] = JS_NewStringCopyN(net->cx, data->rest_str, strlen(data->rest_str));
+			argv[0] = JS_NewStringCopyZ(net->cx, data->prefix->nick);
+			argv[1] = JS_NewStringCopyZ(net->cx, data->prefix->host);
+			argv[2]	= JS_NewStringCopyZ(net->cx, "*");
+      argv[3] = JS_NewStringCopyZ(net->cx, data->c_params[0]);
+			argv[4] = JS_NewStringCopyZ(net->cx, data->rest_str);
 
-			JS_CallFunctionName(net->cx, net->global, trig->command, 4, argv, &rval);
+			JS_CallFunctionName(net->cx, net->global, trig->command, 5, argv, &rval);
 			break;
 		case TRIG_PUBM:
 			break;
