@@ -7,7 +7,6 @@
 #include "network.h"
 
 JSVersion version;
-JSObject  *glob, *it;
 JSBool builtins;
 JSClass global_class = {
   "global",0,
@@ -21,22 +20,13 @@ JSClass global_class = {
   JS_FinalizeStub
 };
 
-
-
 int js_eval_file(struct network *net, char *filename)
 {
-	JSRuntime *rt = JS_GetRuntime(net->cx);
-	JSScript *script =  JS_CompileFile(net->cx,glob,filename);
+	JSScript *script =  JS_CompileFile(net->cx,net->global,filename);
 	JSString *str = NULL;
 	jsval rval;
 
-	if (rt == NULL)
-	{
-		printf("Could not find javascript runtime\n");
-		return 0;
-	}
-
-	JS_ExecuteScript(net->cx, glob, script, &rval);
+	JS_ExecuteScript(net->cx, net->global, script, &rval);
 
 	str = JS_ValueToString(net->cx, rval);
 	printf("Javascript result: %s\n", JS_GetStringBytes(str));
@@ -66,15 +56,18 @@ void net_init_js(struct network *net)
 	}
 
   /* create the global object here */
-  glob = JS_NewObject(net->cx, &global_class, NULL, NULL);
+  net->global = JS_NewObject(net->cx, &global_class, NULL, NULL);
 
   /* initialize the built-in JS objects and the global object */
-  builtins = JS_InitStandardClasses(net->cx, glob);
+  builtins = JS_InitStandardClasses(net->cx, net->global);
 
 	/* Initialize basic IRC I/O functions */
-	JS_DefineFunction(net->cx, glob, "bind", js_bind, 5, 0);
+	JS_DefineFunction(net->cx, net->global, "bind", js_bind, 5, 0);
 
-	JS_DefineFunction(net->cx, glob, "putserv", js_putserv, 1, 0);
+	JS_DefineFunction(net->cx, net->global, "putserv", js_putserv, 1, 0);
+
+	/* So functions can access it */
+	JS_SetContextPrivate(net->cx, net);
 }
 
 

@@ -298,12 +298,10 @@ void parse_irc_line(struct network *net, const char *buffer)
   /* Deal with end of MOTD to join channels */
   if (!strcmp("376",data->command))
   {
-    if (net->status == STATUS_AUTHORIZED)
-    {
-      irc_printf(net->sock,"USERHOST %s",net->nick);
-      join_channels(net);
-      net->status = STATUS_IDLE;
-    }
+    irc_printf(net->sock,"USERHOST %s",net->nick);
+    join_channels(net);
+    net->status = STATUS_IDLE;
+    
   }
 
   /* Deal with ERR_NICKNAMEINUSE

@@ -131,7 +131,9 @@ struct network *new_network(char *label)
 #endif /* HAVE_PYTHON */
 
 #ifdef HAVE_JS
-	net_init_js(ret);
+	ret->cx     = NULL;
+	ret->global = NULL;
+	/*net_init_js(ret); */
 #endif /* HAVE_JS */
 
   return ret;

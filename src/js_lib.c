@@ -6,24 +6,110 @@
 
 #include "js_lib.h"
 #include "js_embed.h"
+#include "trigger.h"	
+#include "util.h"
+#include "user.h"
+#include "dcc.h"
+#include "irc.h"
+#include "trigger.h"
+#include "network.h"
+#include "egg_lib.h"
+
 
 JSBool js_bind(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
   jsval str;
+  char *type  = NULL;
+  char *flags = NULL;
+  char *mask  = NULL;
+  char *func  = NULL;
+	int curarg;
+	struct network *net = JS_GetContextPrivate(cx);
 
-  str = JS_ValueToString(cx, *argv);
-  printf("Javascript function putserv passed: %s\n", JS_GetStringBytes(str));
+	for(curarg=0;curarg<argc;curarg++)
+	{
+		str = JS_ValueToString(cx, argv[curarg]);
 
-	return 1;
+		switch (curarg)
+		{
+			case 0:
+				type = tstrdup(JS_GetStringBytes(str));
+				break;
+			case 1:
+				flags = tstrdup(JS_GetStringBytes(str));
+				break;
+			case 2:
+				mask = tstrdup(JS_GetStringBytes(str));
+				break;
+			case 3:
+				func = tstrdup(JS_GetStringBytes(str));
+				break;
+		}
+	}
+
+	if (!type || !flags || !mask || !func)
+	{
+		printf("Javascript error: Did not get all args for bind\n");
+		free(type);
+		free(flags);
+		free(mask);
+		free(func);
+
+		return JS_FALSE;
+	}
+
+	if (!egg_bind(net,type,flags,mask,func,js_handler))
+	{
+		return JS_FALSE;
+	}
+
+  free(type);
+  free(flags);
+  free(mask);
+  free(func);
+
+	return JS_TRUE;
 }
 
 JSBool js_putserv(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-	jsval str;
-
-  str = JS_ValueToString(cx, *argv);
-  printf("Javascript function putserv passed: %s\n", JS_GetStringBytes(str));
+	printf("We fucking get called with %d args\n",argc);
 
 	return 1;
+}
+
+void js_handler(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
+{
+	jsval rval;
+	jsval argv[10];
+
+  switch (trig->type)
+  {
+    case TRIG_PUB:
+			argv[0] = JS_NewStringCopyN(net->cx, data->prefix->nick, strlen(data->prefix->nick));
+			argv[0] = JS_NewStringCopyN(net->cx, data->prefix->host, strlen(data->prefix->host));
+			argv[1]	= JS_NewStringCopyN(net->cx, "*", 1);
+      argv[2] = JS_NewStringCopyN(net->cx, data->c_params[0], strlen(data->c_params[0]));
+			argv[3] = JS_NewStringCopyN(net->cx, data->rest_str, strlen(data->rest_str));
+
+			JS_CallFunctionName(net->cx, net->global, trig->command, 4, argv, &rval);
+			break;
+		case TRIG_PUBM:
+			break;
+		case TRIG_MSG:
+			break;
+		case TRIG_MSGM:
+			break;
+		case TRIG_JOIN:	
+			break;
+		case TRIG_PART:
+			break;
+		case TRIG_SIGN:
+			break;
+		case TRIG_DCC:
+			break;
+	}
+
+
 }
 

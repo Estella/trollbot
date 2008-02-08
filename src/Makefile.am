@@ -10,7 +10,7 @@ if WITH_JS
 
 trollbot_SOURCES += js_embed.c js_lib.c
 trollbot_CFLAGS  += ${JS_CFLAGS}
-trollbot_LDADD   += ${JS_LDADD}
+trollbot_LDADD   += ${JS_LIBS}
 
 endif
 

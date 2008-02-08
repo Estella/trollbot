@@ -33,7 +33,7 @@ POST_UNINSTALL = :
 bin_PROGRAMS = trollbot$(EXEEXT)
 @WITH_JS_TRUE@am__append_1 = js_embed.c js_lib.c
 @WITH_JS_TRUE@am__append_2 = ${JS_CFLAGS}
-@WITH_JS_TRUE@am__append_3 = ${JS_LDADD}
+@WITH_JS_TRUE@am__append_3 = ${JS_LIBS}
 @WITH_TCL_TRUE@am__append_4 = tcl_embed.c tcl_lib.c
 @WITH_TCL_TRUE@am__append_5 = ${TCL_CPPFLAGS}
 @WITH_TCL_TRUE@am__append_6 = ${TCL_LIBS}
@@ -89,11 +89,12 @@ am_trollbot_OBJECTS = trollbot-main.$(OBJEXT) \
 	$(am__objects_4) $(am__objects_5)
 trollbot_OBJECTS = $(am_trollbot_OBJECTS)
 am__DEPENDENCIES_1 =
-@WITH_TCL_TRUE@am__DEPENDENCIES_2 = $(am__DEPENDENCIES_1)
-@WITH_PHP_TRUE@am__DEPENDENCIES_3 = $(am__DEPENDENCIES_1)
-@WITH_PERL_TRUE@am__DEPENDENCIES_4 = $(am__DEPENDENCIES_1)
-trollbot_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2) \
-	$(am__DEPENDENCIES_3) $(am__DEPENDENCIES_4) \
+@WITH_JS_TRUE@am__DEPENDENCIES_2 = $(am__DEPENDENCIES_1)
+@WITH_TCL_TRUE@am__DEPENDENCIES_3 = $(am__DEPENDENCIES_1)
+@WITH_PHP_TRUE@am__DEPENDENCIES_4 = $(am__DEPENDENCIES_1)
+@WITH_PERL_TRUE@am__DEPENDENCIES_5 = $(am__DEPENDENCIES_1)
+trollbot_DEPENDENCIES = $(am__DEPENDENCIES_2) $(am__DEPENDENCIES_3) \
+	$(am__DEPENDENCIES_4) $(am__DEPENDENCIES_5) \
 	$(am__DEPENDENCIES_1)
 trollbot_LINK = $(CCLD) $(trollbot_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@

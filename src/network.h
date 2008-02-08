@@ -116,6 +116,7 @@ struct network
 
 #ifdef HAVE_JS
 	JSContext *cx;
+	JSObject  *global;
 #endif /* HAVE_JS */
 
   char *userfile;
