@@ -262,7 +262,7 @@ struct user *egg_finduser(struct network *net, const char *mask)
 int egg_passwdok(struct network *net, const char *handle, const char *pass) 
 {
   SHA1_CTX context;
-  unsigned char digest[20];
+  char digest[20];
 
   struct user *user;
 
@@ -276,7 +276,7 @@ int egg_passwdok(struct network *net, const char *handle, const char *pass)
       /* NEEDS PASS CHECKED */
       SHA1Init(&context);
       SHA1Update(&context, (unsigned char *)pass, strlen(pass));
-      SHA1Final(digest, &context);
+      SHA1Final((unsigned char*)digest, &context);
  
       /* Pass is all good baby */
       if (user->passhash != NULL)
@@ -671,7 +671,7 @@ struct user *egg_idx2hand(struct network *net, int idx)
   while (dtmp != NULL)
   {
     if (dtmp->status >= DCC_NOTREADY)
-      return dtmp;
+      return dtmp->user;
 
     dtmp = dtmp->next;
   }

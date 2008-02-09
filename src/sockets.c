@@ -260,10 +260,10 @@ void irc_loop(void)
           {
             if (!dcc_in(dcc))
             {
+              struct dcc_session *tmp = dcc->next;
               dcc_list_del(&net->dccs,dcc);
-              /* Socket disconnected, remove from list */
-              dcc->sock = -1;
-
+              dcc = tmp;
+              continue;
             }
           }
         }
@@ -278,15 +278,21 @@ void irc_loop(void)
             /* Get the current socket options for the non-blocking socket */
             if (getsockopt(dcc->sock, SOL_SOCKET, SO_ERROR, (void*)(&valopt), &lon) < 0) 
             { 
+              struct dcc_session *tmp = dcc->next;
               troll_debug(LOG_ERROR,"Could not get socket options for DCC sock");
               dcc_list_del(&net->dccs,dcc);
+              dcc = tmp;
+              continue;
             }
             else
             {    
               if (valopt != 0) 
               { 
+                struct dcc_session *tmp = dcc->next;
                 troll_debug(LOG_ERROR,"Non-blocking connect() failed.");
                 dcc_list_del(&net->dccs,dcc);
+                dcc = tmp;
+                continue;
               }
               else
               {
@@ -304,7 +310,6 @@ void irc_loop(void)
             }
           }
         }
-
         dcc = dcc->next;
       }
 

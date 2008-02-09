@@ -1,6 +1,6 @@
 #include "main.h"
 #include "trigger.h"
-
+#include "strings.h"
 #include "irc.h"
 #include "network.h"
 #include "server.h"

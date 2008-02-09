@@ -144,7 +144,6 @@ void dcc_init_listener(struct network *net)
   dccaddr.sin_family = AF_INET;
 
   dccaddr.sin_addr.s_addr = inet_addr(dcchostip);
-  free(dcchostip);
 
   if (net->dcc_port == -1)
   {
@@ -158,16 +157,19 @@ void dcc_init_listener(struct network *net)
   if (bind(net->dcc_listener, (struct sockaddr *)&dccaddr, sizeof(dccaddr)) == -1) 
   {
     troll_debug(LOG_ERROR,"Could not bind to DCC socket");
+  free(dcchostip);
     return;
   }
 
   if (listen(net->dcc_listener, DCC_MAX) == -1) 
   {
     troll_debug(LOG_ERROR,"Could not listen on DCC socket");
+  free(dcchostip);
     return;
   }
 
   troll_debug(LOG_DEBUG,"Listening on %s port %d\n",dcchostip,net->dcc_port);
+  free(dcchostip);
 
   return;
 }
@@ -269,6 +271,7 @@ void reverse_dcc_chat(struct network *net, struct trigger *trig, struct irc_data
 
 void initiate_dcc_chat(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
+  char *ipStr=NULL;
   int dcc_sock = -1;
   unsigned long ip = 0;
   unsigned int port = 0;
@@ -303,13 +306,15 @@ void initiate_dcc_chat(struct network *net, struct trigger *trig, struct irc_dat
   req_addr.sin_addr.s_addr = htonl(ip);
   req_addr.sin_port        = htons(port);
 
+  ipStr = inet_ntoa(req_addr.sin_addr);
+
   memset(&(req_addr.sin_zero), '\0', 8);
 
   if (connect(dcc_sock,(struct sockaddr *)&req_addr,sizeof(struct sockaddr)) == -1)
   {
     if (errno == EINPROGRESS)
     {
-      troll_debug(LOG_DEBUG,"Non-blocking connect() in progress");
+      troll_debug(LOG_DEBUG,"Non-blocking connect(%s) in progress", ipStr);
     }
     else
     {

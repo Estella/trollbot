@@ -27,7 +27,7 @@
 
 void free_networks(struct network *net)
 {
-  struct network *ntmp;
+  struct network *ntmp=NULL;
 
   if (net == NULL)
     return;

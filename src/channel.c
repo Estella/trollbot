@@ -74,9 +74,9 @@ struct channel_user *new_channel_user(const char *nick, int jointime, struct use
 
 void free_channels(struct channel *chans)
 {
-  struct channel_user *cusers;
-  struct channel_user *cusertmp;
-  struct channel   *chantmp;
+  struct channel_user *cusers=NULL;
+  struct channel_user *cusertmp=NULL;
+  struct channel   *chantmp=NULL;
 
   if (chans == NULL)
     return;

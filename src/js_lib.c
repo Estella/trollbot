@@ -18,7 +18,7 @@
 
 JSBool js_bind(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-  jsval str;
+  JSString *str;
   char *type  = NULL;
   char *flags = NULL;
   char *mask  = NULL;
@@ -74,7 +74,7 @@ JSBool js_bind(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 JSBool js_putserv(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
   struct network *net = JS_GetContextPrivate(cx);
-	jsval str;
+	JSString *str;
 
 	str = JS_ValueToString(cx, argv[0]);
 

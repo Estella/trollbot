@@ -36,6 +36,7 @@ void add_default_triggers(void)
     trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,"pass",NULL,&new_user_pass));
     trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,"ident",NULL,&check_user_pass));
     trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,"hello",NULL,&introduce_user));
+    trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,"goodbye",NULL,&disconnect_bot));
 
     /* BIND JOIN */
     trigger_list_add(&net->trigs->join,new_trigger(NULL,TRIG_JOIN,"*",NULL,&new_join));
@@ -131,14 +132,14 @@ void new_user_pass(struct network *net, struct trigger *trig, struct irc_data *d
   }
 
   if (user->passhash != NULL)
-    return user->passhash;
+    return;
 
   SHA1Init(&context);
   SHA1Update(&context, (unsigned char *)data->rest[1], strlen(data->rest[1]));
 
   user->passhash = tmalloc0(21);
  
-  SHA1Final(user->passhash, &context);
+  SHA1Final((unsigned char*)user->passhash, &context);
 
   irc_printf(net->sock,"PRIVMSG %s :Your password has been set as '%s'",data->prefix->nick,data->rest[1]);
 
@@ -147,6 +148,11 @@ void new_user_pass(struct network *net, struct trigger *trig, struct irc_data *d
 
 void check_user_pass(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
+}
+
+void disconnect_bot(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
+{
+    die_nicely(0);
 }
 
 void introduce_user(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
@@ -174,7 +180,7 @@ void introduce_user(struct network *net, struct trigger *trig, struct irc_data *
     while (user->next != NULL && strcmp(user->username,data->prefix->nick))  
       user = user->next;
 
-    if (!strcmp(user,data->prefix->nick))
+    if (!strcmp(user->nick,data->prefix->nick))
     {
       irc_printf(net->sock,"PRIVMSG %s :I'm sorry hal, another user already exists by that nick",data->prefix->nick);
       return;
