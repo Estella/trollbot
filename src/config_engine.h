@@ -7,6 +7,10 @@
 #include <Python.h>
 #endif /* HAVE_PYTHON */
 
+#ifdef HAVE_JS
+#include <jsapi.h>
+#endif
+
 struct dcc_session;
 struct network;
 struct user;
@@ -36,6 +40,10 @@ struct config
   PyObject *py_main_dict;
 #endif /* HAVE_PYTHON */
 
+#ifdef HAVE_JS
+  /* Runtime object for Spidermonkey */
+  JSRuntime *js_rt;
+#endif
 };
 
 /* Function Prototypes */

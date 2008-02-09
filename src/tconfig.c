@@ -33,31 +33,25 @@ struct tconfig_block *file_to_tconfig(const char *filename)
     return NULL;
   }
 
-  fbuf = tmalloc0(BUFFER_SIZE);
-
   /* Read the entire file into memory */
-  for(i=0;(count = fread(&fbuf[i],1,1024,cfile)) == 1024;i+=1024)
-  {
-    if ((fbuf = realloc(fbuf,i+1024+1024)) == NULL)
-    {
-      troll_debug(LOG_FATAL,"Could not allocate memory for config file, barfing.\n");
-      exit(EXIT_FAILURE);
-    }
-  }
-  
+  fseek(cfile, 0, SEEK_END);
+  size = ftell(cfile);
+  fseek(cfile, 0, SEEK_SET);
+
+  fbuf = tmalloc0(sizeof(*fbuf)*(size+1));
+  fread(fbuf, sizeof(*fbuf), size+1, cfile);
+  size=0;
+
   /* If NOT the end-of-file, we must have had an error of some sort, barf and die */
   if (!feof(cfile))
   {
     troll_debug(LOG_ERROR,"An error occurred while reading the config file");
+    free(fbuf);
     return NULL;
   }
- 
-  /* Terminate it with a NULL */
-  fbuf[i+count] = '\0';
-
   fclose(cfile);
 
-  block = tmalloc(sizeof(struct tconfig_block));
+  block = tmalloc(sizeof(*block));
 
   block->parent = NULL;
   block->child  = NULL;
@@ -372,6 +366,7 @@ struct tconfig_block *file_to_tconfig(const char *filename)
     eip++; /* While loop increase */
   }
 
+  free(fbuf);
   return head;
 }
 

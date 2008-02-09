@@ -158,7 +158,7 @@ void join_channels(struct network *net)
   joinstr[strlen(joinstr)-1] = '\0';
  
   irc_printf(net->sock,"JOIN %s\n",joinstr);
-
+  free(joinstr);
   return;
 }
 

@@ -37,20 +37,31 @@ void free_networks(struct network *net)
 
   while (net != NULL)
   {
-    free(net->label);
-    free(net->botnick);
-    free(net->nick);
-    free(net->altnick);
-    free(net->ident);
-    free(net->realname);
-    free(net->vhost);
-    free(net->shost);
+    if (net->label){  free(net->label); }
+    if (net->botnick){  free(net->botnick); }
+    if (net->nick){  free(net->nick); }
+    if (net->altnick){  free(net->altnick); }
+    if (net->ident){  free(net->ident); }
+    if (net->realname){  free(net->realname); }
+    if (net->vhost){  free(net->vhost); }
+    if (net->shost){  free(net->shost); }
+    if (net->userfile){ free(net->userfile);  }
+    if (net->chanfile){ free(net->chanfile);  }
  
+    free_trigger_table(net->trigs);
+
     free_users(net->users);
 
     free_channels(net->chans);
 
     free_dcc_sessions(net->dccs);
+
+#ifdef HAVE_JS
+    /* Cleanup Spidermonkey */
+    if (net->cx != NULL){
+      JS_DestroyContext(net->cx);
+    }
+#endif
 
     ntmp = net;
     net  = net->next;

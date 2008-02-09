@@ -18,36 +18,22 @@
 
 JSBool js_bind(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-  JSString *str;
   char *type  = NULL;
   char *flags = NULL;
   char *mask  = NULL;
   char *func  = NULL;
-	int curarg;
+  char **returnValue = NULL;
 	struct network *net = JS_GetContextPrivate(cx);
 
-	for(curarg=0;curarg<argc;curarg++)
-	{
-		str = JS_ValueToString(cx, argv[curarg]);
+  type = tstrdup(JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
+	flags = tstrdup(JS_GetStringBytes(JS_ValueToString(cx, argv[1])));
+	mask = tstrdup(JS_GetStringBytes(JS_ValueToString(cx, argv[2])));
 
-		switch (curarg)
-		{
-			case 0:
-				type = tstrdup(JS_GetStringBytes(str));
-				break;
-			case 1:
-				flags = tstrdup(JS_GetStringBytes(str));
-				break;
-			case 2:
-				mask = tstrdup(JS_GetStringBytes(str));
-				break;
-			case 3:
-				func = tstrdup(JS_GetStringBytes(str));
-				break;
-		}
-	}
+  if (!JSVAL_IS_NULL(argv[3]) && !JSVAL_IS_VOID(argv[3])){
+  	func = tstrdup(JS_GetStringBytes(JS_ValueToString(cx, argv[3])));
+  }
 
-	if (!type || !flags || !mask || !func)
+	if (!type || !flags || !mask)
 	{
 		printf("Javascript error: Did not get all args for bind\n");
 		free(type);
@@ -58,10 +44,37 @@ JSBool js_bind(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 		return JS_FALSE;
 	}
 
-	if (!egg_bind(net,type,flags,mask,func,js_handler))
+  returnValue = egg_bind(net,type,flags,mask,func,js_handler);
+	if (returnValue == NULL)
 	{
+    JS_ReportError(cx, "Cannot perform bind operation.");
 		return JS_FALSE;
 	}
+  else {
+    if (func == NULL){
+      int curIdx=0;
+      JSObject *array;
+
+      while (returnValue[curIdx] != NULL){ curIdx++; }
+
+      array = JS_NewArrayObject(cx, curIdx, NULL);
+
+      curIdx=0;
+      while (returnValue[curIdx] != NULL){ 
+        JSString *str = JS_NewStringCopyZ(cx, returnValue[curIdx]);
+        JS_DefineElement(cx, array, curIdx, STRING_TO_JSVAL(str), NULL, NULL, 0);
+        free(returnValue[curIdx++]);
+      }
+      free(returnValue);
+
+      *rval = OBJECT_TO_JSVAL(array);
+    }
+    else {
+      *rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, returnValue[0]));
+    }
+    free(returnValue[0]);
+    free(returnValue);
+  }
 
   free(type);
   free(flags);
@@ -79,6 +92,8 @@ JSBool js_putserv(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	str = JS_ValueToString(cx, argv[0]);
 
 	irc_printf(net->sock,"%s",JS_GetStringBytes(str));
+
+  *rval = JSVAL_VOID;
 
 	return JS_TRUE;
 }

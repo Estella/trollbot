@@ -46,6 +46,7 @@ int config_engine_init(char *filename)
   if (defaults != NULL)
   {
     tconfig_merge(defaults,tcfg);
+    free_tconfig(defaults);
   }
 
   g_cfg = config_engine_load(tcfg);
@@ -78,6 +79,10 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
   cfg->py_main      = NULL;
   cfg->py_main_dict = NULL;
 #endif /* HAVE_PYTHON */
+
+#ifdef HAVE_JS
+  cfg->js_rt        = NULL;
+#endif
   g_cfg             = cfg;
 
 

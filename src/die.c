@@ -13,6 +13,7 @@
 #include "config_engine.h"
 #include "dcc.h"
 #include "network.h"
+#include "config.h"
 
 /* Needs more cowbell */
 void die_nicely(int ret)
@@ -26,7 +27,11 @@ void die_nicely(int ret)
 
     if (g_cfg->dccs != NULL)
       free_dcc_sessions(g_cfg->dccs);
-   
+
+#ifdef HAVE_JS
+    JS_DestroyRuntime(g_cfg->js_rt);
+#endif
+
     free(g_cfg);
   }
     

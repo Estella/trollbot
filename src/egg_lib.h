@@ -58,7 +58,7 @@ struct user *egg_idx2hand(struct network *net, int idx);
 int egg_hand2idx(struct network *net, const char *handle);
 
 /* Binds an event handler to an event */
-int egg_bind(struct network *net, char *type, char *flags, char *mask, char *cmd, void (*handler)(struct network *, struct trigger *, struct irc_data *, struct dcc_session *, const char *));
+char **egg_bind(struct network *net, char *type, char *flags, char *mask, char *cmd, void (*handler)(struct network *, struct trigger *, struct irc_data *, struct dcc_session *, const char *));
 
 /* Returns the bot's nickname */
 char *egg_botnick(struct network *net);

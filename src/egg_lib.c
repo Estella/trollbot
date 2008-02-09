@@ -730,48 +730,102 @@ struct user *egg_idx2hand(struct network *net, int idx)
 /* getflags <dir> */
 /* setflags <dir> [<flags> [channel]] */
 
-/* Returns 0 if it didn't work */
-int egg_bind(struct network *net, char *type, char *flags, char *mask, char *cmd, void (*handler)(struct network *, struct trigger *, struct irc_data *, struct dcc_session *, const char *))
+/*
+Description: 
+  'bind' is used to attach procedures to certain events. 
+  flags are the flags the user must have to trigger the event (if applicable). 
+  proc-name is a pointer to the procedure to call for this command.
+  If the proc-name is NULL, no binding is added. 
+Returns: 
+  name of the command that was added, or (if proc-name is NULL), a list of the current bindings for this command
+*/
+char **egg_bind(struct network *net, char *type, char *flags, char *mask, char *cmd, void (*handler)(struct network *, struct trigger *, struct irc_data *, struct dcc_session *, const char *))
 {
-  /* Needs to check stackable, and whether dupes exist FIXME */
-  if (!strcmp("pub",type))
-  {
-    trigger_list_add(&net->trigs->pub,new_trigger(NULL,TRIG_PUB,mask,cmd,handler));
-  }
-  else if (!strcmp("pubm",type))
-  {
-    trigger_list_add(&net->trigs->pubm,new_trigger(NULL,TRIG_PUBM,mask,cmd,handler));
-  }
-  else if (!strcmp("msg",type))
-  {
-    trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,mask,cmd,handler));
-  }
-  else if (!strcmp("msgm",type))
-  {
-    trigger_list_add(&net->trigs->msgm,new_trigger(NULL,TRIG_MSGM,mask,cmd,handler));
-  }
-  else if (!strcmp("notc",type))
-  {
-    trigger_list_add(&net->trigs->notc,new_trigger(NULL,TRIG_NOTC,mask,cmd,handler));
-  }  
-  else if (!strcmp("join",type))
-  {
-    trigger_list_add(&net->trigs->join,new_trigger(NULL,TRIG_JOIN,mask,cmd,handler));
-  }
-  else if (!strcmp("part",type))
-  { 
-    trigger_list_add(&net->trigs->part,new_trigger(NULL,TRIG_PART,mask,cmd,handler));
-  }
-  else if (!strcmp("dcc",type))
-  {
-    trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,mask,cmd,handler));
-  }
-  else if (!strcmp("raw",type))
-  {
-    trigger_list_add(&net->trigs->raw,new_trigger(NULL,TRIG_RAW,mask,cmd,handler));    
-  }
+  char **returnValue=NULL;
+  if (handler == NULL){
+    struct trigger *trigger = NULL;
+    struct trigger *triggerListHead = NULL;
+    int numMatches=0;
 
-  return 1;
+    /* Get a list of binds matching mask and return that list. */
+    if (!strcmp("pub",type)){ triggerListHead = net->trigs->pub;  }
+    else if (!strcmp("pubm",type)){ triggerListHead = net->trigs->pubm; }
+    else if (!strcmp("msg",type)){  triggerListHead = net->trigs->msg; }
+    else if (!strcmp("msgm",type)){  triggerListHead = net->trigs->msgm; }
+    else if (!strcmp("notc",type)){  triggerListHead = net->trigs->notc; }
+    else if (!strcmp("join",type)){  triggerListHead = net->trigs->join; }
+    else if (!strcmp("part",type)){  triggerListHead = net->trigs->part; }
+    else if (!strcmp("dcc",type)){  triggerListHead = net->trigs->dcc; }
+    else if (!strcmp("raw",type)){  triggerListHead = net->trigs->raw; }
+
+    trigger = triggerListHead;
+    while (trigger != NULL){
+      if (!strcmp(trigger->mask, mask)){
+        numMatches=0;
+      }
+      trigger = trigger->next;
+    }
+
+    returnValue = tmalloc0(sizeof(*returnValue)*(numMatches+1));
+
+    numMatches=0;
+    while (trigger != NULL){
+      if (!strcmp(trigger->mask, mask)){
+        returnValue[numMatches++]=tstrdup(trigger->command);
+      }
+      trigger = trigger->next;
+    }
+  }
+  else {
+    returnValue = tmalloc0(sizeof(*returnValue));
+    /* Needs to check stackable, and whether dupes exist FIXME */
+    if (!strcmp("pub",type))
+    {
+      trigger_list_add(&net->trigs->pub,new_trigger(NULL,TRIG_PUB,mask,cmd,handler));
+      *returnValue=tstrdup(cmd);
+    }
+    else if (!strcmp("pubm",type))
+    {
+      trigger_list_add(&net->trigs->pubm,new_trigger(NULL,TRIG_PUBM,mask,cmd,handler));
+      *returnValue=tstrdup(cmd);
+    }
+    else if (!strcmp("msg",type))
+    {
+      trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,mask,cmd,handler));
+      *returnValue=tstrdup(cmd);
+    }
+    else if (!strcmp("msgm",type))
+    {
+      trigger_list_add(&net->trigs->msgm,new_trigger(NULL,TRIG_MSGM,mask,cmd,handler));
+      *returnValue=tstrdup(cmd);
+    }
+    else if (!strcmp("notc",type))
+    {
+      trigger_list_add(&net->trigs->notc,new_trigger(NULL,TRIG_NOTC,mask,cmd,handler));
+      *returnValue=tstrdup(cmd);
+    }  
+    else if (!strcmp("join",type))
+    {
+      trigger_list_add(&net->trigs->join,new_trigger(NULL,TRIG_JOIN,mask,cmd,handler));
+      *returnValue=tstrdup(cmd);
+    }
+    else if (!strcmp("part",type))
+    { 
+      trigger_list_add(&net->trigs->part,new_trigger(NULL,TRIG_PART,mask,cmd,handler));
+      *returnValue=tstrdup(cmd);
+    }
+    else if (!strcmp("dcc",type))
+    {
+      trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,mask,cmd,handler));
+      *returnValue=tstrdup(cmd);
+    }
+    else if (!strcmp("raw",type))
+    {
+      trigger_list_add(&net->trigs->raw,new_trigger(NULL,TRIG_RAW,mask,cmd,handler));    
+      *returnValue=tstrdup(cmd);
+    }
+  }
+  return returnValue;
 }
 
 /* unbind <type> <flags> <keyword/mask> <proc-name> */

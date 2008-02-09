@@ -319,3 +319,59 @@ struct trig_table *new_trig_table(void)
   return ret;
 }
 
+
+/*
+
+struct trigger
+{
+  char *glob_flags;
+  char *chan_flags;
+
+  int type;
+ 
+  char *mask;  
+
+  void (*handler)(struct network *, struct trigger *, struct irc_data *, struct dcc_session *, const char *);
+
+  char *command;
+
+  int usecount;
+
+  struct trigger *prev;
+  struct trigger *next;  
+};*/
+
+void free_trigger(struct trigger *trig){
+  if (trig->glob_flags){ free(trig->glob_flags); }
+  if (trig->chan_flags){ free(trig->chan_flags); }
+  if (trig->mask){ free(trig->mask); }
+  if (trig->command){ free(trig->command); }
+  free(trig);
+}
+
+
+void free_trigger_table(struct trig_table *table){
+  if (table->pub){  free_trigger_list(table->pub);  }
+  if (table->pubm){  free_trigger_list(table->pubm);  }
+  if (table->msg){  free_trigger_list(table->msg);  }
+  if (table->msgm){  free_trigger_list(table->msgm);  }
+  if (table->join){  free_trigger_list(table->join);  }
+  if (table->part){  free_trigger_list(table->part);  }
+  if (table->sign){  free_trigger_list(table->sign);  }
+  if (table->kick){  free_trigger_list(table->kick);  }
+  if (table->notc){  free_trigger_list(table->notc);  }
+  if (table->dcc){  free_trigger_list(table->dcc);  }
+  if (table->raw){  free_trigger_list(table->raw);  }
+  free(table);
+}
+
+void free_trigger_list(struct trigger *list){
+  struct trigger *next=NULL;
+
+  while (list != NULL){
+    next = list->next;
+    free_trigger(list);
+    list = next;
+  }
+}
+

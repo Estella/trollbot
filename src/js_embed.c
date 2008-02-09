@@ -23,33 +23,30 @@ JSClass global_class = {
 int js_eval_file(struct network *net, char *filename)
 {
 	JSScript *script =  JS_CompileFile(net->cx,net->global,filename);
-	JSString *str = NULL;
-	jsval rval;
+  jsval rval;
 
 	JS_ExecuteScript(net->cx, net->global, script, &rval);
 
-	str = JS_ValueToString(net->cx, rval);
-	printf("Javascript result: %s\n", JS_GetStringBytes(str));
-
-	/* FIXME: Freeing script memory anyone? */
+	JS_DestroyScript(net->cx, script);
 	return 1;	
 }
 
 void net_init_js(struct network *net)
 {
-	JSRuntime *rt;
 	/* initialize the JS run time, and return result in rt */
-  rt = JS_NewRuntime(0x100000);
+  if (g_cfg->js_rt == NULL){
+    g_cfg->js_rt = JS_NewRuntime(0x100000);
 
-  /* if rt does not have a value, end the program here */
-  if (!rt)
-    return;
+    /* if rt does not have a value, end the program here */
+    if (g_cfg->js_rt == NULL)
+      return;
+  }
 
   /* create a context and associate it with the JS run time */
-  net->cx = JS_NewContext(rt, 8192);
+  net->cx = JS_NewContext(g_cfg->js_rt, 8192);
 
   /* if cx does not have a value, end the program here */
-  if (net->cx == NULL) /* FIXME: Free memory for rt? */
+  if (net->cx == NULL) 
 	{
 		net->cx = NULL;
     return;

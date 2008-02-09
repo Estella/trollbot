@@ -59,5 +59,8 @@ void trigger_list_add(struct trigger **orig, struct trigger *new);
 struct trigger *new_trigger(char *flags, int type, char *mask, char *command, void (*handler)(struct network *, struct trigger *, struct irc_data *, struct dcc_session *, const char *));
 void trigger_match(struct network *net, struct irc_data *data);
 struct trig_table *new_trig_table(void);
+void free_trigger(struct trigger *trig);
+void free_trigger_table(struct trig_table *table);
+void free_trigger_list(struct trigger *list);
 
 #endif /* __TRIGGER_H__ */
