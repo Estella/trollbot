@@ -123,6 +123,7 @@ struct channel *new_channel(const char *chan)
     ret->name = tstrdup(chan);
 
   ret->tcfg = NULL;
+  ret->user_list = NULL;
 
   ret->prev = NULL;
   ret->next = NULL;

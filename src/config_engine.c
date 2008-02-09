@@ -75,6 +75,7 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
   cfg->fork         = 0;
   cfg->forked       = 0;
   cfg->debug_level  = 0;
+  cfg->dccs         = NULL;
 #ifdef HAVE_PYTHON
   cfg->py_main      = NULL;
   cfg->py_main_dict = NULL;

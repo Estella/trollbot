@@ -54,6 +54,7 @@ struct irc_data *irc_data_new(void)
 
   local->c_params_str  = NULL;
   local->rest_str      = NULL;
+  local->line          = NULL;
 
   return local;
 }
