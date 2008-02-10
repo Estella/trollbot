@@ -63,4 +63,13 @@ char **egg_bind(struct network *net, char *type, char *flags, char *mask, char *
 /* Returns the bot's nickname */
 char *egg_botnick(struct network *net);
 
+/**
+ * Eggdrop Compatible onchan
+ * @param net A network struct where this is to be checked.
+ * @param nickname The nickname to try and find.
+ * @param channel Optional channel name to check in
+ * @return 1 if user found on optional channel, 1 if user found without optional channel, 0 if user not found on optional channel or 0 if not found without optional channel
+ */
+int egg_onchan(struct network *net, const char *nickname, const char *channel);
+
 #endif /* __EGGLIB_H__ */

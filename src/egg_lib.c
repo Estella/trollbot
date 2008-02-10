@@ -562,7 +562,86 @@ int egg_isvoice(struct network *net, const char *nick, const char *channel)
   
 }*/
  
-/* onchan <nickname> [channel] */
+/** 
+ * Eggdrop Compatible onchan
+ * @param net A network struct where this is to be checked.
+ * @param nickname The nickname to try and find.
+ * @param channel Optional channel name to check in
+ * @return 1 if user found on optional channel, 1 if user found without optional channel, 0 if user not found on optional channel or 0 if not found without optional channel
+ */
+int egg_onchan(struct network *net, const char *nickname, const char *channel)
+{
+	struct channel      *chan  = NULL;
+	struct channel_user *cuser = NULL;
+
+	chan = net->chans;
+	
+	/* should use new list stuff in util */
+	while (chan->prev != NULL) chan = chan->prev;
+
+	if (channel != NULL)
+	{
+		while (chan != NULL)
+		{
+			if (!tstrcasecmp(channel,chan->name))
+			{
+				if (chan->user_list == NULL)
+					return 0; /* This would probably be a bug if occurred */
+
+				/* Found the channel, now find the channel user */
+				cuser = chan->user_list;
+
+				while (cuser->prev != NULL) cuser = cuser->prev;
+				
+				while (cuser != NULL)
+				{
+					if (!tstrcasecmp(cuser->nick,nickname))
+						return 1; /* Found the user on the channel */
+					cuser = cuser->next;
+				}
+
+				if (cuser == NULL)
+					return 0; /* Found channel, but not the nick */
+				
+			}
+
+			chan = chan->next;
+		}
+	
+		if (chan == NULL)
+		{
+			/* Nick is not on chan */
+			return 0;
+		}
+	}
+	else
+	{
+		while (chan != NULL)
+		{
+			if (chan->user_list != NULL)
+			{
+				cuser = chan->user_list;
+
+        while (cuser->prev != NULL) cuser = cuser->prev;
+
+				while (cuser != NULL)
+				{
+					if (!tstrcasecmp(cuser->nick,nickname))
+						return 1; /* Found the user */
+
+					cuser = cuser->next;
+				}
+
+			}
+			
+			chan = chan->next;
+		}
+
+		return 0; /* User not found */
+	}
+
+	return 0; /* never should be reached */
+}
 /* nick2hand <nickname> [channel] */
 /* hand2nick <handle> [channel] */
 /* handonchan <handle> [channel] */
@@ -889,7 +968,6 @@ void egg_rehash(void)
    * to properly disconnect or connect  
    */
 }
-
 #endif /* CLOWNS */
 
 char *egg_botnick(struct network *net)
@@ -904,6 +982,11 @@ char *egg_botnick(struct network *net)
 /* server-online */
 /* lastbind */
 /* isjuped */
-/* handlen */
+
+int handlen(struct network *net)
+{
+	return net->handlen;
+}
+
 /* config */
 

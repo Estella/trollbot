@@ -10,6 +10,28 @@
 #include "irc.h"
 #include "egg_lib.h"
 
+int tcl_onchan(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+  struct network *net = clientData;
+	int ret;
+
+	if (objc != 2 && objc != 3)
+	{
+		Tcl_WrongNumArgs(interp, objc, objv,"onchan <nick> [channel]");
+		return TCL_ERROR;
+	}
+
+	ret = egg_onchan(net,Tcl_GetString(objv[1]),TclGetString(objv[2]));
+	
+  if (ret == 0)
+    Tcl_SetResult(interp,"0",NULL);
+  else
+    Tcl_SetResult(interp,"1",NULL);
+
+  return TCL_OK;
+}
+
+
 int tcl_matchwild(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {
   int ret;

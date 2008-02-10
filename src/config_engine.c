@@ -68,6 +68,7 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 #ifdef HAVE_PYTHON
   FILE *fp;
 #endif /* HAVE_PYTHON */
+	g_cfg             = cfg;
 
   cfg = tmalloc(sizeof(struct config));
 
@@ -84,8 +85,7 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 #ifdef HAVE_JS
   cfg->js_rt        = NULL;
 #endif
-  g_cfg             = cfg;
-
+	g_cfg             = cfg;
 
   while (topmost != NULL)
   {
@@ -161,6 +161,11 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
           if (net->altnick == NULL)
             net->altnick = tstrdup(search->value);
         }
+				else if (!strcmp(search->key,"handlen"))
+				{
+					/* TODO: Proper checking */
+					net->handlen = atoi(search->value);
+				}
 #ifdef HAVE_JS
 				else if (!strcmp(search->key,"javascript"))
 				{
@@ -169,6 +174,10 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 						net_init_js(net);
 					}
 					
+					/* This shouldn't actually be loaded here, load from
+ 					 * filename after this occurs, as to not require any
+ 					 * gcfg stuff right now
+ 					 */
 					js_eval_file(net, search->value);
 				}
 #endif /* HAVE_JS */

@@ -13,6 +13,11 @@
 #include "user.h"
 #include "sha1.h"
 #include "util.h"
+#include "egg_lib.h"
+
+#ifdef HAVE_JS
+#include "js_embed.h"
+#endif /* HAVE_JS */
 
 static void do_join_channels(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
 
@@ -57,6 +62,11 @@ void add_default_triggers(void)
     trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".-chan",NULL,&dcc_del_chan));
     trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".tbinds",NULL,&dcc_tbinds));
     trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".who",NULL,&dcc_who));
+
+#ifdef HAVE_JS
+		trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".loadjavascript",NULL,&dcc_javascript_load));
+#endif /* HAVE_JS */
+
     /* trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".rehash",NULL,&dcc_rehash)); */
 
 #ifdef HAVE_TCL
@@ -84,18 +94,108 @@ static void do_join_channels(struct network *net, struct trigger *trig, struct i
 
 void new_join(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
-  /* Here we need to create a channel_user in the current channel struct */
+	struct channel *chan       = net->chans;
+	struct channel_user *cuser = NULL;
+
+	while (chan != NULL)
+	{
+		if (!tstrcasecmp(data->rest_str,chan->name))
+		{
+			if (chan->user_list == NULL)
+			{
+				/* Add a new channel user with a jointime of now. */
+				chan->user_list = new_channel_user(data->prefix->nick, time(NULL), NULL);
+				cuser           = chan->user_list;
+				cuser->prev     = NULL;
+			}
+			else
+			{
+				cuser = chan->user_list;
+			
+				while(cuser->next != NULL)
+					cuser = cuser->next;
+
+				cuser->next       = new_channel_user(data->prefix->nick, time(NULL), NULL);
+				cuser->next->prev = cuser;
+	
+				cuser             = cuser->next;
+			}
+				
+
+			cuser->nick  = tstrdup(data->prefix->nick);
+			cuser->uhost = tstrdup(data->prefix->host); 
+			cuser->ident = tstrdup(data->prefix->user);
+			/* FIXME: Need check for whether they're a recognized user in the bot */
+			/* FIXME: Check if nick is bot, if so do WHO, and MODE */
+				
+			cuser->next = NULL;
+				
+			return;
+		
+		}
+	
+		chan = chan->next;
+	}
+
+	/* FIXME: If chan is NULL, might be a freenode-like redirection. Handle it. */
+	if (chan == NULL)
+	{
+		troll_debug(LOG_ERROR,"Yeah, that place in the code that was supposed to never be reached, umm we got here\n");
+		return;
+	}
+
+	return;
 
 }
 
 void new_part(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
-  /* Here we need to free a channel_user from the current channel struct */
+  struct channel *chan       = net->chans;
+
+  while (chan != NULL)
+  {
+    if (!tstrcasecmp(data->rest_str,chan->name))
+    {
+      if (chan->user_list == NULL)
+			{
+				troll_debug(LOG_ERROR, "Got a part message for %s, but no user exists on the channel by that name",data->prefix->nick);
+				return;
+			}
+
+			/* Found the bugger */
+			channel_user_del(&chan->user_list, data->prefix->nick);
+
+      return;
+    }
+
+    chan = chan->next;
+  }
+
+  /* FIXME: If chan is NULL, might be a freenode-like redirection. Handle it. */
+  if (chan == NULL)
+  {
+    troll_debug(LOG_ERROR,"Yeah, that place in the code that was supposed to never be reached, umm we got here\n");
+    return;
+  }
+
+  return;
 }
 
 void new_quit(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
-  /* Here we need to remove the channel_user from every channel struct */
+  struct channel *chan       = net->chans;
+  struct channel_user *cuser = NULL;
+
+  while (chan != NULL)
+  {
+		if (egg_onchan(net, data->prefix->nick, chan->name))
+			channel_list_del(&chan->user_list, data->prefix->nick);
+
+    chan = chan->next;
+  }
+
+
+  return;
 }
 
 void new_kick(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
@@ -152,6 +252,7 @@ void check_user_pass(struct network *net, struct trigger *trig, struct irc_data 
 
 void disconnect_bot(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
+		irc_printf(net->sock,"QUIT :Trollbot v1.0");
     die_nicely(0);
 }
 
@@ -182,7 +283,7 @@ void introduce_user(struct network *net, struct trigger *trig, struct irc_data *
 
     if (!strcmp(user->nick,data->prefix->nick))
     {
-      irc_printf(net->sock,"PRIVMSG %s :I'm sorry hal, another user already exists by that nick",data->prefix->nick);
+      irc_printf(net->sock,"PRIVMSG %s :Another user already exists by that nick",data->prefix->nick);
       return;
     }
 

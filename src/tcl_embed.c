@@ -17,6 +17,13 @@ void net_init_tcl(struct network *net)
   net->tclinterp = Tcl_CreateInterp();
 
   Tcl_CreateObjCommand(net->tclinterp,
+                       "onchan",
+                       tcl_onchan,
+                       net,
+                       NULL);
+
+
+  Tcl_CreateObjCommand(net->tclinterp,
                        "matchwild",
                        tcl_matchwild,
                        net,

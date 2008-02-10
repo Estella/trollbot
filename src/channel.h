@@ -13,6 +13,8 @@ struct irc_data;
 struct channel_user
 {
   char *nick;
+	char *ident;
+
   char *uhost;
   
   int jointime;
@@ -38,8 +40,10 @@ struct channel
   struct channel *next;
 };
 
+/* WTF is this */
 void channel_list_add(struct channel **orig, struct channel *new);
 void channel_user_add(struct channel_user **orig, struct channel_user *new);
+void channel_user_del(struct channel_user **orig, const char *nick);
 struct channel_user *new_channel_user(const char *nick, int jointime, struct user *urec);
 void free_channels(struct channel *chans);
 struct channel *new_channel(const char *chan);

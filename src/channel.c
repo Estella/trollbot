@@ -30,6 +30,40 @@ void channel_list_add(struct channel **orig, struct channel *new)
   }
 }
 
+void channel_user_del(struct channel_user **orig, const char *nick)
+{
+	struct channel_user *tmp = *orig;
+
+	while (tmp != NULL)
+	{
+		if (!tstrcasecmp(tmp->nick,nick))
+		{
+			/* This is the one that needs removed */
+			free(tmp->nick);
+			free(tmp->uhost);
+			free(tmp->ident);
+			
+		  if (tmp->prev != NULL)
+				tmp->prev->next = tmp->next;
+
+			if (tmp->next != NULL)
+				tmp->next->prev = tmp->prev;
+						
+			free(tmp);
+			
+			return;
+		}
+
+		tmp = tmp->next;
+	}
+
+	if (tmp == NULL)
+	{
+		troll_debug(LOG_ERROR, "channel_user_del() called with non-existing nickname\n");
+		return;
+	}
+}
+
 void channel_user_add(struct channel_user **orig, struct channel_user *new)
 {
   struct channel_user *tmp;      
@@ -64,7 +98,8 @@ struct channel_user *new_channel_user(const char *nick, int jointime, struct use
   ret->jointime = jointime;
   ret->urec     = urec;
   ret->uhost    = NULL;
-
+	ret->ident    = NULL;
+	
  
   ret->prev     = NULL;
   ret->next     = NULL;
@@ -98,6 +133,7 @@ void free_channels(struct channel *chans)
       {
         free(cusers->nick);
         free(cusers->uhost);
+				free(cusers->ident);
         cusertmp = cusers;
         cusers = cusers->next;
         free(cusertmp);
@@ -119,8 +155,15 @@ struct channel *new_channel(const char *chan)
 
   ret = tmalloc(sizeof(struct channel));
   
+	/* Chan should never be NULL but it should be checked nontheless */
   if (chan != NULL)
     ret->name = tstrdup(chan);
+	else
+	{
+		troll_debug(LOG_ERROR, "Tried making a new channel without a channel name\n");
+		free(ret);
+		return NULL;
+	}
 
   ret->tcfg = NULL;
   ret->user_list = NULL;

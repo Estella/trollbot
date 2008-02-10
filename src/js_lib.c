@@ -15,6 +15,38 @@
 #include "network.h"
 #include "egg_lib.h"
 
+JSBool js_eval(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+	JSString *jsc_script;
+	JSString *jsc_chan;
+	JSString *jsc_return;
+	JSFunction *efunk;
+	jsval our_rval;
+	char *script = NULL;
+	char *chan   = NULL;
+
+	struct network *net = JS_GetContextPrivate(cx);
+
+	jsc_script = JS_ValueToString(cx, argv[0]);
+	jsc_chan   = JS_ValueToString(cx, argv[1]);
+
+	script = tstrdup(JS_GetStringBytes(jsc_script));
+
+	efunk = JS_CompileFunction(net->plain_cx, net->plain_global,
+														 "eval_func", 0, NULL, script, strlen(script),
+														 "Internal", 0);
+	
+	if ((JS_CallFunction(net->plain_cx, net->plain_global, efunk, 0, NULL, &our_rval)) == JS_TRUE)
+	{
+		jsc_return = JS_ValueToString(net->plain_cx, our_rval); 
+	  irc_printf(net->sock,"PRIVMSG %s :Javascript result: %s\n", JS_GetStringBytes(jsc_chan), JS_GetStringBytes(jsc_return));
+	
+		return JS_TRUE;
+	}
+
+	return JS_FALSE;
+}
+
 
 JSBool js_bind(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
@@ -87,7 +119,7 @@ JSBool js_bind(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 JSBool js_putserv(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
   struct network *net = JS_GetContextPrivate(cx);
-	JSString *str;
+	jsval str;
 
 	str = JS_ValueToString(cx, argv[0]);
 

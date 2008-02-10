@@ -84,6 +84,9 @@ struct network
 
   /* Users */
   struct user *users;
+
+	/* For Compatibility with eggdrop */
+	int handlen;
  
   /* DCCs */
   struct dcc_session *dccs;
@@ -117,6 +120,10 @@ struct network
 #ifdef HAVE_JS
 	JSContext *cx;
 	JSObject  *global;
+	
+	/* HACK */
+	JSContext *plain_cx;
+	JSObject  *plain_global;
 #endif /* HAVE_JS */
 
   char *userfile;

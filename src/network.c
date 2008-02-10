@@ -54,6 +54,8 @@ void free_networks(struct network *net)
 
     free_channels(net->chans);
 
+		/* FIXME: free fucking JS shit, PHP shit, etc */
+
     free_dcc_sessions(net->dccs);
 
 #ifdef HAVE_JS
@@ -129,6 +131,8 @@ struct network *new_network(char *label)
   ret->connect_try   = 3;
   ret->last_try      = 0;  
   
+	ret->handlen       = 32;
+
 #ifdef HAVE_TCL
   net_init_tcl(ret);
 #endif /* HAVE_TCL */
@@ -145,6 +149,9 @@ struct network *new_network(char *label)
 	ret->cx     = NULL;
 	ret->global = NULL;
 	/*net_init_js(ret); */
+
+	ret->plain_cx     = NULL;
+	ret->plain_global = NULL;
 #endif /* HAVE_JS */
 
   return ret;
