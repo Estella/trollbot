@@ -254,7 +254,7 @@ void channel_list_populate(struct network *net, struct trigger *trig, struct irc
 		chan = net->chans;
 		while (chan->next != NULL) chan = chan->next;
 
-		chan->next       = channel_new(data->c_params[2]);
+		chan->next       = new_channel(data->c_params[2]);
 		chan->next->prev = chan;
 	}
 
