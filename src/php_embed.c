@@ -42,6 +42,20 @@
 #include "network.h"
 #include "egg_lib.h"
 
+void php_load_scripts_from_config(struct config *cfg)
+{
+	int i;
+
+  /* Since PHP scripts are all global, load it from g_cfg */
+  if (cfg->php_scripts != NULL)
+  {
+    for (i=0;cfg->php_scripts[i] != NULL;i++)
+    {
+      myphp_eval_file(cfg->php_scripts[i]);
+    }
+  }
+}
+
 /* This function loads the PHP interpreter if it doesn't exist already.
  * then it executes the PHP file
  */

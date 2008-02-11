@@ -20,6 +20,7 @@
 #endif /* HAVE_JS */
 
 static void do_join_channels(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
+static void rehash_bot(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
 
 void add_default_triggers(void)
 {
@@ -42,6 +43,8 @@ void add_default_triggers(void)
     trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,"ident",NULL,&check_user_pass));
     trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,"hello",NULL,&introduce_user));
     trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,"goodbye",NULL,&disconnect_bot));
+		/* FIXME: Shouldn't be here*/
+		trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,"rehash",NULL,&rehash_bot));
 
     /* BIND JOIN */
     trigger_list_add(&net->trigs->join,new_trigger(NULL,TRIG_JOIN,"*",NULL,&new_join));
@@ -85,6 +88,11 @@ void add_default_triggers(void)
 
     net = net->next;
   }
+}
+
+static void rehash_bot(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
+{
+  egg_rehash();
 }
 
 static void do_join_channels(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)

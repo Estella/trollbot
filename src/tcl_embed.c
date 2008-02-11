@@ -12,10 +12,41 @@
 
 #include "egg_lib.h"
 
+void tcl_load_scripts_from_config(struct config *cfg)
+{
+	int i;
+	struct network *net = cfg->networks;
+
+	while (net != NULL)
+	{
+		if (net->tcl_scripts != NULL)
+		{
+			if (net->tclinterp == NULL)
+				net_init_tcl(net);
+			else
+				net_tcl_init_commands(net);
+		
+			for (i=0;net->tcl_scripts[i] != NULL;i++)
+			{
+				if (Tcl_EvalFile(net->tclinterp, net->tcl_scripts[i]) == TCL_ERROR)
+				{
+					troll_debug(LOG_WARN,"TCL Error: %s\n",Tcl_GetStringResult(net->tclinterp));
+				}
+			}
+		}
+
+		net = net->next;
+	}
+}
+
 void net_init_tcl(struct network *net)
 {  
   net->tclinterp = Tcl_CreateInterp();
+	net_tcl_init_commands(net);
+}
 
+void net_tcl_init_commands(struct network *net)
+{
   Tcl_CreateObjCommand(net->tclinterp,
                        "botname",
                        tcl_botname,

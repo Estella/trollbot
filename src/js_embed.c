@@ -36,6 +36,31 @@ JSClass global_class = {
   JS_FinalizeStub
 };
 
+void js_load_scripts_from_config(struct config *cfg)
+{
+  int i;
+  struct network *net = cfg->networks;
+
+  while (net != NULL)
+  {
+    if (net->js_scripts != NULL)
+    {
+      if (net->cx == NULL) /* Should do proper state checking */
+        net_init_js(net);
+
+      for (i=0;net->js_scripts[i] != NULL;i++)
+      {
+				if (!js_eval_file(net,net->js_scripts[i]))
+				{
+					troll_debug(LOG_WARN, "Could not load Javascript file (%s)",net->js_scripts[i]);
+				}
+      }
+    }
+
+    net = net->next;
+  }
+}
+
 void dcc_javascript_load(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
 	if (data->rest_str == NULL)

@@ -8,6 +8,18 @@
 #include "dcc.h"
 #include "trigger.h"
 
+#ifdef HAVE_TCL
+#include "tcl_embed.h"
+#endif /* HAVE_TCL */
+
+#ifdef HAVE_PHP
+#include "php_embed.h"
+#endif /* HAVE_PHP */
+
+#ifdef HAVE_JS
+#include "js_embed.h"
+#endif /* HAVE_JS */
+
 /* This is the eggdrop core API that is exported to TCL, PHP, perl, etc */
 
 
@@ -960,27 +972,123 @@ time_t egg_unixtime(void)
 /* reloadhelp */
 /* restart */
 
-#ifdef CLOWNS
 void egg_rehash(void)
 {
-  struct tconfig_block *cfg;
+  struct tconfig_block *tcfg;
   struct config *oldcfg;
+	struct config *newcfg;
+	struct network *otmp;
+	struct network *ntmp;
 
   oldcfg = g_cfg;
 
-  tcfg  = file_to_tconfig(NULL,filename);
+  tcfg  = file_to_tconfig("trollbot.conf");
 
-  g_cfg = config_engine_load(tcfg);
+  newcfg = config_engine_load(tcfg);
 
   /* keep a copy in the global config */
-  g_cfg->tcfg = tcfg;
+ 	newcfg->tcfg = tcfg;
  
   /* We need to match the old networks to new ones
    * in case they were renamed, deleted, or added
    * to properly disconnect or connect  
    */
+	/* Copy over the TCL and JS interpreter shit */
+
+	/* TODO: Get rid of this shit */
+	otmp = oldcfg->networks;
+	while (otmp->prev != NULL) otmp = otmp->prev;
+
+	ntmp = newcfg->networks;
+	
+	/* Figure out what to free from the old, add chans, etc to new */
+	while (otmp != NULL)
+	{
+		while (ntmp->prev != NULL) ntmp = ntmp->prev;
+
+		while (ntmp != NULL)
+		{
+			if (!tstrcasecmp(otmp->label,ntmp->label))
+			{
+				/* Found a match copy over stuff */
+				ntmp->dccs = otmp->dccs;
+				otmp->dccs = NULL;
+
+				/* Need to match this by string 
+				ntmp->cur_server = otmp->cur_server;
+				otmp->cur_server = NULL; */
+
+				ntmp->chans = otmp->chans;
+				otmp->chans = NULL;
+		
+				ntmp->sock  = otmp->sock;
+				otmp->sock  = -1;
+
+				ntmp->shost = otmp->shost;
+				otmp->shost = NULL;				
+
+				ntmp->status = otmp->status;
+				/* Don't know what to set for the old */
+			
+				ntmp->users = otmp->users;
+				otmp->users = NULL;
+
+				ntmp->dccs  = otmp->dccs;
+				otmp->dccs  = NULL;
+				
+				ntmp->dcc_listener = otmp->dcc_listener;
+
+				printf("Copied over trigs\n");
+				ntmp->trigs = otmp->trigs;
+				/* Bug, cannot NULL out trigs here, they aren't being freed either FIXME */	
+#ifdef HAVE_TCL
+				ntmp->tclinterp = otmp->tclinterp;
+				otmp->tclinterp = NULL;
+#endif /* HAVE_TCL */
+
+#ifdef HAVE_PERL
+				ntmp->perlinterp = otmp->perlinterp;
+				otmp->perlinterp = NULL;
+#endif /* HAVE_PERL */
+
+#ifdef HAVE_PYTHON
+				ntmp->pydict = otmp->pydict;
+				otmp->pydict = NULL;
+#endif /* HAVE_PYTHON */
+
+#ifdef HAVE_JS
+				ntmp->cx = otmp->cx;
+				otmp->cx = NULL;
+				ntmp->global = otmp->global;
+				otmp->global = NULL;
+				ntmp->plain_cx = otmp->plain_cx;
+				otmp->plain_cx = NULL;
+				ntmp->plain_global = otmp->plain_global;
+				otmp->plain_global = NULL;
+
+				/* So functions can access it */
+				JS_SetContextPrivate(ntmp->cx, ntmp);
+#endif /* HAVE_JS */
+			}
+	
+			ntmp = ntmp->next;
+		}
+
+		otmp = otmp->next;
+		ntmp = newcfg->networks;
+	}
+
+	g_cfg = newcfg;
+		
+#ifdef HAVE_TCL
+	/* For now just reload TCL and js scripts */
+	tcl_load_scripts_from_config(g_cfg);
+#endif /* HAVE_TCL */
+
+#ifdef HAVE_JS	
+	js_load_scripts_from_config(g_cfg);
+#endif /* HAVE_JS */
 }
-#endif /* CLOWNS */
 
 char *egg_botnick(struct network *net)
 {

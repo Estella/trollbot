@@ -49,12 +49,15 @@ struct network
 {
   char *label;
 
+	/* Copy over on rehash */
   struct server *cur_server;
 
   struct server *servers;
 
+	/* Copy over on rehash */
   struct channel *chans;
    
+	/* Copy over on rehash */
   int sock;
 
   /* This is the actual nick of the bot, nick is the wanted */
@@ -68,6 +71,7 @@ struct network
   char *vhost;
   char *shost; /* Server given host */
 
+	/* Copy over on rehash */
   int status;
  
   /* This is to implement connection queueing 
@@ -83,19 +87,23 @@ struct network
   time_t last_try;
 
   /* Users */
+	/* Copy over on rehash */
   struct user *users;
 
 	/* For Compatibility with eggdrop */
 	int handlen;
  
   /* DCCs */
+	/* Copy over on rehash */
   struct dcc_session *dccs;
  
   /* Each network has its own DCC listener */
+	/* Copy over on rehash */
   int dcc_listener;
 
   int dcc_port;
 
+	/* Copy over on rehash */
   struct trig_table *trigs;  
 
   /* Unhandled blocks go here */
@@ -106,24 +114,35 @@ struct network
 
 #ifdef HAVE_TCL
   /* Network TCL Interpreter */
+	/* Copy over on rehash */
   Tcl_Interp *tclinterp;
+
+	char **tcl_scripts;
+	int tcl_scripts_size;
 #endif /* HAVE_TCL */  
 
 #ifdef HAVE_PERL
+	/* Copy over on rehash */
   struct interpreter *perlinterp;
 #endif /* HAVE_PERL */
 
 #ifdef HAVE_PYTHON
+	/* Copy over on rehash */
   PyObject *pydict;
 #endif /* HAVE_PYTHON */
 
 #ifdef HAVE_JS
+	/* Copy both over on rehash */
 	JSContext *cx;
 	JSObject  *global;
 	
 	/* HACK */
+	/* Copy both over on rehash */
 	JSContext *plain_cx;
 	JSObject  *plain_global;
+
+	char **js_scripts;
+	int js_scripts_size;
 #endif /* HAVE_JS */
 
   char *userfile;

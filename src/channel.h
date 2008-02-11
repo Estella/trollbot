@@ -15,6 +15,8 @@ struct channel_user
   char *nick;
 	char *ident;
 
+	char *modes;
+
   char *uhost;
   
   int jointime;

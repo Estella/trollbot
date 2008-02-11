@@ -58,12 +58,17 @@ void free_networks(struct network *net)
 
     free_dcc_sessions(net->dccs);
 
+#ifdef HAVE_TCL
+		tstrfreev(net->tcl_scripts);
+#endif /* HAVE_TCL */
+
 #ifdef HAVE_JS
+		tstrfreev(net->js_scripts);
     /* Cleanup Spidermonkey */
     if (net->cx != NULL){
       JS_DestroyContext(net->cx);
     }
-#endif
+#endif /* HAVE_JS */
 
     ntmp = net;
     net  = net->next;
@@ -134,6 +139,8 @@ struct network *new_network(char *label)
 	ret->handlen       = 32;
 
 #ifdef HAVE_TCL
+	ret->tcl_scripts      = NULL;
+	ret->tcl_scripts_size = 0;
   net_init_tcl(ret);
 #endif /* HAVE_TCL */
 
@@ -152,6 +159,9 @@ struct network *new_network(char *label)
 
 	ret->plain_cx     = NULL;
 	ret->plain_global = NULL;
+
+	ret->js_scripts   = NULL;
+	ret->js_scripts_size = 0;
 #endif /* HAVE_JS */
 
   return ret;

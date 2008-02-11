@@ -32,7 +32,7 @@ int config_engine_init(char *filename)
 {
   struct tconfig_block *tcfg;
   struct tconfig_block *defaults;
-    
+  int i;  
   tcfg      = file_to_tconfig(filename);
 
   defaults  = file_to_tconfig("defaults.conf");
@@ -51,6 +51,22 @@ int config_engine_init(char *filename)
 
   g_cfg = config_engine_load(tcfg);
 
+#ifdef HAVE_PHP
+	php_load_scripts_from_config(g_cfg);
+#endif /* HAVE_PHP */
+
+#ifdef HAVE_PYTHON
+	/* CURRENTLY DISABLED */
+#endif /* HAVE_PYTHON */
+
+#ifdef HAVE_JS
+	js_load_scripts_from_config(g_cfg);
+#endif /* HAVE_JS */
+
+#ifdef HAVE_TCL
+	tcl_load_scripts_from_config(g_cfg);
+#endif /* HAVE_TCL */
+
   /* keep a copy in the global config */
   g_cfg->tcfg = tcfg;
  
@@ -65,10 +81,11 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
   struct network *net;
   struct server *svr;
   struct channel *chan;
+
+	int i;
 #ifdef HAVE_PYTHON
   FILE *fp;
 #endif /* HAVE_PYTHON */
-	g_cfg             = cfg;
 
   cfg = tmalloc(sizeof(struct config));
 
@@ -78,14 +95,20 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
   cfg->debug_level  = 0;
   cfg->dccs         = NULL;
 #ifdef HAVE_PYTHON
-  cfg->py_main      = NULL;
-  cfg->py_main_dict = NULL;
+  cfg->py_main         = NULL;
+  cfg->py_main_dict    = NULL;
+	cfg->py_scripts      = NULL
+	cfg->py_scripts_size = 0;
 #endif /* HAVE_PYTHON */
 
+#ifdef HAVE_PHP
+	cfg->php_scripts      = NULL;
+	cfg->php_scripts_size = 0;
+#endif /* HAVE_PHP */
+
 #ifdef HAVE_JS
-  cfg->js_rt        = NULL;
-#endif
-	g_cfg             = cfg;
+  cfg->js_rt           = NULL;
+#endif /* HAVE_JS */
 
   while (topmost != NULL)
   {
@@ -169,43 +192,143 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 #ifdef HAVE_JS
 				else if (!strcmp(search->key,"javascript"))
 				{
+            if (net->js_scripts_size == 0)
+            {
+              /* Allocate 10 slots (9 usable, 1 NULL) */
+              net->js_scripts = tmalloc0(sizeof(char *) * 10);
+
+
+              net->js_scripts_size = 10;
+            }
+
+            for (i=0;i<(net->js_scripts_size-1);i++)
+            {
+              if (net->js_scripts[i] == NULL)
+              {
+                net->js_scripts[i] = tstrdup(search->value);
+                break;
+              }
+            }
+
+            if (net->js_scripts[i] == NULL)
+            {
+              /* Need more slots */
+              net->js_scripts = tsrealloc0(net->js_scripts,net->js_scripts_size+10,&net->js_scripts_size);
+
+              net->js_scripts[i] = tstrdup(search->value);
+            }
+
+/*
 					if (net->cx == NULL)
 					{
 						net_init_js(net);
 					}
 					
-					/* This shouldn't actually be loaded here, load from
+					 * This shouldn't actually be loaded here, load from
  					 * filename after this occurs, as to not require any
  					 * gcfg stuff right now
- 					 */
-					js_eval_file(net, search->value);
+ 					 *
+					 js_eval_file(net, search->value); */
 				}
 #endif /* HAVE_JS */
 #ifdef HAVE_TCL
         else if (!strcmp(search->key,"tclscript"))
         {
-            if (net->tclinterp == NULL)
+            if (net->tcl_scripts_size == 0)
+            {
+              /* Allocate 10 slots (9 usable, 1 NULL) */
+              net->tcl_scripts = tmalloc0(sizeof(char *) * 10);
+
+
+              net->tcl_scripts_size = 10;
+            }
+
+            for (i=0;i<(net->tcl_scripts_size-1);i++)
+            {
+              if (net->tcl_scripts[i] == NULL)
+              {
+                net->tcl_scripts[i] = tstrdup(search->value);
+                break;
+              }
+            }
+
+            if (net->tcl_scripts[i] == NULL)
+            {
+              /* Need more slots */
+              net->tcl_scripts = tsrealloc0(net->tcl_scripts,net->tcl_scripts_size+10,&net->tcl_scripts_size);
+
+              net->tcl_scripts[i] = tstrdup(search->value);
+            }
+
+            /*if (net->tclinterp == NULL)
               continue;
         
             if (Tcl_EvalFile(net->tclinterp, search->value) == TCL_ERROR)
             {
               troll_debug(LOG_WARN,"TCL Error: %s\n",Tcl_GetStringResult(net->tclinterp));
-            }
+            }*/
         }
 #endif /* HAVE_TCL */
 #ifdef HAVE_PHP
         else if (!strcmp(search->key,"phpscript"))
         {
-            /* PHP only allows us a global interpreter, what a piece of shit
-             * So I'll start it up if and only if a PHP script exists
-             */
-            myphp_eval_file(search->value);
+						if (cfg->php_scripts_size == 0)
+						{
+							/* Allocate 10 slots (9 usable, 1 NULL) */
+							cfg->php_scripts = tmalloc0(sizeof(char *) * 10);
+
+
+							cfg->php_scripts_size = 10;
+						}
+	
+						for (i=0;i<(cfg->php_scripts_size-1);i++)
+						{
+							if (cfg->php_scripts[i] == NULL)
+							{
+								cfg->php_scripts[i] = tstrdup(search->value);
+								break;
+							}
+						}
+						
+						if (cfg->php_scripts[i] == NULL)
+						{
+							/* Need more slots */
+							cfg->php_scripts = tsrealloc0(cfg->php_scripts,cfg->php_scripts_size+10,&cfg->php_scripts_size);
+							
+							cfg->php_scripts[i] = tstrdup(search->value);
+						}
         }
 #endif /* HAVE_PHP */
 #ifdef HAVE_PYTHON
         else if (!strcmp(search->key,"pythonscript") || !strcmp(search->key,"pyscript"))
         {
-          cfg_init_python(cfg);
+            if (cfg->py_scripts_size == 0)
+            {
+              /* Allocate 10 slots (9 usable, 1 NULL) */
+              cfg->py_scripts = tmalloc0(sizeof(char *) * 10);
+
+
+              cfg->py_scripts_size = 10;
+            }
+
+            for (i=0;i<(cfg->py_scripts_size-1);i++)
+            {
+              if (cfg->py_scripts[i] == NULL)
+              {
+                cfg->py_scripts[i] = tstrdup(search->value);
+                break;
+              }
+            }
+
+            if (cfg->py_scripts[i] == NULL)
+            {
+              /* Need more slots */
+              cfg->py_scripts = tsrealloc0(cfg->py_scripts,cfg->py_scripts_size+10,&cfg->py_scripts_size);
+
+              cfg->py_scripts[i] = tstrdup(search->value);
+            }
+
+          /*cfg_init_python(cfg);
 
           net_init_python(cfg,net);
 
@@ -215,7 +338,7 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
             continue;
           }
 
-          PyRun_File(fp, search->value, Py_file_input, net->pydict, net->pydict);
+          PyRun_File(fp, search->value, Py_file_input, net->pydict, net->pydict);*/
         }
 #endif /* HAVE_PYTHON */
         else if (!strcmp(search->key,"userfile"))

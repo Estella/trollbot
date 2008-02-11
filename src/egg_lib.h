@@ -77,4 +77,6 @@ char *egg_version(void);
  */
 int egg_onchan(struct network *net, char *nickname, char *channel);
 
+void egg_rehash(void);
+
 #endif /* __EGGLIB_H__ */

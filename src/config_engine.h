@@ -38,12 +38,26 @@ struct config
   /* Global CLEAN python enviroment to be copied */
   PyObject *py_main;
   PyObject *py_main_dict;
+	char **py_scripts;
+	int py_scripts_size;
 #endif /* HAVE_PYTHON */
+
+#ifdef HAVE_PHP
+	char **php_scripts;
+	int	php_scripts_size;
+#endif /* HAVE_PHP */
+
+#ifdef HAVE_TCL
+	char **tcl_scripts;
+	int tcl_scripts_size;
+#endif /* HAVE_TCL */
 
 #ifdef HAVE_JS
   /* Runtime object for Spidermonkey */
   JSRuntime *js_rt;
-#endif
+	char **js_scripts;
+	int js_scripts_size;
+#endif /* HAVE_JS */
 };
 
 /* Function Prototypes */

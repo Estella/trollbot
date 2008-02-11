@@ -42,6 +42,7 @@ void channel_user_del(struct channel_user **orig, const char *nick)
 			free(tmp->nick);
 			free(tmp->uhost);
 			free(tmp->ident);
+			free(tmp->modes);
 			
 		  if (tmp->prev != NULL)
 				tmp->prev->next = tmp->next;
@@ -99,6 +100,7 @@ struct channel_user *new_channel_user(const char *nick, int jointime, struct use
   ret->urec     = urec;
   ret->uhost    = NULL;
 	ret->ident    = NULL;
+	ret->modes    = NULL;
 	
  
   ret->prev     = NULL;
@@ -256,7 +258,7 @@ void channel_list_populate(struct network *net, struct trigger *trig, struct irc
 		chan->next->prev = chan;
 	}
 
-  /* 353 toodle @ #java :toodle */
+	/* 353 toodle @ #java :toodle */
 	for(i=0;data->rest[i] != NULL;i++)
 	{
 		/* try to find user first */
