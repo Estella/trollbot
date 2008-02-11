@@ -228,6 +228,84 @@ void chan_init(void)
 
 void channel_list_populate(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
+	struct channel *chan       = NULL;
+	struct channel_user *cuser = NULL;
+	int i                      = 0;
+	char *ptr                  = NULL;
+
+	/* First check to see if channel exists, if not, create a record. */
+	chan = net->chans;
+	
+	while (chan->prev != NULL) chan = chan->prev;
+
+	while (chan != NULL)
+	{
+		if (!tstrcasecmp(chan->name,data->c_params[2]))
+			break; /* Found a channel record */
+	
+		chan = chan->next;
+	}
+
+	/* this is a new channel */
+	if (chan == NULL)
+	{
+		chan = net->chans;
+		while (chan->next != NULL) chan = chan->next;
+
+		chan->next       = channel_new(data->c_params[2]);
+		chan->next->prev = chan;
+	}
+
   /* 353 toodle @ #java :toodle */
-  
+	for(i=0;data->rest[i] != NULL;i++)
+	{
+		/* try to find user first */
+		ptr = data->rest[i];
+
+		while (*ptr == '@' || *ptr == '+')
+			ptr++;
+
+		if (chan->user_list == NULL)
+		{
+			chan->user_list = new_channel_user(ptr,time(NULL),NULL);
+			cuser           = chan->user_list;
+			cuser->prev     = NULL;
+		}
+		else
+		{
+			cuser = chan->user_list;
+
+			/* Check for an existing user first */
+			while (cuser->prev != NULL) cuser = cuser->prev;
+
+			while (cuser != NULL)
+			{
+				if (!tstrcasecmp(cuser->nick,ptr))
+				{
+					/* FIXME: Just update modes if needed and continue */
+					break;
+				}
+				
+				cuser = cuser->next;
+			}
+		
+			if (cuser != NULL)
+				continue;
+
+			cuser = chan->user_list;
+
+			while (cuser->next != NULL) cuser = cuser->next;
+	
+			cuser->next = new_channel_user(ptr,time(NULL),NULL);
+
+			cuser->next->prev = cuser;
+			cuser->next->next = NULL;			
+		}
+		
+		if (!strncmp(data->rest[i],"@",1))
+		{
+			/* CHECK MODES */
+		}	
+
+	}
 }

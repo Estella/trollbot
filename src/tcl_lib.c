@@ -20,6 +20,7 @@ int tcl_botname(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *co
  	 */
 	ret = egg_botname(net);
 
+	/* FIXME: Memory Leak TCL_DYNAMIC for the free func causes crash */
 	Tcl_SetResult(interp, ret, NULL);
 
 	return TCL_OK;
