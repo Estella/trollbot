@@ -23,7 +23,7 @@ JSBool js_eval(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	JSFunction *efunk;
 	jsval our_rval;
 	char *script = NULL;
-	char *chan   = NULL;
+
 
 	struct network *net = JS_GetContextPrivate(cx);
 
@@ -119,7 +119,7 @@ JSBool js_bind(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 JSBool js_putserv(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
   struct network *net = JS_GetContextPrivate(cx);
-	jsval str;
+	JSString *str;
 
 	str = JS_ValueToString(cx, argv[0]);
 
@@ -127,6 +127,52 @@ JSBool js_putserv(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 
   *rval = JSVAL_VOID;
 
+	return JS_TRUE;
+}
+
+
+JSBool js_botname(JSContext *cx, JSObject *obj, jsval id, jsval *rval)
+{
+  struct network *net = JS_GetContextPrivate(cx);
+	char *botname;
+  JSString *botnameJS;
+
+  botname = egg_botname(net);
+  botnameJS = JS_NewStringCopyZ(cx, botname);
+  free(botname);
+  *rval = STRING_TO_JSVAL(botnameJS);
+  
+	return JS_TRUE;
+}
+
+JSBool js_version(JSContext *cx, JSObject *obj, jsval id, jsval *rval)
+{
+  JSString *botversionJS;
+
+  botversionJS = JS_NewStringCopyZ(cx, egg_version());
+  *rval = STRING_TO_JSVAL(botversionJS);
+  
+	return JS_TRUE;
+}
+
+
+
+JSBool js_onchan(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+  struct network *net = JS_GetContextPrivate(cx);
+	char *nickToCheck=NULL;
+  char *channelToCheck=NULL;
+
+  nickToCheck = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+  if (argc == 2){
+    if (JSVAL_IS_NULL(argv[1]) == JS_FALSE && JSVAL_IS_VOID(argv[1]) == JS_FALSE){
+      channelToCheck = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
+    }
+  }
+
+  *rval = INT_TO_JSVAL(egg_onchan(net, nickToCheck, channelToCheck));
+
+  
 	return JS_TRUE;
 }
 

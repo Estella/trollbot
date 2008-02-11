@@ -65,6 +65,7 @@ char *egg_botnick(struct network *net);
 
 char *egg_botname(struct network *net);
 
+char *egg_version(void);
 
 
 /**

@@ -53,6 +53,10 @@ int js_eval_file(struct network *net, char *filename)
 	JSScript *script =  JS_CompileFile(net->cx,net->global,filename);
   jsval rval;
 
+  if (script == NULL){
+    return 0;
+  }
+
 	JS_ExecuteScript(net->cx, net->global, script, &rval);
 
 	JS_DestroyScript(net->cx, script);
@@ -112,6 +116,12 @@ void net_init_js(struct network *net)
 	JS_DefineFunction(net->cx, net->global, "putserv", js_putserv, 1, 0);
 
 	JS_DefineFunction(net->cx, net->global, "js_eval", js_eval, 1, 0);
+
+	JS_DefineProperty(net->cx, net->global, "botname", JSVAL_VOID, js_botname, NULL, 0);
+
+	JS_DefineProperty(net->cx, net->global, "version", JSVAL_VOID, js_version, NULL, 0);
+
+	JS_DefineFunction(net->cx, net->global, "onchan", js_onchan, 5, 0);
 
 	/* So functions can access it */
 	JS_SetContextPrivate(net->cx, net);

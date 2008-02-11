@@ -188,8 +188,9 @@ void new_quit(struct network *net, struct trigger *trig, struct irc_data *data, 
 
   while (chan != NULL)
   {
-		if (egg_onchan(net, data->prefix->nick, chan->name))
-			channel_list_del(&chan->user_list, data->prefix->nick);
+		if (egg_onchan(net, data->prefix->nick, chan->name)){
+			/*channel_list_del(&chan->user_list, data->prefix->nick);*/
+    }
 
     chan = chan->next;
   }
