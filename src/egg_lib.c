@@ -569,17 +569,29 @@ int egg_isvoice(struct network *net, const char *nick, const char *channel)
  * @param channel Optional channel name to check in
  * @return 1 if user found on optional channel, 1 if user found without optional channel, 0 if user not found on optional channel or 0 if not found without optional channel
  */
-int egg_onchan(struct network *net, const char *nickname, const char *channel)
+int egg_onchan(struct network *net, char *nickname, char *channel)
 {
 	struct channel      *chan  = NULL;
 	struct channel_user *cuser = NULL;
+
+	if (net == NULL)
+	{
+		troll_debug(LOG_ERROR,"egg_onchan called with NULL network struct");
+		return 0;
+	}
+
+	if (net->chans == NULL)
+	{
+		troll_debug(LOG_WARN,"egg_onchan called with NULL chans inside the net struct");
+		return 0;
+	}
 
 	chan = net->chans;
 	
 	/* should use new list stuff in util */
 	while (chan->prev != NULL) chan = chan->prev;
 
-	if (channel != NULL)
+	if ((channel != NULL) && strlen(channel) > 0)
 	{
 		while (chan != NULL)
 		{
@@ -975,8 +987,27 @@ char *egg_botnick(struct network *net)
   return net->botnick;
 }
 
-/* botname */
-/* version */
+
+/* New, add entry to all langs [Done: TCL] */
+/* Needs return freed */
+char *egg_botname(struct network *net)
+{
+	char *ret;
+
+	/* + 2 is for the ! and @ */
+	ret = tmalloc0(strlen(net->nick) + strlen(net->ident) + strlen(net->shost) + 2 + 1);
+
+	sprintf(ret,"%s!%s@%s",net->nick,net->ident,net->shost);
+
+	return ret;
+}
+
+/* New, check functionality, add entry to all langs */
+char *egg_version(void)
+{
+	return VERSION;
+}
+
 /* numversion */
 /* uptime */
 /* server-online */

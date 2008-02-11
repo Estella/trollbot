@@ -3,6 +3,11 @@ bind pub - "!test" do:test
 bind pub - "!countusers" do:countusers
 bind pub - "!matchattr" do:matchattr
 bind pub - "!onchan" do:onchan
+bind pub - "!botname" do:botname
+
+proc do:botname { nick uhost hand chan arg } {
+	putserv "PRIVMSG $chan :Result: [botname]";
+}
 
 proc do:onchan { nick uhost hand chan arg } {
 	putserv "PRIVMSG $chan :Result: [onchan [lindex $arg 0] [lindex $arg 1]]"

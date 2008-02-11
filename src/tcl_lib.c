@@ -10,10 +10,29 @@
 #include "irc.h"
 #include "egg_lib.h"
 
+int tcl_botname(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	char *ret = NULL;
+	struct network *net = clientData;
+
+	/* Ignore extra args rather than check it, check with eggdrop
+ 	 * to see if this is how it acts.
+ 	 */
+	ret = egg_botname(net);
+
+	Tcl_SetResult(interp, ret, NULL);
+
+	return TCL_OK;
+}	
+
+
 int tcl_onchan(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {
-  struct network *net = clientData;
 	int ret;
+  struct network *net = clientData;
+
+	char *nickname = NULL;
+	char *chan     = NULL;
 
 	if (objc != 2 && objc != 3)
 	{
@@ -21,7 +40,10 @@ int tcl_onchan(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *con
 		return TCL_ERROR;
 	}
 
-	ret = egg_onchan(net,Tcl_GetString(objv[1]),TclGetString(objv[2]));
+	nickname = Tcl_GetString(objv[1]);
+	chan     = Tcl_GetString(objv[2]);
+
+	ret = egg_onchan(net,nickname,chan);
 	
   if (ret == 0)
     Tcl_SetResult(interp,"0",NULL);
