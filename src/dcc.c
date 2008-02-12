@@ -180,7 +180,7 @@ void new_dcc_connection(struct network *net)
   struct dcc_session *newdcc;
   struct dcc_session *tmpdcc;
   struct sockaddr_in client_addr;
-  socklen_t sin_size;
+  socklen_t sin_size = 0;
 	int sock = 0;
 
   if ((sock = accept(net->dcc_listener,(struct sockaddr *)&client_addr,&sin_size)) == -1)

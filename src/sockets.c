@@ -240,7 +240,7 @@ void irc_loop(void)
 
     while (net != NULL)
     {
-      if (net->dcc_listener != -1)
+      if (net->dcc_listener > 0)
       {
         if (FD_ISSET(net->dcc_listener,&socks))
         {

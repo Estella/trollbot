@@ -8,21 +8,10 @@
 #include "trigger.h"
 #include "irc.h"
 #include "dcc.h"
+#include "egg_lib.h"
 
 JSVersion version;
 JSBool builtins;
-
-JSClass plain_global_class = {
-  "global",0,
-  JS_PropertyStub,
-  JS_PropertyStub,
-  JS_PropertyStub,
-  JS_PropertyStub,
-  JS_EnumerateStub,
-  JS_ResolveStub,
-  JS_ConvertStub,
-  JS_FinalizeStub
-};
 
 JSClass global_class = {
   "global",0,
@@ -63,12 +52,12 @@ void js_load_scripts_from_config(struct config *cfg)
 
 void dcc_javascript_load(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
-	if (data->rest_str == NULL)
+	if (!strcmp(trig->mask,dccbuf))
 		return;
 
-	js_eval_file(net, data->rest_str);
+	js_eval_file(net, egg_makearg(dccbuf,trig->mask));
 
-	irc_printf(dcc->sock, "Loaded Javascript file: %s\n",data->rest_str);
+	irc_printf(dcc->sock, "Loaded Javascript file: %s\n",egg_makearg(dccbuf,trig->mask));
 
 	return;
 }
@@ -90,52 +79,59 @@ int js_eval_file(struct network *net, char *filename)
 
 void net_init_js(struct network *net)
 {
-	JSRuntime *rt, *plain_rt;
+	/* Check if happening multiple times */
+	if (g_cfg->js_rt != NULL)
+	{
+		/* Assume Javascript context and global are in shape */
+		troll_debug(LOG_WARN, "net_init_js() called when runtime is not null.");
+		return;
+	}
 
 	/* initialize the JS run time, and return result in rt */
-  rt = JS_NewRuntime(0x50000);
-	plain_rt = JS_NewRuntime(0x50000);
+  g_cfg->js_rt = JS_NewRuntime(0x50000);
 
-  if (g_cfg->js_rt == NULL){
-    g_cfg->js_rt = JS_NewRuntime(0x100000);
-
-    /* if rt does not have a value, end the program here */
-    if (g_cfg->js_rt == NULL)
-      return;
-  }
-
-	if (plain_rt)
-		net->plain_cx = JS_NewContext(plain_rt, 8192);
-
+	/* if rt does not have a value, end the javascript portion here */
+	if (g_cfg->js_rt == NULL)
+		return;
+  
   /* create a context and associate it with the JS run time */
   net->cx = JS_NewContext(g_cfg->js_rt, 8192);
 
-  /* if cx does not have a value, end the program here */
+  /* if cx does not have a value, end the javascript portion here */
   if (net->cx == NULL) 
 	{
 		net->cx = NULL;
     return;
 	}
 
+	net_init_js_global_object(net);
+
+	/* We should free context and global runtime here */
+	if (net->global == NULL)
+	{
+		troll_debug(LOG_ERROR,"net_init_js_global_object() failed");
+		return;
+	}
+
+	return;
+}
+
+void net_init_js_global_object(struct network *net)
+{
+	if (net->cx == NULL || g_cfg->js_rt == NULL)
+	{
+		troll_debug(LOG_ERROR,"Javascript context or global runtime is NULL and net_init_js_global_object() was called");
+		return;
+	}
+
   /* create the global object here */
   net->global = JS_NewObject(net->cx, &global_class, NULL, NULL);
 
-	if (net->plain_cx)
-	{
-		/* Create a plain javascript global object */
-		net->plain_global = JS_NewObject(net->plain_cx, &plain_global_class, NULL, NULL);
-
-		builtins = JS_InitStandardClasses(net->plain_cx, net->plain_global);
-	
-		JS_SetContextPrivate(net->plain_cx, net);
-	
-		printf("SHould have plain cx\n");
-	}
-
   /* initialize the built-in JS objects and the global object */
+	/* builtins is a global JSBool */
   builtins = JS_InitStandardClasses(net->cx, net->global);
 
-	/* Initialize basic IRC I/O functions */
+	/* Initialize egg_lib functions */
 	JS_DefineFunction(net->cx, net->global, "bind", js_bind, 5, 0);
 
 	JS_DefineFunction(net->cx, net->global, "putserv", js_putserv, 1, 0);
@@ -148,7 +144,7 @@ void net_init_js(struct network *net)
 
 	JS_DefineFunction(net->cx, net->global, "onchan", js_onchan, 5, 0);
 
-	/* So functions can access it */
+	/* Store a pointer to the net struct in the Javascript context */
 	JS_SetContextPrivate(net->cx, net);
 }
 

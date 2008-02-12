@@ -112,6 +112,10 @@ void new_join(struct network *net, struct trigger *trig, struct irc_data *data, 
 	struct channel *chan       = net->chans;
 	struct channel_user *cuser = NULL;
 
+	/* HACKERY */
+	if (chan != NULL)
+		while(chan->prev != NULL) chan = chan->prev;
+
 	while (chan != NULL)
 	{
 		if (!tstrcasecmp(data->rest_str,chan->name))
