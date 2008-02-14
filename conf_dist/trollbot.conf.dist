@@ -9,7 +9,7 @@
 
 global settings
 {
-  fork 0
+  fork 0 
   debuglevel 5
 }
 
@@ -27,19 +27,44 @@ global settings
 //     channel <channel to join>
 //   }
 
+network local
+{
+		nick Trollbot
+		altnick TrollBot2
+	
+		vhost 192.168.0.4
+
+		userfile db/userdb.local
+		chanfile db/chandb.local
+
+		javascript scripts/test.js
+
+		channel #test
+
+    tclscript scripts/test.tcl
+    tclscript scripts/cryptoquote-1.02.tcl
+    phpscript scripts/bmi.php
+    phpscript scripts/mirckey.php
+    phpscript scripts/test.php
+    phpscript scripts/dnd.php
+    javascript scripts/test.js
+
+		server localhost
+}
+
 /*
 network DALnet
 {
-    nick Trollbot
+    nick Anna_Botten
     altnick othertroll
     ident rawr
     realname "http://www.sourceforge.net/projects/trollbot"
+		vhost 192.168.2.6 
    
-    vhost dark.severed.org
-
+		//channel #
     channel #php
-    channel #tcl
-    channel #christian_debate 
+    //channel #tcl
+    //channel #christian_debate 
     //channel #
 
     userfile db/userdb.DALnet
@@ -47,45 +72,14 @@ network DALnet
 
     userlisten 64121
 
+		tclscript scripts/test.tcl
     tclscript scripts/cryptoquote-1.02.tcl
     phpscript scripts/bmi.php
     phpscript scripts/mirckey.php
     phpscript scripts/test.php
     phpscript scripts/dnd.php
+		javascript scripts/test.js
 
-    server dragons.dal.net
+    server swiftco.dal.net:6668
 }
 */
-
-
-
-network MudPortal
-{
-    nick TrollBot
-    altnick kittens
-    ident kittens
-    realname "I love kittens!"
-
-    vhost dark.severed.org
-    channel #trollbot
-
-    // How many cycles of the server list
-    // to go through before giving up entirely
-    // set to -1 to continue forever
-    connect_tries 3
-
-    // How long to wait between connections to a network
-    connect_delay 60
-
-    userlisten 61324
-
-    tclscript scripts/test.tcl
-    phpscript scripts/test.php
-
-//    userfile db/userdb.severed
-//    chanfile db/chandb.severed
-
-    server irc.mudportal.com
-}
-
-

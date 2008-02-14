@@ -62,9 +62,9 @@ PROGRAMS = $(bin_PROGRAMS)
 am__trollbot_SOURCES_DIST = main.c tconfig.c network.c server.c \
 	config_engine.c sockets.c irc.c util.c debug.c channel.c \
 	trigger.c sha1.c user.c egg_lib.c die.c default_triggers.c \
-	dcc.c js_embed.c js_lib.c tcl_embed.c tcl_lib.c apachecompat.c \
-	php_embed.c php_lib.c perl_embed.c perl_lib.c python_embed.c \
-	python_lib.c
+	dcc.c sha512.c js_embed.c js_lib.c tcl_embed.c tcl_lib.c \
+	apachecompat.c php_embed.c php_lib.c perl_embed.c perl_lib.c \
+	python_embed.c python_lib.c
 @WITH_JS_TRUE@am__objects_1 = trollbot-js_embed.$(OBJEXT) \
 @WITH_JS_TRUE@	trollbot-js_lib.$(OBJEXT)
 @WITH_TCL_TRUE@am__objects_2 = trollbot-tcl_embed.$(OBJEXT) \
@@ -85,8 +85,8 @@ am_trollbot_OBJECTS = trollbot-main.$(OBJEXT) \
 	trollbot-sha1.$(OBJEXT) trollbot-user.$(OBJEXT) \
 	trollbot-egg_lib.$(OBJEXT) trollbot-die.$(OBJEXT) \
 	trollbot-default_triggers.$(OBJEXT) trollbot-dcc.$(OBJEXT) \
-	$(am__objects_1) $(am__objects_2) $(am__objects_3) \
-	$(am__objects_4) $(am__objects_5)
+	trollbot-sha512.$(OBJEXT) $(am__objects_1) $(am__objects_2) \
+	$(am__objects_3) $(am__objects_4) $(am__objects_5)
 trollbot_OBJECTS = $(am_trollbot_OBJECTS)
 am__DEPENDENCIES_1 =
 @WITH_JS_TRUE@am__DEPENDENCIES_2 = $(am__DEPENDENCIES_1)
@@ -210,7 +210,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 trollbot_SOURCES = main.c tconfig.c network.c server.c config_engine.c \
 	sockets.c irc.c util.c debug.c channel.c trigger.c sha1.c \
-	user.c egg_lib.c die.c default_triggers.c dcc.c \
+	user.c egg_lib.c die.c default_triggers.c dcc.c sha512.c \
 	$(am__append_1) $(am__append_4) $(am__append_7) \
 	$(am__append_10) $(am__append_13)
 trollbot_CFLAGS = -O0 -Wall -std=c99 -pedantic $(am__append_2) \
@@ -305,6 +305,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-python_lib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-server.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-sha1.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-sha512.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-sockets.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-tcl_embed.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-tcl_lib.Po@am__quote@
@@ -564,6 +565,20 @@ trollbot-dcc.obj: dcc.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='dcc.c' object='trollbot-dcc.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-dcc.obj `if test -f 'dcc.c'; then $(CYGPATH_W) 'dcc.c'; else $(CYGPATH_W) '$(srcdir)/dcc.c'; fi`
+
+trollbot-sha512.o: sha512.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-sha512.o -MD -MP -MF $(DEPDIR)/trollbot-sha512.Tpo -c -o trollbot-sha512.o `test -f 'sha512.c' || echo '$(srcdir)/'`sha512.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-sha512.Tpo $(DEPDIR)/trollbot-sha512.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='sha512.c' object='trollbot-sha512.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-sha512.o `test -f 'sha512.c' || echo '$(srcdir)/'`sha512.c
+
+trollbot-sha512.obj: sha512.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-sha512.obj -MD -MP -MF $(DEPDIR)/trollbot-sha512.Tpo -c -o trollbot-sha512.obj `if test -f 'sha512.c'; then $(CYGPATH_W) 'sha512.c'; else $(CYGPATH_W) '$(srcdir)/sha512.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-sha512.Tpo $(DEPDIR)/trollbot-sha512.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='sha512.c' object='trollbot-sha512.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-sha512.obj `if test -f 'sha512.c'; then $(CYGPATH_W) 'sha512.c'; else $(CYGPATH_W) '$(srcdir)/sha512.c'; fi`
 
 trollbot-js_embed.o: js_embed.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-js_embed.o -MD -MP -MF $(DEPDIR)/trollbot-js_embed.Tpo -c -o trollbot-js_embed.o `test -f 'js_embed.c' || echo '$(srcdir)/'`js_embed.c

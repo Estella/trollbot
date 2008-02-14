@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "main.h"
 #include "egg_lib.h"
 #include "network.h"
@@ -19,6 +21,9 @@
 #ifdef HAVE_JS
 #include "js_embed.h"
 #endif /* HAVE_JS */
+
+#include "tomcrypt.h"
+#define NEW_CRYPTO
 
 /* This is the eggdrop core API that is exported to TCL, PHP, perl, etc */
 
@@ -268,15 +273,22 @@ struct user *egg_finduser(struct network *net, const char *mask)
 
 
 
+/* Now with hash types field support */
 /* Needs returns checked */
 /* Also needs to support different encryption types */
 /* userlist [flags] */
 int egg_passwdok(struct network *net, const char *handle, const char *pass) 
 {
   SHA1_CTX context;
-  char digest[20];
+	hash_state md;
 
-  struct user *user;
+	/* These should be as large as the largest hash type's string/byte representation of its hash respectively */
+	unsigned char hash_string[130];
+	unsigned char tmp[64];
+
+	struct user *user;
+	int i;
+	int hash_size = 0;
 
   if ((user = net->users) == NULL)
     return 0;
@@ -285,17 +297,52 @@ int egg_passwdok(struct network *net, const char *handle, const char *pass)
   {
     if (!strcmp(handle,user->username))
     {
-      /* NEEDS PASS CHECKED */
-      SHA1Init(&context);
-      SHA1Update(&context, (unsigned char *)pass, strlen(pass));
-      SHA1Final((unsigned char*)digest, &context);
- 
+			if (user->hash_type == NULL)
+			{
+				troll_debug(LOG_ERROR,"Missing Hash Type for user %s\n",user->username);
+				return 0;
+			}
+
+			memset(hash_string,0,sizeof(hash_string));
+			memset(tmp,0,sizeof(tmp));
+
+			if (!strcmp(user->hash_type,"sha512"))
+			{
+      	/* NEEDS PASS CHECKED */
+      	sha512_init(&md);
+				sha512_process(&md, (unsigned char *)pass, strlen(pass));
+				sha512_done(&md, tmp);
+				hash_size = 64; /* Size in bytes */
+			}
+			else if (!strcmp(user->hash_type,"sha1"))
+			{
+				SHA1Init(&context);
+				SHA1Update(&context, (unsigned char *)pass, strlen(pass));
+				SHA1Final(tmp, &context);
+				hash_size = 20; /* 20 bytes? wtf */
+			}
+			else
+			{
+				troll_debug(LOG_ERROR,"Unrecognized Hash Type for user %s\n",user->hash_type);
+				return 0;
+			}
+
       /* Pass is all good baby */
       if (user->passhash != NULL)
       {
-        /* Passhash should be unsigned */
-        if (!strcmp(user->passhash,digest))
-          return 1;
+				/* Ugly Hack */
+				for (i=0; i<hash_size; i++)
+				{
+					sprintf(&hash_string[strlen(hash_string)],"%0x",tmp[i]);
+				}
+
+				printf("Conf Hash: %s\n",user->passhash);
+				printf("Gen  Hash: %s\n",hash_string); 
+				
+				if (!strcmp(user->passhash,&hash_string))
+					return 1;
+				else
+					return 0;
       }
 
       return 0;
@@ -470,8 +517,18 @@ int egg_matchattr(struct network *net, const char *handle, const char *flags, co
   struct user *user;
   int i;
   
-  /* First find the user */
-  for(user=net->users;user != NULL && strcmp(handle,user->username);user=user->next);
+
+	user = net->users;
+
+	while (user->prev != NULL) user = user->prev;
+
+	while (user != NULL)
+	{
+		if (!tstrcasecmp(handle,user->username))
+			break;
+
+		user = user->next;
+	}
 
   if (user == NULL)
     return 0;
@@ -482,6 +539,7 @@ int egg_matchattr(struct network *net, const char *handle, const char *flags, co
    */
   if (channel != NULL)
   {
+		troll_debug(LOG_ERROR, "FIXME: egg_matchattr() only works for global flags");
   } 
   else
   {
@@ -489,9 +547,9 @@ int egg_matchattr(struct network *net, const char *handle, const char *flags, co
       return 0;
 
     /* No channel, just check global flags */
-    for (i=0;*(flags+i) != '\0';i++)
+    for (i=0;flags[i] != '\0';i++)
     {
-      if (strchr(user->flags,*(flags+i)) == NULL)
+      if (strchr(user->flags,flags[i]) == NULL)
         return 0;
     }
   }

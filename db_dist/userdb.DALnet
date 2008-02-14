@@ -1,0 +1,16 @@
+user poutine
+{
+	nick poutine
+  /* Both of these passhashes are "eatmyshit", you can uncomment/comment each line pair
+   * to test the desired hash type
+   */
+  //passhash 74e515e5de1e845e98711d527f76d47dae5398abf36bbec8e15295b231a59d7c78513e7e7594d1d32a7fbc5a2d987d5d2b4b5e1a842350b73dcdeb593da
+  //hash_type sha512
+	passhash 339b7fc1663bf73b4344fbdd112d2d3734d798c1
+	hash_type sha1
+	ident poutine
+	realname poutine
+	host nv-71-2-212-185.sta.embarqhsd.net
+	uhost poutine!poutine@nv-71-2-212-185.sta.embarqhsd.net
+	flags np
+}

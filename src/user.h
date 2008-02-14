@@ -19,6 +19,7 @@ struct user
   char *username;
   char *nick;
   char *passhash;
+	char *hash_type;
 
   char *ident;
   char *realname;

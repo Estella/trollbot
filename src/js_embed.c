@@ -57,7 +57,7 @@ void dcc_javascript_load(struct network *net, struct trigger *trig, struct irc_d
 
 	js_eval_file(net, egg_makearg(dccbuf,trig->mask));
 
-	irc_printf(dcc->sock, "Loaded Javascript file: %s\n",egg_makearg(dccbuf,trig->mask));
+	irc_printf(dcc->sock, "Loaded Javascript file: %s",egg_makearg(dccbuf,trig->mask));
 
 	return;
 }
