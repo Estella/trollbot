@@ -552,6 +552,22 @@ void parse_dcc_line(struct dcc_session *dcc, const char *buffer)
 
       if (egg_passwdok(dcc->net,dcc->user->username,buffer))
       {
+				/* Successfully Authenticated */
+
+	      /* Convert Hash if global requested hash type has changed 
+ 				 * while we still have the plaintext pass.
+ 				 */
+  	    if (strcmp(g_cfg->hash_type,dcc->user->hash_type))
+    	  {
+      	  free(dcc->user->hash_type);
+        	dcc->user->hash_type = tstrdup(g_cfg->hash_type);
+
+					free(dcc->user->passhash);
+					dcc->user->passhash = egg_makepasswd(buffer, g_cfg->hash_type);
+
+					users_save(dcc->net);
+				}
+
         irc_printf(dcc->sock,"Type .help for help.");
         dcc->status = DCC_AUTHENTICATED;
       }

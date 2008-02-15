@@ -80,20 +80,16 @@ int js_eval_file(struct network *net, char *filename)
 void net_init_js(struct network *net)
 {
 	/* Check if happening multiple times */
-	if (g_cfg->js_rt != NULL)
-	{
-		/* Assume Javascript context and global are in shape */
-		troll_debug(LOG_WARN, "net_init_js() called when runtime is not null.");
-		return;
-	}
-
-	/* initialize the JS run time, and return result in rt */
-  g_cfg->js_rt = JS_NewRuntime(0x50000);
-
-	/* if rt does not have a value, end the javascript portion here */
 	if (g_cfg->js_rt == NULL)
-		return;
-  
+	{
+		/* initialize the JS run time, and return result in rt */
+  	g_cfg->js_rt = JS_NewRuntime(0x50000);
+
+		/* if rt does not have a value, end the javascript portion here */
+		if (g_cfg->js_rt == NULL)
+			return;
+  }
+
   /* create a context and associate it with the JS run time */
   net->cx = JS_NewContext(g_cfg->js_rt, 8192);
 
@@ -143,6 +139,8 @@ void net_init_js_global_object(struct network *net)
 	JS_DefineProperty(net->cx, net->global, "version", JSVAL_VOID, js_version, NULL, 0);
 
 	JS_DefineFunction(net->cx, net->global, "onchan", js_onchan, 5, 0);
+
+	JS_DefineFunction(net->cx, net->global, "save", js_save, 0, 0);
 
 	/* Store a pointer to the net struct in the Javascript context */
 	JS_SetContextPrivate(net->cx, net);

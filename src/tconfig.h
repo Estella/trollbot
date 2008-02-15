@@ -20,6 +20,9 @@ struct tconfig_block {
   struct tconfig_block *child;
 };
 
+struct tconfig_block *tconfig_block_new(void);
+
+
 /* I/O of tconfig struct */
 struct tconfig_block *file_to_tconfig(const char *filename);
 void tconfig_to_file(struct tconfig_block *tcfg, char *filename);

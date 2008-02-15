@@ -79,4 +79,7 @@ int egg_onchan(struct network *net, char *nickname, char *channel);
 
 void egg_rehash(void);
 
+void egg_save(struct network *net);
+
+char *egg_makepasswd(const char *pass, const char *hash_type);
 #endif /* __EGGLIB_H__ */

@@ -1,7 +1,119 @@
 #include "main.h"
 #include "network.h"
+#include "tconfig.h"
 #include "user.h"
 
+struct tconfig_block *users_to_tconfig(struct user *users)
+{
+	struct user          *tmp  = NULL;
+	struct tconfig_block *tcfg = NULL;
+	struct tconfig_block *tpar = NULL;
+
+	tmp = users;
+	
+	while (tmp != NULL)
+	{
+		if (tcfg == NULL)
+			tcfg = tconfig_block_new();
+		else
+		{
+			tcfg->next       = tconfig_block_new();
+			tcfg->next->prev = tcfg;
+			tcfg             = tcfg->next;
+		}
+
+		/* Should work out some memory logic to not have to do this with keys */
+		tcfg->key   = tstrdup("user");
+		tcfg->value = tstrdup(tmp->username);
+
+		/* Create child, save parent pointer */
+		tcfg->child  = tconfig_block_new();
+		tpar         = tcfg;
+		tcfg         = tcfg->child;
+		tcfg->parent = tpar;
+
+		if (tmp->nick != NULL)
+		{
+	    /* Nick */
+  	  tcfg->key        = tstrdup("nick");
+    	tcfg->value      = tstrdup(tmp->nick);
+			tcfg->next       = tconfig_block_new();
+			tcfg->next->prev = tcfg;
+			tcfg             = tcfg->next;
+		}
+
+		if (tmp->ident != NULL)
+		{
+    	/* Ident */
+			tcfg->key        = tstrdup("ident");
+	    tcfg->value      = tstrdup(tmp->ident);
+  	  tcfg->next       = tconfig_block_new();
+			tcfg->next->prev = tcfg;
+			tcfg             = tcfg->next;
+		}
+
+		if (tmp->host != NULL)
+		{
+			/* Host */
+			tcfg->key        = tstrdup("host");
+			tcfg->value      = tstrdup(tmp->host);
+			tcfg->next       = tconfig_block_new();
+			tcfg->next->prev = tcfg;
+			tcfg             = tcfg->next;
+		}
+
+		if (tmp->uhost != NULL)
+		{
+			/* UHost */
+			tcfg->key        = tstrdup("uhost");
+	    tcfg->value      = tstrdup(tmp->uhost);
+  	  tcfg->next       = tconfig_block_new();
+    	tcfg->next->prev = tcfg;
+			tcfg             = tcfg->next;
+		}
+
+		if (tmp->passhash != NULL)
+		{
+			/* Passhash */
+			tcfg->key        = tstrdup("passhash");
+			tcfg->value      = tstrdup(tmp->passhash);
+			tcfg->next       = tconfig_block_new();
+			tcfg->next->prev = tcfg;
+    	tcfg             = tcfg->next;
+		}
+
+		if (tmp->hash_type != NULL)
+		{
+			/* Hash type */
+			tcfg->key        = tstrdup("hash_type");
+			tcfg->value      = tstrdup(tmp->hash_type);
+			tcfg->next       = tconfig_block_new();
+			tcfg->next->prev = tcfg;
+			tcfg             = tcfg->next;
+		}
+		
+		if (tmp->flags != NULL)
+		{
+			/* flags */
+			tcfg->key   = tstrdup("flags");
+			tcfg->value = tstrdup(tmp->flags);
+		}
+
+		/* Switch to Parent pointer */
+		tcfg = tpar;
+
+		tmp  = tmp->next;
+	}
+
+	while (tcfg->prev != NULL)
+		tcfg = tcfg->prev;
+
+	/* To be returned by caller */
+	return tcfg;
+}
+		
+
+			
 
 void user_list_add(struct user **orig, struct user *new)
 {
@@ -116,6 +228,66 @@ struct channel_flags *new_channel_flags(char *chan, char *flags)
   return ret;
 }
 
+/* Saves users with optional network */
+void users_save(struct network *net)
+{
+	struct tconfig_block *tcfg   = NULL;
+	char                 *tmpstr = NULL;
+	struct network       *nettmp = NULL;
+
+	if (net != NULL)
+	{
+		tcfg = users_to_tconfig(net->users);
+
+		if (net->userfile == NULL)
+		{
+			tmpstr = tmalloc0(strlen("./db/userdb.") + strlen(net->label) + 1);
+			sprintf(tmpstr, "./db/userdb.%s",nettmp->label);
+			
+			tconfig_to_file(tcfg, tmpstr);
+		
+			free(tmpstr);
+		}
+		else
+			tconfig_to_file(tcfg, net->userfile);
+
+		free_tconfig(tcfg);
+		return;
+	}
+
+	nettmp = g_cfg->networks;
+
+	while (nettmp->prev != NULL) nettmp = nettmp->prev;
+	
+	while (nettmp != NULL)
+	{
+    tcfg = users_to_tconfig(nettmp->users);
+
+    if (nettmp->userfile == NULL)
+    {
+      tmpstr = tmalloc0(strlen("./db/userdb.") + strlen(nettmp->label) + 1);
+			sprintf(tmpstr, "./db/userdb.%s",nettmp->label);
+
+      tconfig_to_file(tcfg, tmpstr);
+
+      free(tmpstr);
+    }
+    else
+      tconfig_to_file(tcfg, nettmp->userfile);
+
+    tconfig_free(tcfg);
+
+		nettmp = nettmp->next;
+	}
+
+	return;
+}
+
+	
+	
+					
+
+
 void user_init(void)
 {
   struct network       *net      = NULL;
@@ -148,7 +320,7 @@ void user_init(void)
 				{
 					/* New User Record */
 					user = new_user(tmp->value,NULL,NULL,NULL,NULL,NULL,NULL); /* FIXME: That's retarded */
-
+	
 					child = tmp->child;
 					
 					while (child != NULL)
@@ -225,6 +397,9 @@ void user_init(void)
 				
 				tmp = tmp->next;
 			}
+	
+			/* Why the child? */
+			tconfig_merge(usertcfg, net->tcfg->child);
 			
 		}
 

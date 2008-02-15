@@ -38,6 +38,7 @@ struct user
 };
 
 
+struct tconfig_block *users_to_tconfig(struct user *users);
 void user_list_add(struct user **orig, struct user *new);
 void free_users(struct user *users);
 struct user *new_user(char *username, char *nick, char *passhash, char *ident, char *realname, char *host, char *flags);

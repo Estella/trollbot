@@ -15,6 +15,15 @@
 #include "network.h"
 #include "egg_lib.h"
 
+JSBool js_save(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+	struct network *net = JS_GetContextPrivate(cx);
+
+	egg_save(net);
+
+	return JS_TRUE;
+}
+
 JSBool js_eval(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	JSString *jsc_script;

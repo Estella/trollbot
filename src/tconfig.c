@@ -7,6 +7,23 @@
 #include "util.h"
 #include "tconfig.h"
 
+struct tconfig_block *tconfig_block_new(void)
+{
+	struct tconfig_block *block;
+
+  block = tmalloc(sizeof(*block));
+
+  block->parent = NULL;
+  block->child  = NULL;
+  block->prev   = NULL;
+  block->next   = NULL;
+
+  block->key    = NULL;
+  block->value  = NULL;
+
+	return block;
+}
+
 /* static sets the initial unchangeable structure */
 struct tconfig_block *file_to_tconfig(const char *filename)
 {

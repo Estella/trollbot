@@ -270,7 +270,65 @@ struct user *egg_finduser(struct network *net, const char *mask)
   return NULL;
 }
 
+/* net is optional, if NULL, write all user/channel files to disk */
+void egg_save(struct network *net)
+{
+	users_save(net);
+	/* channels_save(net); */
+}
 
+/* Caller is responsible for memory freeing */
+char *egg_makepasswd(const char *pass, const char *hash_type)
+{
+  SHA1_CTX context;
+  hash_state md;
+
+  /* These should be as large as the largest hash type's string/byte representation of its hash respectively */
+	char *hash_string = NULL;
+  unsigned char tmp[64];
+
+  int i;
+  int hash_size = 0;
+
+	if (hash_type == NULL)
+	{
+		troll_debug(LOG_ERROR,"Missing Hash Type argument for egg_makepasswd()");
+		return NULL;
+	}
+
+	memset(tmp,0,sizeof(tmp));
+
+	if (!strcmp(hash_type,"sha512"))
+	{
+   	/* NEEDS PASS CHECKED */
+   	sha512_init(&md);
+		sha512_process(&md, (unsigned char *)pass, strlen(pass));
+		sha512_done(&md, tmp);
+		hash_size = 64; /* Size in bytes */
+	}
+	else if (!strcmp(hash_type,"sha1"))
+	{
+		SHA1Init(&context);
+		SHA1Update(&context, (unsigned char *)pass, strlen(pass));
+		SHA1Final(tmp, &context);
+		hash_size = 20; /* 20 bytes? wtf */
+	}
+	else
+	{
+		troll_debug(LOG_ERROR,"Unrecognized Hash Type: %s\n",hash_type);
+		return NULL;
+	}
+
+	hash_string = tmalloc0(hash_size*2+1);
+
+	/* Ugly Hack */
+	for (i=0; i<hash_size; i++)
+	{
+		sprintf(&hash_string[strlen(hash_string)],"%0x",tmp[i]);
+	}
+
+	return hash_string;
+}
 
 
 /* Now with hash types field support */

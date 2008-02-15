@@ -48,6 +48,12 @@ void net_init_tcl(struct network *net)
 void net_tcl_init_commands(struct network *net)
 {
   Tcl_CreateObjCommand(net->tclinterp,
+                       "save",
+                       tcl_save,
+                       net,
+                       NULL);
+
+  Tcl_CreateObjCommand(net->tclinterp,
                        "botname",
                        tcl_botname,
                        net,

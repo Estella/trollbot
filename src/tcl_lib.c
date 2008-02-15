@@ -10,6 +10,15 @@
 #include "irc.h"
 #include "egg_lib.h"
 
+int tcl_save(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	struct network *net = clientData;
+
+	egg_save(net);
+
+	return TCL_OK;
+}
+
 int tcl_botname(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {
 	char *ret = NULL;

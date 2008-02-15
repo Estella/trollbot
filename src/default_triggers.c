@@ -229,7 +229,6 @@ void new_kick(struct network *net, struct trigger *trig, struct irc_data *data, 
 void new_user_pass(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
   struct user *user;
-  SHA1_CTX context;
 
   /* Wrong amount of args */  
   if (data->rest[1] == NULL)
@@ -254,15 +253,11 @@ void new_user_pass(struct network *net, struct trigger *trig, struct irc_data *d
   if (user->passhash != NULL)
     return;
 
-  SHA1Init(&context);
-  SHA1Update(&context, (unsigned char *)data->rest[1], strlen(data->rest[1]));
-
-  user->passhash = tmalloc0(21);
- 
-  SHA1Final((unsigned char*)user->passhash, &context);
+	user->passhash = egg_makepasswd(data->rest[1],g_cfg->hash_type);
 
   irc_printf(net->sock,"PRIVMSG %s :Your password has been set as '%s'",data->prefix->nick,data->rest[1]);
 
+	users_save(net);
   return;
 }
 
@@ -291,6 +286,7 @@ void introduce_user(struct network *net, struct trigger *trig, struct irc_data *
                           "p");                /* flags    */
 
     user       = net->users;
+
     user->prev = NULL;
     user->next = NULL;
   }
@@ -318,9 +314,11 @@ void introduce_user(struct network *net, struct trigger *trig, struct irc_data *
     user->next->prev = user;
     user             = user->next;
 
+
     user->next       = NULL;
   }
 
+	user->hash_type = tstrdup(g_cfg->hash_type);
   user->uhost = tmalloc0(strlen(data->prefix->user) + strlen(data->prefix->nick) + strlen(data->prefix->host) + 2 + 1);
 
   sprintf(user->uhost,"%s!%s@%s",data->prefix->user,data->prefix->nick,data->prefix->host);

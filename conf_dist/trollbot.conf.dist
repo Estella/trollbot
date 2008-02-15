@@ -9,8 +9,17 @@
 
 global settings
 {
-  fork 0 
-  debuglevel 5
+	/* Go into the background on startup? */
+  fork 1
+
+	/* Do not output anything by troll_debug() */
+  debuglevel 0
+
+	/* Which hash type should users use by default
+	 * Existing users will be converted to this on
+	 * save
+	 */
+	hash_type sha512
 }
 
 
@@ -27,51 +36,33 @@ global settings
 //     channel <channel to join>
 //   }
 
-network local
-{
-		nick Trollbot
-		altnick TrollBot2
-	
-		vhost 192.168.0.4
-
-		userfile db/userdb.local
-		chanfile db/chandb.local
-
-		javascript scripts/test.js
-
-		channel #test
-
-    tclscript scripts/test.tcl
-    tclscript scripts/cryptoquote-1.02.tcl
-    phpscript scripts/bmi.php
-    phpscript scripts/mirckey.php
-    phpscript scripts/test.php
-    phpscript scripts/dnd.php
-    javascript scripts/test.js
-
-		server localhost
-}
-
-/*
 network DALnet
 {
-    nick Anna_Botten
-    altnick othertroll
+		/* Nick to use when connecting to network */
+    nick Trollbot
+		/* Alternative nickname to use, can contain ? for random numbers */
+    altnick Trollbot
+
+		/* Ident/Username to tell server */
     ident rawr
+
+		/* Realname/GECOS */
     realname "http://www.sourceforge.net/projects/trollbot"
+
+		/* This is the hostname Trollbot will try and connect from */
 		vhost 192.168.2.6 
    
-		//channel #
+		/* Static Channels (Cannot be removed via DCC) */
     channel #php
-    //channel #tcl
-    //channel #christian_debate 
-    //channel #
 
+		/* This is where network specific user/channel files are */
     userfile db/userdb.DALnet
     chanfile db/chandb.DALnet
 
+		/* Which port should Trollbot listen on for the console */
     userlisten 64121
 
+		/* Scripts to load */
 		tclscript scripts/test.tcl
     tclscript scripts/cryptoquote-1.02.tcl
     phpscript scripts/bmi.php
@@ -80,6 +71,6 @@ network DALnet
     phpscript scripts/dnd.php
 		javascript scripts/test.js
 
+		/* Servers:ports to try and connect to */
     server swiftco.dal.net:6668
 }
-*/

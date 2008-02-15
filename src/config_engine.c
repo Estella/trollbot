@@ -93,6 +93,7 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
   cfg->fork         = 0;
   cfg->forked       = 0;
   cfg->debug_level  = 0;
+	cfg->hash_type    = NULL;
   cfg->dccs         = NULL;
 #ifdef HAVE_PYTHON
   cfg->py_main         = NULL;
@@ -135,6 +136,10 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
         {
           cfg->debug_level = atoi(search->value);
         }
+        else if (!strcmp(search->key,"hash_type"))
+        {
+          cfg->hash_type = tstrdup(search->value);
+        }
 
         search = search->next;
       }
@@ -160,6 +165,8 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
         net->next     = NULL;
         net->prev     = NULL;
       }
+
+			net->tcfg = topmost;
 
       search = topmost->child;
   
