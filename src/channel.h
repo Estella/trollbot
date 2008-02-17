@@ -42,6 +42,7 @@ struct channel
   struct channel *next;
 };
 
+struct tconfig_block *chans_to_tconfig(struct channel *chans);
 /* WTF is this */
 void channel_list_add(struct channel **orig, struct channel *new);
 void channel_user_add(struct channel_user **orig, struct channel_user *new);
@@ -50,8 +51,10 @@ struct channel_user *new_channel_user(const char *nick, int jointime, struct use
 void free_channels(struct channel *chans);
 struct channel *new_channel(const char *chan);
 void join_channels(struct network *net);
-void chan_init(void);
 void channel_list_populate(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
+void chans_save(struct network *net);
+struct channel *new_chan_from_tconfig_block(struct tconfig_block *tcfg);
+void chan_init(void);
 
 
 #endif /* __CHANNEL_H__ */

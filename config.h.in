@@ -18,6 +18,9 @@
 /* Ability to use PHP scripting */
 #undef HAVE_PHP
 
+/* Ability to use Python scripting */
+#undef HAVE_PYTHON
+
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
 

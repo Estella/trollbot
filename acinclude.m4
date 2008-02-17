@@ -391,6 +391,10 @@ AC_DEFUN([AX_PROG_PERL], [
 dnl http://autoconf-archive.cryp.to/ac_python_devel.html
 
 AC_DEFUN([AC_PYTHON_DEVEL],[
+  AC_ARG_WITH(python,        [  --with-python          configure with Python scripting support],
+        [ with_python="$withval" ] )
+	if test "${with_python}" == "yes"; then
+
         #
         # Allow the use of a (user set) custom python version
         #
@@ -589,4 +593,5 @@ $ac_distutils_result])
         #
         # all done!
         #
+	fi
 ])

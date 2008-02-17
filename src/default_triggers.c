@@ -19,6 +19,7 @@
 #include "js_embed.h"
 #endif /* HAVE_JS */
 
+static void dcc_saveall(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
 static void dcc_dump(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
 static void do_join_channels(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
 static void rehash_bot(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
@@ -67,6 +68,7 @@ void add_default_triggers(void)
     trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".tbinds",NULL,&dcc_tbinds));
     trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".who",NULL,&dcc_who));
 		trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".dump",NULL,&dcc_dump));
+		trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".saveall",NULL,&dcc_saveall));
 
 #ifdef HAVE_JS
 		trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".loadjavascript",NULL,&dcc_javascript_load));
@@ -90,6 +92,11 @@ void add_default_triggers(void)
 
     net = net->next;
   }
+}
+
+static void dcc_saveall(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
+{
+	egg_save(NULL);
 }
 
 static void dcc_dump(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)

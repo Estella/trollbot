@@ -275,7 +275,7 @@ void users_save(struct network *net)
     else
       tconfig_to_file(tcfg, nettmp->userfile);
 
-    tconfig_free(tcfg);
+    free_tconfig(tcfg);
 
 		nettmp = nettmp->next;
 	}
@@ -284,16 +284,80 @@ void users_save(struct network *net)
 }
 
 	
-	
-					
+struct user *new_user_from_tconfig_block(struct tconfig_block *tcfg)
+{
+	struct user          *user  = NULL;
+	struct tconfig_block *child = NULL;
 
+	if (tcfg == NULL)
+	{
+		troll_debug(LOG_ERROR, "new_user_from_tconfig_block() called with NULL argument");
+		return NULL;
+	}
+
+	if (!strcmp(tcfg->key,"user"))
+	{
+		/* New User Record */
+		user = new_user(tcfg->value,NULL,NULL,NULL,NULL,NULL,NULL); /* FIXME: That's retarded */
+	
+		child = tcfg->child;
+					
+		while (child != NULL)
+		{
+			if (!strcmp(child->key,"nick"))
+			{
+				if (user->nick == NULL)
+				user->nick = tstrdup(child->value);
+			}
+			else if (!strcmp(child->key,"passhash"))
+			{
+				if (user->passhash == NULL)
+					user->passhash = tstrdup(child->value);
+			}
+			else if (!strcmp(child->key,"hash_type"))
+			{
+				if (user->hash_type == NULL)
+					user->hash_type = tstrdup(child->value);
+			}
+			else if (!strcmp(child->key,"ident"))
+			{
+				if (user->ident == NULL)
+					user->ident = tstrdup(child->value);
+			}
+			else if (!strcmp(child->key,"realname"))
+			{
+				if (user->realname == NULL)
+					user->realname = tstrdup(child->value);
+			}
+			else if (!strcmp(child->key,"host"))
+			{
+				if (user->host == NULL)
+					user->host = tstrdup(child->value);
+			}
+			else if (!strcmp(child->key,"uhost"))
+			{
+				if (user->uhost == NULL)
+					user->uhost = tstrdup(child->value);
+			}
+			else if (!strcmp(child->key,"flags"))
+			{
+				if (user->flags == NULL)
+					user->flags = tstrdup(child->value);
+			}
+
+			child = child->next;
+
+		}
+	}
+
+	return user;
+}
 
 void user_init(void)
 {
   struct network       *net      = NULL;
 	struct tconfig_block *usertcfg = NULL;
 	struct tconfig_block *tmp      = NULL;
-	struct tconfig_block *child    = NULL;
 	struct user          *user     = NULL;
 	struct user          *tmpuser  = NULL;
 
@@ -318,58 +382,8 @@ void user_init(void)
 			{
 				if (!strcmp(tmp->key,"user"))
 				{
-					/* New User Record */
-					user = new_user(tmp->value,NULL,NULL,NULL,NULL,NULL,NULL); /* FIXME: That's retarded */
-	
-					child = tmp->child;
-					
-					while (child != NULL)
-					{
-						if (!strcmp(child->key,"nick"))
-						{
-							if (user->nick == NULL)
-								user->nick = tstrdup(child->value);
-						}
-						else if (!strcmp(child->key,"passhash"))
-						{
-              if (user->passhash == NULL)
-                user->passhash = tstrdup(child->value);
-						}
-						else if (!strcmp(child->key,"hash_type"))
-						{
-							if (user->hash_type == NULL)
-								user->hash_type = tstrdup(child->value);
-						}
-            else if (!strcmp(child->key,"ident"))
-            {
-              if (user->ident == NULL)
-                user->ident = tstrdup(child->value);
-            }
-            else if (!strcmp(child->key,"realname"))
-            {
-              if (user->realname == NULL)
-                user->realname = tstrdup(child->value);
-            }
-            else if (!strcmp(child->key,"host"))
-            {
-              if (user->host == NULL)
-                user->host = tstrdup(child->value);
-            }
-            else if (!strcmp(child->key,"uhost"))
-            {
-              if (user->uhost == NULL)
-                user->uhost = tstrdup(child->value);
-            }
-            else if (!strcmp(child->key,"flags"))
-            {
-              if (user->flags == NULL)
-                user->flags = tstrdup(child->value);
-            }
-
-						child = child->next;
-
-					}
-
+					user = new_user_from_tconfig_block(tmp);
+			
 					if (user != NULL)
 					{
 						user->tcfg = tmp;
@@ -385,16 +399,16 @@ void user_init(void)
 							tmpuser->prev = NULL;
 						}
 						else
-						{
+						{	
 							while (tmpuser->next != NULL)
-								tmpuser       = tmpuser->next;
+							tmpuser       = tmpuser->next;
 							
 							tmpuser->next = user;
 							user->prev    = tmpuser;	
 						}
 					}
 				}
-				
+					
 				tmp = tmp->next;
 			}
 	

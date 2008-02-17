@@ -7,6 +7,65 @@
 #include "network.h"
 #include "user.h"
 
+struct tconfig_block *chans_to_tconfig(struct channel *chans)
+{
+	struct channel       *tmp  = NULL;
+	struct tconfig_block *tcfg = NULL;
+	struct tconfig_block *tpar = NULL;
+
+	tmp = chans;
+	
+	while (tmp != NULL)
+	{
+		if (tcfg == NULL)
+			tcfg = tconfig_block_new();
+		else
+		{
+			tcfg->next       = tconfig_block_new();
+			tcfg->next->prev = tcfg;
+			tcfg             = tcfg->next;
+		}
+
+		/* Should work out some memory logic to not have to do this with keys */
+		tcfg->key   = tstrdup("channel");
+		tcfg->value = tstrdup(tmp->name);
+
+		/* Create child, save parent pointer */
+/*		tcfg->child  = tconfig_block_new();
+		tpar         = tcfg;
+		tcfg         = tcfg->child;
+		tcfg->parent = tpar;
+
+		if (tmp->nick != NULL)
+		{*/
+	    /* Nick */
+  	  /*tcfg->key        = tstrdup("nick");
+    	tcfg->value      = tstrdup(tmp->nick);
+			tcfg->next       = tconfig_block_new();
+			tcfg->next->prev = tcfg;
+			tcfg             = tcfg->next;
+		}
+
+		if (tmp->flags != NULL)
+		{*/
+			/* flags */
+			/*tcfg->key   = tstrdup("flags");
+			tcfg->value = tstrdup(tmp->flags);
+		}*/
+
+		/* Switch to Parent pointer */
+		/* tcfg = tpar; */
+
+		tmp  = tmp->next;
+	}
+
+	while (tcfg->prev != NULL)
+		tcfg = tcfg->prev;
+
+	/* To be returned by caller */
+	return tcfg;
+}
+
 void channel_list_add(struct channel **orig, struct channel *new)
 {
   struct channel *tmp;
@@ -208,26 +267,6 @@ void join_channels(struct network *net)
   return;
 }
 
-void chan_init(void)
-{
-  struct network *net;
-
-  net  = g_cfg->networks;
-
-  while (net != NULL)
-  {
-    if (net->chanfile != NULL)  
-    {
-      /* FIXME */
-      /* g_cfg->tcfg = file_to_tconfig(net->chanfile); */
-    }
-
-    net = net->next;
-  }
-
-  return;
-}
-
 void channel_list_populate(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
 	struct channel *chan       = NULL;
@@ -310,4 +349,165 @@ void channel_list_populate(struct network *net, struct trigger *trig, struct irc
 		}	
 
 	}
+}
+
+struct channel *new_chan_from_tconfig_block(struct tconfig_block *tcfg)
+{
+	struct channel       *chan  = NULL;
+	struct tconfig_block *child = NULL;
+
+	if (tcfg == NULL)
+	{
+		troll_debug(LOG_ERROR, "new_chan_from_tconfig_block() called with NULL argument");
+		return NULL;
+	}
+
+	if (!strcmp(tcfg->key,"channel"))
+	{
+		/* New Chan Record */
+		chan = new_channel(tcfg->value); 
+	
+		child = tcfg->child;
+					
+		while (child != NULL)
+		{
+			/* Do something here
+			if (!strcmp(child->key,"flags"))
+			{
+				if (user->flags == NULL)
+					user->flags = tstrdup(child->value);
+			}*/
+
+			child = child->next;
+
+		}
+	}
+
+	return chan;
+}
+
+/* Saves chans with optional network */
+void chans_save(struct network *net)
+{
+	struct tconfig_block *tcfg   = NULL;
+	char                 *tmpstr = NULL;
+	struct network       *nettmp = NULL;
+
+	if (net != NULL)
+	{
+		tcfg = chans_to_tconfig(net->chans);
+
+		if (net->chanfile == NULL)
+		{
+			tmpstr = tmalloc0(strlen("./db/chandb.") + strlen(net->label) + 1);
+			sprintf(tmpstr, "./db/chandb.%s",nettmp->label);
+			
+			tconfig_to_file(tcfg, tmpstr);
+		
+			free(tmpstr);
+		}
+		else
+			tconfig_to_file(tcfg, net->chanfile);
+
+		free_tconfig(tcfg);
+		return;
+	}
+
+	nettmp = g_cfg->networks;
+
+	while (nettmp->prev != NULL) nettmp = nettmp->prev;
+	
+	while (nettmp != NULL)
+	{
+    tcfg = chans_to_tconfig(nettmp->chans);
+
+    if (nettmp->chanfile == NULL)
+    {
+      tmpstr = tmalloc0(strlen("./db/chandb.") + strlen(nettmp->label) + 1);
+			sprintf(tmpstr, "./db/chandb.%s",nettmp->label);
+
+      tconfig_to_file(tcfg, tmpstr);
+
+      free(tmpstr);
+    }
+    else
+      tconfig_to_file(tcfg, nettmp->chanfile);
+
+    free_tconfig(tcfg);
+
+		nettmp = nettmp->next;
+	}
+
+	return;
+}
+		
+void chan_init(void)
+{
+  struct network       *net      = NULL;
+	struct tconfig_block *chantcfg = NULL;
+	struct tconfig_block *tmp      = NULL;
+	struct channel       *chan     = NULL;
+	struct channel       *tmpchan  = NULL;
+
+  net  = g_cfg->networks;
+
+  while (net != NULL)
+	{
+    if (net->chanfile != NULL)
+		{
+			/* The idea is to read the chanfile, parse the
+ 			 * returned data into the internal format, attach
+ 			 * location of tcfg entry, and when saved, the
+ 			 * bot will write out this tcfg. New and deleted
+ 			 * users will have to be mirrored in the tcfg.
+ 			 * forget that last part.
+ 			 */
+			chantcfg = file_to_tconfig(net->chanfile);
+	
+			tmp = chantcfg;
+
+			while (tmp != NULL)
+			{
+				if (!strcmp(tmp->key,"channel"))
+				{
+					chan = new_chan_from_tconfig_block(tmp);
+			
+					if (chan != NULL)
+					{
+						chan->tcfg = tmp;
+	
+						tmpchan = net->chans;
+
+						/* link it into the networks shit */
+						if ((tmpchan = net->chans) == NULL)
+						{
+							net->chans    = chan;
+							tmpchan       = chan;
+
+							tmpchan->prev = NULL;
+						}
+						else
+						{	
+							while (tmpchan->next != NULL)
+							tmpchan       = tmpchan->next;
+							
+							tmpchan->next = chan;
+							chan->prev    = tmpchan;	
+						}
+					}
+				}
+					
+				tmp = tmp->next;
+			}
+	
+			/* Why the child? */
+			tconfig_merge(chantcfg, net->tcfg->child);
+			
+		}
+
+
+		net = net->next;
+	}
+
+  return;
 }

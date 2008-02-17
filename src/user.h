@@ -43,6 +43,7 @@ void user_list_add(struct user **orig, struct user *new);
 void free_users(struct user *users);
 struct user *new_user(char *username, char *nick, char *passhash, char *ident, char *realname, char *host, char *flags);
 struct channel_flags *new_channel_flags(char *chan, char *flags);
+struct user *new_user_from_tconfig_block(struct tconfig_block *tcfg);
 void user_init(void);
 
 

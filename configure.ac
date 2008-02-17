@@ -28,6 +28,17 @@ AC_FUNC_FORK
 
 AC_TYPE_PID_T
 
+
+dnl check if python exists
+AC_PYTHON_DEVEL
+
+AC_SUBST(PYTHON_LDADD)
+AC_SUBST(PYTHON_CFLAGS)
+
+if test "x${PYTHON_LDADD}" != "x"; then
+	AC_DEFINE([HAVE_PYTHON],1,[Ability to use Python scripting])
+fi
+
 dnl test if javascript exists
 PKG_CHECK_MODULES(JS, xulrunner-js)
 

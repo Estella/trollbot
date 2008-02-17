@@ -69,6 +69,8 @@ int config_engine_init(char *filename)
 
   /* keep a copy in the global config */
   g_cfg->tcfg = tcfg;
+
+	tconfig_to_file(g_cfg->tcfg,"out.txt");
  
   return 0;
 }

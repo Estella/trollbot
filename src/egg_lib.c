@@ -27,6 +27,17 @@
 
 /* This is the eggdrop core API that is exported to TCL, PHP, perl, etc */
 
+/* 
+ * All commands are derived from that in the Eggdrop TCL lib. They need
+ * ported to trollbot's internal storage of data, then wrapped by any 
+ * external scripting language in their language specific files.
+ *
+ * Use the following for a reference on the commented out commands
+ * contained here.
+ *
+ * tcl-commands.doc in the docs/ or docs_dist/
+ */
+
 
 /* This could be replaced by a ltrim() */
 char *egg_makearg(char *rest, char *mask)
@@ -274,7 +285,7 @@ struct user *egg_finduser(struct network *net, const char *mask)
 void egg_save(struct network *net)
 {
 	users_save(net);
-	/* channels_save(net); */
+	chans_save(net);
 }
 
 /* Caller is responsible for memory freeing */
