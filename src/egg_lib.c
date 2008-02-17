@@ -682,9 +682,63 @@ int egg_matchattr(struct network *net, const char *handle, const char *flags, co
 /* channel info <name> */
 /* channel get <name> <setting> */
 /* channel remove <name> */
-/* savechannels */
+
+/* Eggdrop Compatible */
+/* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
+void egg_savechannels(struct network *net)
+{
+	chans_save(net);
+}
+
 /* loadchannels */
-/* channels */
+
+/* Eggdrop Compatible */
+/* NEED_IMP: PHP, Perl, Python, Javascript */
+/* IMP_IN: TCL														 */
+/* Note: This appears to have a bug with   
+ * Dynamically loaded channels. this is not
+ * the issue here, it's in default_triggers.c
+ */
+char *egg_channels(struct network *net)
+{
+	int alloc_size      = 0;
+	char *ret           = NULL;
+	struct channel *tmp = NULL;
+
+	/* Go through and get the size first */
+	tmp = net->chans;
+	while (tmp->prev != NULL) tmp = tmp->prev;
+
+	while (tmp != NULL)
+	{
+		if (tmp->name != NULL)
+			alloc_size += strlen(tmp->name) + 1;
+
+		tmp = tmp->next;
+	}
+
+	/* Now make a string */
+	ret = tmalloc0(alloc_size + 1);
+  tmp = net->chans;
+
+  while (tmp->prev != NULL) tmp = tmp->prev;
+
+	while (tmp != NULL)
+	{
+		if (tmp->name != NULL)
+		{
+			if (tmp->next == NULL)
+				sprintf(&ret[strlen(ret)],"%s",tmp->name);
+			else
+				sprintf(&ret[strlen(ret)],"%s ",tmp->name);
+		}
+
+		tmp = tmp->next;
+	}
+
+	return ret;
+}
+
 /* isbotnick <nick> */
 /* botisop [channel] */
 /* botishalfop [channel] */

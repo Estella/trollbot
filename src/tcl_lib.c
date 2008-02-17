@@ -10,6 +10,19 @@
 #include "irc.h"
 #include "egg_lib.h"
 
+int tcl_channels(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	struct network *net = clientData;
+	char *ret = NULL;
+
+	ret = egg_channels(net);
+
+	/* FIXME: Memory Leak TCL_DYNAMIC for the free func causes crash */
+	Tcl_SetResult(interp, ret, NULL);
+
+	return TCL_OK;
+}
+
 int tcl_save(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {
 	struct network *net = clientData;

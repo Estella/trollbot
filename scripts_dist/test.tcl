@@ -4,6 +4,11 @@ bind pub - "!countusers" do:countusers
 bind pub - "!matchattr" do:matchattr
 bind pub - "!onchan" do:onchan
 bind pub - "!botname" do:botname
+bind pub - "!channels" do:channels
+
+proc do:channels { nick uhost hand chan arg } {
+	putserv "PRIVMSG $chan :Result: [channels]";
+}
 
 proc do:botname { nick uhost hand chan arg } {
 	putserv "PRIVMSG $chan :Result: [botname]";
