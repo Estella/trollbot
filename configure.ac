@@ -12,6 +12,7 @@ AC_CONFIG_HEADER(config.h)
 AM_MAINTAINER_MODE
 
 AC_PROG_CC
+AM_PROG_CC_C_O
 
 dnl test C Compiler
 AC_LANG_C
@@ -28,7 +29,6 @@ AC_FUNC_FORK
 
 AC_TYPE_PID_T
 
-
 dnl check if python exists
 AC_PYTHON_DEVEL
 
@@ -39,8 +39,10 @@ if test "x${PYTHON_LDADD}" != "x"; then
 	AC_DEFINE([HAVE_PYTHON],1,[Ability to use Python scripting])
 fi
 
+PKG_PROG_PKG_CONFIG
+
 dnl test if javascript exists
-PKG_CHECK_MODULES(JS, xulrunner-js)
+PKG_CHECK_MODULES(JS, xulrunner-js, has_js="yes", has_js="no")
 
 AC_SUBST(JS_LIBS)
 AC_SUBST(JS_CFLAGS)
