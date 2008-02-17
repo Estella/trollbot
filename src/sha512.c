@@ -173,7 +173,9 @@ static int sha512_compress(hash_state * md, unsigned char *buf)
 */
 int sha512_init(hash_state * md)
 {
-    LTC_ARGCHK(md != NULL);
+		if (md == NULL)
+			return CRYPT_ERROR;
+
     md->sha512.curlen = 0;
     md->sha512.length = 0;
     md->sha512.state[0] = CONST64(0x6a09e667f3bcc908);
@@ -206,8 +208,11 @@ int sha512_done(hash_state * md, unsigned char *out)
 {
     int i;
 
-    LTC_ARGCHK(md  != NULL);
-    LTC_ARGCHK(out != NULL);
+		if (md == NULL)
+			return CRYPT_ERROR;
+
+		if (out == NULL)
+			return CRYPT_ERROR;
 
     if (md->sha512.curlen >= sizeof(md->sha512.buf)) {
        return CRYPT_INVALID_ARG;

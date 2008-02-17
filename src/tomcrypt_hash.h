@@ -343,8 +343,10 @@ int func_name (hash_state * md, const unsigned char *in, unsigned long inlen)   
 {                                                                                           \
     unsigned long n;                                                                        \
     int           err;                                                                      \
-    LTC_ARGCHK(md != NULL);                                                                 \
-    LTC_ARGCHK(in != NULL);                                                                 \
+		if (md == NULL)																																					\
+			return CRYPT_ERROR;																																		\
+    if (in == NULL)                                                                         \
+      return CRYPT_ERROR;                                                                   \
     if (md-> state_var .curlen > sizeof(md-> state_var .buf)) {                             \
        return CRYPT_INVALID_ARG;                                                            \
     }                                                                                       \
