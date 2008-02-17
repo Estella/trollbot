@@ -45,6 +45,7 @@ struct user *new_user(char *username, char *nick, char *passhash, char *ident, c
 struct channel_flags *new_channel_flags(char *chan, char *flags);
 struct user *new_user_from_tconfig_block(struct tconfig_block *tcfg);
 void user_init(void);
+void users_save(struct network *net);
 
 
 #endif /* __USER_H__ */

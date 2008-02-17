@@ -201,6 +201,8 @@ void free_channels(struct channel *chans)
       }
     }
 
+		free(chans->topic);
+
     chantmp = chans;
     chans   = chans->next;
     free(chantmp);    
@@ -226,6 +228,7 @@ struct channel *new_channel(const char *chan)
 		return NULL;
 	}
 
+	ret->topic = NULL;
   ret->tcfg = NULL;
   ret->user_list = NULL;
 
@@ -476,6 +479,24 @@ void chan_init(void)
 					{
 						chan->tcfg = tmp;
 	
+						/* See if it already exists first */
+						tmpchan = net->chans;
+					
+						while (tmpchan != NULL)
+						{
+							if (!tstrcasecmp(tmpchan->name,chan->name))
+								break;
+	
+							tmpchan = tmpchan->next;
+						}
+
+						if (tmpchan != NULL)
+						{
+							free_channels(chan);
+							tmp = tmp->next;								
+							continue;
+						}
+				
 						tmpchan = net->chans;
 
 						/* link it into the networks shit */

@@ -31,6 +31,7 @@ struct channel_user
 struct channel
 {
   char *name;
+	char *topic;
   int status;
 
   struct channel_user *user_list;

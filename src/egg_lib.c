@@ -1152,7 +1152,18 @@ time_t egg_unixtime(void)
 /* unlink <bot> */
 /* encrypt <key> <string> */
 /* decrypt <key> <encrypted-base64-string> */
+
 /* encpass <password> */
+/* This will have issues due to the password style switchover needs documented */
+/* In Trollbot: Encrypts based on hash_type in g_cfg */
+/* In Eggdrop: uses blowfish or somesuch */
+/* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
+char *egg_encpass(const char *pass)
+{
+	return egg_makepasswd(pass, g_cfg->hash_type);
+}
+
+
 /* die [reason] */
 /* unames */
 /* dnslookup <ip-address/hostname> <proc> [[arg1] [arg2] ... [argN]] */

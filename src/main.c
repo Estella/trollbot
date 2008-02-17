@@ -28,8 +28,6 @@ int main(int argc, char *argv[])
 {
   pid_t pid;
 
-	1/0;
-
   printf("#################################################\n");
   printf("# Trollbot v1.0.0, written by poutine/DALnet    #\n");
   printf("#################################################\n");  

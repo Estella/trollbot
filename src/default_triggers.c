@@ -19,6 +19,7 @@
 #include "js_embed.h"
 #endif /* HAVE_JS */
 
+static void channel_set_topic(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
 static void dcc_saveall(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
 static void dcc_dump(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
 static void do_join_channels(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
@@ -45,8 +46,6 @@ void add_default_triggers(void)
     trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,"ident",NULL,&check_user_pass));
     trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,"hello",NULL,&introduce_user));
     trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,"goodbye",NULL,&disconnect_bot));
-		/* FIXME: Shouldn't be here*/
-		trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,"rehash",NULL,&rehash_bot));
 
     /* BIND JOIN */
     trigger_list_add(&net->trigs->join,new_trigger(NULL,TRIG_JOIN,"*",NULL,&new_join));
@@ -69,12 +68,11 @@ void add_default_triggers(void)
     trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".who",NULL,&dcc_who));
 		trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".dump",NULL,&dcc_dump));
 		trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".saveall",NULL,&dcc_saveall));
+		trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".rehash",NULL,&rehash_bot));
 
 #ifdef HAVE_JS
 		trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".loadjavascript",NULL,&dcc_javascript_load));
 #endif /* HAVE_JS */
-
-    /* trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".rehash",NULL,&dcc_rehash)); */
 
 #ifdef HAVE_TCL
     /* OWNER only 
@@ -89,9 +87,39 @@ void add_default_triggers(void)
 
     /* BIND RAW */
     trigger_list_add(&net->trigs->raw,new_trigger(NULL,TRIG_RAW,"353",NULL,&channel_list_populate));
+		trigger_list_add(&net->trigs->raw,new_trigger(NULL,TRIG_RAW,"332",NULL,&channel_set_topic));
 
     net = net->next;
   }
+}
+
+static void channel_set_topic(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
+{
+	struct channel *ctmp = NULL;
+	/* Should check irc_data to see whether we have this info */
+	
+	ctmp = net->chans;
+
+	while (ctmp != NULL)
+	{
+		if (!tstrcasecmp(ctmp->name,data->c_params[1]))
+			break;
+
+		ctmp = ctmp->next;
+	}
+
+	if (ctmp == NULL)
+	{
+		troll_debug(LOG_ERROR, "channel_set_topic() called when I'm not even in that channel");
+		return;
+	}
+
+	if (ctmp->topic != NULL)
+		free(ctmp->topic);
+
+	ctmp->topic = tstrdup(data->rest_str);
+
+	return;
 }
 
 static void dcc_saveall(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
@@ -274,6 +302,7 @@ void check_user_pass(struct network *net, struct trigger *trig, struct irc_data 
 
 void disconnect_bot(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
+		egg_save(NULL);
 		irc_printf(net->sock,"QUIT :Trollbot v1.0");
     die_nicely(0);
 }
