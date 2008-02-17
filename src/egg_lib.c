@@ -223,6 +223,7 @@ int egg_clearqueue(struct network *net, const char *queue)
 
 /* Returns number of users in net, 0 if none */
 /* Ready for export */
+/* NEED_IMP: PHP, Javascript, Python, Perl */
 int egg_countusers(struct network *net)
 {
   struct user *user;
@@ -243,6 +244,7 @@ int egg_countusers(struct network *net)
 }
 
 /* Fully compatible */
+/* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
 int egg_validuser(struct network *net, const char *handle)
 {
   struct user *user;
@@ -263,6 +265,7 @@ int egg_validuser(struct network *net, const char *handle)
 /* finduser <nick!user@host> */
 /* Eggdrop: Returns: the handle found, or "*" if none */
 /* Trollbot: Returns: a user struct, NULL if none */
+/* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
 struct user *egg_finduser(struct network *net, const char *mask)
 {
   struct user *user;
@@ -282,6 +285,7 @@ struct user *egg_finduser(struct network *net, const char *mask)
 }
 
 /* net is optional, if NULL, write all user/channel files to disk */
+/* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
 void egg_save(struct network *net)
 {
 	users_save(net);
@@ -289,6 +293,7 @@ void egg_save(struct network *net)
 }
 
 /* Caller is responsible for memory freeing */
+/* NON-EGGDROP COMMAND, CONSIDER MOVING */
 char *egg_makepasswd(const char *pass, const char *hash_type)
 {
   SHA1_CTX context;
@@ -346,6 +351,7 @@ char *egg_makepasswd(const char *pass, const char *hash_type)
 /* Needs returns checked */
 /* Also needs to support different encryption types */
 /* userlist [flags] */
+/* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
 int egg_passwdok(struct network *net, const char *handle, const char *pass) 
 {
   SHA1_CTX context;
@@ -427,6 +433,7 @@ int egg_passwdok(struct network *net, const char *handle, const char *pass)
 /* setuser <handle> <entry-type> [extra info] */
 
 /* All good */
+/* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
 int egg_chhandle(struct network *net, const char *old, const char *new)
 {
   struct user *olduser;
@@ -581,6 +588,7 @@ char *egg_chattr(struct network *net, const char *handle, const char *changes, c
 /* Should be part of chattr */
 
 /* matchattr <handle> <flags> [channel] */
+/* NEED_IMP: PHP, Perl, Python, Javascript */
 int egg_matchattr(struct network *net, const char *handle, const char *flags, const char *channel)
 {
   struct user *user;
@@ -673,7 +681,6 @@ int egg_matchattr(struct network *net, const char *handle, const char *flags, co
 /* killignore <hostmask> */
 /* ignorelist */
 /* isignore <hostmask> */
-/* save */
 /* reload */
 /* backup */
 /* getting-users */
@@ -762,6 +769,7 @@ int egg_isvoice(struct network *net, const char *nick, const char *channel)
  * @param channel Optional channel name to check in
  * @return 1 if user found on optional channel, 1 if user found without optional channel, 0 if user not found on optional channel or 0 if not found without optional channel
  */
+/* NEED_IMP: Python, Perl, PHP */
 int egg_onchan(struct network *net, char *nickname, char *channel)
 {
 	struct channel      *chan  = NULL;
@@ -873,6 +881,7 @@ int egg_onchan(struct network *net, char *nickname, char *channel)
 /* validchan <channel> */
 /* isdynamic <channel> */
 
+/* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
 void egg_putdcc(struct network *net, int idx, const char *text)
 {
   struct dcc_session *dtmp;
@@ -895,6 +904,7 @@ void egg_putdcc(struct network *net, int idx, const char *text)
 
 /* dccbroadcast <message> */
 /* Trollbot: Only broadcasts on the net specified */
+/* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
 void egg_dccbroadcast(struct network *net, const char *message)
 {
   struct dcc_session *dtmp;
@@ -920,6 +930,7 @@ void egg_dccbroadcast(struct network *net, const char *message)
 /* dccsimul <idx> <text> */
 
 /* Returns 0 on error, an idx if successful */
+/* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
 int egg_hand2idx(struct network *net, const char *handle)
 {
   struct dcc_session *dtmp;
@@ -946,6 +957,7 @@ int egg_hand2idx(struct network *net, const char *handle)
 
 
 /* returns a user struct or NULL based on whether it's found */
+/* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
 struct user *egg_idx2hand(struct network *net, int idx)
 {
   struct dcc_session *dtmp;
@@ -1124,6 +1136,7 @@ char **egg_bind(struct network *net, char *type, char *flags, char *mask, char *
 /* killtimer <timerID> */
 /* killutimer <timerID> */
 
+/* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
 time_t egg_unixtime(void)
 {
   return time(NULL);
@@ -1153,6 +1166,7 @@ time_t egg_unixtime(void)
 /* reloadhelp */
 /* restart */
 
+/* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
 void egg_rehash(void)
 {
   struct tconfig_block *tcfg;
@@ -1163,6 +1177,7 @@ void egg_rehash(void)
 
   oldcfg = g_cfg;
 
+	/* FIXME: FFS CONSTANTS?!?!?! */
   tcfg  = file_to_tconfig("trollbot.conf");
 
   newcfg = config_engine_load(tcfg);
