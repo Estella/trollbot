@@ -29,7 +29,11 @@ int main(int argc, char *argv[])
   pid_t pid;
 
   printf("#################################################\n");
-  printf("# Trollbot v1.0.0, written by poutine/DALnet    #\n");
+  printf("# Trollbot v1.0.0, written by                   #\n");
+  printf("#################################################\n");
+	printf("# poutine/DALnet - Lead Developer               #\n");
+  printf("# kicken/DALnet  - Javascript Support and Core  #\n");
+	printf("# comcor/DALnet  - Python Support               #\n");
   printf("#################################################\n");  
 
   if (argc > 2)
