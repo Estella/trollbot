@@ -523,7 +523,7 @@ void chan_init(void)
 	
 			/* Why the child? */
 			tconfig_merge(chantcfg, net->tcfg->child);
-			
+			free_tconfig(chantcfg);
 		}
 
 

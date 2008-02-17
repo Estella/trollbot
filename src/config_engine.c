@@ -140,8 +140,9 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
         }
         else if (!strcmp(search->key,"hash_type"))
         {
-					if (cfg->hash_type == NULL)
+					if (cfg->hash_type == NULL){
 	          cfg->hash_type = tstrdup(search->value);
+					}
         }
 
         search = search->next;

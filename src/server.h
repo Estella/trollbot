@@ -18,6 +18,7 @@ struct server
 
 
 void server_list_add(struct server **orig, struct server *new);
+void free_servers(struct server *servers);
 struct server *new_server(char *hostport);
 #endif /* __SERVER_H__ */
 

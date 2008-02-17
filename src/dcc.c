@@ -237,8 +237,9 @@ void free_dcc_sessions(struct dcc_session *dccs)
 {
   while (dccs != NULL)
   {
+		struct dcc_session *tmp=dccs->next;
     free(dccs);
-    dccs = dccs->next;
+    dccs = tmp;
   }
 }
 
@@ -518,7 +519,7 @@ void parse_dcc_line(struct dcc_session *dcc, const char *buffer)
           if (!egg_matchattr(dcc->net,user->username,"p",NULL))
           {
             irc_printf(dcc->sock,"You do not have the flags to access DCC.");
-            shutdown(dcc->sock,SHUT_RDWR);
+            close(dcc->sock);
             dcc->sock = -1;
             dcc_list_del(&dcc->net->dccs,dcc);
             return;
@@ -535,9 +536,8 @@ void parse_dcc_line(struct dcc_session *dcc, const char *buffer)
       if (user == NULL)
       {
         irc_printf(dcc->sock,"Incorrect username.");
-        shutdown(dcc->sock,SHUT_RDWR);
+        close(dcc->sock);
         dcc->sock = -1;
-        dcc_list_del(&dcc->net->dccs,dcc);
       }
  
       break;
@@ -546,7 +546,7 @@ void parse_dcc_line(struct dcc_session *dcc, const char *buffer)
       if (dcc->user->passhash == NULL)
       {
         irc_printf(dcc->sock,"Login failed");
-        shutdown(dcc->sock,SHUT_RDWR);
+        close(dcc->sock);
         dcc->sock = -1;
       }
 
@@ -574,9 +574,8 @@ void parse_dcc_line(struct dcc_session *dcc, const char *buffer)
       else
       {
         irc_printf(dcc->sock,"Incorrect password");
-        shutdown(dcc->sock,SHUT_RDWR);
+        close(dcc->sock);
         dcc->sock = -1;
-        dcc_list_del(&dcc->net->dccs,dcc);
       }
       
       break;

@@ -14,6 +14,8 @@
 #include "dcc.h"
 #include "network.h"
 #include "config.h"
+#include "server.h"
+#include "irc.h"
 
 /* Needs more cowbell */
 void die_nicely(int ret)
@@ -32,6 +34,8 @@ void die_nicely(int ret)
     JS_DestroyRuntime(g_cfg->js_rt);
 #endif
 
+
+		free(g_cfg->hash_type);
     free(g_cfg);
   }
     

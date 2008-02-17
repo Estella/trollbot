@@ -174,7 +174,7 @@ void irc_loop(void)
     net = net->next;
   }
 
-  while (1)
+  while (g_cfg->networks != NULL)
   {
     FD_ZERO(&socks);
     FD_ZERO(&writefds);
@@ -187,6 +187,31 @@ void irc_loop(void)
 
     while (net != NULL)
     {
+			/* Remove dead connections */
+			if (net->status == STATUS_DISCONNECTED){
+				struct network *next=net->next;
+				struct network *prev=net->prev;
+
+				net->next=NULL;
+				net->prev=NULL;
+				free_networks(net);
+				net=next;
+
+				if (next != NULL){
+					net->prev=prev;
+					if (prev != NULL){
+						net->prev->next = net;
+					}
+					else {
+						g_cfg->networks = net;
+					}
+				}
+				else if (prev == NULL){
+					g_cfg->networks = NULL;
+				}
+				continue;
+			}
+
       /* If a DCC listener exists, add it to the fd set */
       if (net->dcc_listener != -1)
       {
@@ -253,6 +278,14 @@ void irc_loop(void)
 
       while (dcc != NULL)
       {
+        /* Remove dead sessions */
+        if (dcc->sock == -1){
+					struct dcc_session *tmp = dcc->next;
+					dcc_list_del(&net->dccs, dcc);
+					dcc = tmp;
+					continue;
+				}
+
         /* Read all active DCC socks */
         if (dcc->sock != -1 && dcc->status > DCC_NOTREADY)
         {
@@ -326,7 +359,7 @@ void irc_loop(void)
 
           if (!irc_in(net))
           {
-            /* Socket disconnected, Try reconnect */
+            net->status = STATUS_DISCONNECTED;
           }
         }
       }

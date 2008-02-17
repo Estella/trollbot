@@ -176,7 +176,7 @@ void new_join(struct network *net, struct trigger *trig, struct irc_data *data, 
 			}
 				
 
-			cuser->nick  = tstrdup(data->prefix->nick);
+			/*cuser->nick  = tstrdup(data->prefix->nick); --Done in new_channel_user */
 			cuser->uhost = tstrdup(data->prefix->host); 
 			cuser->ident = tstrdup(data->prefix->user);
 			/* FIXME: Need check for whether they're a recognized user in the bot */
@@ -304,7 +304,7 @@ void disconnect_bot(struct network *net, struct trigger *trig, struct irc_data *
 {
 		egg_save(NULL);
 		irc_printf(net->sock,"QUIT :Trollbot v1.0");
-    die_nicely(0);
+    /*die_nicely(0); */
 }
 
 void introduce_user(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)

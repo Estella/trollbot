@@ -366,6 +366,7 @@ int irc_in(struct network *net)
   char                *optr    = NULL;
   char                *bufcopy = NULL;
 
+
   if (buffer == NULL)
   {
     buffer = tmalloc0(BUFFER_SIZE + 1);
@@ -389,6 +390,8 @@ int irc_in(struct network *net)
       return 1;
     case 0:
       net->sock = -1;
+		  free(buffer);
+			buffer = NULL;
       return 0;
   }
 
@@ -411,6 +414,7 @@ int irc_in(struct network *net)
     parse_irc_line(net,line);
 
     free(line);
+		line = NULL;
 
     if (strlen(ptr) == 0)
     {

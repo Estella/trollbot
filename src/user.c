@@ -414,7 +414,7 @@ void user_init(void)
 	
 			/* Why the child? */
 			tconfig_merge(usertcfg, net->tcfg->child);
-			
+			free_tconfig(usertcfg);
 		}
 
 

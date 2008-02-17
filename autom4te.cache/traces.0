@@ -1,3 +1,88 @@
+m4trace:/usr/share/aclocal/pkg.m4:26: -1- AC_DEFUN([PKG_PROG_PKG_CONFIG], [m4_pattern_forbid([^_?PKG_[A-Z_]+$])
+m4_pattern_allow([^PKG_CONFIG(_PATH)?$])
+AC_ARG_VAR([PKG_CONFIG], [path to pkg-config utility])dnl
+if test "x$ac_cv_env_PKG_CONFIG_set" != "xset"; then
+	AC_PATH_TOOL([PKG_CONFIG], [pkg-config])
+fi
+if test -n "$PKG_CONFIG"; then
+	_pkg_min_version=m4_default([$1], [0.9.0])
+	AC_MSG_CHECKING([pkg-config is at least version $_pkg_min_version])
+	if $PKG_CONFIG --atleast-pkgconfig-version $_pkg_min_version; then
+		AC_MSG_RESULT([yes])
+	else
+		AC_MSG_RESULT([no])
+		PKG_CONFIG=""
+	fi
+		
+fi[]dnl
+])
+m4trace:/usr/share/aclocal/pkg.m4:56: -1- AC_DEFUN([PKG_CHECK_EXISTS], [AC_REQUIRE([PKG_PROG_PKG_CONFIG])dnl
+if test -n "$PKG_CONFIG" && \
+    AC_RUN_LOG([$PKG_CONFIG --exists --print-errors "$1"]); then
+  m4_ifval([$2], [$2], [:])
+m4_ifvaln([$3], [else
+  $3])dnl
+fi])
+m4trace:/usr/share/aclocal/pkg.m4:84: -1- AC_DEFUN([_PKG_SHORT_ERRORS_SUPPORTED], [AC_REQUIRE([PKG_PROG_PKG_CONFIG])
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi[]dnl
+])
+m4trace:/usr/share/aclocal/pkg.m4:104: -1- AC_DEFUN([PKG_CHECK_MODULES], [AC_REQUIRE([PKG_PROG_PKG_CONFIG])dnl
+AC_ARG_VAR([$1][_CFLAGS], [C compiler flags for $1, overriding pkg-config])dnl
+AC_ARG_VAR([$1][_LIBS], [linker flags for $1, overriding pkg-config])dnl
+
+pkg_failed=no
+AC_MSG_CHECKING([for $1])
+
+_PKG_CONFIG([$1][_CFLAGS], [cflags], [$2])
+_PKG_CONFIG([$1][_LIBS], [libs], [$2])
+
+m4_define([_PKG_TEXT], [Alternatively, you may set the environment variables $1[]_CFLAGS
+and $1[]_LIBS to avoid the need to call pkg-config.
+See the pkg-config man page for more details.])
+
+if test $pkg_failed = yes; then
+        _PKG_SHORT_ERRORS_SUPPORTED
+        if test $_pkg_short_errors_supported = yes; then
+	        $1[]_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "$2"`
+        else 
+	        $1[]_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "$2"`
+        fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$$1[]_PKG_ERRORS" >&AS_MESSAGE_LOG_FD
+
+	ifelse([$4], , [AC_MSG_ERROR(dnl
+[Package requirements ($2) were not met:
+
+$$1_PKG_ERRORS
+
+Consider adjusting the PKG_CONFIG_PATH environment variable if you
+installed software in a non-standard prefix.
+
+_PKG_TEXT
+])],
+		[AC_MSG_RESULT([no])
+                $4])
+elif test $pkg_failed = untried; then
+	ifelse([$4], , [AC_MSG_FAILURE(dnl
+[The pkg-config script could not be found or is too old.  Make sure it
+is in your PATH or set the PKG_CONFIG environment variable to the full
+path to pkg-config.
+
+_PKG_TEXT
+
+To get pkg-config, see <http://www.freedesktop.org/software/pkgconfig>.])],
+		[$4])
+else
+	$1[]_CFLAGS=$pkg_cv_[]$1[]_CFLAGS
+	$1[]_LIBS=$pkg_cv_[]$1[]_LIBS
+        AC_MSG_RESULT([yes])
+	ifelse([$3], , :, [$3])
+fi[]dnl
+])
 m4trace:/usr/share/aclocal-1.10/amversion.m4:14: -1- AC_DEFUN([AM_AUTOMAKE_VERSION], [am__api_version='1.10'
 dnl Some users find AM_AUTOMAKE_VERSION and mistake it for a way to
 dnl require some minimum version.  Point them to the right macro.
@@ -865,6 +950,10 @@ m4trace:acinclude.m4:347: -1- AC_DEFUN([AX_PROG_PERL], [
   fi
  ])
 m4trace:acinclude.m4:393: -1- AC_DEFUN([AC_PYTHON_DEVEL], [
+  AC_ARG_WITH(python,        [  --with-python          configure with Python scripting support],
+        [ with_python="$withval" ] )
+	if test "${with_python}" == "yes"; then
+
         #
         # Allow the use of a (user set) custom python version
         #
@@ -1063,6 +1152,7 @@ $ac_distutils_result])
         #
         # all done!
         #
+	fi
 ])
 m4trace:configure.ac:3: -1- m4_pattern_allow([^VERSION$])
 m4trace:configure.ac:7: -1- m4_pattern_forbid([^_?A[CHUM]_])
@@ -1240,66 +1330,103 @@ m4trace:configure.ac:27: -1- m4_pattern_allow([^HAVE_WORKING_VFORK$])
 m4trace:configure.ac:27: -1- m4_pattern_allow([^vfork$])
 m4trace:configure.ac:27: -1- m4_pattern_allow([^HAVE_WORKING_FORK$])
 m4trace:configure.ac:29: -1- m4_pattern_allow([^pid_t$])
-m4trace:configure.ac:32: -1- AX_PROG_TCL
-m4trace:configure.ac:32: -1- m4_pattern_allow([^TCLSH$])
-m4trace:configure.ac:32: -1- m4_pattern_allow([^HAVE_TCL$])
-m4trace:configure.ac:32: -1- m4_pattern_allow([^TCL_DEFS$])
-m4trace:configure.ac:32: -1- m4_pattern_allow([^TCL_LIBS$])
-m4trace:configure.ac:32: -1- m4_pattern_allow([^TCL_CPPFLAGS$])
-m4trace:configure.ac:35: -1- AM_CONDITIONAL([WITH_TCL], [test "x${TCL_LIBS}" != "x"])
-m4trace:configure.ac:35: -1- m4_pattern_allow([^WITH_TCL_TRUE$])
-m4trace:configure.ac:35: -1- m4_pattern_allow([^WITH_TCL_FALSE$])
-m4trace:configure.ac:35: -1- _AM_SUBST_NOTMAKE([WITH_TCL_TRUE])
-m4trace:configure.ac:35: -1- _AM_SUBST_NOTMAKE([WITH_TCL_FALSE])
-m4trace:configure.ac:38: -1- AX_PROG_PHP
-m4trace:configure.ac:38: -1- m4_pattern_allow([^PHPCONFIG$])
-m4trace:configure.ac:38: -1- _m4_warn([obsolete], [The macro `AC_TRY_COMPILE' is obsolete.
+m4trace:configure.ac:33: -1- AC_PYTHON_DEVEL
+m4trace:configure.ac:33: -1- m4_pattern_allow([^PYTHON_VERSION$])
+m4trace:configure.ac:33: -1- m4_pattern_allow([^PYTHON$])
+m4trace:configure.ac:33: -1- m4_pattern_allow([^PYTHON_CPPFLAGS$])
+m4trace:configure.ac:33: -1- m4_pattern_allow([^PYTHON_LDFLAGS$])
+m4trace:configure.ac:33: -1- m4_pattern_allow([^PYTHON_SITE_PKG$])
+m4trace:configure.ac:33: -1- m4_pattern_allow([^PYTHON_EXTRA_LIBS$])
+m4trace:configure.ac:33: -1- m4_pattern_allow([^PYTHON_EXTRA_LDFLAGS$])
+m4trace:configure.ac:33: -1- _m4_warn([obsolete], [The macro `AC_TRY_LINK' is obsolete.
+You should run autoupdate.], [../../lib/autoconf/general.m4:2414: AC_TRY_LINK is expanded from...
+acinclude.m4:393: AC_PYTHON_DEVEL is expanded from...
+configure.ac:33: the top level])
+m4trace:configure.ac:33: -1- m4_pattern_allow([^PYTHON_CFLAGS$])
+m4trace:configure.ac:33: -1- m4_pattern_allow([^PYTHON_LDADD$])
+m4trace:configure.ac:33: -1- m4_pattern_allow([^HAVE_PYTHON$])
+m4trace:configure.ac:35: -1- m4_pattern_allow([^PYTHON_LDADD$])
+m4trace:configure.ac:36: -1- m4_pattern_allow([^PYTHON_CFLAGS$])
+m4trace:configure.ac:39: -1- m4_pattern_allow([^HAVE_PYTHON$])
+m4trace:configure.ac:43: -1- PKG_CHECK_MODULES([JS], [xulrunner-js])
+m4trace:configure.ac:43: -1- PKG_PROG_PKG_CONFIG
+m4trace:configure.ac:43: -1- m4_pattern_forbid([^_?PKG_[A-Z_]+$])
+m4trace:configure.ac:43: -1- m4_pattern_allow([^PKG_CONFIG(_PATH)?$])
+m4trace:configure.ac:43: -1- m4_pattern_allow([^PKG_CONFIG$])
+m4trace:configure.ac:43: -1- m4_pattern_allow([^PKG_CONFIG$])
+m4trace:configure.ac:43: -1- m4_pattern_allow([^JS_CFLAGS$])
+m4trace:configure.ac:43: -1- m4_pattern_allow([^JS_LIBS$])
+m4trace:configure.ac:43: -1- PKG_CHECK_EXISTS([xulrunner-js], [pkg_cv_[]JS_CFLAGS=`$PKG_CONFIG --[]cflags "xulrunner-js" 2>/dev/null`], [pkg_failed=yes])
+m4trace:configure.ac:43: -1- PKG_CHECK_EXISTS([xulrunner-js], [pkg_cv_[]JS_LIBS=`$PKG_CONFIG --[]libs "xulrunner-js" 2>/dev/null`], [pkg_failed=yes])
+m4trace:configure.ac:43: -1- _PKG_SHORT_ERRORS_SUPPORTED
+m4trace:configure.ac:45: -1- m4_pattern_allow([^JS_LIBS$])
+m4trace:configure.ac:46: -1- m4_pattern_allow([^JS_CFLAGS$])
+m4trace:configure.ac:49: -1- m4_pattern_allow([^HAVE_JS$])
+m4trace:configure.ac:52: -1- AM_CONDITIONAL([WITH_JS], [test "x${JS_LIBS}" != "x"])
+m4trace:configure.ac:52: -1- m4_pattern_allow([^WITH_JS_TRUE$])
+m4trace:configure.ac:52: -1- m4_pattern_allow([^WITH_JS_FALSE$])
+m4trace:configure.ac:52: -1- _AM_SUBST_NOTMAKE([WITH_JS_TRUE])
+m4trace:configure.ac:52: -1- _AM_SUBST_NOTMAKE([WITH_JS_FALSE])
+m4trace:configure.ac:55: -1- AX_PROG_TCL
+m4trace:configure.ac:55: -1- m4_pattern_allow([^TCLSH$])
+m4trace:configure.ac:55: -1- m4_pattern_allow([^HAVE_TCL$])
+m4trace:configure.ac:55: -1- m4_pattern_allow([^TCL_DEFS$])
+m4trace:configure.ac:55: -1- m4_pattern_allow([^TCL_LIBS$])
+m4trace:configure.ac:55: -1- m4_pattern_allow([^TCL_CPPFLAGS$])
+m4trace:configure.ac:58: -1- AM_CONDITIONAL([WITH_TCL], [test "x${TCL_LIBS}" != "x"])
+m4trace:configure.ac:58: -1- m4_pattern_allow([^WITH_TCL_TRUE$])
+m4trace:configure.ac:58: -1- m4_pattern_allow([^WITH_TCL_FALSE$])
+m4trace:configure.ac:58: -1- _AM_SUBST_NOTMAKE([WITH_TCL_TRUE])
+m4trace:configure.ac:58: -1- _AM_SUBST_NOTMAKE([WITH_TCL_FALSE])
+m4trace:configure.ac:61: -1- AX_PROG_PHP
+m4trace:configure.ac:61: -1- m4_pattern_allow([^PHPCONFIG$])
+m4trace:configure.ac:61: -1- _m4_warn([obsolete], [The macro `AC_TRY_COMPILE' is obsolete.
 You should run autoupdate.], [../../lib/autoconf/general.m4:2367: AC_TRY_COMPILE is expanded from...
 acinclude.m4:174: AX_PROG_PHP is expanded from...
-configure.ac:38: the top level])
-m4trace:configure.ac:38: -1- _m4_warn([obsolete], [The macro `AC_TRY_LINK' is obsolete.
+configure.ac:61: the top level])
+m4trace:configure.ac:61: -1- _m4_warn([obsolete], [The macro `AC_TRY_LINK' is obsolete.
 You should run autoupdate.], [../../lib/autoconf/general.m4:2414: AC_TRY_LINK is expanded from...
 acinclude.m4:174: AX_PROG_PHP is expanded from...
-configure.ac:38: the top level])
-m4trace:configure.ac:38: -1- m4_pattern_allow([^HAVE_PHP$])
-m4trace:configure.ac:38: -1- m4_pattern_allow([^PHP_CFLAGS$])
-m4trace:configure.ac:38: -1- m4_pattern_allow([^PHP_LDADD$])
-m4trace:configure.ac:38: -1- _m4_warn([obsolete], [The macro `AC_TRY_LINK' is obsolete.
+configure.ac:61: the top level])
+m4trace:configure.ac:61: -1- m4_pattern_allow([^HAVE_PHP$])
+m4trace:configure.ac:61: -1- m4_pattern_allow([^PHP_CFLAGS$])
+m4trace:configure.ac:61: -1- m4_pattern_allow([^PHP_LDADD$])
+m4trace:configure.ac:61: -1- _m4_warn([obsolete], [The macro `AC_TRY_LINK' is obsolete.
 You should run autoupdate.], [../../lib/autoconf/general.m4:2414: AC_TRY_LINK is expanded from...
 acinclude.m4:174: AX_PROG_PHP is expanded from...
-configure.ac:38: the top level])
-m4trace:configure.ac:38: -1- m4_pattern_allow([^HAVE_PHP$])
-m4trace:configure.ac:38: -1- m4_pattern_allow([^PHP_CFLAGS$])
-m4trace:configure.ac:38: -1- m4_pattern_allow([^PHP_LDADD$])
-m4trace:configure.ac:41: -1- AM_CONDITIONAL([WITH_PHP], [test "x${PHP_LDADD}" != "x"])
-m4trace:configure.ac:41: -1- m4_pattern_allow([^WITH_PHP_TRUE$])
-m4trace:configure.ac:41: -1- m4_pattern_allow([^WITH_PHP_FALSE$])
-m4trace:configure.ac:41: -1- _AM_SUBST_NOTMAKE([WITH_PHP_TRUE])
-m4trace:configure.ac:41: -1- _AM_SUBST_NOTMAKE([WITH_PHP_FALSE])
-m4trace:configure.ac:43: -1- AX_PROG_PERL
-m4trace:configure.ac:43: -1- m4_pattern_allow([^PERL$])
-m4trace:configure.ac:43: -1- _m4_warn([obsolete], [The macro `AC_TRY_LINK' is obsolete.
+configure.ac:61: the top level])
+m4trace:configure.ac:61: -1- m4_pattern_allow([^HAVE_PHP$])
+m4trace:configure.ac:61: -1- m4_pattern_allow([^PHP_CFLAGS$])
+m4trace:configure.ac:61: -1- m4_pattern_allow([^PHP_LDADD$])
+m4trace:configure.ac:64: -1- AM_CONDITIONAL([WITH_PHP], [test "x${PHP_LDADD}" != "x"])
+m4trace:configure.ac:64: -1- m4_pattern_allow([^WITH_PHP_TRUE$])
+m4trace:configure.ac:64: -1- m4_pattern_allow([^WITH_PHP_FALSE$])
+m4trace:configure.ac:64: -1- _AM_SUBST_NOTMAKE([WITH_PHP_TRUE])
+m4trace:configure.ac:64: -1- _AM_SUBST_NOTMAKE([WITH_PHP_FALSE])
+m4trace:configure.ac:66: -1- AX_PROG_PERL
+m4trace:configure.ac:66: -1- m4_pattern_allow([^PERL$])
+m4trace:configure.ac:66: -1- _m4_warn([obsolete], [The macro `AC_TRY_LINK' is obsolete.
 You should run autoupdate.], [../../lib/autoconf/general.m4:2414: AC_TRY_LINK is expanded from...
 acinclude.m4:347: AX_PROG_PERL is expanded from...
-configure.ac:43: the top level])
-m4trace:configure.ac:43: -1- m4_pattern_allow([^PERL_LDADD$])
-m4trace:configure.ac:43: -1- m4_pattern_allow([^PERL_CFLAGS$])
-m4trace:configure.ac:43: -1- m4_pattern_allow([^HAVE_PERL$])
-m4trace:configure.ac:45: -1- AM_CONDITIONAL([WITH_PERL], [test "x${PERL_LDADD}" != "x"])
-m4trace:configure.ac:45: -1- m4_pattern_allow([^WITH_PERL_TRUE$])
-m4trace:configure.ac:45: -1- m4_pattern_allow([^WITH_PERL_FALSE$])
-m4trace:configure.ac:45: -1- _AM_SUBST_NOTMAKE([WITH_PERL_TRUE])
-m4trace:configure.ac:45: -1- _AM_SUBST_NOTMAKE([WITH_PERL_FALSE])
-m4trace:configure.ac:49: -1- AM_CONDITIONAL([WITH_PYTHON], [test "x${PYTHON_LDADD}" != "x"])
-m4trace:configure.ac:49: -1- m4_pattern_allow([^WITH_PYTHON_TRUE$])
-m4trace:configure.ac:49: -1- m4_pattern_allow([^WITH_PYTHON_FALSE$])
-m4trace:configure.ac:49: -1- _AM_SUBST_NOTMAKE([WITH_PYTHON_TRUE])
-m4trace:configure.ac:49: -1- _AM_SUBST_NOTMAKE([WITH_PYTHON_FALSE])
-m4trace:configure.ac:51: -1- m4_pattern_allow([^SET_MAKE$])
-m4trace:configure.ac:53: -1- m4_pattern_allow([^STDC_HEADERS$])
-m4trace:configure.ac:60: -1- _m4_warn([obsolete], [AC_OUTPUT should be used without arguments.
+configure.ac:66: the top level])
+m4trace:configure.ac:66: -1- m4_pattern_allow([^PERL_LDADD$])
+m4trace:configure.ac:66: -1- m4_pattern_allow([^PERL_CFLAGS$])
+m4trace:configure.ac:66: -1- m4_pattern_allow([^HAVE_PERL$])
+m4trace:configure.ac:68: -1- AM_CONDITIONAL([WITH_PERL], [test "x${PERL_LDADD}" != "x"])
+m4trace:configure.ac:68: -1- m4_pattern_allow([^WITH_PERL_TRUE$])
+m4trace:configure.ac:68: -1- m4_pattern_allow([^WITH_PERL_FALSE$])
+m4trace:configure.ac:68: -1- _AM_SUBST_NOTMAKE([WITH_PERL_TRUE])
+m4trace:configure.ac:68: -1- _AM_SUBST_NOTMAKE([WITH_PERL_FALSE])
+m4trace:configure.ac:72: -1- AM_CONDITIONAL([WITH_PYTHON], [test "x${PYTHON_LDADD}" != "x"])
+m4trace:configure.ac:72: -1- m4_pattern_allow([^WITH_PYTHON_TRUE$])
+m4trace:configure.ac:72: -1- m4_pattern_allow([^WITH_PYTHON_FALSE$])
+m4trace:configure.ac:72: -1- _AM_SUBST_NOTMAKE([WITH_PYTHON_TRUE])
+m4trace:configure.ac:72: -1- _AM_SUBST_NOTMAKE([WITH_PYTHON_FALSE])
+m4trace:configure.ac:74: -1- m4_pattern_allow([^SET_MAKE$])
+m4trace:configure.ac:76: -1- m4_pattern_allow([^STDC_HEADERS$])
+m4trace:configure.ac:83: -1- _m4_warn([obsolete], [AC_OUTPUT should be used without arguments.
 You should run autoupdate.], [])
-m4trace:configure.ac:60: -1- m4_pattern_allow([^LIB@&t@OBJS$])
-m4trace:configure.ac:60: -1- m4_pattern_allow([^LTLIBOBJS$])
-m4trace:configure.ac:60: -1- _AC_AM_CONFIG_HEADER_HOOK([$ac_file])
-m4trace:configure.ac:60: -1- _AM_OUTPUT_DEPENDENCY_COMMANDS
+m4trace:configure.ac:83: -1- m4_pattern_allow([^LIB@&t@OBJS$])
+m4trace:configure.ac:83: -1- m4_pattern_allow([^LTLIBOBJS$])
+m4trace:configure.ac:83: -1- _AC_AM_CONFIG_HEADER_HOOK([$ac_file])
+m4trace:configure.ac:83: -1- _AM_OUTPUT_DEPENDENCY_COMMANDS

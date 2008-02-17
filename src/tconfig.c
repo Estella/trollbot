@@ -232,7 +232,7 @@ struct tconfig_block *file_to_tconfig(const char *filename)
       case ' ':
         break;
       default:
-        tmp        = tmalloc(sizeof(struct tconfig_block));
+        tmp        = tmalloc(sizeof(*tmp));
 
         /* Do a wasteful scan so I don't have to deal with realloc */
         if (*eip == '"')

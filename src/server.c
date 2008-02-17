@@ -17,7 +17,6 @@
 #include "server.h"
 #include "util.h"
 
-
 void server_list_add(struct server **orig, struct server *new)
 {
   struct server *tmp;
@@ -82,4 +81,15 @@ struct server *new_server(char *hostport)
 
   return ret;
 
+}
+
+void free_servers(struct server *servers){
+	struct server *nextServer=NULL;
+	while (servers != NULL){
+		nextServer = servers->next;
+
+		free(servers->host);
+		free(servers);
+		servers = nextServer;
+	}
 }

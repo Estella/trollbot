@@ -54,6 +54,8 @@ void free_networks(struct network *net)
 
     free_channels(net->chans);
 
+		free_servers(net->servers);
+
 		/* FIXME: free fucking JS shit, PHP shit, etc */
 
     free_dcc_sessions(net->dccs);
