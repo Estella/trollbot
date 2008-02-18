@@ -592,7 +592,8 @@ char *egg_chattr(struct network *net, const char *handle, const char *changes, c
 /* Should be part of chattr */
 
 /* matchattr <handle> <flags> [channel] */
-/* NEED_IMP: PHP, Perl, Python, Javascript */
+/* NEED_IMP: PHP, Perl, Python  */
+/* IMP_IN: Javascript */
 int egg_matchattr(struct network *net, const char *handle, const char *flags, const char *channel)
 {
   struct user *user;

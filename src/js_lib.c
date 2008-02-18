@@ -15,6 +15,36 @@
 #include "network.h"
 #include "egg_lib.h"
 
+JSBool js_matchattr(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+  struct network *net = JS_GetContextPrivate(cx);
+	int ret;
+  char *handle  = NULL;
+	char *flags   = NULL;
+	char *channel = NULL;
+
+	/* Not Enough Args */
+	if (argc < 2)
+	{
+		*rval = INT_TO_JSVAL(0);
+		return JS_FALSE;
+	}
+
+	handle  = tstrdup(JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
+	flags   = tstrdup(JS_GetStringBytes(JS_ValueToString(cx, argv[1])));
+
+	if (argc == 3)
+	  channel = tstrdup(JS_GetStringBytes(JS_ValueToString(cx, argv[2])));
+
+  *rval = INT_TO_JSVAL(egg_matchattr(net,handle,flags,channel));
+
+	free(handle);
+	free(flags);
+	free(channel);
+
+  return JS_TRUE;
+}
+
 JSBool js_save(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	struct network *net = JS_GetContextPrivate(cx);
