@@ -12,12 +12,6 @@
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
 
-/* Ability to use Perl scripting */
-#undef HAVE_PERL
-
-/* Ability to use PHP scripting */
-#undef HAVE_PHP
-
 /* Ability to use Python scripting */
 #undef HAVE_PYTHON
 

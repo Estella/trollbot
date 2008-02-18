@@ -17,9 +17,9 @@
 #include "tcl_embed.h"
 #endif /* HAVE_TCL */
 
-#ifdef HAVE_PHP
+/*#ifdef HAVE_PHP
 #include "php_embed.h"
-#endif /* HAVE_PHP */
+#endif*/ /* HAVE_PHP */
 
 #ifdef HAVE_JS
 #include "js_embed.h"

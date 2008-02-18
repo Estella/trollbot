@@ -28,7 +28,11 @@
 #include <zend_ini.h>
 
 #include "php_lib.h"
+
+/* HACK */
+#ifdef HAVE_PERL
 #undef END_EXTERN_C
+#endif /* HAVE_PERL */
 
 #ifdef PHP_WIN32
 #include <io.h>

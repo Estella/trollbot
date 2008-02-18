@@ -28,7 +28,6 @@
 
 
 #include "tomcrypt.h"
-#define NEW_CRYPTO
 
 /* This is the eggdrop core API that is exported to TCL, PHP, perl, etc */
 

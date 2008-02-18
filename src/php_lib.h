@@ -7,7 +7,11 @@
 #include <main/php_variables.h>
 #include <main/php_ini.h>
 #include <zend_ini.h>
+
+/* HACK */
+#ifdef HAVE_PERL
 #undef END_EXTERN_C
+#endif /* HAVE_PERL */
 
 PHP_FUNCTION(putdcc);
 PHP_FUNCTION(matchwild);
