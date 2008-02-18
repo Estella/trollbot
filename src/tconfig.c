@@ -36,7 +36,6 @@ struct tconfig_block *file_to_tconfig(const char *filename)
   struct tconfig_block *tmp      = NULL;
   size_t  size   = 0;
   size_t  i      = 0;
-  size_t  count  = 0;
 
   /* For debug purposes */
   int line       = 1;

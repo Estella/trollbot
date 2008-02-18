@@ -238,7 +238,6 @@ void new_part(struct network *net, struct trigger *trig, struct irc_data *data, 
 void new_quit(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
   struct channel *chan       = net->chans;
-  struct channel_user *cuser = NULL;
 
   while (chan != NULL)
   {

@@ -12,16 +12,12 @@
 
 int tcl_utimer(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {
-	struct network *net = clientData;
-	
 	/* Initiate Timers */
 	return TCL_OK;
 }
 
 int tcl_timer(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {
-	struct network *net = clientData;
-
 	/* Initiate Timers */
 	return TCL_OK;
 }

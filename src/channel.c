@@ -11,7 +11,6 @@ struct tconfig_block *chans_to_tconfig(struct channel *chans)
 {
 	struct channel       *tmp  = NULL;
 	struct tconfig_block *tcfg = NULL;
-	struct tconfig_block *tpar = NULL;
 
 	tmp = chans;
 	

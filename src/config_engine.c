@@ -13,6 +13,10 @@
 #include "user.h"
 #include "trigger.h"
 
+#ifdef HAVE_TCL
+#include "tcl_embed.h"
+#endif /* HAVE_TCL */
+
 #ifdef HAVE_PHP
 #include "php_embed.h"
 #endif /* HAVE_PHP */
@@ -32,7 +36,6 @@ int config_engine_init(char *filename)
 {
   struct tconfig_block *tcfg;
   struct tconfig_block *defaults;
-  int i;  
   tcfg      = file_to_tconfig(filename);
 
   defaults  = file_to_tconfig("defaults.conf");

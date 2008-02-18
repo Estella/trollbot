@@ -17,7 +17,7 @@ struct trigger;
 struct dcc_session;
 
 /* This is a band-aid function to make an arg to match against FIXME */
-char *egg_makearg(char *rest, char *mask);
+char *egg_makearg(const char *rest, const char *mask);
 
 /* This is an eggdrop compliant pattern matching recursive function */
 int egg_matchwilds(const char *haystack, const char *needle);

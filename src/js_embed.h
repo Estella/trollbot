@@ -5,6 +5,7 @@ struct network;
 struct trigger;
 struct irc_data;
 struct dcc_session;
+struct config;
 
 void js_load_scripts_from_config(struct config *cfg);
 void dcc_javascript_load(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);

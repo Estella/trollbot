@@ -45,7 +45,7 @@
 
 
 /* This could be replaced by a ltrim() */
-char *egg_makearg(char *rest, char *mask)
+char *egg_makearg(const char *rest, const char *mask)
 {
   char *ret;
 
@@ -363,7 +363,7 @@ int egg_passwdok(struct network *net, const char *handle, const char *pass)
 	hash_state md;
 
 	/* These should be as large as the largest hash type's string/byte representation of its hash respectively */
-	unsigned char hash_string[130];
+	char hash_string[130];
 	unsigned char tmp[64];
 
 	struct user *user;
@@ -419,7 +419,7 @@ int egg_passwdok(struct network *net, const char *handle, const char *pass)
 				printf("Conf Hash: %s\n",user->passhash);
 				printf("Gen  Hash: %s\n",hash_string); 
 				
-				if (!strcmp(user->passhash,&hash_string))
+				if (!strcmp(user->passhash,hash_string))
 					return 1;
 				else
 					return 0;

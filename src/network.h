@@ -123,7 +123,7 @@ struct network
   Tcl_Interp *tclinterp;
 
 	char **tcl_scripts;
-	int tcl_scripts_size;
+	unsigned int tcl_scripts_size;
 #endif /* HAVE_TCL */  
 
 #ifdef HAVE_PERL
@@ -136,7 +136,7 @@ struct network
   PyObject *py_netobj;
   PyObject *pydict;
   char **py_scripts;
-  int py_scripts_size;
+  unsigned int py_scripts_size;
 #endif /* HAVE_PYTHON */
 
 #ifdef HAVE_JS
@@ -150,7 +150,7 @@ struct network
 	JSObject  *plain_global;
 
 	char **js_scripts;
-	int js_scripts_size;
+	unsigned int js_scripts_size;
 #endif /* HAVE_JS */
 
   char *userfile;

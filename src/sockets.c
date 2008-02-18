@@ -86,7 +86,7 @@ void irc_loop(void)
   struct server  *svr;
   struct dcc_session *dcc;
   int numsocks = 0;
-  int lon      = 0;
+  socklen_t lon      = 0;
   int valopt   = 0;
   char *vhostip = NULL;
 
