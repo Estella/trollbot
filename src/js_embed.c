@@ -128,13 +128,19 @@ void net_init_js_global_object(struct network *net)
   builtins = JS_InitStandardClasses(net->cx, net->global);
 
 	/* Initialize egg_lib functions */
+	JS_DefineFunction(net->cx, net->global, "countusers", js_countusers, 0, 0);
+
+	JS_DefineFunction(net->cx, net->global, "savechannels", js_savechannels, 0, 0);
+
+	JS_DefineFunction(net->cx, net->global, "finduser", js_finduser, 1, 0);
+
 	JS_DefineFunction(net->cx, net->global, "matchattr", js_matchattr, 3, 0);
 
 	JS_DefineFunction(net->cx, net->global, "bind", js_bind, 5, 0);
 
 	JS_DefineFunction(net->cx, net->global, "putserv", js_putserv, 1, 0);
 
-	JS_DefineFunction(net->cx, net->global, "js_eval", js_eval, 1, 0);
+	/* JS_DefineFunction(net->cx, net->global, "js_eval", js_eval, 1, 0); */
 
 	JS_DefineProperty(net->cx, net->global, "botname", JSVAL_VOID, js_botname, NULL, 0);
 

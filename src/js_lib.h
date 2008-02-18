@@ -8,6 +8,9 @@ struct irc_data;
 struct network;
 struct dcc_session;
 
+JSBool js_countusers(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+JSBool js_savechannels(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+JSBool js_finduser(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 JSBool js_matchattr(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 JSBool js_save(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 JSBool js_eval(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);

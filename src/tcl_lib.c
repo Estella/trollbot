@@ -9,6 +9,47 @@
 #include "trigger.h"
 #include "irc.h"
 #include "egg_lib.h"
+#include "user.h"
+
+int tcl_savechannels(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	struct network *net = clientData;
+
+	egg_savechannels(net);
+
+	return TCL_OK;
+}
+
+int tcl_finduser(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	struct network *net  = clientData;
+	struct user    *user = NULL;
+	char *mask = NULL;
+	char *ret  = NULL;
+
+  if (objc != 2)
+  {
+    Tcl_WrongNumArgs(interp, objc, objv,"finduser <mask>");
+    return TCL_ERROR;
+  }
+
+  mask = Tcl_GetString(objv[1]);
+
+	user = egg_finduser(net,mask);
+
+	if (user == NULL)
+	{
+		Tcl_SetResult(interp, "*", NULL);
+		return TCL_OK;
+	}
+	
+	ret = tstrdup(user->username);
+
+  /* FIXME: Memory Leak TCL_DYNAMIC for the free func causes crash */
+  Tcl_SetResult(interp, ret, NULL);
+
+	return TCL_OK;
+}
 
 int tcl_utimer(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {

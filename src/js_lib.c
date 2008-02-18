@@ -15,10 +15,62 @@
 #include "network.h"
 #include "egg_lib.h"
 
-JSBool js_matchattr(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSBool js_countusers(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
   struct network *net = JS_GetContextPrivate(cx);
 	int ret;
+
+  ret = egg_countusers(net);
+
+	*rval = INT_TO_JSVAL(ret);
+
+  return JS_TRUE;
+}
+
+
+JSBool js_savechannels(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+	struct network *net = JS_GetContextPrivate(cx);
+
+	*rval = JSVAL_VOID;
+
+	egg_savechannels(net);
+
+	return JS_TRUE;
+}
+
+JSBool js_finduser(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+  struct network *net  = JS_GetContextPrivate(cx);
+	struct user    *user = NULL;
+  char           *mask = NULL;
+
+	if (argc != 1)
+	{
+		*rval = STRING_TO_JSVAL("*");
+		return JS_TRUE;
+	}
+
+	mask = tstrdup(JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
+
+	user = egg_finduser(net,mask);
+
+	if (user == NULL)
+	{
+		*rval = STRING_TO_JSVAL("*");
+	}
+	else
+		*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, user->username));
+
+	free(mask);
+
+	return JS_TRUE;
+}
+
+
+JSBool js_matchattr(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+  struct network *net = JS_GetContextPrivate(cx);
   char *handle  = NULL;
 	char *flags   = NULL;
 	char *channel = NULL;
@@ -50,6 +102,8 @@ JSBool js_save(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	struct network *net = JS_GetContextPrivate(cx);
 
 	egg_save(net);
+
+	*rval = JSVAL_VOID;
 
 	return JS_TRUE;
 }

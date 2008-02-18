@@ -269,7 +269,8 @@ int egg_validuser(struct network *net, const char *handle)
 /* finduser <nick!user@host> */
 /* Eggdrop: Returns: the handle found, or "*" if none */
 /* Trollbot: Returns: a user struct, NULL if none */
-/* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
+/* NEED_IMP: PHP, Perl, Python */
+/* IMP_IN: TCL[poutine], Javascript[BROKEN][poutine] */
 struct user *egg_finduser(struct network *net, const char *mask)
 {
   struct user *user;
@@ -289,7 +290,8 @@ struct user *egg_finduser(struct network *net, const char *mask)
 }
 
 /* net is optional, if NULL, write all user/channel files to disk */
-/* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
+/* NEED_IMP: PHP, Perl, Python  */
+/* IMP_IN: TCL, Javascript */
 void egg_save(struct network *net)
 {
 	users_save(net);
@@ -593,7 +595,7 @@ char *egg_chattr(struct network *net, const char *handle, const char *changes, c
 
 /* matchattr <handle> <flags> [channel] */
 /* NEED_IMP: PHP, Perl, Python  */
-/* IMP_IN: Javascript */
+/* IMP_IN: TCL, Javascript */
 int egg_matchattr(struct network *net, const char *handle, const char *flags, const char *channel)
 {
   struct user *user;
@@ -696,7 +698,7 @@ int egg_matchattr(struct network *net, const char *handle, const char *flags, co
 /* channel remove <name> */
 
 /* Eggdrop Compatible */
-/* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
+/* NEED_IMP: PHP, Perl, Python */
 void egg_savechannels(struct network *net)
 {
 	chans_save(net);

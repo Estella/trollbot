@@ -1,8 +1,21 @@
 bind("pub","-","!javascript","do_javascript");
-bind("pub","-","!js","eval_js");
+//bind("pub","-","!js","eval_js");
 bind("pub","-","!vjs","do_version");
 bind("pub","-","!ocjs","do_onchan");
 bind("pub","-","!matchattr","do_matchattr");
+bind("pub","-","!js-finduser","do_finduser");
+bind("pub","-","!js-countusers","do_countusers");
+
+function do_countusers(nick, uhost, hand, chan, arg)
+{
+	putserv("PRIVMSG " + chan + " :There are currently (" + countusers() + ") users in the bot");
+}
+
+function do_finduser(nick, uhost, hand, chan, arg)
+{
+	putserv("PRIVMSG " + chan + " :" + finduser($arg));
+
+}
 
 function do_matchattr(nick, uhost, hand, chan, arg)
 {
@@ -14,11 +27,11 @@ function do_matchattr(nick, uhost, hand, chan, arg)
 		putserv("PRIVMSG " + chan + " :" + matchattr(args[0],args[1]));
 }
 
-
+/*
 function eval_js(nick, uhost, hand, chan, arg)
 {
 	js_eval(arg,chan);
-}
+}*/
 
 function do_javascript(nick, uhost, hand, chan, arg)
 {

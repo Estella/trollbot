@@ -5,6 +5,11 @@ bind pub - "!matchattr" do:matchattr
 bind pub - "!onchan" do:onchan
 bind pub - "!botname" do:botname
 bind pub - "!channels" do:channels
+bind pub - "!tcl-finduser" do:finduser
+
+proc do:finduser { nick uhost hand chan arg } {
+	putserv "PRIVMSG $chan :Result: [finduser $arg]";
+}
 
 proc do:channels { nick uhost hand chan arg } {
 	putserv "PRIVMSG $chan :Result: [channels]";
