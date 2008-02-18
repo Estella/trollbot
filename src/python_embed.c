@@ -52,7 +52,6 @@ void cfg_init_python(struct config *cfg) {
   troll_debug(LOG_DEBUG, "[python] Loaded trollbot binding module");
  
 #ifdef PY_INTERNAL_CORE
-  troll_debug(LOG_DEBUG, "[python] code: %s", python_core_module_code);
   int ret;
   ret = PyRun_SimpleString(python_core_module_code);
   if (!ret) {
