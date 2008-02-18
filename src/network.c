@@ -72,6 +72,10 @@ void free_networks(struct network *net)
     }
 #endif /* HAVE_JS */
 
+#ifdef HAVE_PYTHON
+   tstrfreev(net->py_scripts);
+#endif /* HAVE_PYTHON*/
+
     ntmp = net;
     net  = net->next;
     free(ntmp);
@@ -151,7 +155,10 @@ struct network *new_network(char *label)
 #endif /* HAVE_PERL */
 
 #ifdef HAVE_PYTHON
-  ret->pydict = NULL;
+  ret->py_scripts = NULL;
+  ret->py_scripts_size = 0;
+  ret->py_paths = NULL;
+  ret->py_paths_size = 0;
 #endif /* HAVE_PYTHON */
 
 #ifdef HAVE_JS

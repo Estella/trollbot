@@ -22,6 +22,11 @@
 #include "js_embed.h"
 #endif /* HAVE_JS */
 
+#ifdef HAVE_PYTHON
+#include "python_embed.h"
+#endif /* HAVE_PYTHON */
+
+
 #include "tomcrypt.h"
 #define NEW_CRYPTO
 

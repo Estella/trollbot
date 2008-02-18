@@ -56,7 +56,7 @@ int config_engine_init(char *filename)
 #endif /* HAVE_PHP */
 
 #ifdef HAVE_PYTHON
-	/* CURRENTLY DISABLED */
+   python_load_scripts_from_config(g_cfg);
 #endif /* HAVE_PYTHON */
 
 #ifdef HAVE_JS
@@ -100,7 +100,7 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 #ifdef HAVE_PYTHON
   cfg->py_main         = NULL;
   cfg->py_main_dict    = NULL;
-	cfg->py_scripts      = NULL
+	cfg->py_scripts      = NULL;
 	cfg->py_scripts_size = 0;
 #endif /* HAVE_PYTHON */
 
@@ -311,38 +311,56 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
         }
 #endif /* HAVE_PHP */
 #ifdef HAVE_PYTHON
+        else if (!strcmp(search->key, "pythonpath") || !strcmp(search->key, "pypath")) {
+           if (net->py_paths_size = 0) {
+               net->py_paths = tmalloc0(sizeof(char*) * 10);
+               net->py_paths_size = 0;
+           }
+           for (i = 0; i <(net->py_paths_size-1);i++) {
+               if (net->py_paths[i] == NULL) {
+                  net->py_paths[i] = tstrdup(search->value);
+                  break;
+               }
+           }
+           if (net->py_paths[i] == NULL) {
+               /*need more slots*/
+               net->py_paths = tsrealloc0(net->py_paths, net->py_paths_size+10, net->py_paths_size);
+               net->py_paths[i] = tstrdup(search->value);
+           }
+        }
         else if (!strcmp(search->key,"pythonscript") || !strcmp(search->key,"pyscript"))
         {
-            if (cfg->py_scripts_size == 0)
+            if (net->py_scripts_size == 0)
             {
               /* Allocate 10 slots (9 usable, 1 NULL) */
-              cfg->py_scripts = tmalloc0(sizeof(char *) * 10);
+              net->py_scripts = tmalloc0(sizeof(char *) * 10);
 
 
-              cfg->py_scripts_size = 10;
+              net->py_scripts_size = 10;
             }
 
-            for (i=0;i<(cfg->py_scripts_size-1);i++)
+            for (i=0;i<(net->py_scripts_size-1);i++)
             {
-              if (cfg->py_scripts[i] == NULL)
+              if (net->py_scripts[i] == NULL)
               {
-                cfg->py_scripts[i] = tstrdup(search->value);
+                net->py_scripts[i] = tstrdup(search->value);
                 break;
               }
             }
 
-            if (cfg->py_scripts[i] == NULL)
+            if (net->py_scripts[i] == NULL)
             {
               /* Need more slots */
-              cfg->py_scripts = tsrealloc0(cfg->py_scripts,cfg->py_scripts_size+10,&cfg->py_scripts_size);
+              net->py_scripts = tsrealloc0(net->py_scripts,net->py_scripts_size+10,&net->py_scripts_size);
 
-              cfg->py_scripts[i] = tstrdup(search->value);
+              net->py_scripts[i] = tstrdup(search->value);
             }
 
-          /*cfg_init_python(cfg);
+          cfg_init_python(cfg);
 
           net_init_python(cfg,net);
 
+          /*
           if ((fp = fopen(search->value,"r")) == NULL)
           {
             troll_debug(LOG_WARN,"Could not open file %s\n",search->value);

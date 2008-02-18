@@ -1,6 +1,9 @@
 **********************
 * Trollbot ChangeLog *
 **********************
+2008-02-17:
+			* Added initial python support
+				** CAVEAT: expect memory to leak if you enable it
 
 2008-02-09:
 						* Added channel record tracking YAY.
