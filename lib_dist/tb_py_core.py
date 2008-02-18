@@ -2,6 +2,8 @@
 Python Library for Trollbot
 
 Author: comcor@DALnet
+
+This module is used for testing only.  It is not included normally.
 """
 
 import imp

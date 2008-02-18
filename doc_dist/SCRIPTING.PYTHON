@@ -1,21 +1,14 @@
 For an example on writing a python script, please see 'test.py' in the sample scripts
 directory that comes with this distribution.
 
-!IMPORTANT!
-Currently, you must make sure that the directory containing the trollbot python core library (lib/tb_py_core.py) 
-is in a place that python knows to look for it.  The easiest way is to add the trollbot lib directory to your
-PYTHONPATH environment variable before executing trollbot.
-
-This behavior will change in future releases.
-
-
 Configuration
 ===============
 
 You may specify python modules to load at runtime via the "pythonscript" configuration directive
-in the network configuration block in your trollbot.conf.  Additionally, if your python scripts live in a 
-non-standard directory, you may also use the "pythonpath" directive to add additional module search paths.
-NOTE: you do not specify the full path nor the ".py" extension of the  module you wish to load.
+in the network configuration block in your trollbot.conf.  
+Whenever you specify the module to load, you can specify the relative (to cwd) or full path to the 
+python script:
+   e.g. /home/comcor/tbscripts/mypython.py
 
 Scripts
 ========

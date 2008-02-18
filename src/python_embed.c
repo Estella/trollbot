@@ -13,11 +13,18 @@
 
 #include "egg_lib.h"
 
+#define PY_INTERNAL_CORE 1
+
+#ifdef PY_INTERNAL_CORE
+#define PY_CORE_LIB "__main__"
+#else
 #define PY_CORE_LIB "tb_py_core"
+#endif
 #define PY_NET_INIT_METH "__TB_init_network"
 #define PY_NET_LOAD_MODULE_METH "__TB_load_module"
 #define PY_NET_CALL_METH "__TB_call_method"
 #define PY_NET_ADD_PATH_METH "__TB_add_path"
+
 
 /* Exported functions to Python */
 PyMethodDef PyTbMethods[] = {
@@ -43,8 +50,19 @@ void cfg_init_python(struct config *cfg) {
   //NOTE: all exposables need to be defined in the PyTbMethods
   Py_InitModule("trollbot", PyTbMethods);
   troll_debug(LOG_DEBUG, "[python] Loaded trollbot binding module");
-  
+ 
+#ifdef PY_INTERNAL_CORE
+  troll_debug(LOG_DEBUG, "[python] code: %s", python_core_module_code);
+  int ret;
+  ret = PyRun_SimpleString(python_core_module_code);
+  if (!ret) {
+    troll_debug(LOG_DEBUG, "[python] Loaded internal core module");
+  } else {
+    troll_debug(LOG_DEBUG, "[python] An error occurred while loading internal core module");
+  }
+#else
   load_python_module(PY_CORE_LIB);
+#endif
 }
 
 
@@ -83,7 +101,8 @@ void load_python_net_module(struct network *net, char * filename) {
 
   PyObject * args[2];
   PyObject *rval;
-
+   
+  troll_debug(LOG_DEBUG, "[python] loading module `%s' for network %s", filename, net->label);
   args[0] = net->py_netobj;
   args[1] = PyString_FromString(filename);
 
@@ -196,6 +215,107 @@ void python_add_path(char * pathname) {
 
    rval = call_python_method(PY_CORE_LIB, PY_NET_ADD_PATH_METH, args, 1);
 }
+
+#ifdef PY_INTERNAL_CORE
+char * python_core_module_code = 
+"import imp\n"
+"import trollbot\n"
+"import sys\n"
+"\n"
+"NETWORKS = {}\n"
+"\n"
+"#TrollbotNetworkInterface\n"
+"#Marshals access to the trollbot module for the given network.\n"
+"#Each script loaded will have a reference to an instance of this\n"
+"#object for the network it is attached to\n"
+"\n"
+"class TrollbotNetworkInterface:\n"
+"\n"
+"   def __init__(self, network):\n"
+"      self.network = network #ptr to TB net struct\n"
+"      self.modules = {}\n"
+"   #end __init__\n"
+"\n"
+"   def load_module(self, name):\n"
+"      ok = False \n"
+"      if (name.find(\"/\") != -1):\n"
+"         comps = name.split(\"/\")\n"
+"         path = \"/\".join(comps[:-1])\n"
+"         name = comps[-1]\n"
+"         if path not in sys.path:\n"
+"            sys.path.insert(0,path)\n"
+"      #end path handling\n"
+"\n"
+"      #strip .py off\n"
+"      if (name[-3:] == \".py\"):\n"
+"         name = name[:-3]\n"
+"\n"
+"      fp, pathname, description = imp.find_module(name)\n"
+"\n"
+"      try:\n"
+"         module = imp.load_module(name, fp, pathname, description)\n"
+"         if module is not None:\n"
+"            #pass module a reference to us\n"
+"            module.trollbot = self\n"
+"            #initialize our module\n"
+"            if getattr(module, \"load\") != None:\n"
+"               module.load()\n"
+"            else:\n"
+"               raise \"Missing load() method for module!\"\n"
+"            #save the module for access later\n"
+"            self.modules[name] = module\n"
+"            ok = True\n"
+"      finally:\n"
+"         if fp:\n"
+"            fp.close\n"
+"      return ok\n"
+"   #end load_module\n"
+"\n"
+"   def bind(self,*args):\n"
+"      trollbot.bind(self.network, *args)\n"
+"\n"
+"   def putserv(self, *args):\n"
+"      trollbot.putserv(self.network, *args)\n"
+"\n"
+"   def call_method(self,callback, *args):\n"
+"      #get module name\n"
+"      (module, method) = callback.split(\".\")\n"
+"      if self.modules.has_key(module):\n"
+"         cb = getattr(self.modules[module], method)\n"
+"         cb(*args)\n"
+"\n"
+"#end TrollbotNetworkInterface\n"
+"\n"
+"\n"
+"##\n"
+"## INTERNAL FUNCTIONS\n"
+"##\n"
+"## Please don't call these unless you know what you are doing.\n"
+"## These are meant to be called through the Python C/API\n"
+"##\n"
+"\n"
+"def __TB_init_network(network):\n"
+"   if not NETWORKS.has_key(network):\n"
+"      NETWORKS[network] = TrollbotNetworkInterface(network)\n"
+"#end init_network\n"
+"\n"
+"def __TB_load_module(network, module):\n"
+"   if NETWORKS.has_key(network):\n"
+"      return NETWORKS[network].load_module(module)\n"
+"   #end if\n"
+"   return False\n"
+"#end __TB_load_module\n"
+"\n"
+"def __TB_call_method(network, callback, *args):\n"
+"   if NETWORKS.has_key(network):\n"
+"      return NETWORKS[network].call_method(callback, *args)\n"
+"   return False\n"
+"#end __TB_call_method\n"
+"\n"
+"def __TB_add_path(path):\n"
+"   sys.path.append(path)\n"
+"#end __TB_add_path\n";
+#endif
 
 /* vim: tabstop=2
  */
