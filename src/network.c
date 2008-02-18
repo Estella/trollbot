@@ -157,8 +157,6 @@ struct network *new_network(char *label)
 #ifdef HAVE_PYTHON
   ret->py_scripts = NULL;
   ret->py_scripts_size = 0;
-  ret->py_paths = NULL;
-  ret->py_paths_size = 0;
 #endif /* HAVE_PYTHON */
 
 #ifdef HAVE_JS

@@ -311,23 +311,6 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
         }
 #endif /* HAVE_PHP */
 #ifdef HAVE_PYTHON
-        else if (!strcmp(search->key, "pythonpath") || !strcmp(search->key, "pypath")) {
-           if (net->py_paths_size = 0) {
-               net->py_paths = tmalloc0(sizeof(char*) * 10);
-               net->py_paths_size = 0;
-           }
-           for (i = 0; i <(net->py_paths_size-1);i++) {
-               if (net->py_paths[i] == NULL) {
-                  net->py_paths[i] = tstrdup(search->value);
-                  break;
-               }
-           }
-           if (net->py_paths[i] == NULL) {
-               /*need more slots*/
-               net->py_paths = tsrealloc0(net->py_paths, net->py_paths_size+10, net->py_paths_size);
-               net->py_paths[i] = tstrdup(search->value);
-           }
-        }
         else if (!strcmp(search->key,"pythonscript") || !strcmp(search->key,"pyscript"))
         {
             if (net->py_scripts_size == 0)

@@ -26,6 +26,18 @@ class TrollbotNetworkInterface:
 
    def load_module(self, name):
       ok = False 
+      if (name.find("/") != -1):
+         comps = name.split("/")
+         path = "/".join(comps[:-1])
+         name = comps[-1]
+         if path not in sys.path:
+            sys.path.append(path)
+      #end path handling
+
+      #strip .py off
+      if (name[-3:] == ".py"):
+         name = name[:-3]
+
       fp, pathname, description = imp.find_module(name)
 
       try:

@@ -72,11 +72,6 @@ void python_load_scripts_from_config(struct config *cfg) {
         load_python_net_module(net, net->py_scripts[i]);
       }
     }
-    if (net->py_paths != NULL) {
-      for (i = 0; net->py_paths[i] != NULL; i++) {
-        python_add_path(net->py_paths[i]);
-      }
-    }
     net = net->next;
   }
 }

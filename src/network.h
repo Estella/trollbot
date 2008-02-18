@@ -130,8 +130,6 @@ struct network
 	/* Copy over on rehash */
   PyObject *py_netobj;
   PyObject *pydict;
-  char **py_paths;
-  int py_paths_size;
   char **py_scripts;
   int py_scripts_size;
 #endif /* HAVE_PYTHON */
