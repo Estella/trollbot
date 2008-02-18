@@ -7,6 +7,9 @@ kicken  / irc.dal.net / #php
   * Designed block config system that tconfig is modeled from
   * fixed up irc.c and util.c crashes and bugs 
 
+comcor / irc.dal.net / #php
+	* Python support
+
 Non-associated programmers:
 
 Steve Reid  / steve@edmweb.com
