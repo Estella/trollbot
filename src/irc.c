@@ -212,6 +212,7 @@ void parse_irc_line(struct network *net, const char *buffer)
       j = 0;
 
       data->c_params[bufindex]   = tmalloc0(strlen(&buffer[m]) + 1);
+			/* Likely an problem FIXME */
 			data->c_params[bufindex+1] = NULL;
     }
 
