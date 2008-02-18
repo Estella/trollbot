@@ -39,6 +39,5 @@ void die_nicely(int ret)
     free(g_cfg);
   }
     
-	/* test comment */
   exit(ret);
 }
