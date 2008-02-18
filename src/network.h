@@ -10,6 +10,7 @@ struct network;
 struct trig_table;
 struct tconfig_block;
 struct dcc_session;
+struct t_timer;
 
 #include <time.h>
 
@@ -102,6 +103,10 @@ struct network
   int dcc_listener;
 
   int dcc_port;
+
+
+	/* Timers */
+	struct t_timer *timers;
 
 	/* Copy over on rehash */
   struct trig_table *trigs;  

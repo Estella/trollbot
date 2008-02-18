@@ -12,6 +12,7 @@
 #include "user.h"
 #include "trigger.h"
 #include "dcc.h"
+#include "t_timer.h"
 
 #ifdef HAVE_TCL
 #include "tcl_embed.h"
@@ -55,6 +56,8 @@ void free_networks(struct network *net)
     free_channels(net->chans);
 
 		free_servers(net->servers);
+	
+		t_timers_free(net->timers);
 
 		/* FIXME: free fucking JS shit, PHP shit, etc */
 
@@ -116,6 +119,7 @@ struct network *new_network(char *label)
 
   ret->users         = NULL;
 
+	ret->timers        = NULL;
   ret->trigs         = new_trig_table();
 
   ret->vhost         = NULL;
