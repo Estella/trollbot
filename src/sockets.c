@@ -130,7 +130,7 @@ void irc_loop(void)
 				}	
 			}
 
-			if (net->status == NET_NONBLOCKCONNECT)
+			if (net->status == NET_NONBLOCKCONNECT || net->status == NET_WAITINGCONNECT)
 			{
 					numsocks = (net->sock > numsocks) ? net->sock : numsocks;
 
