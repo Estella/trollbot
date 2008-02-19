@@ -25,6 +25,7 @@
 #define PY_NET_CALL_METH "__TB_call_method"
 #define PY_NET_ADD_PATH_METH "__TB_add_path"
 
+#define PY_STR(a) PyString_FromString(a)
 
 /* Exported functions to Python */
 PyMethodDef PyTbMethods[] = {
@@ -136,12 +137,28 @@ void py_handler(struct network *net, struct trigger *trig, struct irc_data *data
   PyObject *args[8];
   PyObject *rval;
 
+  //we always need these for the call_python_method call
+  args[0] = net->py_netobj;
+  args[1] = PyString_FromString(trig->command);
+  args[2] = PyString_FromString(net->label);
+
   troll_debug(LOG_DEBUG, "[python] py_handler called for command %s", trig->command);
+
+  /**
+   * Triggers
+   *  - PUB: calls the callback method with the arg string stripped of the leading trigger
+   *         args: network, nick, host, *, channel, trigger args*
+   *  - PUBM: calls the callback method with the entire arg string
+   *         args: network, nick, host, *, channel, entire trigger line
+   *
+   */
   switch (trig->type) {
+    /*
+     * (4) PUB
+     *  bind pub <flags> <command> <proc>
+     *  procname <nick> <user@host> <handle> <channel> <text>
+     */
     case TRIG_PUB:
-      args[0] = net->py_netobj;
-      args[1] = PyString_FromString(trig->command);
-      args[2] = PyString_FromString(net->label);
       args[3] = PyString_FromString(data->prefix->nick);
       args[4] = PyString_FromString(data->prefix->host);
       args[5] = PyString_FromString("*");
@@ -149,7 +166,544 @@ void py_handler(struct network *net, struct trigger *trig, struct irc_data *data
       args[7] = PyString_FromString(egg_makearg(data->rest_str, trig->mask));
 
       rval = call_python_method(PY_CORE_LIB, PY_NET_CALL_METH, args, 8);
-      break;   
+      troll_debug(LOG_DEBUG, "[python] executed TRIG_PUB callback");
+      break; 
+    /*
+     * (6) PUBM
+     *  bind pubm <flags> <mask> <proc>
+     *  procname <nick> <user@host> <handle> <channel> <text>
+     */
+    case TRIG_PUBM:
+      args[3] = PyString_FromString(data->prefix->nick);
+      args[4] = PyString_FromString(data->prefix->host);
+      args[5] = PyString_FromString("*");
+      args[6] = PyString_FromString(data->c_params[0]);
+      args[7] = PyString_FromString(data->rest_str);
+      
+      rval = call_python_method(PY_CORE_LIB, PY_NET_CALL_METH, args, 8);
+      troll_debug(LOG_DEBUG, "[python] executed TRIG_PUBM callback");
+      break;
+
+    /*
+     * (1)  MSG
+     *  bind msg <flags> <command> <proc>
+     *  procname <nick> <user@host> <handle> <text>
+     */
+    case TRIG_MSG:
+      args[3] = PyString_FromString(data->prefix->nick);
+      args[4] = PyString_FromString(data->prefix->host);
+      args[5] = PyString_FromString("*");
+      args[6] = PyString_FromString(egg_makearg(data->rest_str, trig->mask));
+      rval = call_python_method(PY_CORE_LIB, PY_NET_CALL_METH, args, 7);
+      troll_debug(LOG_DEBUG, "[python] executed TRIG_MSG callback");
+      break;
+    /*
+     * (5) MSGM
+     *   bind msgm <flags> <mask> <proc>
+     *   procname <nick> <user@host> <handle> <text>
+     */
+    case TRIG_MSGM:
+      args[3] = PyString_FromString(data->prefix->nick);
+      args[4] = PyString_FromString(data->prefix->host);
+      args[5] = PyString_FromString("*");
+      args[6] = PyString_FromString(data->rest_str);
+      rval = call_python_method(PY_CORE_LIB, PY_NET_CALL_METH, args, 7);
+      troll_debug(LOG_DEBUG, "[python] executed TRIG_MSGM callback");
+      break;
+
+    /* (2) DCC
+     *  bind dcc <flags> <command> <proc>
+     *  procname <handle> <idx> <text>
+     */
+    case TRIG_DCC:
+      break;
+    
+    /* (3) FILE
+     * bind fil <flags> <command> <proc>
+     * procname <handle> <idx> <text>
+    case TRIG_FIL:
+      break;
+     */
+
+    /*
+     * (7)  NOTC (stackable)
+     *   bind notc <flags> <mask> <proc>
+     *   procname <nick> <user@host> <handle> <text> <dest>
+     */
+    case TRIG_NOTC:
+      args[3] = PY_STR(data->prefix->nick);
+      args[4] = PY_STR(data->prefix->nick);
+      args[5] = PY_STR("*");
+      args[6] = PY_STR(data->rest_str);
+      args[7] = PY_STR(data->c_params[0]);
+      rval = call_python_method(PY_CORE_LIB, PY_NET_CALL_METH, args, 8);
+      troll_debug(LOG_DEBUG, "[python] executed TRIG_MSGM callback");
+      break;
+    
+    /*
+     * (8)  JOIN (stackable)
+     *   bind join <flags> <mask> <proc>
+     *   procname <nick> <user@host> <handle> <channel>
+     */
+    case TRIG_JOIN:
+      break;
+
+    /*
+     * (9)  PART (stackable)
+     *   bind part <flags> <mask> <proc>
+     *   procname <nick> <user@host> <handle> <channel> <msg>
+     */
+    case TRIG_PART:
+      break;
+
+    /*
+     * (10) SIGN (stackable)
+     *   bind sign <flags> <mask> <proc>
+     *   procname <nick> <user@host> <handle> <channel> <reason>
+     */
+    case TRIG_SIGN:
+      break;
+
+    /*
+     * (11) TOPC (stackable)
+     *   bind topc <flags> <mask> <proc>
+     *   procname <nick> <user@host> <handle> <channel> <topic>
+     *
+     *   Description: triggered by a topic change. mask can contain wildcards
+     *     and is matched against '#channel <new topic>'.
+     *   Module: irc
+     */
+
+    /*
+     * (12) KICK (stackable)
+     *   bind kick <flags> <mask> <proc>
+     *   procname <nick> <user@host> <handle> <channel> <target> <reason>
+     *
+     *   Description: triggered when someone is kicked off the channel. The
+     *     mask is matched against '#channel target reason' where the target is
+     *     the nickname of the person who got kicked (can contain wildcards).
+     *     The proc is called with the nick, user@host, and handle of the
+     *     kicker, plus the channel, the nickname of the person who was
+     *     kicked, and the reason.
+     *   Module: irc
+     */
+    /*
+     * (13) NICK (stackable)
+         bind nick <flags> <mask> <proc>
+         procname <nick> <user@host> <handle> <channel> <newnick>
+
+         Description: triggered when someone changes nicknames. The mask
+           is matched against '#channel newnick' and can contain wildcards.
+           Channel is "*" if the user isn't on a channel (usually the bot not
+           yet in a channel).
+         Module: irc
+     */
+    /*
+     * (14) MODE (stackable)
+         bind mode <flags> <mask> <proc>
+         proc-name <nick> <user@host> <handle> <channel> <mode-change> <target>
+
+         Description: mode changes are broken down into their component
+           parts before being sent here, so the <mode-change> will always
+           be a single mode, such as "+m" or "-o". target will show the
+           argument of the mode change (for o/v/b/e/I) or "" if the set
+           mode does not take an argument. The bot's automatic response
+           to a mode change will happen AFTER all matching Tcl procs are
+           called. The mask will be matched against '#channel +/-modes'
+           and can contain wildcards.
+
+           If it is a server mode, nick will be "", user@host is the server
+           name, and handle is *.
+
+           Note that "target" was added in 1.3.17 and that this will break
+           Tcl scripts that were written for pre-1.3.17 Eggdrop that use the
+           mode binding. Also, due to a typo, mode binds were broken
+           completely in 1.3.17 but were fixed in 1.3.18. Mode bindings are
+           not triggered at all in 1.3.17.
+
+           One easy example (from guppy) of how to support the "target"
+           parameter in 1.3.18 and later and still remain compatible with
+           older Eggdrop versions is:
+
+           Old script looks as follows:
+             bind mode - * mode_proc
+             proc mode_proc {nick uhost hand chan mode} { ... }
+
+           To make it work with 1.3.18+ and stay compatible with older bots, do:
+             bind mode - * mode_proc_fix
+             proc mode_proc_fix {nick uhost hand chan mode {target ""}} {
+               if {$target != ""} {append mode " $target"}
+               mode_proc $nick $uhost $hand $chan $mode
+             }
+             proc mode_proc {nick uhost hand chan mode} { ... }
+         Module: irc
+     */
+    /*
+     * (15) CTCP (stackable)
+         bind ctcp <flags> <keyword> <proc>
+         proc-name <nick> <user@host> <handle> <dest> <keyword> <text>
+
+         Description: dest will be a nickname (the bot's nickname, obviously)
+           or channel name. keyword is the ctcp command (which can contain
+           wildcards), and text may be empty. If the proc returns 0, the bot
+           will attempt its own processing of the ctcp command.
+         Module: server
+    */
+   /*
+    * (16) CTCR (stackable)
+         bind ctcr <flags> <keyword> <proc>
+         proc-name <nick> <user@host> <handle> <dest> <keyword> <text>
+
+         Description: just like ctcp, but this is triggered for a ctcp-reply
+           (ctcp embedded in a notice instead of a privmsg)
+         Module: server
+     */
+    /*
+     * (17) RAW (stackable)
+         bind raw <flags> <keyword> <proc>
+         procname <from> <keyword> <text>
+
+         Description: previous versions of Eggdrop required a special compile
+           option to enable this binding, but it's now standard. The keyword
+           is either a numeric, like "368", or a keyword, such as "PRIVMSG".
+           from will be the server name or the source user (depending on
+           the keyword); flags are ignored. The order of the arguments is
+           identical to the order that the IRC server sends to the bot. The
+           pre-processing  only splits it apart enough to determine the
+           keyword. If the proc returns 1, Eggdrop will not process the line
+           any further (this could cause unexpected behavior in some cases).
+         Module: server
+     */
+    /*
+     * (18) BOT
+         bind bot <flags> <command> <proc>
+         proc-name <from-bot> <command> <text>
+
+         Description: triggered by a message coming from another bot in
+           the botnet. The first word is the command and the rest becomes
+           the text argument; flags are ignored.
+         Module: core
+     */
+    /*
+     * (19) CHON (stackable)
+         bind chon <flags> <mask> <proc>
+         proc-name <handle> <idx>
+
+         Description: when someone first enters the party-line area of the
+           bot via dcc chat or telnet, this is triggered before they are
+           connected to a chat channel (so, yes, you can change the channel
+           in a 'chon' proc). mask is matched against the handle and supports
+           wildcards. This is NOT triggered when someone returns from the
+           file area, etc.
+         Module: core
+     */
+    /*
+     * (20) CHOF (stackable)
+         bind chof <flags> <mask> <proc>
+         proc-name <handle> <idx>
+
+         Description: triggered when someone leaves the party line to
+           disconnect from the bot. mask is matched against the handle and
+           can contain wildcards. Note that the connection may have already
+           been dropped by the user, so don't send output to the idx.
+         Module: core
+     */
+    /*
+     * (21) SENT (stackable)
+         bind sent <flags> <mask> <proc>
+         proc-name <handle> <nick> <path/to/file>
+
+         Description: after a user has successfully downloaded a file from
+           the bot, this binding is triggered. mask is matched against the
+           handle of the user that initiated the transfer and supports
+           wildcards. nick is the actual recipient (on IRC) of the file. The
+           path is relative to the dcc directory (unless the file transfer
+           was started by a script call to 'dccsend', in which case the path
+           is the exact path given in the call to 'dccsend').
+         Module: transfer
+     */
+    /*
+     * (22) RCVD (stackable)
+         bind rcvd <flags> <mask> <proc>
+         proc-name <handle> <nick> <path/to/file>
+
+         Description: triggered after a user uploads a file successfully.
+           mask is matched against the user's handle. nick is the IRC
+           nickname that the file transfer originated from. The path is
+           where the file ended up, relative to the dcc directory (usually
+           this is your incoming dir).
+         Module: transfer
+     */
+    /*
+     * (23) CHAT (stackable)
+         bind chat <flags> <mask> <proc>
+         proc-name <handle> <channel#> <text>
+
+         Description: when a user says something on the botnet, it invokes
+           this binding. Flags are ignored; handle could be a user on this
+           bot ("DronePup") or on another bot ("Eden@Wilde") and therefore
+           you can't rely on a local user record. The mask is checked against
+           the entire line of text and supports wildcards.
+
+           NOTE: If a BOT says something on the botnet, the BCST bind is
+           invoked instead.
+         Module: core
+     */
+    /*
+     * (24) LINK (stackable)
+         bind link <flags> <mask> <proc>
+         proc-name <botname> <via>
+
+         Description: triggered when a bot links into the botnet. botname
+           is the botnetnick of the bot that just linked in; via is the bot
+           it linked through. The mask is checked against the botnetnick of
+           the bot that linked and supports wildcards. flags are ignored.
+         Module: core
+     */
+    /*
+     * (25) DISC (stackable)
+         bind disc <flags> <mask> <proc>
+         proc-name <botname>
+
+         Description: triggered when a bot disconnects from the botnet for
+           whatever reason. Just like the link bind, flags are ignored; mask
+           is matched against the botnetnick of the bot that unlinked.
+           Wildcards are supported in mask.
+         Module: core
+     */
+    /*
+     * (26) SPLT (stackable)
+         bind splt <flags> <mask> <proc>
+         procname <nick> <user@host> <handle> <channel>
+
+         Description: triggered when someone gets netsplit on the channel.
+           Be aware that this may be a false alarm (it's easy to fake a
+           netsplit signoff message on some networks); mask may contain
+           wildcards and is matched against '#channel nick!user@host'.
+           Anyone who is SPLT will trigger a REJN or SIGN within the next
+           wait-split (defined in the config file) minutes.
+         Module: irc
+     */
+    /*
+     * (27) REJN (stackable)
+         bind rejn <flags> <mask> <proc>
+         procname <nick> <user@host> <handle> <channel>
+
+         Description: someone who was split has rejoined. mask can contain
+           wildcards, and is matched against '#channel nick!user@host'.
+         Module: irc
+     */
+    /*
+     * (28) FILT (stackable)
+         bind filt <flags> <mask> <proc>
+         procname <idx> <text>
+
+         Description: party line and file system users have their text sent
+           through filt before being processed. If the proc returns a blank
+           string, the text is considered parsed. Otherwise, the bot will use
+           the text returned from the proc and continue parsing that
+         Module: core
+     */
+    /*
+     * (29) NEED (stackable)
+         bind need <flags> <mask> <proc>
+         procname <channel> <type>
+
+         Description: this bind is triggered on certain events, like when
+           the bot needs operator status or the key for a channel. The
+           types are: op, unban, invite, limit, and key; the mask is
+           matched against '#channel type' and can contain wildcards. flags
+           are ignored.
+
+           Example:
+             bind need - "% op" needop < handles only need op
+             bind need - "*" needall   < handles all needs
+         Module: irc
+     */
+    /*
+     * (30) FLUD (stackable)
+         bind flud <flags> <type> <proc>
+         procname <nick> <user@host> <handle> <type> <channel>
+
+         Description: any floods detected through the flood control settings
+           (like 'flood-ctcp') are sent here before processing. If the proc
+           returns 1, no further action is taken on the flood; if the proc
+           returns 0, the bot will do its normal "punishment" for the flood.
+           The flood types are: pub, msg, join, or ctcp (and can be masked to
+           "*" for the bind); flags are ignored.
+         Module: server
+     */
+    /*
+     * (31) NOTE (stackable)
+        bind note <flags> <mask> <proc>
+        procname <from> <to> <text>
+
+        Description: incoming notes (either from the party line, someone on
+          IRC, or someone on another bot on the botnet) are checked against
+          these binds before being processed. The mask is matched against
+          the receiving handle and supports wildcards. If the proc returns 1,
+          Eggdrop will not process the note any further. Flags are ignored.
+        Module: core
+     */
+    /*
+     * (32) ACT (stackable)
+         bind act <flags> <mask> <proc>
+         proc-name <handle> <channel#> <action>
+
+         Description: when someone does an action on the botnet, it invokes
+           this binding. flags are ignored; the mask is matched against the
+           text of the action and can support wildcards.
+         Module: core
+    */
+   /*
+    * (33) WALL (stackable)
+        bind wall <flags> <mask> <proc>
+        proc-name <from> <msg>
+
+        Description: when the bot receives a wallops, it invokes this
+          binding. flags are ignored; the mask is matched against the text
+          of the wallops msg. Note that RFC shows the server name as a source
+          of the message, whereas many IRCds send the nick!user@host of the
+          actual sender, thus, Eggdrop will not parse it at all, but simply
+          pass it to bind in its original form. If the proc returns 1,
+          Eggdrop will not log the message that triggered this bind.
+        Module: server
+     */
+   /*
+    * (34) BCST (stackable)
+         bind bcst <flags> <mask> <proc>
+         proc-name <botname> <channel#> <text>
+ 
+         Description: when a bot broadcasts something on the botnet (see
+           'dccbroadcast' above), it invokes this binding. flags are ignored;
+           the mask is matched against the message text and can contain
+           wildcards. 'channel' argument will always be '-1' since broadcasts
+           are not directed to any partyline channel.
+ 
+           It is also invoked when a BOT (not a person, as with the CHAT bind)
+           'says' something on a channel. In this case, the 'channel' argument
+           will be a valid channel, and not '-1'.
+         Module: core
+    */
+   /*
+    * (35) CHJN (stackable)
+         bind chjn <flags> <mask> <proc>
+         proc-name <botname> <handle> <channel#> <flag> <idx> <user@host>
+
+         Description: when someone joins a botnet channel, it invokes this
+           binding. The mask is matched against the channel and can contain
+           wildcards. flag is one of: * (owner), + (master), @ (op), or %
+           (botnet master). Flags are ignored.
+         Module: core
+    */
+   /*
+    * (36) CHPT (stackable)
+         bind chpt <flags> <mask> <proc>
+         proc-name <botname> <handle> <idx> <channel#>
+
+         Description: when someone parts a botnet channel, it invokes this
+           binding. The mask is matched against the channel and can contain
+           wildcards. Flags are ignored.
+         Module: core
+    */
+   /*
+    * (37) TIME (stackable)
+         bind time <flags> <mask> <proc>
+         proc-name <minute> <hour> <day> <month> <year>
+
+         Description: allows you to schedule procedure calls at certain
+           times. mask matches 5 space separated integers of the form:
+           "minute hour day month year". minute, hour, day, month have a
+           zero padding so they are exactly two characters long; year is
+           four characters. Flags are ignored.
+         Module: core
+    */
+   /*
+    * (38) AWAY (stackable)
+         bind away <flags> <mask> <proc>
+         proc-name <botname> <idx> <text>
+
+         Description: triggers when a user goes away or comes back on the
+           botnet. text is the reason than has been specified (text is ""
+           when returning). mask is matched against the botnet-nick of the
+           bot the user is connected to and supports wildcards. flags are
+           ignored.
+         Module: core
+     */
+   /*
+    * (39) LOAD (stackable)
+         bind load <flags> <mask> <proc>
+         proc-name <module>
+
+         Description: triggers when a module is loaded. mask is matched
+           against the name of the loaded module and supports wildcards;
+           flags are ignored.
+         Module: core
+    */
+   /*
+    * (40) UNLD (stackable)
+         bind unld <flags> <mask> <proc>
+         proc-name <module>
+
+         Description: triggers when a module is unloaded. mask is matched
+           against the name of the unloaded module and supports wildcards;
+           flags are ignored.
+         Module: core
+    */
+   /*
+    * (41) NKCH (stackable)
+         bind nkch <flags> <mask> <proc>
+         proc-name <oldhandle> <newhandle>
+
+         Description: triggered whenever a local user's handle is changed
+           (in the userfile). mask is matched against the user's old handle
+           and can contain wildcards; flags are ignored.
+         Module: core
+     */
+   /*
+    * (42) EVNT (stackable)
+         bind evnt <flags> <type> <proc>
+         proc-name <type>
+
+         Description: triggered whenever one of these events happen. flags
+           are ignored; valid events are:
+             sighup          - called on a kill -HUP <pid>
+             sigterm         - called on a kill -TERM <pid>
+             sigill          - called on a kill -ILL <pid>
+             sigquit         - called on a kill -QUIT <pid>
+             save            - called when the userfile is saved
+             rehash          - called just after a rehash
+             prerehash       - called just before a rehash
+             prerestart      - called just before a restart
+             logfile         - called when the logs are switched daily
+             loaded          - called when the bot is done loading
+             userfile-loaded - called after userfile has been loaded
+
+             connect-server    - called just before we connect to an IRC server
+             init-server       - called when we actually get on our IRC server
+             disconnect-server - called when we disconnect from our IRC server
+         Module: core
+     */
+   /*
+    * (43) LOST (stackable)
+         bind lost <flags> <mask> <proc>
+         proc-name <handle> <nick> <path> <bytes-transferred> <length-of-file>
+
+         Description: triggered when a DCC SEND transfer gets lost, such as
+           when the connection is terminated before all data was successfully
+           sent/received. This is typically caused by a user abort.
+         Module: transfer
+    */
+    /*
+     * (44) TOUT (stackable)
+         bind tout <flags> <mask> <proc>
+         proc-name <handle> <nick> <path> <bytes-transferred> <length-of-file>
+
+         Description: triggered when a DCC SEND transfer times out. This may
+           either happen because the dcc connection was not accepted or
+           because the data transfer stalled for some reason.
+         Module: transfer
+    */
   }
 }
 

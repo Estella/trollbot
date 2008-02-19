@@ -45,7 +45,7 @@ PyObject *py_bind(PyObject *self, PyObject *args) {
     troll_debug(LOG_DEBUG, "[python-bindings] py_bind; egg_bind failed: (%s, %s, %s, %s, %s)", net, type, flags, keyword, proc);
     Py_RETURN_FALSE;
   }
-
+  troll_debug(LOG_DEBUG, "[python-bindings] py_bind: bound trigger `%s' to method `%s'", keyword, proc);
   Py_RETURN_TRUE;
 }
 
