@@ -98,7 +98,8 @@ void irc_loop(void)
 		/* Shouldn't be done here */
 		net->cur_server = net->servers;
 
-		net->status = NET_INPROGRESS;
+		net->last_try = time(NULL);
+		net->status   = NET_INPROGRESS;
 		network_connect(net);
 
 		net = net->next;
@@ -125,6 +126,8 @@ void irc_loop(void)
 					{
 						net->status = NET_INPROGRESS;
 						/* Try a non-blocking connect to the next server */
+						net->last_try = time(NULL);
+	
 						network_connect(net);
 					}
 				}	
