@@ -275,7 +275,26 @@ void trigger_match(struct network *net, struct irc_data *data)
   }
   else if (!strcmp(data->command,"NOTICE"))
   {
-    /* Command is a NOTC */
+		/* Check bind NOTC, STACKABLE */
+		trig = net->trigs->notc;
+
+		while (trig != NULL)
+		{
+			if (data->rest[0] != NULL)
+			{
+				if (!egg_matchwilds(data->rest_str,trig->mask))
+				{
+					if (trig->handler != NULL)
+					{
+						trig->usecount++;
+						trig->handler(net,trig,data,NULL,NULL);
+					}
+				}
+			}
+
+			trig = trig->next;
+		}
+
   }
   else
   {
