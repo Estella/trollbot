@@ -12,11 +12,15 @@ Access to the trollbot bound C methods are done through the 'trollbot' member of
 which is added at runtime by the bot before load() is called.
 """
 
+def bacon(netw, nick, uhost, hand, chan, arg:
+	trollbot.putserv("PRIVMSG %s :BACON!" % (chan))
+
 def callback(netw, nick, uhost, hand, chan, arg):
    trollbot.putserv("PRIVMSG %s :Python Support Enabled" % (chan))
    trollbot.putserv("PRIVMSG %s :GOT: %s, %s, %s, %s, %s, %s" % (chan,netw, nick, uhost, hand, chan, arg))
 
 def load():
    result = trollbot.bind("pub", "-", "!python", "test.callback")
+	 result = trollbot.bind("pubm", "-", "*bacon*", "test.bacon")
 
 #end load

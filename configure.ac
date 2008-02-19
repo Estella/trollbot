@@ -41,8 +41,14 @@ fi
 
 PKG_PROG_PKG_CONFIG
 
+
 dnl test if javascript exists
-PKG_CHECK_MODULES(JS, xulrunner-js, has_js="yes", has_js="no")
+AC_ARG_WITH(js, [  --with-js=[yes/no]  Whether to use JS scripting support],
+	[ with_js="$withval" ])
+
+if test "${with_js}" != "no"; then
+	PKG_CHECK_MODULES(JS, xulrunner-js, has_js="yes", has_js="no")
+fi
 
 AC_SUBST(JS_LIBS)
 AC_SUBST(JS_CFLAGS)

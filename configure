@@ -1318,6 +1318,7 @@ Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-python          configure with Python scripting support
+  --with-js=yes/no  Whether to use JS scripting support
   --with-tclconfig=PATH   use tclConfig.sh from PATH
                           (configure gets Tcl configuration from here)
   --with-tcl=PATH         use Tcl from PATH
@@ -5690,6 +5691,15 @@ echo "${ECHO_T}no" >&6; }
 fi
 
 
+
+# Check whether --with-js was given.
+if test "${with_js+set}" = set; then
+  withval=$with_js;  with_js="$withval"
+fi
+
+
+if test "${with_js}" != "no"; then
+
 pkg_failed=no
 { echo "$as_me:$LINENO: checking for JS" >&5
 echo $ECHO_N "checking for JS... $ECHO_C" >&6; }
@@ -5759,6 +5769,7 @@ else
         { echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6; }
 	has_js="yes"
+fi
 fi
 
 

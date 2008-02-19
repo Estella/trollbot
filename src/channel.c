@@ -11,6 +11,9 @@ struct tconfig_block *chans_to_tconfig(struct channel *chans)
 {
 	struct channel       *tmp  = NULL;
 	struct tconfig_block *tcfg = NULL;
+	struct tconfig_block *tpar = NULL;
+	char                 *tstr = NULL;
+	int                   size = 0;
 
 	tmp = chans;
 	
@@ -30,14 +33,15 @@ struct tconfig_block *chans_to_tconfig(struct channel *chans)
 		tcfg->value = tstrdup(tmp->name);
 
 		/* Create child, save parent pointer */
-/*		tcfg->child  = tconfig_block_new();
+		tcfg->child  = tconfig_block_new();
 		tpar         = tcfg;
 		tcfg         = tcfg->child;
 		tcfg->parent = tpar;
 
-		if (tmp->nick != NULL)
-		{*/
-	    /* Nick */
+
+		/*if (tmp->nick != NULL)
+		{
+	    *//* Nick */
   	  /*tcfg->key        = tstrdup("nick");
     	tcfg->value      = tstrdup(tmp->nick);
 			tcfg->next       = tconfig_block_new();
@@ -52,8 +56,8 @@ struct tconfig_block *chans_to_tconfig(struct channel *chans)
 			tcfg->value = tstrdup(tmp->flags);
 		}*/
 
-		/* Switch to Parent pointer */
-		/* tcfg = tpar; */
+
+		tcfg = tpar;
 
 		tmp  = tmp->next;
 	}
@@ -182,6 +186,7 @@ void free_channels(struct channel *chans)
   while (chans != NULL)
   {
     free(chans->name);
+
     cusers  = chans->user_list;
   
     if (cusers != NULL)
@@ -200,6 +205,7 @@ void free_channels(struct channel *chans)
       }
     }
 
+		free(chans->chanmode);
 		free(chans->topic);
 
     chantmp = chans;
@@ -228,6 +234,71 @@ struct channel *new_channel(const char *chan)
 	}
 
 	ret->topic = NULL;
+
+	/* Eggdrop Vars */
+	ret->flood_chan_count = -1;
+	ret->flood_chan_sec   = -1;
+
+	ret->flood_deop_count = -1;
+	ret->flood_deop_sec   = -1;
+
+	ret->flood_kick_count = -1;
+	ret->flood_kick_sec   = -1;
+
+	ret->flood_join_count = -1;
+	ret->flood_join_sec   = -1;
+
+	ret->flood_ctcp_count = -1;
+	ret->flood_ctcp_sec   = -1;
+
+	ret->flood_nick_count = -1;
+	ret->flood_nick_sec   = -1;
+
+	ret->aop_delay_count  = -1;
+	ret->aop_delay_sec    = -1;
+
+	ret->idle_kick        = -1;
+	
+	ret->chanmode         = NULL;
+
+	ret->stopnethack_mode = -1;
+	
+	ret->revenge_mode     = -1;
+	ret->ban_time         = -1;
+
+	ret->exempt_time      = -1;
+	ret->invite_time      = -1;
+
+	ret->autoop           = -1;
+	ret->bitch            = -1;
+
+	ret->autovoice        = -1;
+	ret->cycle            = -1;
+
+	ret->dontkickops      = -1;
+	ret->dynamicexempts   = -1;
+
+	ret->enforcebans      = -1;
+	ret->greet            = -1;
+
+	ret->dynamicinvites   = -1;
+	ret->dynamicbans      = -1;
+	ret->enforcebans      = -1;
+	ret->revenge          = -1;
+	ret->userbans         = -1;
+	ret->userinvites      = -1;
+	ret->autohalfop       = -1;
+	ret->nodesynch        = -1;
+	ret->protectops       = -1;
+	ret->revengebot       = -1;
+	ret->seen             = -1;
+	ret->statuslog        = -1;
+	ret->userexempts      = -1;
+	ret->protecthalfops   = -1;
+	ret->statuslog        = -1;
+	ret->secret           = -1;
+	ret->shared           = -1;
+
   ret->tcfg = NULL;
   ret->user_list = NULL;
 

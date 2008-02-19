@@ -34,11 +34,11 @@ void add_default_triggers(void)
   while (net != NULL)
   {
     /* These should be in the CTCP bind, but MSG for now */
-    trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,"\001VERSION\001",NULL,&return_ctcp_version));
-    trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,"\001CHAT\001",NULL,&reverse_dcc_chat));
-    trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,"\001JOIN\001",NULL,&do_join_channels));
-    trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,"\001PING\001",NULL,&return_ctcp_ping));
-    trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,"\001TIME\001",NULL,&return_ctcp_time));
+    trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,"\001VERSION",NULL,&return_ctcp_version));
+    trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,"\001CHAT",NULL,&reverse_dcc_chat));
+    trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,"\001JOIN",NULL,&do_join_channels));
+    trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,"\001PING",NULL,&return_ctcp_ping));
+    trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,"\001TIME",NULL,&return_ctcp_time));
     trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,"\001DCC CHAT",NULL,&initiate_dcc_chat));
  
     /* BIND MSG */

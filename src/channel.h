@@ -34,6 +34,52 @@ struct channel
 	char *topic;
   int status;
 
+	/* Eggdrop Vars */
+  int flood_chan_count;
+  int flood_chan_sec;
+  int flood_deop_count;
+  int flood_deop_sec;
+  int flood_kick_count;
+  int flood_kick_sec;
+  int flood_join_count;
+  int flood_join_sec;
+  int flood_ctcp_count;
+  int flood_ctcp_sec;
+  int flood_nick_count;
+  int flood_nick_sec;
+  int aop_delay_count;
+  int aop_delay_sec;
+  int idle_kick;
+  char *chanmode;
+  int stopnethack_mode;
+  int revenge_mode;
+  int ban_time;
+  int exempt_time;
+  int invite_time;
+  int autoop;
+  int bitch;
+  int autovoice;
+  int cycle;
+  int dontkickops;
+  int dynamicexempts;
+  int greet;
+  int dynamicinvites;
+  int dynamicbans;
+  int enforcebans;
+  int revenge;
+  int userbans;
+  int userinvites;
+  int autohalfop;
+  int nodesynch;
+  int protectops;
+  int revengebot;
+  int seen;
+  int userexempts;
+  int protecthalfops;
+  int statuslog;
+  int secret;
+  int shared;
+
   struct channel_user *user_list;
 
   /* Unhandled blocks get stuck here */
