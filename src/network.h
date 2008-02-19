@@ -34,15 +34,15 @@ struct interpreter;
 #include <jsapi.h>
 #endif /* HAVE_JS */
 
-enum network_status
-{
-  STATUS_IGNORED      = -1,
-  STATUS_DISCONNECTED =  0,
-  STATUS_NOTREADY     =  1,
-  STATUS_WANTDISC,
-  STATUS_CONNECTED,
-  STATUS_AUTHORIZED,
-  STATUS_IDLE
+enum network_status {
+  NET_DISCONNECTED = 0,
+	NET_INPROGRESS,
+  NET_NONBLOCKCONNECT, /* A connect() call has been made, it is not in any fd set */
+  NET_WAITINGCONNECT,  /* A connect() call has been made, it's now in a fd set    */
+  NET_NOTREADY,        /* Socket has been accept()ed but not added to FD set      */
+  NET_CONNECTED,
+	NET_AUTHORIZED,
+	NET_IDLE
 };
 
 /* All lists are at head */
@@ -74,15 +74,14 @@ struct network
 
 	/* Copy over on rehash */
   int status;
- 
-  /* This is to implement connection queueing 
-   * connect_try is set to the amount of times 
-   * try connecting before giving up, -1 if never
-   */
-  int connect_try;
+
+	/* This settings makes the bot cycle forever through the server list until
+ 	 * it successfully connects to one.
+ 	 */ 
+	int never_give_up;
 
   /* Time in seconds to wait before trying to reconnect */
-  time_t connect_delay;
+  int connect_delay;
 
   /* if (connect_try--) if (last_try + connect_delay <= time(NULL)) connect() */
   time_t last_try;
@@ -157,6 +156,7 @@ struct network
   char *chanfile;
 };
 
+void network_connect(struct network *net);
 void free_networks(struct network *net);
 
 struct network *new_network(char *label);

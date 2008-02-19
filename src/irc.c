@@ -302,7 +302,7 @@ void parse_irc_line(struct network *net, const char *buffer)
   {
     irc_printf(net->sock,"USERHOST %s",net->nick);
     join_channels(net);
-    net->status = STATUS_IDLE;
+    net->status = NET_IDLE;
     
   }
 

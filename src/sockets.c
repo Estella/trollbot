@@ -95,83 +95,13 @@ void irc_loop(void)
   /* Connect to one server for each network, or mark network unconnectable */
   while (net != NULL)
   {
-    svr = net->servers;
+		/* Shouldn't be done here */
+		net->cur_server = net->servers;
 
-    while (svr != NULL)
-    {
-      if ((net->sock = socket(AF_INET, SOCK_STREAM, 0)) == -1)
-      {
-        fprintf(stderr, "Could not create socket for server %s in network %s\n",svr->host,net->label);
-        svr = svr->next;
-        continue;
-      }
+		net->status = NET_INPROGRESS;
+		network_connect(net);
 
-      if (net->vhost != NULL)
-      {
-        if ((vhost = gethostbyname(net->vhost)) == NULL)
-        {
-          troll_debug(LOG_WARN,"Could not resolve vhost (%s) using default",net->vhost);
-          free(net->vhost);
-          net->vhost = NULL;
-        } 
-        else
-        {
-          vhostip = tmalloc0(3*4+3+1);
-          sprintf(vhostip,"%s",inet_ntoa(*((struct in_addr *)vhost->h_addr)));
-        }
-      }
-  
-      if ((he = gethostbyname(svr->host)) == NULL) 
-      { 
-        troll_debug(LOG_WARN,"Could not resolve %s in network %s\n",svr->host,net->label);       
-        svr = svr->next;
-        continue;
-      }
-
-      serv_addr.sin_family = AF_INET;     
-      serv_addr.sin_port   = htons(svr->port);   
-      serv_addr.sin_addr   = *((struct in_addr *)he->h_addr);
-      memset(&(serv_addr.sin_zero), '\0', 8);
-
-      if (net->vhost != NULL)
-      {
-        my_addr.sin_family = AF_INET;
-        my_addr.sin_addr.s_addr = inet_addr(vhostip);
-        free(vhostip);
-        my_addr.sin_port = htons(0);
-        memset(&(my_addr.sin_zero), '\0', 8);
-
-        /* Bind IRC connection to vhost */
-        if (bind(net->sock, (struct sockaddr *)&my_addr, sizeof(my_addr)) == -1) 
-        {
-          troll_debug(LOG_WARN,"Could not use vhost: %s",net->vhost);
-          free(net->vhost);
-          net->vhost = NULL;
-        }
-      }
-
-      if (connect(net->sock,(struct sockaddr *)&serv_addr,sizeof(struct sockaddr)) == -1) 
-      {
-        troll_debug(LOG_WARN,"Could not connect to server %s on port %d for network %s\n",svr->host,svr->port,net->label);
-        net->sock = -1;
-        svr = svr->next;
-        continue;
-      }
- 
-      troll_debug(LOG_DEBUG,"Connected to %s port %d for network %s\n",svr->host,svr->port,net->label);
-      net->cur_server = svr;
-      net->status     = STATUS_CONNECTED;     
- 
-      break;
-    } 
-    
-    if (net->sock == -1)
-    {
-      net->status     = STATUS_DISCONNECTED;
-      troll_debug(LOG_ERROR,"Could not connect to any servers for network %s\n",net->label);
-    }
-
-    net = net->next;
+		net = net->next;
   }
 
   while (g_cfg->networks != NULL)
@@ -187,29 +117,27 @@ void irc_loop(void)
 
     while (net != NULL)
     {
-			/* Remove dead connections */
-			if (net->status == STATUS_DISCONNECTED){
-				struct network *next=net->next;
-				struct network *prev=net->prev;
-
-				net->next=NULL;
-				net->prev=NULL;
-				free_networks(net);
-				net=next;
-
-				if (next != NULL){
-					net->prev=prev;
-					if (prev != NULL){
-						net->prev->next = net;
+			if (net->status == NET_DISCONNECTED)
+			{
+				if (net->never_give_up == 1)
+				{
+					if (net->last_try + net->connect_delay <= time(NULL))
+					{
+						net->status = NET_INPROGRESS;
+						/* Try a non-blocking connect to the next server */
+						network_connect(net);
 					}
-					else {
-						g_cfg->networks = net;
-					}
-				}
-				else if (prev == NULL){
-					g_cfg->networks = NULL;
-				}
-				continue;
+				}	
+			}
+
+			if (net->status == NET_NONBLOCKCONNECT)
+			{
+					numsocks = (net->sock > numsocks) ? net->sock : numsocks;
+
+					FD_SET(net->sock,&writefds);
+
+					/* Now in a FD set */
+					net->status = NET_WAITINGCONNECT;
 			}
 
       /* If a DCC listener exists, add it to the fd set */
@@ -252,8 +180,14 @@ void irc_loop(void)
       /* Add each network to the read fd set */
       if (net->sock != -1)
       {
-        numsocks = (net->sock > numsocks) ? net->sock : numsocks;
-        FD_SET(net->sock,&socks);
+				if (net->status >= NET_NOTREADY)
+				{
+					if (net->status == NET_NOTREADY)
+						net->status = NET_CONNECTED;
+
+        	numsocks = (net->sock > numsocks) ? net->sock : numsocks;
+        	FD_SET(net->sock,&socks);
+				}
       }
  
       net = net->next;
@@ -275,6 +209,43 @@ void irc_loop(void)
       }
 
       dcc = net->dccs;
+
+			if (net->status == NET_WAITINGCONNECT)
+			{
+				if (FD_ISSET(net->sock, &writefds))
+				{
+					/* Socket is set as writeable */
+					lon = sizeof(int); 
+
+					/* Get the current socket options for the non-blocking socket */
+					if (getsockopt(net->sock, SOL_SOCKET, SO_ERROR, (void*)(&valopt), &lon) < 0) 
+					{ 
+						net->sock   = -1;
+						net->status = NET_DISCONNECTED;
+						troll_debug(LOG_ERROR,"Could not get socket options for server sock");
+					}
+					else
+					{    
+						if (valopt != 0) 
+						{ 
+							net->sock   = -1;
+							net->status = NET_DISCONNECTED;
+							troll_debug(LOG_ERROR,"Non-blocking connect() to server failed.");
+						}
+						else
+						{
+							/* Socket connect succeeded */
+							troll_debug(LOG_DEBUG,"Non-blocking connect() to server succeeded");
+
+							/* Set connection as blocking again */
+							/* socket_set_blocking(dcc->sock); */
+
+
+              net->status = NET_NOTREADY;
+						}
+					}
+				}
+			}
 
       while (dcc != NULL)
       {
@@ -300,6 +271,7 @@ void irc_loop(void)
             }
           }
         }
+
 
         if (dcc->status == DCC_WAITINGCONNECT)
         {
@@ -346,20 +318,20 @@ void irc_loop(void)
         dcc = dcc->next;
       }
 
-      if (net->sock != -1)
+      if (net->sock != -1 && net->status >= NET_CONNECTED)
       {
         if (FD_ISSET(net->sock,&socks))
         {
-          if (net->status == STATUS_CONNECTED)
+          if (net->status == NET_CONNECTED)
           {
             irc_printf(net->sock,"USER %s foo.com foo.com :%s",net->ident,net->realname);
             irc_printf(net->sock,"NICK %s",net->nick);
-            net->status = STATUS_AUTHORIZED;
+            net->status = NET_AUTHORIZED;
           } 
 
           if (!irc_in(net))
           {
-            net->status = STATUS_DISCONNECTED;
+            net->status = NET_DISCONNECTED;
           }
         }
       }

@@ -192,6 +192,18 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
             net->botnick = tstrdup(search->value);
           }
         }
+				else if (!strcmp(search->key,"never-give-up"))
+				{
+					/* Use the first value only (Initially set to -1) */
+					if (net->never_give_up == -1)
+						net->never_give_up = atoi(search->value);
+				}
+				else if (!strcmp(search->key,"server-cycle-wait"))
+				{
+					/* Only use the first value */
+					if (net->connect_delay == -1)
+						net->connect_delay = atoi(search->value);
+				}
         else if (!strcmp(search->key,"altnick"))
         {
           /* Use first value only */

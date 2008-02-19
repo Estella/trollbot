@@ -93,23 +93,28 @@ AC_OUTPUT(Makefile
 
 echo ""
 echo "  ********** Trollbot Configuration **********  "
+echo ""
 
 if test "x${TCL_LIBS}" != "x"; then
-  echo "  TCL    Support: Yes"             
+  echo "  TCL        Support: Yes"             
 else
-  echo "  TCL    Support: No"
+  echo "  TCL        Support: No"
 fi
+
+if test "x${JS_LIBS}" != "x"; then
+  echo "  Javascript Support: Yes"
+else
+  echo "  Javascript Support: No"
+fi
+
+echo ""
+echo "  -=Experimental Support=-"
+echo ""
 
 if test "x${PHP_LDADD}" != "x"; then
   echo "  PHP    Support: Yes"
 else
   echo "  PHP    Support: No"
-fi
-
-if test "x${PERL_LDADD}" != "x"; then
-  echo "  Perl   Support: Yes"
-else
-  echo "  Perl   Support: No"
 fi
 
 if test "x${PYTHON_LDADD}" != "x"; then
@@ -118,11 +123,12 @@ else
   echo "  Python Support: No"
 fi
 
-if test "x${JS_LIBS}" != "x"; then
-	echo "  Javascript Support: Yes"
+if test "x${PERL_LDADD}" != "x"; then
+  echo "  Perl   Support: Yes"
 else
-	echo "  Javascript Support: No"
+  echo "  Perl   Support: No"
 fi
+
 
 
 echo ""
