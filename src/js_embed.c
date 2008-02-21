@@ -25,6 +25,8 @@ JSClass global_class = {
   JS_FinalizeStub
 };
 
+static void js_error_handler(JSContext *ctx, const char *msg, JSErrorReport *er);
+
 void js_load_scripts_from_config(struct config *cfg)
 {
   int i;
@@ -100,6 +102,7 @@ void net_init_js(struct network *net)
     return;
 	}
 
+	JS_SetErrorReporter(net->cx, js_error_handler);
 	net_init_js_global_object(net);
 
 	/* We should free context and global runtime here */
@@ -110,6 +113,50 @@ void net_init_js(struct network *net)
 	}
 
 	return;
+}
+
+static void js_error_handler(JSContext *ctx, const char *msg, JSErrorReport *er){
+    char *pointer=NULL;
+    char *line=NULL;
+    int len;
+
+    if (er->linebuf != NULL){
+        line = tstrdup(er->linebuf);
+        len = er->tokenptr - er->linebuf + 2;
+        pointer = malloc(len);
+        memset(pointer, '-', len-2);
+        pointer[len-1]='\0';
+        pointer[len-2]='^';
+    }
+    else {
+        len=0;
+        pointer = malloc(1);
+        line = malloc(1);
+        pointer[0]='\0';
+        line[0] = '\0';
+    }
+
+    while (len > 0){
+        if (line[len-1] == '\r' || line[len-1] == '\n'){
+          line[len-1]='\0';
+        }
+        else if (line[len-1]=='\t'){
+            /*Convert tabs into spaces */
+            line[len-1]=' ';
+        }
+        len--;
+    }
+
+
+
+    printf("JS Error: %s\nFile: %s:%u\n", msg, er->filename, er->lineno);
+
+    if (line[0]){
+        printf("%s\n%s\n", line, pointer);
+    }
+
+    free(pointer);
+    free(line);
 }
 
 void net_init_js_global_object(struct network *net)
@@ -147,6 +194,14 @@ void net_init_js_global_object(struct network *net)
 	JS_DefineProperty(net->cx, net->global, "version", JSVAL_VOID, js_version, NULL, 0);
 
 	JS_DefineFunction(net->cx, net->global, "onchan", js_onchan, 5, 0);
+
+	JS_DefineFunction(net->cx, net->global, "validuser", js_validuser, 1, 0);
+
+	JS_DefineFunction(net->cx, net->global, "passwdok", js_passwdok, 2, 0);
+
+	JS_DefineFunction(net->cx, net->global, "chhandle", js_chhandle, 2, 0);
+
+	JS_DefineFunction(net->cx, net->global, "channels", js_channels, 2, 0);
 
 	JS_DefineFunction(net->cx, net->global, "save", js_save, 0, 0);
 

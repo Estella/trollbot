@@ -39,6 +39,9 @@ int egg_countusers(struct network *net);
 /* Finds a user based on their hostmask */
 struct user *egg_finduser(struct network *net, const char *mask);
 
+/* Finds if the user is valid */
+int egg_validuser(struct network *net, const char *handle);
+
 /* Changes a users handle (username) */
 int egg_chhandle(struct network *net, const char *old, const char *new);
 

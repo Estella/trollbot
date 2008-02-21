@@ -27,6 +27,19 @@ JSBool js_countusers(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsva
   return JS_TRUE;
 }
 
+JSBool js_validuser(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval){
+	struct network *net = JS_GetContextPrivate(cx);
+	int ret = 0;
+	char *handle;
+
+	handle = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+
+	ret = egg_validuser(net, handle);
+
+	*rval = INT_TO_JSVAL(ret);
+
+	return JS_TRUE;
+}
 
 JSBool js_savechannels(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
@@ -47,7 +60,7 @@ JSBool js_finduser(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 
 	if (argc != 1)
 	{
-		*rval = STRING_TO_JSVAL("*");
+		*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, "*"));
 		return JS_TRUE;
 	}
 
@@ -57,7 +70,7 @@ JSBool js_finduser(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 
 	if (user == NULL)
 	{
-		*rval = STRING_TO_JSVAL("*");
+		*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, "*"));
 	}
 	else
 		*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, user->username));
@@ -267,6 +280,51 @@ JSBool js_onchan(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 
   
 	return JS_TRUE;
+}
+
+JSBool js_passwdok(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval){
+	struct network *net=JS_GetContextPrivate(cx);
+	char *handle=NULL;
+	char *pass=NULL;
+	int ret=0;
+
+	handle = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+	pass = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
+ 
+	ret =egg_passwdok(net, handle, pass);
+
+	*rval = INT_TO_JSVAL(ret);
+
+	return JS_TRUE;
+}
+
+JSBool js_chhandle(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval){
+	struct network *net = JS_GetContextPrivate(cx);
+	char *old=NULL;
+	char *new=NULL;
+	int ret=0;
+
+	old = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+	new = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
+
+	ret = egg_chhandle(net, old, new);
+
+	*rval = INT_TO_JSVAL(ret);
+
+	return JS_TRUE;
+
+}
+
+JSBool js_channels(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval){
+	struct network *net = JS_GetContextPrivate(cx);
+	char *channels = egg_channels(net);
+
+	*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, channels));
+
+	free(channels);
+
+	return JS_TRUE;
+
 }
 
 void js_handler(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)

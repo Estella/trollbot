@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <ctype.h>
 
 #include "main.h"
 #include "egg_lib.h"
@@ -48,7 +49,7 @@ char *egg_makearg(const char *rest, const char *mask)
 {
   char *ret;
 
-  ret = &rest[strlen(mask)];
+  ret = (char*)(&rest[strlen(mask)]);
 
   while (*ret != '\0' && (*ret == ' ' || *ret == '\t'))
     ret++;
@@ -73,90 +74,68 @@ char *egg_makearg(const char *rest, const char *mask)
 */
 int egg_matchwilds(const char *haystack, const char *needle)
 {
-  if (needle == NULL || haystack == NULL)
+	if (needle == NULL || haystack == NULL)
     return 1;
 
   while (*needle)
   {
-    /* ? = one single character *haystack is not NULL if *needle isn't */
-    if (*needle == *haystack || *needle == '?')
-    {
-      needle++;
-      haystack++;
-    } 
-    else if (*haystack == '\0' && *needle != '*')
-      return 1;
-    else if (*needle != '%' && *needle != '~' && *needle != '*')
-      return 1;
-    else if (*needle == '~')
-    {
-      needle++;
+		if (*haystack == '\0'){
+			/* Hit end of haystack but not the ned of needle, so match fails. */
+			return 1;
+		}
 
-      /* One or more space characters */
-      if (*haystack != ' ' && *haystack != '\t')
-        return 1;
 
-      while (*haystack && *needle)
-      {
-        if (*haystack == *needle)
-        {
-          /* Greedy lookahead */
-          if (!egg_matchwilds(haystack+1,needle-1))
-            return 0;
+		if (*needle == '?'){
+			/* Any character matches, just move on. */
+			needle++;
+			haystack++;
+		}
+		else if (*needle == '*'){
+			/* Match characters til end of haystack, or until *(needle+1) */
+			while (*haystack != '\0' && *haystack != *(needle+1)){
+				haystack++;
+			}
+			needle++;
+		}
+		else if (*needle == '%'){
+			/* FIXME: Wildcard % needs implemented */
+			while (*haystack != '\0' && !isspace(*haystack) && *haystack != *(needle+1)){
+				haystack++;
+			}
+			needle++;
+		}
+		else if (*needle == '~'){
+			/* FIXME: Wildcard ~ needs implemented */
+			if (isspace(*haystack)){
+				haystack++;
+				while (*haystack != '\0' && isspace(*haystack)){
+					haystack++;
+				}
+				needle++;
+			}
+			else {
+				/* Must match at least one space. */
+				return 1;
+			}
+		}
+		else if (*needle != *haystack){
+			return 1;
+		}
+		else {
+			/* Two characters match.  Next */
+			needle++;
+			haystack++;
+		}
+	}
 
-          break;
-        }
-
-        if (*haystack != ' ' && *haystack != '\t')
-          break;
-         
-        haystack++;
-      }
-
-    }
-    /* 0 or more non-space */
-    else if (*needle == '%')
-    {
-      needle++;
-
-      while (*haystack && *needle)
-      {
-        if (*haystack == *needle)
-        {
-          /* Greedy lookahead */
-          if (!egg_matchwilds(haystack+1,needle-1))
-            return 0;
-          
-          break;
-        }
-
-        if (*haystack == ' ' || *haystack == '\t')
-          break;
-
-        haystack++;
-      }
-    }
-    else if (*needle == '*')
-    {
-      needle++;
-
-      while (*haystack && *needle)
-      {
-        if (*haystack == *needle)
-        {
-          /* Greedy, but works okay */
-          if (!egg_matchwilds(haystack+1,needle-1))
-            return 0;
-         
-          break;
-        }
-
-        haystack++;
-      }
-    }
-  }
-
-  return 0;
+	if (*haystack == '\0'){
+		/* Hit end of haystack and end of needle, so match succeeded */
+		return 0;
+	}
+	else {
+		/* Hit end of needled, but not end of haystack, match fails. */
+		return 1;
+	}
 }
 
 /* These functions need queue support */
@@ -228,6 +207,7 @@ int egg_clearqueue(struct network *net, const char *queue)
 /* Returns number of users in net, 0 if none */
 /* Ready for export */
 /* NEED_IMP: PHP, Javascript, Python, Perl */
+/* IMP_IN: Javascript */
 int egg_countusers(struct network *net)
 {
   struct user *user;
@@ -248,7 +228,8 @@ int egg_countusers(struct network *net)
 }
 
 /* Fully compatible */
-/* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
+/* NEED_IMP: TCL, PHP, Perl, Python  */
+/* IMP_IN: Javascript[kicken] */
 int egg_validuser(struct network *net, const char *handle)
 {
   struct user *user;
@@ -270,7 +251,7 @@ int egg_validuser(struct network *net, const char *handle)
 /* Eggdrop: Returns: the handle found, or "*" if none */
 /* Trollbot: Returns: a user struct, NULL if none */
 /* NEED_IMP: PHP, Perl, Python */
-/* IMP_IN: TCL[poutine], Javascript[BROKEN][poutine] */
+/* IMP_IN: TCL[poutine], Javascript[kicken] */
 struct user *egg_finduser(struct network *net, const char *mask)
 {
   struct user *user;
@@ -353,11 +334,10 @@ char *egg_makepasswd(const char *pass, const char *hash_type)
 }
 
 
-/* Now with hash types field support */
-/* Needs returns checked */
-/* Also needs to support different encryption types */
-/* userlist [flags] */
-/* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
+/* Fully Compatible */
+/* passwdok <handle> <pass> */
+/* NEED_IMP: TCL, PHP, Perl, Python */
+/* IMP_IN: Javascript[kicken] */
 int egg_passwdok(struct network *net, const char *handle, const char *pass) 
 {
   SHA1_CTX context;
@@ -378,6 +358,16 @@ int egg_passwdok(struct network *net, const char *handle, const char *pass)
   {
     if (!strcmp(handle,user->username))
     {
+			/* If pass is null or zero length, or '-', only check to see if user has a password. */
+			if (pass == NULL || strlen(pass) == 0 || (strlen(pass)==1 && pass[0] == '-')){
+				if (user->passhash != NULL){
+					return 1;
+				}
+				else {
+					return 0;
+				}
+			}
+
 			if (user->hash_type == NULL)
 			{
 				troll_debug(LOG_ERROR,"Missing Hash Type for user %s\n",user->username);
@@ -439,7 +429,8 @@ int egg_passwdok(struct network *net, const char *handle, const char *pass)
 /* setuser <handle> <entry-type> [extra info] */
 
 /* All good */
-/* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
+/* NEED_IMP: TCL, PHP, Perl, Python */
+/* IMP_IN: Javascript[kicken] */
 int egg_chhandle(struct network *net, const char *old, const char *new)
 {
   struct user *olduser;
@@ -466,6 +457,10 @@ int egg_chhandle(struct network *net, const char *old, const char *new)
     users = users->next;
   }
 
+	if (olduser == NULL){
+		/* User not found */
+		return 0;
+	}
   free(olduser->username);
   
   olduser->username = tstrdup(new);
@@ -699,6 +694,7 @@ int egg_matchattr(struct network *net, const char *handle, const char *flags, co
 
 /* Eggdrop Compatible */
 /* NEED_IMP: PHP, Perl, Python */
+/* IMP_IN: TCL, Javascript */
 void egg_savechannels(struct network *net)
 {
 	chans_save(net);
@@ -707,12 +703,13 @@ void egg_savechannels(struct network *net)
 /* loadchannels */
 
 /* Eggdrop Compatible */
-/* NEED_IMP: PHP, Perl, Python, Javascript */
-/* IMP_IN: TCL														 */
+/* NEED_IMP: PHP, Perl, Python             */
+/* IMP_IN: TCL, Javascript[kicken]				 */
 /* Note: This appears to have a bug with   
  * Dynamically loaded channels. this is not
  * the issue here, it's in default_triggers.c
  */
+ /* FIXME: Should this return an array of strings instead of one string? */
 char *egg_channels(struct network *net)
 {
 	int alloc_size      = 0;
@@ -777,6 +774,7 @@ int egg_isvoice(struct network *net, const char *nick, const char *channel)
  * @return 1 if user found on optional channel, 1 if user found without optional channel, 0 if user not found on optional channel or 0 if not found without optional channel
  */
 /* NEED_IMP: Python, Perl, PHP */
+/* IMP_IN: TCL, Javascript */
 int egg_onchan(struct network *net, char *nickname, char *channel)
 {
 	struct channel      *chan  = NULL;
@@ -1042,6 +1040,7 @@ Description:
 Returns: 
   name of the command that was added, or (if proc-name is NULL), a list of the current bindings for this command
 */
+/* IMP_IN: Javascript, TCL */
 char **egg_bind(struct network *net, char *type, char *flags, char *mask, char *cmd, void (*handler)(struct network *, struct trigger *, struct irc_data *, struct dcc_session *, const char *))
 {
   char **returnValue=NULL;
@@ -1225,36 +1224,44 @@ void egg_rehash(void)
 			if (!tstrcasecmp(otmp->label,ntmp->label))
 			{
 				/* Found a match copy over stuff */
+
 				ntmp->dccs = otmp->dccs;
 				otmp->dccs = NULL;
+
+				ntmp->dcc_listener = otmp->dcc_listener;
+
+				free_servers(ntmp->servers);
+				ntmp->servers = otmp->servers;
+				otmp->servers = NULL;
 
 				/* Need to match this by string 
 				ntmp->cur_server = otmp->cur_server;
 				otmp->cur_server = NULL; */
 
+				free_channels(ntmp->chans);
 				ntmp->chans = otmp->chans;
 				otmp->chans = NULL;
 		
 				ntmp->sock  = otmp->sock;
 				otmp->sock  = -1;
 
+				if (ntmp->shost != NULL) free(ntmp->shost);
 				ntmp->shost = otmp->shost;
 				otmp->shost = NULL;				
 
 				ntmp->status = otmp->status;
 				/* Don't know what to set for the old */
 			
+		    free_users(ntmp->users);
 				ntmp->users = otmp->users;
 				otmp->users = NULL;
 
-				ntmp->dccs  = otmp->dccs;
-				otmp->dccs  = NULL;
-				
-				ntmp->dcc_listener = otmp->dcc_listener;
-
+			
+			
 				printf("Copied over trigs\n");
 				ntmp->trigs = otmp->trigs;
 				/* Bug, cannot NULL out trigs here, they aren't being freed either FIXME */	
+
 #ifdef HAVE_TCL
 				ntmp->tclinterp = otmp->tclinterp;
 				otmp->tclinterp = NULL;
@@ -1290,6 +1297,7 @@ void egg_rehash(void)
 
 		otmp = otmp->next;
 		ntmp = newcfg->networks;
+		free(otmp);
 	}
 
 	g_cfg = newcfg;
@@ -1300,8 +1308,13 @@ void egg_rehash(void)
 #endif /* HAVE_TCL */
 
 #ifdef HAVE_JS	
+	newcfg->js_rt = oldcfg->js_rt;
+	oldcfg->js_rt = NULL;
 	js_load_scripts_from_config(g_cfg);
 #endif /* HAVE_JS */
+
+
+	free(oldcfg);
 }
 
 char *egg_botnick(struct network *net)

@@ -5,6 +5,55 @@ bind("pub","-","!ocjs","do_onchan");
 bind("pub","-","!matchattr","do_matchattr");
 bind("pub","-","!js-finduser","do_finduser");
 bind("pub","-","!js-countusers","do_countusers");
+bind("pub","-","!js-validuser","do_validuser");
+bind("pub","-","!js-passwdok","do_passwdok");
+bind("pub","-","!js-channels","do_channels");
+
+var bold = String.fromCharCode(2);
+
+function do_channels(nick, uhost, hand, chan, arg){
+	var chans = channels();
+
+	putserv("PRIVMSG "+chan+" :In channels: "+bold+chans+bold);
+}
+
+function do_passwdok(nick, uhost, hand, chan, arg){
+	var args = arg.split(' ');
+	var handle=args[0];
+	var pass="";
+
+	if (args.length == 2){
+		pass=args[1];
+	}
+
+	if (passwdok(handle, pass)){
+		if (pass==""){
+			putserv("PRIVMSG "+chan+" :User has a password");
+		}
+		else {
+			putserv("PRIVMSG "+chan+" :That password is correct");
+		}
+	}
+	else {
+		if (pass==""){
+			putserv("PRIVMSG "+chan+" :User does not have a password");
+		}
+		else {
+			putserv("PRIVMSG "+chan+" :That password is not correct");
+		}
+	}
+}
+
+function do_validuser(nick, uhost, hand, chan, arg){
+	var ret = validuser(arg);
+
+	if (ret){
+		putserv("PRIVMSG "+ chan +" :User is valid.");
+	}
+	else {
+		putserv("PRIVMSG "+ chan +" :User is not valid.");
+	}
+}
 
 function do_countusers(nick, uhost, hand, chan, arg)
 {
@@ -13,7 +62,7 @@ function do_countusers(nick, uhost, hand, chan, arg)
 
 function do_finduser(nick, uhost, hand, chan, arg)
 {
-	putserv("PRIVMSG " + chan + " :" + finduser($arg));
+	putserv("PRIVMSG " + chan + " :" + finduser(arg));
 
 }
 
