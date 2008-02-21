@@ -100,6 +100,8 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
   cfg->debug_level  = 0;
 	cfg->hash_type    = NULL;
   cfg->dccs         = NULL;
+
+	cfg->dcc_motd     = NULL;
 #ifdef HAVE_PYTHON
   cfg->py_main         = NULL;
   cfg->py_main_dict    = NULL;
@@ -140,6 +142,11 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
         else if (!strcmp(search->key,"debuglevel"))
         {
           cfg->debug_level = atoi(search->value);
+        }
+        else if (!strcmp(search->key,"dcc_motd"))
+        {
+          if (cfg->dcc_motd == NULL)
+            cfg->dcc_motd = tstrdup(search->value);
         }
         else if (!strcmp(search->key,"hash_type"))
         {
@@ -204,6 +211,11 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 					if (net->connect_delay == -1)
 						net->connect_delay = atoi(search->value);
 				}
+				else if (!strcmp(search->key,"dcc_motd"))
+				{
+					if (net->dcc_motd != NULL)
+						net->dcc_motd = tstrdup(search->value);
+				}		
         else if (!strcmp(search->key,"altnick"))
         {
           /* Use first value only */

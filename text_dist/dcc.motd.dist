@@ -1,0 +1,14 @@
+Successfully logged in.
+
+Trollbot Version 1.0 PRE-RELEASE
+==========================================
+
+Written by
+	poutine - Core lead developer, TCL, PHP
+	kicken  - Core developer, Javascript
+	comcor  - Python Support
+
+==========================================
+
+This should have token support for the
+hostname and such, like eggdrop.

@@ -44,6 +44,7 @@ struct dcc_session
   struct dcc_session *next;
 };
 
+void dcc_print_motd(struct dcc_session *dcc);
 void dcc_list_del(struct dcc_session **orig, struct dcc_session *old);
 void dcc_list_add(struct dcc_session **orig, struct dcc_session *new) ;
 void dcc_init_listener(struct network *net);

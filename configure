@@ -6240,7 +6240,7 @@ if test $prefix = NONE; then
     prefix=${HOME}/trollbot
 fi
 
-ac_config_files="$ac_config_files Makefile src/Makefile doc_dist/Makefile scripts_dist/Makefile conf_dist/Makefile db_dist/Makefile"
+ac_config_files="$ac_config_files Makefile src/Makefile doc_dist/Makefile scripts_dist/Makefile text_dist/Makefile conf_dist/Makefile db_dist/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -6867,6 +6867,7 @@ do
     "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
     "doc_dist/Makefile") CONFIG_FILES="$CONFIG_FILES doc_dist/Makefile" ;;
     "scripts_dist/Makefile") CONFIG_FILES="$CONFIG_FILES scripts_dist/Makefile" ;;
+    "text_dist/Makefile") CONFIG_FILES="$CONFIG_FILES text_dist/Makefile" ;;
     "conf_dist/Makefile") CONFIG_FILES="$CONFIG_FILES conf_dist/Makefile" ;;
     "db_dist/Makefile") CONFIG_FILES="$CONFIG_FILES db_dist/Makefile" ;;
 

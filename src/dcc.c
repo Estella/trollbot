@@ -502,6 +502,62 @@ void dcc_partyline_handler(struct dcc_session *dcc, const char *message)
   return;
 }
 
+void dcc_print_motd(struct dcc_session *dcc)
+{
+	FILE *motd;
+	char *fbuf;
+	size_t count = 0;
+	size_t i     = 0;
+
+	if (dcc->net->dcc_motd == NULL)
+	{
+		if (g_cfg->dcc_motd == NULL)
+		{
+			troll_debug(LOG_WARN, "No global specified for DCC MOTD, messed up defaults.conf?");
+			irc_printf(dcc->sock, "Error: No MOTD found");
+			return;
+		}
+	
+		if ((motd = fopen(g_cfg->dcc_motd,"r")) == NULL)
+		{
+			troll_debug(LOG_WARN, "Could not open dcc MOTD file: %s\n",g_cfg->dcc_motd);
+			irc_printf(dcc->sock, "Error: Could not read MOTD file");
+			return;
+		}	
+	}
+	else
+	{
+		/* Network Specific DCC MOTD exists */
+		if ((motd = fopen(dcc->net->dcc_motd,"r")) == NULL)
+		{
+			troll_debug(LOG_WARN, "Could not open dcc MOTD file: %s\n",dcc->net->dcc_motd);
+			irc_printf(dcc->sock, "Error: Could not read MOTD file");
+			return;
+		}
+	}
+
+  fbuf = tmalloc0(1024);
+
+  /* Read the entire file into memory */
+  for(i=0;(count = fread(&fbuf[i],1,1024,motd)) == 1024;i+=1024)
+  {
+    if ((fbuf = realloc(fbuf,i+1024+1024)) == NULL)
+    {
+      troll_debug(LOG_FATAL,"Could not allocate memory for DCC MOTD file, barfing.\n");
+      exit(EXIT_FAILURE);
+    }
+  }
+
+  /* Terminate it with a NULL */
+  fbuf[i+count] = '\0';
+
+	/* FIXME: Make sure this sends the entire payload */
+	irc_printf(dcc->sock,"%s",fbuf);
+
+	fclose(motd);
+	
+	return;
+}
 
 void parse_dcc_line(struct dcc_session *dcc, const char *buffer)
 {
@@ -567,6 +623,9 @@ void parse_dcc_line(struct dcc_session *dcc, const char *buffer)
 
 					users_save(dcc->net);
 				}
+
+				/* Print net specific dcc_motd if exists, if not, use global */
+				dcc_print_motd(dcc);
 
         irc_printf(dcc->sock,"Type .help for help.");
         dcc->status = DCC_AUTHENTICATED;

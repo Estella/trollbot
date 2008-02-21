@@ -31,6 +31,8 @@ struct config
 
 	char *hash_type;
 
+	char *dcc_motd;
+
   int fork; /* 0 to not fork, 1 to fork */
   int forked; /* Set to 1 after forking */
   

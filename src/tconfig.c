@@ -36,6 +36,7 @@ struct tconfig_block *file_to_tconfig(const char *filename)
   struct tconfig_block *tmp      = NULL;
   size_t  size   = 0;
   size_t  i      = 0;
+	size_t  count  = 0;
 
   /* For debug purposes */
   int line       = 1;
@@ -49,7 +50,21 @@ struct tconfig_block *file_to_tconfig(const char *filename)
     return NULL;
   }
 
-  /* Read the entire file into memory */
+	/* Reverted: This is not portable. [acidtoken]
+ 	 * from the FAQ :-
+ 	 * "Text mode translations also affect the apparent size of a file as
+ 	 * it's read. Because the characters read from and written to a file in
+ 	 * text mode do not necessarily match the characters stored in the file
+ 	 * exactly, the size of the file on disk may not always match the number
+ 	 * of characters which can be read from it. Furthermore, for analogous
+ 	 * reasons, the fseek and ftell functions do not necessarily deal in pure
+ 	 * byte offsets from the beginning of the file. (Strictly speaking, in
+ 	 * text mode, the offset values used by fseek and ftell should not be
+ 	 * interpreted at all: a value returned by ftell should only be used as a
+ 	 * later argument to fseek, and only values returned by ftell should be
+	 * used as arguments to fseek.)" 
+	
+   * Read the entire file into memory *
   fseek(cfile, 0, SEEK_END);
   size = ftell(cfile);
   fseek(cfile, 0, SEEK_SET);
@@ -57,6 +72,23 @@ struct tconfig_block *file_to_tconfig(const char *filename)
   fbuf = tmalloc0(sizeof(*fbuf)*(size+1));
   fread(fbuf, sizeof(*fbuf), size+1, cfile);
   size=0;
+	*/
+
+  fbuf = tmalloc0(BUFFER_SIZE);
+
+  /* Read the entire file into memory */
+  for(i=0;(count = fread(&fbuf[i],1,1024,cfile)) == 1024;i+=1024)
+  {
+    if ((fbuf = realloc(fbuf,i+1024+1024)) == NULL)
+    {
+      troll_debug(LOG_FATAL,"Could not allocate memory for config file, barfing.\n");
+      exit(EXIT_FAILURE);
+    }
+  }
+
+	/* Terminate it with a NULL */
+	fbuf[i+count] = '\0';
+
 
   /* If NOT the end-of-file, we must have had an error of some sort, barf and die */
   if (!feof(cfile))

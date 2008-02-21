@@ -166,6 +166,12 @@ void free_networks(struct network *net)
     if (net->userfile){ free(net->userfile);  }
     if (net->chanfile){ free(net->chanfile);  }
  
+		/* hey kicken, free(NULL) is defined and perfectly fine behavior 
+ 		 * No need to check pointers beforehand. If it crashes, it's because
+ 		 * it's not set to NULL in the new_network() 	
+ 		 */
+		free(net->dcc_motd);
+
     free_trigger_table(net->trigs);
 
     free_users(net->users);
@@ -233,6 +239,8 @@ struct network *new_network(char *label)
   ret->altnick       = NULL;
   ret->realname      = NULL;
   ret->ident         = NULL;
+
+	ret->dcc_motd      = NULL;
 
   ret->users         = NULL;
 

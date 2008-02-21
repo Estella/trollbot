@@ -103,6 +103,7 @@ struct network
 
   int dcc_port;
 
+	char *dcc_motd;
 
 	/* Timers */
 	struct t_timer *timers;
