@@ -7,6 +7,8 @@
 #include <sys/types.h>
 #endif /* HAVE_SYS_TYPES_H */
 
+#include <ltdl.h>
+
 #ifdef UNIX
 #include <unistd.h>
 #endif /* UNIX */
@@ -27,6 +29,19 @@ struct config *g_cfg = NULL;
 int main(int argc, char *argv[])
 {
   pid_t pid;
+  int lt_errors;
+
+  /* This macro let's libltdl know what preloaded symbols exist if
+ 	 * modules are statically linked
+ 	 */
+  LTDL_SET_PRELOADED_SYMBOLS();
+
+  /* Make sure libltdl initializes, otherwise this program is useless */
+  if ((lt_errors = lt_dlinit()) > 0)
+  {
+    printf("Trollbot could not initialize libltdl, initialization failed with %d errors\n",lt_errors);
+    return EXIT_FAILURE;
+  }
 
   printf("#################################################\n");
   printf("# Trollbot v1.0.0, written by                   #\n");

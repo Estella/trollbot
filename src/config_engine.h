@@ -15,6 +15,7 @@ struct dcc_session;
 struct network;
 struct user;
 struct tconfig_block;
+struct t_crypto_module;
 
 /* This is the main struct that information is loaded
  * into from the config block format.
@@ -30,6 +31,9 @@ struct config
   struct tconfig_block *tcfg;
 
 	char *hash_type;
+
+	char *crypto_name;
+	struct t_crypto_module *crypto;
 
 	char *dcc_motd;
 

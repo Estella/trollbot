@@ -10,6 +10,7 @@
 #include "irc.h"
 #include "dcc.h"
 #include "trigger.h"
+#include "t_crypto_module.h"
 
 #ifdef HAVE_TCL
 #include "tcl_embed.h"
@@ -28,7 +29,6 @@
 #endif /* HAVE_PYTHON */
 
 
-#include "tomcrypt.h"
 
 /* This is the eggdrop core API that is exported to TCL, PHP, perl, etc */
 
@@ -206,7 +206,7 @@ int egg_clearqueue(struct network *net, const char *queue)
 
 /* Returns number of users in net, 0 if none */
 /* Ready for export */
-/* NEED_IMP: PHP, Javascript, Python, Perl */
+/* NEED_IMP: PHP, Python, Perl */
 /* IMP_IN: Javascript */
 int egg_countusers(struct network *net)
 {
@@ -283,10 +283,16 @@ void egg_save(struct network *net)
 /* NON-EGGDROP COMMAND, CONSIDER MOVING */
 char *egg_makepasswd(const char *pass, const char *hash_type)
 {
+	if ((g_cfg->crypto == NULL) || g_cfg->crypto->create_hash == NULL)
+		return NULL;
+	
+	return g_cfg->crypto->create_hash(pass, hash_type);
+}
+/*
   SHA1_CTX context;
   hash_state md;
 
-  /* These should be as large as the largest hash type's string/byte representation of its hash respectively */
+  * These should be as large as the largest hash type's string/byte representation of its hash respectively *
 	char *hash_string = NULL;
   unsigned char tmp[64];
 
@@ -303,18 +309,18 @@ char *egg_makepasswd(const char *pass, const char *hash_type)
 
 	if (!strcmp(hash_type,"sha512"))
 	{
-   	/* NEEDS PASS CHECKED */
+  	* NEEDS PASS CHECKED *
    	sha512_init(&md);
 		sha512_process(&md, (unsigned char *)pass, strlen(pass));
 		sha512_done(&md, tmp);
-		hash_size = 64; /* Size in bytes */
+		hash_size = 64;  * Size in bytes *
 	}
 	else if (!strcmp(hash_type,"sha1"))
 	{
 		SHA1Init(&context);
 		SHA1Update(&context, (unsigned char *)pass, strlen(pass));
 		SHA1Final(tmp, &context);
-		hash_size = 20; /* 20 bytes? wtf */
+		hash_size = 20; * 20 bytes? wtf *
 	}
 	else
 	{
@@ -324,7 +330,7 @@ char *egg_makepasswd(const char *pass, const char *hash_type)
 
 	hash_string = tmalloc0(hash_size*2+1);
 
-	/* Ugly Hack */
+	* Ugly Hack *
 	for (i=0; i<hash_size; i++)
 	{
 		sprintf(&hash_string[strlen(hash_string)],"%0x",tmp[i]);
@@ -332,7 +338,7 @@ char *egg_makepasswd(const char *pass, const char *hash_type)
 
 	return hash_string;
 }
-
+*/
 
 /* Fully Compatible */
 /* passwdok <handle> <pass> */
@@ -340,16 +346,8 @@ char *egg_makepasswd(const char *pass, const char *hash_type)
 /* IMP_IN: Javascript[kicken] */
 int egg_passwdok(struct network *net, const char *handle, const char *pass) 
 {
-  SHA1_CTX context;
-	hash_state md;
-
-	/* These should be as large as the largest hash type's string/byte representation of its hash respectively */
-	char hash_string[130];
-	unsigned char tmp[64];
-
-	struct user *user;
-	int i;
-	int hash_size = 0;
+	char *hash_string = NULL;
+	struct user *user = NULL;
 
   if ((user = net->users) == NULL)
     return 0;
@@ -374,49 +372,21 @@ int egg_passwdok(struct network *net, const char *handle, const char *pass)
 				return 0;
 			}
 
-			memset(hash_string,0,sizeof(hash_string));
-			memset(tmp,0,sizeof(tmp));
-
-			if (!strcmp(user->hash_type,"sha512"))
+			if ((hash_string = egg_makepasswd(pass, user->hash_type)) == NULL)
 			{
-      	/* NEEDS PASS CHECKED */
-      	sha512_init(&md);
-				sha512_process(&md, (unsigned char *)pass, strlen(pass));
-				sha512_done(&md, tmp);
-				hash_size = 64; /* Size in bytes */
-			}
-			else if (!strcmp(user->hash_type,"sha1"))
-			{
-				SHA1Init(&context);
-				SHA1Update(&context, (unsigned char *)pass, strlen(pass));
-				SHA1Final(tmp, &context);
-				hash_size = 20; /* 20 bytes? wtf */
-			}
-			else
-			{
-				troll_debug(LOG_ERROR,"Unrecognized Hash Type for user %s\n",user->hash_type);
 				return 0;
 			}
 
-      /* Pass is all good baby */
-      if (user->passhash != NULL)
-      {
-				/* Ugly Hack */
-				for (i=0; i<hash_size; i++)
-				{
-					sprintf(&hash_string[strlen(hash_string)],"%0x",tmp[i]);
-				}
-
-				printf("Conf Hash: %s\n",user->passhash);
-				printf("Gen  Hash: %s\n",hash_string); 
-				
-				if (!strcmp(user->passhash,hash_string))
-					return 1;
-				else
-					return 0;
-      }
-
-      return 0;
+			if (!strcmp(user->passhash,hash_string))
+			{
+				free(hash_string);
+				return 1;
+			}
+			else
+			{
+				free(hash_string);
+				return 0;
+			}
     }
 
     user = user->next;

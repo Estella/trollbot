@@ -26,7 +26,6 @@
 #include "irc.h"
 #include "dcc.h"
 #include "user.h"
-#include "sha1.h"
 #include "network.h"
 #include "egg_lib.h"
 #include "trigger.h"

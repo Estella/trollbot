@@ -9,6 +9,16 @@ AM_INIT_AUTOMAKE(trollbot,1.0.0)
 
 AC_CONFIG_HEADER(config.h)
 
+AC_CONFIG_SUBDIRS(libltdl)
+
+AC_LIBTOOL_DLOPEN
+AC_LIBLTDL_CONVENIENCE
+AC_PROG_LIBTOOL
+
+dnl wtf is up with that naming
+AC_SUBST(LTDLINCL)
+AC_SUBST(LIBLTDL)
+
 AM_MAINTAINER_MODE
 
 AC_PROG_CC
@@ -90,8 +100,12 @@ fi
 
 AC_OUTPUT(Makefile 
           src/Makefile
+					src/modules/Makefile
+					src/modules/crypto/Makefile
           doc_dist/Makefile
           scripts_dist/Makefile
+					log_dist/Makefile
+					modules_dist/Makefile
 					text_dist/Makefile
           conf_dist/Makefile
 					db_dist/Makefile)

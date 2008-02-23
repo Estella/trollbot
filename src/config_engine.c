@@ -12,6 +12,7 @@
 #include "channel.h"
 #include "user.h"
 #include "trigger.h"
+#include "t_crypto_module.h"
 
 #ifdef HAVE_TCL
 #include "tcl_embed.h"
@@ -73,6 +74,9 @@ int config_engine_init(char *filename)
   /* keep a copy in the global config */
   g_cfg->tcfg = tcfg;
 
+	if (g_cfg->crypto_name != NULL)
+		g_cfg->crypto = t_crypto_module_load(g_cfg->crypto_name);
+
 	tconfig_to_file(g_cfg->tcfg,"out.txt");
  
   return 0;
@@ -102,6 +106,9 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
   cfg->dccs         = NULL;
 
 	cfg->dcc_motd     = NULL;
+
+	cfg->crypto_name  = NULL;
+	cfg->crypto       = NULL;
 #ifdef HAVE_PYTHON
   cfg->py_main         = NULL;
   cfg->py_main_dict    = NULL;
@@ -154,7 +161,13 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 	          cfg->hash_type = tstrdup(search->value);
 					}
         }
-
+				else if (!strcmp(search->key,"crypto_module"))
+				{
+					if (cfg->crypto_name == NULL)
+					{
+						cfg->crypto_name = tstrdup(search->value);
+					}
+				}
         search = search->next;
       }
     }

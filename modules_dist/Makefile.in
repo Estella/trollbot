@@ -32,8 +32,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-subdir = doc_dist
-DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
+subdir = modules_dist
+DIST_COMMON = README $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
 	$(top_srcdir)/configure.ac
@@ -50,9 +50,9 @@ am__vpath_adj = case $$p in \
     *) f=$$p;; \
   esac;
 am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
-am__installdirs = "$(DESTDIR)$(trollbotdocdir)"
-trollbotdocDATA_INSTALL = $(INSTALL_DATA)
-DATA = $(trollbotdoc_DATA)
+am__installdirs = "$(DESTDIR)$(trollbotmodulesdir)"
+trollbotmodulesDATA_INSTALL = $(INSTALL_DATA)
+DATA = $(trollbotmodules_DATA)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
@@ -180,8 +180,8 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-trollbotdocdir = ${prefix}/doc
-trollbotdoc_DATA = SCRIPTING.PHP SCRIPTING.TCL SCRIPTING.PERL SCRIPTING.PYTHON GPL PHP tcl-commands.doc
+trollbotmodulesdir = ${prefix}/modules
+trollbotmodules_DATA = README
 all: all-am
 
 .SUFFIXES:
@@ -194,9 +194,9 @@ $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__confi
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu  doc_dist/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu  modules_dist/Makefile'; \
 	cd $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu  doc_dist/Makefile
+	  $(AUTOMAKE) --gnu  modules_dist/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -220,22 +220,22 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
-install-trollbotdocDATA: $(trollbotdoc_DATA)
+install-trollbotmodulesDATA: $(trollbotmodules_DATA)
 	@$(NORMAL_INSTALL)
-	test -z "$(trollbotdocdir)" || $(MKDIR_P) "$(DESTDIR)$(trollbotdocdir)"
-	@list='$(trollbotdoc_DATA)'; for p in $$list; do \
+	test -z "$(trollbotmodulesdir)" || $(MKDIR_P) "$(DESTDIR)$(trollbotmodulesdir)"
+	@list='$(trollbotmodules_DATA)'; for p in $$list; do \
 	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
 	  f=$(am__strip_dir) \
-	  echo " $(trollbotdocDATA_INSTALL) '$$d$$p' '$(DESTDIR)$(trollbotdocdir)/$$f'"; \
-	  $(trollbotdocDATA_INSTALL) "$$d$$p" "$(DESTDIR)$(trollbotdocdir)/$$f"; \
+	  echo " $(trollbotmodulesDATA_INSTALL) '$$d$$p' '$(DESTDIR)$(trollbotmodulesdir)/$$f'"; \
+	  $(trollbotmodulesDATA_INSTALL) "$$d$$p" "$(DESTDIR)$(trollbotmodulesdir)/$$f"; \
 	done
 
-uninstall-trollbotdocDATA:
+uninstall-trollbotmodulesDATA:
 	@$(NORMAL_UNINSTALL)
-	@list='$(trollbotdoc_DATA)'; for p in $$list; do \
+	@list='$(trollbotmodules_DATA)'; for p in $$list; do \
 	  f=$(am__strip_dir) \
-	  echo " rm -f '$(DESTDIR)$(trollbotdocdir)/$$f'"; \
-	  rm -f "$(DESTDIR)$(trollbotdocdir)/$$f"; \
+	  echo " rm -f '$(DESTDIR)$(trollbotmodulesdir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(trollbotmodulesdir)/$$f"; \
 	done
 tags: TAGS
 TAGS:
@@ -274,7 +274,7 @@ check-am: all-am
 check: check-am
 all-am: Makefile $(DATA)
 installdirs:
-	for dir in "$(DESTDIR)$(trollbotdocdir)"; do \
+	for dir in "$(DESTDIR)$(trollbotmodulesdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -319,7 +319,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-trollbotdocDATA
+install-data-am: install-trollbotmodulesDATA
 
 install-dvi: install-dvi-am
 
@@ -353,7 +353,7 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-trollbotdocDATA
+uninstall-am: uninstall-trollbotmodulesDATA
 
 .MAKE: install-am install-strip
 
@@ -364,10 +364,10 @@ uninstall-am: uninstall-trollbotdocDATA
 	install-exec install-exec-am install-html install-html-am \
 	install-info install-info-am install-man install-pdf \
 	install-pdf-am install-ps install-ps-am install-strip \
-	install-trollbotdocDATA installcheck installcheck-am \
+	install-trollbotmodulesDATA installcheck installcheck-am \
 	installdirs maintainer-clean maintainer-clean-generic \
 	mostlyclean mostlyclean-generic mostlyclean-libtool pdf pdf-am \
-	ps ps-am uninstall uninstall-am uninstall-trollbotdocDATA
+	ps ps-am uninstall uninstall-am uninstall-trollbotmodulesDATA
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

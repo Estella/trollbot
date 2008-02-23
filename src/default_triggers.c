@@ -11,7 +11,6 @@
 #include "channel.h"
 #include "trigger.h"
 #include "user.h"
-#include "sha1.h"
 #include "util.h"
 #include "egg_lib.h"
 

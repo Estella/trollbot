@@ -22,7 +22,6 @@
 #include "tconfig.h"
 #include "config_engine.h"
 #include "die.h"
-#include "sha1.h"
 
 #define BUFFER_SIZE 1024
 
