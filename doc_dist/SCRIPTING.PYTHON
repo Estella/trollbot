@@ -4,15 +4,89 @@ directory that comes with this distribution.
 Configuration
 ===============
 
-You may specify python modules to load at runtime via the "pythonscript" configuration directive
-in the network configuration block in your trollbot.conf.  
-Whenever you specify the module to load, you can specify the relative (to cwd) or full path to the 
-python script:
-   e.g. /home/comcor/tbscripts/mypython.py
+You may specify python modules to load at runtime via the "pythonscript" configuration 
+directive in the network configuration block in your trollbot.conf.  
 
-Scripts
-========
+Whenever you specify the module to load, you can specify the relative (to cwd) or full 
+path to the python script:
+   pythonscript /home/comcor/tbscripts/mypython.py
 
-Each python script loaded by trollbot must provide a "load" method which takes no arguments.  Until this is called, 
-no trollbot bound functions may be called.  Therefore, you may not access calls like "trollbot.bind" or "trollbot.putserv"
-until after the script has been loaded.  See scripts/test.py for an example.
+Writing Scripts
+================
+
+There are several specific rules when writing trollbot python scripts. First, each 
+script must supply a 'load' method which takes no arguments.  This method is called
+only once by trollbot when the script is loaded.  Second, none of the `trollbot' module's
+methods (see Trollbot Bindings) are available until the point at which the script's
+load() method is called.  Third, the `trollbot' module is not loaded traditionally
+with import.  Rather, it is added to the script's namespace directly.  This means
+that it should be considered a reserved keyword.
+
+Apart from these constraints, there are no other hard and fast rules for writing modules.
+Any routines which should be executed as callbacks for various IRC events must be bound, 
+and all rules for python programming remain.
+
+Callbacks
+----------
+
+The primary means through which the python scripts are accessed by the bot's users
+is via bound callback methods.  These callback methods receive user input whenever
+the trigger to which they are bound. 
+
+To bind a callback, you must first define the callback.  For our example, we have the
+following method:
+   
+   def hello_handler(args):
+      trollbot.putserv("PRIVMSG %s :Hello, %s." % (args['channel'], args['user_nick'])
+
+This method receives a dictionary (args) of data relevant to the particular event
+that triggered the callback.  In this case, our callback method is written for the 
+"pub" or "pubm" events, which are nothing more than messages in an IRC channel.
+
+If we want to bind this callback to a user saying "hello", we simply call the
+`trollbot.bind' method, with the appropriate arguments:
+
+   trollbot.bind(trollbot.TRIG_PUBM, '-', "*hello*", "example.hello_handler")
+
+Here we bind our hello_handler to an event of type `pubm' (TRIG_PUBM), with no flags, to
+match a user message matching 'hello'.  Note that instead of passing the reference
+to the hello_handler, we pass a string `example.hello_handler'.  This is because trollbot
+expects to receive a string with the module name and the method name within that module.
+In otherwords, the script itself (in this case, it would be `example.py') is a module 
+'example', and 'hello_handler' is a method within this module.
+
+
+Trollbot Bindings
+==================
+
+The following are the trollbot methods accessible through the trollbot module.
+
+ - trollbot.bind(trigger_type, flags, trigger, callback)
+   Bind a script's method as a callback
+   Args:
+      trigger_type - string (TRIG_PUBM, TRIG_PUB, TRIG_MSG, TRIG_MSGM, etc.. all part
+            of trollbot module - e.g. trollbot.TRIG_PUBM)
+      flags - string
+      trigger - string
+      callback - string (e.g. "module.callback")
+
+ - trollbot.putserv(raw_irc_string)
+   Send a raw string to the IRC server (should conform to RFC 1459)
+   Args:
+      raw_irc_string - string
+
+ - trollbot.privmsg(dest,message)
+   Send a private message to a user or channel.
+   Args:
+      dest - destination of private message.  either a user or a channel name
+      message - string 
+
+ - trollbot.log(level, message)
+   Log a message to the trollbot log file.
+   Args:
+      level - one of the 6 log levels:
+         LOG_DEBUG, LOG_ERR, LOG_WARN, LOG_ALL, LOG_FATAL, LOG_NONE
+
+         All are available as integers in the trollbot module. E.g.:
+            trollbot.LOG_DEBUG
+      message - string
