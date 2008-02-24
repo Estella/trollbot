@@ -24,8 +24,9 @@
 #define PY_NET_LOAD_MODULE_METH "__TB_load_module"
 #define PY_NET_CALL_METH "__TB_call_method"
 #define PY_NET_ADD_PATH_METH "__TB_add_path"
-
+#define TROLLBOT_BINDING_MODULE "trollbot"
 #define PY_STR(a) PyString_FromString(a)
+#define PY_DICT_ADD(a, b, c) PyDict_SetItemString(a, b, PyString_FromString(c))
 
 /* Exported functions to Python */
 PyMethodDef PyTbMethods[] = {
@@ -35,7 +36,10 @@ PyMethodDef PyTbMethods[] = {
 
   {"putserv", py_putserv, METH_VARARGS,
    "Sends the text to the network."},
-
+  {"log", py_troll_debug, METH_VARARGS, 
+   "Logs a message to the bot log."},
+  {"privmsg", py_privmsg, METH_VARARGS, 
+   "Sends a private message to a channel or user"},
   {NULL, NULL, 0, NULL}
 };
 
@@ -52,10 +56,7 @@ void cfg_init_python(struct config *cfg) {
   //restore the signal handler
   signal(SIGINT, t_sig);
   troll_debug(LOG_DEBUG, "[python] Restored signal handler");
-  //initialize the module which exposes to python
-  //our wrappers for the bots functionality we want to expose
-  //NOTE: all exposables need to be defined in the PyTbMethods
-  Py_InitModule("trollbot", PyTbMethods);
+  bootstrap_binding_module();
   troll_debug(LOG_DEBUG, "[python] Loaded trollbot binding module");
  
 #ifdef PY_INTERNAL_CORE
@@ -71,6 +72,37 @@ void cfg_init_python(struct config *cfg) {
 #endif
 }
 
+void bootstrap_binding_module() {
+  PyObject * module;
+
+  //initialize the module which exposes to python
+  //our wrappers for the bots functionality we want to expose
+  //NOTE: all exposable methods are defined in the PyTbMethods
+ 
+  module = Py_InitModule(TROLLBOT_BINDING_MODULE, PyTbMethods);
+ 
+  /* bind constants to our module */
+  PyModule_AddIntConstant(module, "LOG_DEBUG", LOG_DEBUG);
+  PyModule_AddIntConstant(module, "LOG_ALL", LOG_ALL);
+  PyModule_AddIntConstant(module, "LOG_WARN", LOG_WARN);
+  PyModule_AddIntConstant(module, "LOG_ERROR", LOG_ERROR);
+  PyModule_AddIntConstant(module, "LOG_FATAL", LOG_FATAL);
+  PyModule_AddIntConstant(module, "LOG_NONE", LOG_NONE);
+
+  PyModule_AddStringConstant(module, "TRIG_PUB", "pub");
+  PyModule_AddStringConstant(module, "TRIG_PUBM", "pubm");
+  PyModule_AddStringConstant(module, "TRIG_MSG", "msg");
+  PyModule_AddStringConstant(module, "TRIG_MSGM", "msgm");
+  PyModule_AddStringConstant(module, "TRIG_SIGN", "sign");
+  PyModule_AddStringConstant(module, "TRIG_PART", "part");
+  PyModule_AddStringConstant(module, "TRIG_JOIN", "join");
+  PyModule_AddStringConstant(module, "TRIG_NOTC", "notc");
+  //PyModule_AddStringConstant(module, "TRIG_FIL", "fil");
+  PyModule_AddStringConstant(module, "TRIG_DCC", "dcc");
+  PyModule_AddStringConstant(module, "TRIG_RAW", "raw");
+  PyModule_AddStringConstant(module, "TRIG_KICK", "kick");
+
+}
 
 void net_init_python(struct config *cfg, struct network *net) {
 
@@ -80,6 +112,7 @@ void net_init_python(struct config *cfg, struct network *net) {
   troll_debug(LOG_DEBUG, "[python] initializing network context %s",net->label);
 
   net->py_netobj = PyCObject_FromVoidPtr((void*)net, NULL);
+  Py_XINCREF(net->py_netobj);
   args[0] = net->py_netobj;
 
   rval = call_python_method(PY_CORE_LIB, PY_NET_INIT_METH, args, 1);
@@ -109,6 +142,8 @@ void load_python_net_module(struct network *net, char * filename) {
   PyObject *rval;
    
   troll_debug(LOG_DEBUG, "[python] loading module `%s' for network %s", filename, net->label);
+  
+  Py_XINCREF(net->py_netobj);
   args[0] = net->py_netobj;
   args[1] = PyString_FromString(filename);
 
@@ -137,16 +172,78 @@ void load_python_module(char *filename) {
 }
 
 /**
+ * Call a python method via namesapce
+ */
+PyObject * call_python_method(char * module, char * method, PyObject ** args, int numargs) {
+
+  int i;
+  PyObject *module_py;
+  PyObject *method_py;
+  PyObject *args_py;
+  PyObject *rval_py;
+
+  /* get reference to module containing method */
+  module_py = PyImport_AddModule(module);
+  if (module_py == NULL) {
+    troll_debug(LOG_DEBUG, "[python] Could not locate module: %s", module);
+    Py_RETURN_FALSE;
+  }
+
+  /* get reference to method in module */
+  method_py = PyObject_GetAttrString(module_py, method);
+  if (method_py == NULL) {
+    troll_debug(LOG_DEBUG, "[python] Could not locate method %s in module %s",module, method);
+    Py_RETURN_FALSE;
+  }
+
+  if (PyCallable_Check(method_py)) {
+    /* create argument tuple */
+    args_py = PyTuple_New(numargs);
+    for (i = 0; i < numargs; i++) {
+      PyTuple_SetItem(args_py, i, args[i]);
+    }
+
+    rval_py = PyObject_CallObject(method_py, args_py);
+
+    Py_DECREF(args_py);
+    Py_DECREF(method_py);
+    //Py_DECREF(module_py);
+
+    if (rval_py == NULL) {
+      troll_debug(LOG_DEBUG, "[python] an error occurred calling %s.%s()", module, method);
+      if (PyErr_Occurred()) {
+        PyErr_Print();
+      }
+      Py_RETURN_FALSE;
+    } else {
+      return rval_py;
+    }
+
+  } else {
+    troll_debug(LOG_DEBUG, "[python] %s.%s is not callable", method, module);
+    Py_RETURN_FALSE;
+  }
+}
+
+
+/**
  * Execute a python callback on the given network
  */
 void py_handler(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf) {
-  PyObject *args[8];
+  PyObject *args[3];
   PyObject *rval;
+  PyObject *dict;
 
+  //build a dict to contain our args
+  dict = PyDict_New();
+
+  Py_XINCREF(net->py_netobj);
   //we always need these for the call_python_method call
   args[0] = net->py_netobj;
-  args[1] = PyString_FromString(trig->command);
-  args[2] = PyString_FromString(net->label);
+  args[1] = PY_STR(trig->command);
+  args[2] = dict;
+  PY_DICT_ADD(dict, "network", net->label);
+  PY_DICT_ADD(dict, "handle", "*");
 
   troll_debug(LOG_DEBUG, "[python] py_handler called for command %s", trig->command);
 
@@ -165,13 +262,12 @@ void py_handler(struct network *net, struct trigger *trig, struct irc_data *data
      *  procname <nick> <user@host> <handle> <channel> <text>
      */
     case TRIG_PUB:
-      args[3] = PyString_FromString(data->prefix->nick);
-      args[4] = PyString_FromString(data->prefix->host);
-      args[5] = PyString_FromString("*");
-      args[6] = PyString_FromString(data->c_params[0]);
-      args[7] = PyString_FromString(egg_makearg(data->rest_str, trig->mask));
+      PY_DICT_ADD(dict, "user_nick", data->prefix->nick);
+      PY_DICT_ADD(dict, "user_host", data->prefix->host);
+      PY_DICT_ADD(dict, "channel", data->c_params[0]);
+      PY_DICT_ADD(dict, "text", egg_makearg(data->rest_str, trig->mask));
 
-      rval = call_python_method(PY_CORE_LIB, PY_NET_CALL_METH, args, 8);
+      rval = call_python_method(PY_CORE_LIB, PY_NET_CALL_METH, args, 3);
       troll_debug(LOG_DEBUG, "[python] executed TRIG_PUB callback");
       break; 
     /*
@@ -180,13 +276,13 @@ void py_handler(struct network *net, struct trigger *trig, struct irc_data *data
      *  procname <nick> <user@host> <handle> <channel> <text>
      */
     case TRIG_PUBM:
-      args[3] = PyString_FromString(data->prefix->nick);
-      args[4] = PyString_FromString(data->prefix->host);
-      args[5] = PyString_FromString("*");
-      args[6] = PyString_FromString(data->c_params[0]);
-      args[7] = PyString_FromString(data->rest_str);
+      PY_DICT_ADD(dict, "user_nick", data->prefix->nick);
+      PY_DICT_ADD(dict, "user_nick", data->prefix->nick);
+      PY_DICT_ADD(dict, "user_host", data->prefix->host);
+      PY_DICT_ADD(dict, "channel", data->c_params[0]);
+      PY_DICT_ADD(dict, "text", data->rest_str);
       
-      rval = call_python_method(PY_CORE_LIB, PY_NET_CALL_METH, args, 8);
+      rval = call_python_method(PY_CORE_LIB, PY_NET_CALL_METH, args, 3);
       troll_debug(LOG_DEBUG, "[python] executed TRIG_PUBM callback");
       break;
 
@@ -196,11 +292,10 @@ void py_handler(struct network *net, struct trigger *trig, struct irc_data *data
      *  procname <nick> <user@host> <handle> <text>
      */
     case TRIG_MSG:
-      args[3] = PyString_FromString(data->prefix->nick);
-      args[4] = PyString_FromString(data->prefix->host);
-      args[5] = PyString_FromString("*");
-      args[6] = PyString_FromString(egg_makearg(data->rest_str, trig->mask));
-      rval = call_python_method(PY_CORE_LIB, PY_NET_CALL_METH, args, 7);
+      PY_DICT_ADD(dict, "user_nick", data->prefix->nick);
+      PY_DICT_ADD(dict, "user_nick", data->prefix->nick);
+      PY_DICT_ADD(dict, "text", egg_makearg(data->rest_str, trig->mask));
+      rval = call_python_method(PY_CORE_LIB, PY_NET_CALL_METH, args, 3);
       troll_debug(LOG_DEBUG, "[python] executed TRIG_MSG callback");
       break;
     /*
@@ -209,11 +304,10 @@ void py_handler(struct network *net, struct trigger *trig, struct irc_data *data
      *   procname <nick> <user@host> <handle> <text>
      */
     case TRIG_MSGM:
-      args[3] = PyString_FromString(data->prefix->nick);
-      args[4] = PyString_FromString(data->prefix->host);
-      args[5] = PyString_FromString("*");
-      args[6] = PyString_FromString(data->rest_str);
-      rval = call_python_method(PY_CORE_LIB, PY_NET_CALL_METH, args, 7);
+      PY_DICT_ADD(dict, "user_nick", data->prefix->nick);
+      PY_DICT_ADD(dict, "user_nick", data->prefix->nick);
+      PY_DICT_ADD(dict, "text", data->rest_str);
+      rval = call_python_method(PY_CORE_LIB, PY_NET_CALL_METH, args, 3);
       troll_debug(LOG_DEBUG, "[python] executed TRIG_MSGM callback");
       break;
 
@@ -237,12 +331,11 @@ void py_handler(struct network *net, struct trigger *trig, struct irc_data *data
      *   procname <nick> <user@host> <handle> <text> <dest>
      */
     case TRIG_NOTC:
-      args[3] = PY_STR(data->prefix->nick);
-      args[4] = PY_STR(data->prefix->nick);
-      args[5] = PY_STR("*");
-      args[6] = PY_STR(data->rest_str);
-      args[7] = PY_STR(data->c_params[0]);
-      rval = call_python_method(PY_CORE_LIB, PY_NET_CALL_METH, args, 8);
+      PY_DICT_ADD(dict, "user_nick", data->prefix->nick);
+      PY_DICT_ADD(dict, "user_host", data->prefix->host);
+      PY_DICT_ADD(dict, "text", data->rest_str);
+      PY_DICT_ADD(dict, "dest", data->c_params[0]);
+      rval = call_python_method(PY_CORE_LIB, PY_NET_CALL_METH, args, 3);
       troll_debug(LOG_DEBUG, "[python] executed TRIG_MSGM callback");
       break;
     
@@ -714,57 +807,6 @@ void py_handler(struct network *net, struct trigger *trig, struct irc_data *data
 }
 
 
-PyObject * call_python_method(char * module, char * method, PyObject ** args, int numargs) {
-
-  int i;
-  PyObject * module_py;
-  PyObject * method_py;
-  PyObject * args_py;
-  PyObject * rval_py;
-
-  /* get reference to module containing method */
-  module_py = PyImport_AddModule(module);
-  if (module_py == NULL) {
-    troll_debug(LOG_DEBUG, "[python] Could not locate module: %s", module);
-    Py_RETURN_FALSE;
-  }
-
-  /* get reference to method in module */
-  method_py = PyObject_GetAttrString(module_py, method);
-  if (method_py == NULL) {
-    troll_debug(LOG_DEBUG, "[python] Could not locate method %s in module %s",module, method);
-    Py_RETURN_FALSE;
-  }
-
-  if (PyCallable_Check(method_py)) {
-    /* create argument tuple */
-    args_py = PyTuple_New(numargs);
-    for (i = 0; i < numargs; i++) {
-      PyTuple_SetItem(args_py, i, args[i]);
-    }
-
-    rval_py = PyObject_CallObject(method_py, args_py);
-
-    Py_DECREF(args_py);
-    Py_DECREF(method_py);
-    //Py_DECREF(module_py);
-
-    if (rval_py == NULL) {
-      troll_debug(LOG_DEBUG, "[python] an error occurred calling %s.%s()", module, method);
-      if (PyErr_Occurred()) {
-        PyErr_Print();
-      }
-      Py_RETURN_FALSE;
-    } else {
-      return rval_py;
-    }
-
-  } else {
-    troll_debug(LOG_DEBUG, "[python] %s.%s is not callable", method, module);
-    Py_RETURN_FALSE;
-  }
-}
-
 /**
  * adds a string path to the interpreter's sys.path list
  */
@@ -778,8 +820,9 @@ void python_add_path(char * pathname) {
 #ifdef PY_INTERNAL_CORE
 char * python_core_module_code = 
 "import imp\n"
-"import trollbot\n"
 "import sys\n"
+"import trollbot\n"
+"import types\n"
 "\n"
 "NETWORKS = {}\n"
 "\n"
@@ -830,11 +873,18 @@ char * python_core_module_code =
 "      return ok\n"
 "   #end load_module\n"
 "\n"
-"   def bind(self,*args):\n"
-"      trollbot.bind(self.network, *args)\n"
-"\n"
-"   def putserv(self, *args):\n"
-"      trollbot.putserv(self.network, *args)\n"
+"   def __getattr__(self, name):\n"
+"       member = getattr(trollbot, name,None)\n"
+"       if member == None:\n"
+"          trollbot.log(self.network, 3, \"could not find member: %s\" % (name))\n"
+"          return None\n"
+"       if type(member) == types.BuiltinFunctionType:\n"
+"          #closure wraps the method for our purposes\n"
+"          def _tb_method_wrapper(*args):\n"
+"             return member(self.network, *args)\n"
+"          return _tb_method_wrapper\n"
+"       else:\n"
+"          return member\n"
 "\n"
 "   def call_method(self,callback, *args):\n"
 "      #get module name\n"
@@ -855,13 +905,13 @@ char * python_core_module_code =
 "\n"
 "def __TB_init_network(network):\n"
 "   if not NETWORKS.has_key(network):\n"
-"      NETWORKS[network] = TrollbotNetworkInterface(network)\n"
+"      NETWORKS[network] = (TrollbotNetworkInterface(network))\n"
 "#end init_network\n"
 "\n"
 "def __TB_load_module(network, module):\n"
 "   if NETWORKS.has_key(network):\n"
 "      return NETWORKS[network].load_module(module)\n"
-"   #end if\n"
+"     #end if\n"
 "   return False\n"
 "#end __TB_load_module\n"
 "\n"

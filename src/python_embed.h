@@ -17,7 +17,7 @@ void load_python_net_module(struct network *net, char * filename);
 void py_handler(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
 PyObject * call_python_method(char * module, char * method, PyObject ** args, int numargs);
 void python_add_path(char * pathname);
-
+void bootstrap_binding_module();
 
 char * python_core_module_code;
 #endif /* __PYTHON_EMBED_H__ */

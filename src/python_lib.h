@@ -5,5 +5,6 @@
 
 PyObject *py_bind(PyObject *self, PyObject *args);
 PyObject *py_putserv(PyObject *self, PyObject *args);
-
+PyObject *py_troll_debug(PyObject*self, PyObject *args);
+PyObject *py_privmsg(PyObject *self, PyObject *args);
 #endif /* __PYTHON_LIB_H__ */
