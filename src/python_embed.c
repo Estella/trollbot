@@ -42,10 +42,16 @@ PyMethodDef PyTbMethods[] = {
 void cfg_init_python(struct config *cfg) {
   if (cfg->py_main != NULL)
     return;
+  
+  sighandler_t t_sig;
+  t_sig = signal(SIGINT, SIG_IGN);
 
   //initialize the python interpreter
   Py_Initialize();
   troll_debug(LOG_DEBUG, "[python] Initialized interpreter");
+  //restore the signal handler
+  signal(SIGINT, t_sig);
+  troll_debug(LOG_DEBUG, "[python] Restored signal handler");
   //initialize the module which exposes to python
   //our wrappers for the bots functionality we want to expose
   //NOTE: all exposables need to be defined in the PyTbMethods
@@ -867,7 +873,19 @@ char * python_core_module_code =
 "\n"
 "def __TB_add_path(path):\n"
 "   sys.path.append(path)\n"
-"#end __TB_add_path\n";
+"#end __TB_add_path\n"
+"\n"
+"def __TB_reload_module(modname):\n"
+"   if sys.modules.has_key(modname):\n"
+"      reload(sys.modules[modname])\n"
+"      reload(sys.modules[modname])\n"
+"      print \"reloaded %s \\n\" % (modname)\n"
+"      return True\n"
+"   print \"found no module named %s to reload\\n\" % (modname)\n"
+"   return False\n"
+"#end __TB_reload_module\n"
+"\n"
+"\n";
 #endif
 
 /* vim: tabstop=2
