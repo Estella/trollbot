@@ -4,7 +4,7 @@ AC_DEFUN([AX_PROG_PERL], [
   AC_ARG_WITH(perl,      [  --with-perl=PATH         use Perl from PATH],
         with_perl="$withval")
 
-  if test "${with_perl}" == "yes"; then
+  if test "${with_perl}" = "yes"; then
     AC_MSG_CHECKING([For perl binary])
     AC_PATH_PROG(PERL,perl)
 

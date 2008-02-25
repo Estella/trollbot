@@ -22282,7 +22282,7 @@ if test "${with_php+set}" = set; then
 fi
 
 
-    if test "x${with_php}" != "xno" ; then
+    if test "${with_php}" = "yes" || test "${with_php}" = "5" || test "${with_php}" = "4"; then
     { echo "$as_me:$LINENO: checking if there's a valid user specified php-config" >&5
 echo $ECHO_N "checking if there's a valid user specified php-config... $ECHO_C" >&6; }
 
@@ -22648,7 +22648,7 @@ if test "${with_perl+set}" = set; then
 fi
 
 
-  if test "${with_perl}" != "no"; then
+  if test "${with_perl}" = "yes"; then
     { echo "$as_me:$LINENO: checking For perl binary" >&5
 echo $ECHO_N "checking For perl binary... $ECHO_C" >&6; }
     # Extract the first word of "perl", so it can be a program name with args.

@@ -184,7 +184,7 @@ AC_DEFUN([AX_PROG_PHP],[
         [ with_php="$withval" ] )
 
   dnl Default to check for PHP
-  if test "x${with_php}" != "xno" ; then
+  if test "${with_php}" = "yes" || test "${with_php}" = "5" || test "${with_php}" = "4"; then
     AC_MSG_CHECKING([if there's a valid user specified php-config])
 
     if test -f "${with_php_config}/php-config"; then
@@ -348,7 +348,7 @@ AC_DEFUN([AX_PROG_PERL], [
   AC_ARG_WITH(perl,      [  --with-perl=PATH         use Perl from PATH],
         with_perl="$withval")
 
-  if test "${with_perl}" != "no"; then
+  if test "${with_perl}" = "yes"; then
     AC_MSG_CHECKING([For perl binary])
     AC_PATH_PROG(PERL,perl)
 
