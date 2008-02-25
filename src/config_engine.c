@@ -13,6 +13,8 @@
 #include "user.h"
 #include "trigger.h"
 #include "t_crypto_module.h"
+#include "log_filter.h"
+#include "debug.h"
 
 #ifdef HAVE_TCL
 #include "tcl_embed.h"
@@ -146,6 +148,17 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
         {
           cfg->fork = atoi(search->value);
         }
+				else if (!strcmp(search->key,"console_log_flags"))
+				{
+					if (cfg->filters == NULL)
+					{
+						cfg->filters = log_filter_new();
+
+						cfg->filters->flags   = tstrdup(search->value);
+						cfg->filters->net     = NULL;
+						cfg->filters->handler = console_log_filter_handler;
+					}
+				}
         else if (!strcmp(search->key,"debuglevel"))
         {
           cfg->debug_level = atoi(search->value);

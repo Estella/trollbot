@@ -17,6 +17,7 @@
 #include "channel.h"
 #include "trigger.h"
 #include "dcc.h"
+#include "log_entry.h"
 
 /* Simple printf like function that outputs to a socket, buffer work needs to be more dynamic */
 /* Should be sock_printf() */
@@ -271,24 +272,24 @@ void parse_irc_line(struct network *net, const char *buffer)
   {
     if (data->prefix->servername != NULL)
     {
-      troll_debug(LOG_DEBUG,"Servername: %s",data->prefix->servername);
+      log_entry_sprintf(net,"T","Servername: %s",data->prefix->servername);
     } else {
       if (data->prefix->nick != NULL)
-        troll_debug(LOG_DEBUG,"Nick: %s",data->prefix->nick);
+        log_entry_sprintf(net,"T","Nick: %s",data->prefix->nick);
       if (data->prefix->user != NULL)
-        troll_debug(LOG_DEBUG,"User: %s",data->prefix->user);
+        log_entry_sprintf(net,"T","User: %s",data->prefix->user);
       if (data->prefix->host != NULL)
-        troll_debug(LOG_DEBUG,"Host: %s",data->prefix->host);
+        log_entry_sprintf(net,"T","Host: %s",data->prefix->host);
     }
   }
 
-  troll_debug(LOG_DEBUG,"Command: %s",data->command);
+  log_entry_sprintf(net,"T","Command: %s",data->command);
 
   if (data->c_params != NULL)
-    troll_debug(LOG_DEBUG,"Command Parameters: %s",data->c_params_str);
+    log_entry_sprintf(net,"T","Command Parameters: %s",data->c_params_str);
 
   if (data->rest != NULL)
-    troll_debug(LOG_DEBUG,"Rest: %s",data->rest_str);
+    log_entry_sprintf(net,"T","Rest: %s",data->rest_str);
 
   /* deal with pings */
   if (!strcmp(data->command,"PING"))

@@ -13,6 +13,8 @@
 #include "user.h"
 #include "util.h"
 #include "egg_lib.h"
+#include "log_filter.h"
+#include "log_entry.h"
 
 #ifdef HAVE_JS
 #include "js_embed.h"
@@ -143,9 +145,11 @@ static void do_join_channels(struct network *net, struct trigger *trig, struct i
 
 void new_join(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
-	struct channel *chan       = net->chans;
-	struct channel_user *cuser = NULL;
+	struct channel *chan          = net->chans;
+	struct channel_user *cuser    = NULL;
 
+	log_entry_sprintf(net,"j",data->prefix->nick,data->rest_str);
+	
 	/* HACKERY */
 	if (chan != NULL)
 		while(chan->prev != NULL) chan = chan->prev;
@@ -205,6 +209,8 @@ void new_part(struct network *net, struct trigger *trig, struct irc_data *data, 
 {
   struct channel *chan       = net->chans;
 
+	log_entry_sprintf(net,"j","%s parted %s",data->prefix->nick,data->c_params[0]);
+
   while (chan != NULL)
   {
     if (!tstrcasecmp(data->rest_str,chan->name))
@@ -238,6 +244,9 @@ void new_quit(struct network *net, struct trigger *trig, struct irc_data *data, 
 {
   struct channel *chan       = net->chans;
 
+	log_entry_sprintf(net,"j","%s quit irc",data->prefix->nick);
+
+
   while (chan != NULL)
   {
 		if (egg_onchan(net, data->prefix->nick, chan->name)){
@@ -254,9 +263,11 @@ void new_quit(struct network *net, struct trigger *trig, struct irc_data *data, 
 void new_kick(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
   /* if bot was kicked, try a rejoin immediately */
+	/* Verified eggdrop behavior, there is no setting for this [acidtoken] */
   if (!strcmp(data->c_params[1],net->nick))
     irc_printf(net->sock,"JOIN %s",data->c_params[0]);
 
+	log_entry_sprintf(net,"k","%s Got kicked from <FILL ME IN>",data->prefix->nick);
 }
 
 void new_user_pass(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)

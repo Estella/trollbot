@@ -11,9 +11,16 @@
 #include "main.h"
 
 #include "debug.h"
+#include "log_filter.h"
+#include "network.h"
+#include "log_entry.h"
+#include "util.h"
 
 
-
+void console_log_filter_handler(struct network *net, struct log_filter *filter, struct log_entry *entry)
+{
+	printf("%s\n",entry->log_text);
+}
 
 /* This method is to be replaced with
  * eggdrop's flag based logs.

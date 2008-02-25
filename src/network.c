@@ -27,6 +27,7 @@
 #include "t_timer.h"
 #include "sockets.h"
 #include "debug.h"
+#include "log_filter.h"
 
 #ifdef HAVE_TCL
 #include "tcl_embed.h"
@@ -272,6 +273,7 @@ struct network *new_network(char *label)
   
 	ret->handlen       = 32;
 
+	ret->filters       = NULL;
 #ifdef HAVE_TCL
 	ret->tcl_scripts      = NULL;
 	ret->tcl_scripts_size = 0;

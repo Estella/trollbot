@@ -16,6 +16,7 @@ struct network;
 struct user;
 struct tconfig_block;
 struct t_crypto_module;
+struct log_filter;
 
 /* This is the main struct that information is loaded
  * into from the config block format.
@@ -29,6 +30,8 @@ struct config
 
   /* Unhandled tconfig blocks at toplevel */
   struct tconfig_block *tcfg;
+
+	struct log_filter *filters;
 
 	char *hash_type;
 

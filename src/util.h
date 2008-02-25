@@ -23,6 +23,7 @@ void tstrfreev(char *ptr[]);
 char *tstrtrim(char *data);
 void *tmalloc(size_t size);
 void *tmalloc0(size_t size);
+char *tstrarrayserialize(char **ptr);
 char *tcrealloc0(char *ptr, size_t size, unsigned int *bufsize);
 char **tsrealloc0(char **ptr, size_t size, unsigned int *bufsize);
 

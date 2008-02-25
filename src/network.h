@@ -11,6 +11,7 @@ struct trig_table;
 struct tconfig_block;
 struct dcc_session;
 struct t_timer;
+struct log_filter;
 
 #include <time.h>
 
@@ -93,6 +94,9 @@ struct network
 	/* For Compatibility with eggdrop */
 	int handlen;
  
+	/* LOG FILTERS! */
+	struct log_filter *filters;
+
   /* DCCs */
 	/* Copy over on rehash */
   struct dcc_session *dccs;

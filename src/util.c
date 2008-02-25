@@ -156,6 +156,32 @@ char *tcrealloc0(char *ptr, size_t size, unsigned int *bufsize)
   return new;
 }
 
+char *tstrarrayserialize(char **ptr)
+{
+	char *ret   = NULL;
+	char *esp   = NULL;
+	char **hold = NULL;
+	size_t alloc_size = 0;
+
+	hold = ptr;
+
+	while ((esp = *hold++))
+	{
+		alloc_size += strlen(esp) + 1;		
+	}
+	
+	ret = tmalloc0(alloc_size + 1);
+
+	hold = ptr;
+
+	while ((esp = *hold++))
+	{
+		strcpy(&ret[strlen(ret)],esp);
+	}
+
+	return ret;	
+}
+
 char **tsrealloc0(char **ptr, size_t size, unsigned int *bufsize)
 {
   char **new = NULL;
