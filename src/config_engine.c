@@ -18,9 +18,9 @@
 #include "tcl_embed.h"
 #endif /* HAVE_TCL */
 
-/*#ifdef HAVE_PHP
+#ifdef HAVE_PHP
 #include "php_embed.h"
-#endif*/ /* HAVE_PHP */
+#endif /* HAVE_PHP */
 
 #ifdef HAVE_JS
 #include "js_embed.h"
@@ -78,7 +78,7 @@ int config_engine_init(char *filename)
 		g_cfg->crypto = t_crypto_module_load(g_cfg->crypto_name);
 
 	tconfig_to_file(g_cfg->tcfg,"out.txt");
- 
+
   return 0;
 }
 

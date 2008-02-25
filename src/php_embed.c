@@ -559,6 +559,3 @@ zend_module_entry trollbot_module_entry =
     NO_VERSION_YET,
     STANDARD_MODULE_PROPERTIES,
 };
-
-
-

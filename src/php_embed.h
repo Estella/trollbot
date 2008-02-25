@@ -33,7 +33,6 @@
 #ifdef HAVE_PERL
 #undef END_EXTERN_C
 #endif /* HAVE_PERL */
-
 #endif /* HAVE_PHP */
 
 #ifdef ZTS
