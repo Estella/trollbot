@@ -11,7 +11,7 @@
 #include "main.h"
 #include "channel.h"
 
-void log_entry_sprintf(struct network *net, char *chan, const char *flags, const char *fmt, ...)
+void log_entry_printf(struct network *net, char *chan, const char *flags, const char *fmt, ...)
 {
   va_list va;
   char buf[2048];

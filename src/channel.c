@@ -467,7 +467,7 @@ void chans_save(struct network *net)
 	char                 *tmpstr = NULL;
 	struct network       *nettmp = NULL;
 
-	log_entry_sprintf(net, NULL, "c", "Saving channel file...");
+	log_entry_printf(net, NULL, "c", "Saving channel file...");
 
 	if (net != NULL)
 	{

@@ -148,7 +148,7 @@ void new_join(struct network *net, struct trigger *trig, struct irc_data *data, 
 	struct channel *chan          = net->chans;
 	struct channel_user *cuser    = NULL;
 
-	log_entry_sprintf(net,"j","%s joined %s.",data->prefix->nick,data->rest_str);
+	log_entry_printf(net,"j","%s joined %s.",data->prefix->nick,data->rest_str);
 	
 	/* HACKERY */
 	if (chan != NULL)
@@ -209,7 +209,7 @@ void new_part(struct network *net, struct trigger *trig, struct irc_data *data, 
 {
   struct channel *chan       = net->chans;
 
-	log_entry_sprintf(net,"j","%s parted %s.",data->prefix->nick,data->c_params[0]);
+	log_entry_printf(net,"j","%s parted %s.",data->prefix->nick,data->c_params[0]);
 
   while (chan != NULL)
   {
@@ -244,7 +244,7 @@ void new_quit(struct network *net, struct trigger *trig, struct irc_data *data, 
 {
   struct channel *chan       = net->chans;
 
-	log_entry_sprintf(net,"j","%s quit irc",data->prefix->nick);
+	log_entry_printf(net,"j","%s quit irc",data->prefix->nick);
 
 
   while (chan != NULL)
@@ -267,7 +267,7 @@ void new_kick(struct network *net, struct trigger *trig, struct irc_data *data, 
   if (!strcmp(data->c_params[1],net->nick))
     irc_printf(net->sock,"JOIN %s",data->c_params[0]);
 
-	log_entry_sprintf(net,"k","%s Got kicked from <FILL ME IN>",data->prefix->nick);
+	log_entry_printf(net,"k","%s Got kicked from <FILL ME IN>",data->prefix->nick);
 }
 
 void new_user_pass(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)

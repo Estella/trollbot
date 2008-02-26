@@ -236,7 +236,7 @@ void users_save(struct network *net)
 	char                 *tmpstr = NULL;
 	struct network       *nettmp = NULL;
 
-	log_entry_sprintf(net, NULL, "c", "Saving user file...");
+	log_entry_printf(net, NULL, "c", "Saving user file...");
 
 	if (net != NULL)
 	{
@@ -379,7 +379,7 @@ void user_init(void)
  			 */
 			usertcfg = file_to_tconfig(net->userfile);
 	
-			log_entry_sprintf(net, NULL, "c", "Userfile loaded, unpacking...");
+			log_entry_printf(net, NULL, "c", "Userfile loaded, unpacking...");
 
 			tmp = usertcfg;
 
