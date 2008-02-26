@@ -129,6 +129,7 @@ struct log_filter *log_filter_new(void)
 	ret = tmalloc(sizeof (struct log_filter));
 
 	ret->net     = NULL;
+	ret->chan    = NULL;
 	ret->flags   = NULL;
   ret->handler = NULL;
 

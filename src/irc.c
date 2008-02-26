@@ -272,24 +272,24 @@ void parse_irc_line(struct network *net, const char *buffer)
   {
     if (data->prefix->servername != NULL)
     {
-      log_entry_sprintf(net,"T","Servername: %s",data->prefix->servername);
+      log_entry_sprintf(net,NULL,"T","Servername: %s",data->prefix->servername);
     } else {
       if (data->prefix->nick != NULL)
-        log_entry_sprintf(net,"T","Nick: %s",data->prefix->nick);
+        log_entry_sprintf(net,NULL,"T","Nick: %s",data->prefix->nick);
       if (data->prefix->user != NULL)
-        log_entry_sprintf(net,"T","User: %s",data->prefix->user);
+        log_entry_sprintf(net,NULL,"T","User: %s",data->prefix->user);
       if (data->prefix->host != NULL)
-        log_entry_sprintf(net,"T","Host: %s",data->prefix->host);
+        log_entry_sprintf(net,NULL,"T","Host: %s",data->prefix->host);
     }
   }
 
-  log_entry_sprintf(net,"T","Command: %s",data->command);
+  log_entry_sprintf(net, NULL, "T","Command: %s",data->command);
 
   if (data->c_params != NULL)
-    log_entry_sprintf(net,"T","Command Parameters: %s",data->c_params_str);
+    log_entry_sprintf(net, NULL, "T","Command Parameters: %s",data->c_params_str);
 
   if (data->rest != NULL)
-    log_entry_sprintf(net,"T","Rest: %s",data->rest_str);
+    log_entry_sprintf(net, NULL, "T","Rest: %s",data->rest_str);
 
   /* deal with pings */
   if (!strcmp(data->command,"PING"))

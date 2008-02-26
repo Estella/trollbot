@@ -148,7 +148,7 @@ void new_join(struct network *net, struct trigger *trig, struct irc_data *data, 
 	struct channel *chan          = net->chans;
 	struct channel_user *cuser    = NULL;
 
-	log_entry_sprintf(net,"j",data->prefix->nick,data->rest_str);
+	log_entry_sprintf(net,"j","%s joined %s.",data->prefix->nick,data->rest_str);
 	
 	/* HACKERY */
 	if (chan != NULL)
@@ -209,7 +209,7 @@ void new_part(struct network *net, struct trigger *trig, struct irc_data *data, 
 {
   struct channel *chan       = net->chans;
 
-	log_entry_sprintf(net,"j","%s parted %s",data->prefix->nick,data->c_params[0]);
+	log_entry_sprintf(net,"j","%s parted %s.",data->prefix->nick,data->c_params[0]);
 
   while (chan != NULL)
   {

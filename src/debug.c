@@ -7,6 +7,11 @@
  * domain. Free for any use   *
  * whatsoever.                *
  ******************************/
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include <time.h>
 
 #include "main.h"
 
@@ -19,7 +24,18 @@
 
 void console_log_filter_handler(struct network *net, struct log_filter *filter, struct log_entry *entry)
 {
-	printf("%s\n",entry->log_text);
+	time_t now;
+	struct tm *hehe = NULL;
+	char  buf[8]; /* "[dd:dd]" + \0 */
+
+	now  = time(NULL);
+	hehe = localtime(&now);
+
+	memset(buf,0,sizeof(buf));
+
+	strftime(&buf,sizeof(buf),"[%H:%M]",hehe);
+
+	printf("%s %s\n",buf,entry->log_text);
 }
 
 /* This method is to be replaced with

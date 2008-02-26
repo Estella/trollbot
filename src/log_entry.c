@@ -9,8 +9,9 @@
 #include "network.h"
 #include "util.h"
 #include "main.h"
+#include "channel.h"
 
-void log_entry_sprintf(struct network *net, const char *flags, const char *fmt, ...)
+void log_entry_sprintf(struct network *net, char *chan, const char *flags, const char *fmt, ...)
 {
   va_list va;
   char buf[2048];
@@ -37,6 +38,7 @@ void log_entry_sprintf(struct network *net, const char *flags, const char *fmt, 
 
 	entry->log_text = ret;
 	entry->net      = net;
+	entry->chan     = chan;
 	entry->flags    = flags;
 	
 	log_filters_check(g_cfg->filters,entry);
@@ -62,6 +64,7 @@ struct log_entry *log_entry_new(void)
 	ret = tmalloc(sizeof (struct log_entry));
 
 	ret->net       = NULL;
+	ret->chan      = NULL;
 	ret->flags     = NULL;
   ret->log_text  = NULL;
 

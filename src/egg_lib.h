@@ -70,6 +70,8 @@ char *egg_botname(struct network *net);
 
 char *egg_version(void);
 
+int egg_getting_users(struct network *net);
+int egg_isbotnick(struct network *net, char *nick);
 
 /**
  * Eggdrop Compatible onchan

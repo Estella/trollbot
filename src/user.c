@@ -2,6 +2,7 @@
 #include "network.h"
 #include "tconfig.h"
 #include "user.h"
+#include "log_entry.h"
 
 struct tconfig_block *users_to_tconfig(struct user *users)
 {
@@ -235,6 +236,8 @@ void users_save(struct network *net)
 	char                 *tmpstr = NULL;
 	struct network       *nettmp = NULL;
 
+	log_entry_sprintf(net, NULL, "c", "Saving user file...");
+
 	if (net != NULL)
 	{
 		tcfg = users_to_tconfig(net->users);
@@ -376,6 +379,8 @@ void user_init(void)
  			 */
 			usertcfg = file_to_tconfig(net->userfile);
 	
+			log_entry_sprintf(net, NULL, "c", "Userfile loaded, unpacking...");
+
 			tmp = usertcfg;
 
 			while (tmp != NULL)

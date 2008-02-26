@@ -288,57 +288,6 @@ char *egg_makepasswd(const char *pass, const char *hash_type)
 	
 	return g_cfg->crypto->create_hash(pass, hash_type);
 }
-/*
-  SHA1_CTX context;
-  hash_state md;
-
-  * These should be as large as the largest hash type's string/byte representation of its hash respectively *
-	char *hash_string = NULL;
-  unsigned char tmp[64];
-
-  int i;
-  int hash_size = 0;
-
-	if (hash_type == NULL)
-	{
-		troll_debug(LOG_ERROR,"Missing Hash Type argument for egg_makepasswd()");
-		return NULL;
-	}
-
-	memset(tmp,0,sizeof(tmp));
-
-	if (!strcmp(hash_type,"sha512"))
-	{
-  	* NEEDS PASS CHECKED *
-   	sha512_init(&md);
-		sha512_process(&md, (unsigned char *)pass, strlen(pass));
-		sha512_done(&md, tmp);
-		hash_size = 64;  * Size in bytes *
-	}
-	else if (!strcmp(hash_type,"sha1"))
-	{
-		SHA1Init(&context);
-		SHA1Update(&context, (unsigned char *)pass, strlen(pass));
-		SHA1Final(tmp, &context);
-		hash_size = 20; * 20 bytes? wtf *
-	}
-	else
-	{
-		troll_debug(LOG_ERROR,"Unrecognized Hash Type: %s\n",hash_type);
-		return NULL;
-	}
-
-	hash_string = tmalloc0(hash_size*2+1);
-
-	* Ugly Hack *
-	for (i=0; i<hash_size; i++)
-	{
-		sprintf(&hash_string[strlen(hash_string)],"%0x",tmp[i]);
-	}
-
-	return hash_string;
-}
-*/
 
 /* Fully Compatible */
 /* passwdok <handle> <pass> */
@@ -655,7 +604,14 @@ int egg_matchattr(struct network *net, const char *handle, const char *flags, co
 /* isignore <hostmask> */
 /* reload */
 /* backup */
-/* getting-users */
+
+/* getting-users: Returns 1 if bot is downloading a userfile, 0 if not */
+/* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
+int egg_getting_users(struct network *net)
+{
+	return 0;
+}
+
 /* channel add <name> <option-list> */
 /* channel set <name> <options...> */
 /* channel info <name> */
@@ -720,7 +676,13 @@ char *egg_channels(struct network *net)
 	return ret;
 }
 
-/* isbotnick <nick> */
+/* isbotnick: Returns 1 if nick is bot's nick */
+/* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
+int egg_isbotnick(struct network *net, char *nick)
+{
+	return (!tstrcasecmp(net->botnick,nick));
+}
+
 /* botisop [channel] */
 /* botishalfop [channel] */
 /* botisvoice [channel] */

@@ -7,6 +7,7 @@ struct log_entry;
 struct log_filter
 {
 	struct network *net;
+	char *chan;
 
 	char *flags;
 

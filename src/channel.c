@@ -1,6 +1,7 @@
 #include "main.h"
 #include "channel.h"
 
+#include "log_entry.h"
 #include "tconfig.h"
 #include "irc.h"
 #include "util.h"
@@ -465,6 +466,8 @@ void chans_save(struct network *net)
 	struct tconfig_block *tcfg   = NULL;
 	char                 *tmpstr = NULL;
 	struct network       *nettmp = NULL;
+
+	log_entry_sprintf(net, NULL, "c", "Saving channel file...");
 
 	if (net != NULL)
 	{
