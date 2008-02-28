@@ -16,6 +16,10 @@
 #include "log_filter.h"
 #include "log_entry.h"
 
+#ifdef HAVE_TCL
+#include "tcl_embed.h"
+#endif /* HAVE_TCL */
+
 #ifdef HAVE_JS
 #include "js_embed.h"
 #endif /* HAVE_JS */
@@ -75,15 +79,16 @@ void add_default_triggers(void)
 
 #ifdef HAVE_JS
 		trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".loadjavascript",NULL,&dcc_javascript_load));
+		trigger_list_add(&net->trigs->dcc,new_trigger("n",TRIG_DCC,".js",NULL,&dcc_javascript));
 #endif /* HAVE_JS */
 
 #ifdef HAVE_TCL
-    /* OWNER only 
-    trigger_list_add(&net->trigs->dcc,new_trigger("n",TRIG_DCC,".tcl",NULL,&dcc_tcl));*/
+    /* OWNER only */ 
+    trigger_list_add(&net->trigs->dcc,new_trigger("n",TRIG_DCC,".tcl",NULL,&dcc_tcl));
 #endif /* HAVE_TCL */
 
 #ifdef HAVE_PHP
-    /* OWNER only
+    /* OWNER only 
     trigger_list_add(&net->trigs->dcc,new_trigger("n",TRIG_DCC,".php",NULL,&dcc_php));*/
 #endif /* HAVE_PHP */
 

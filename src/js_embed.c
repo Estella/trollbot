@@ -27,6 +27,22 @@ JSClass global_class = {
 
 static void js_error_handler(JSContext *ctx, const char *msg, JSErrorReport *er);
 
+void dcc_javascript(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
+{
+	jsval rval;
+
+	if (JS_EvaluateScript(dcc->net->cx, 
+												dcc->net->global, 
+												egg_makearg(dccbuf,trig->mask), 
+												strlen(egg_makearg(dccbuf,trig->mask)),
+												"DCC",
+												0,
+												&rval) == JS_TRUE)
+	{
+		/* Error handling or anything ? */
+	}
+}
+
 void js_load_scripts_from_config(struct config *cfg)
 {
   int i;

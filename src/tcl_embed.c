@@ -9,8 +9,23 @@
 #include "server.h"
 #include "channel.h"
 #include "user.h"
+#include "dcc.h"
 
 #include "egg_lib.h"
+
+void dcc_tcl(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
+{
+	int ret;
+
+	ret = Tcl_VarEval(dcc->net->tclinterp, egg_makearg(dccbuf,trig->mask), NULL);
+
+	if (ret == TCL_ERROR)
+	{
+		irc_printf(dcc->sock, "TCL Error: %s", dcc->net->tclinterp->result);
+	}
+
+	return;
+}
 
 void tcl_load_scripts_from_config(struct config *cfg)
 {

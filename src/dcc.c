@@ -466,15 +466,19 @@ void dcc_command_handler(struct dcc_session *dcc, const char *command)
 
   while (trig != NULL)
   {
-    if (!strncmp(trig->mask,command,strlen(trig->mask)))
-    {
-      if (trig->handler != NULL)
-      {
-        trig->usecount++;
-        trig->handler(dcc->net,trig,NULL,dcc,command);
-        return;
-      }
-    }
+		/* We want to check user flags for this since they authenticated */
+		if ((trig->glob_flags == NULL) || egg_matchattr(dcc->net,dcc->user->username,trig->glob_flags,NULL))
+		{
+    	if (!strncmp(trig->mask,command,strlen(trig->mask)))
+    	{
+     	 if (trig->handler != NULL)
+     	 {
+     	   trig->usecount++;
+     	   trig->handler(dcc->net,trig,NULL,dcc,command);
+     	   return;
+     	 }
+    	}
+		}
 
     trig = trig->next;
   }
@@ -796,6 +800,22 @@ void dcc_tbinds(struct network *net, struct trigger *trig, struct irc_data *data
         
     tmp_trig = tmp_trig->next;
   }
+
+  irc_printf(dcc->sock,"bind DCC:");
+  tmp_trig = net->trigs->dcc;
+
+  if (tmp_trig == NULL) irc_printf(dcc->sock,"None.");
+
+  while (tmp_trig != NULL)
+  {
+    if (tmp_trig->command != NULL)
+      irc_printf(dcc->sock,"Mask: (%s) Usecount: %d Command: (%s)",tmp_trig->mask,tmp_trig->usecount,tmp_trig->command);
+    else
+      irc_printf(dcc->sock,"Mask: (%s) Usecount: %d Command: Internal",tmp_trig->mask,tmp_trig->usecount);
+
+    tmp_trig = tmp_trig->next;
+  }
+
 
   return;
 }
