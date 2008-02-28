@@ -8,6 +8,111 @@
 #include "network.h"
 #include "user.h"
 
+
+struct channel_ban *channel_ban_del(struct channel_ban *bans, struct channel_ban *del)
+{
+	struct channel_ban *tmp = NULL;
+
+	if ((tmp = bans) == NULL)
+	{
+		log_entry_printf(NULL,NULL,"T","channel_ban_del() called with NULL banlist");
+		return NULL;
+	}
+
+	while (tmp != NULL)
+	{
+		if (tmp == del)
+		{
+			if (tmp->prev != NULL)
+				tmp->prev->next = tmp->next;
+
+			if (tmp->next != NULL)
+				tmp->next->prev = tmp->prev;
+
+			while (tmp == del && tmp->prev != NULL)
+				tmp = tmp->prev;
+
+			while (tmp == del && tmp->next != NULL)
+				tmp = tmp->next;
+		
+			if (tmp == del)
+				return NULL;
+			else
+				return tmp;
+
+		}
+
+		tmp = tmp->next;
+	}
+	
+	log_entry_printf(NULL,NULL,"T","channel_ban_del() called with a ban deletion that no entry existed for");
+
+	return bans;
+}
+
+struct channel_ban *channel_ban_add(struct channel_ban *bans, struct channel_ban *add)
+{
+	struct channel_ban *tmp = NULL;
+
+	if ((tmp = bans) == NULL)
+		return add;
+
+	while (tmp->next != NULL) tmp = tmp->next;
+
+	tmp->next = add;
+	add->prev = tmp;
+
+	return bans;
+}
+
+void channel_bans_free(struct channel_ban *bans)
+{
+	struct channel_ban *tmp = NULL;
+	struct channel_ban *old = NULL;
+
+	tmp = bans;
+
+	while (tmp->prev != NULL) tmp = tmp->prev;
+
+	while (tmp != NULL)
+	{
+		old = tmp;
+		tmp = tmp->next;
+
+		channel_ban_free(old);
+	}
+}
+
+void channel_ban_free(struct channel_ban *ban)
+{
+	if (ban == NULL)
+	{
+		log_entry_printf(NULL,NULL,"T","channel_ban_free() called with NULL ban");
+		return;
+	}
+
+	free(ban->chan);
+	free(ban->mask);
+	free(ban->who);
+	free(ban);
+}
+
+struct channel_ban *channel_ban_new(void)
+{
+	struct channel_ban *ret = tmalloc(sizeof(struct channel_ban));
+
+	ret->chan = NULL;
+	ret->mask = NULL;
+	ret->who  = NULL;
+	
+	ret->time = 0;
+
+	ret->prev = NULL;
+	ret->next = NULL;
+
+	return ret;
+}
+
 struct tconfig_block *chans_to_tconfig(struct channel *chans)
 {
 	struct channel       *tmp  = NULL;
@@ -299,6 +404,8 @@ struct channel *new_channel(const char *chan)
 	ret->statuslog        = -1;
 	ret->secret           = -1;
 	ret->shared           = -1;
+
+	ret->banlist          = NULL;
 
   ret->tcfg = NULL;
   ret->user_list = NULL;

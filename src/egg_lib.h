@@ -27,6 +27,9 @@ void egg_putserv(struct network *net, const char *text, int option_next);
 void egg_puthelp(struct network *net, const char *text, int option_next);
 void egg_putquick(struct network *net, const char *text, int option_next);
 
+/* Helluva function */
+char *egg_chattr(struct network *net, const char *handle, const char *changes, const char *channel);
+
 /* Matches a users flags, and optionally channel flags, uses glob|chan notation */
 int egg_matchattr(struct network *net, const char *handle, const char *flags, const char *channel);
 

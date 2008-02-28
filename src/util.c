@@ -203,3 +203,65 @@ char **tsrealloc0(char **ptr, size_t size, unsigned int *bufsize)
   return new;
 }
 
+char **tssv_split(char *ptr)
+{
+	char   **ret      = NULL;
+	size_t whole_size = 0;
+	size_t chunk_size = 0;
+	size_t list_size  = 0;
+	char   *sch       = NULL;
+	char   *old       = NULL;
+	int    i          = 0;
+
+	/* greedy count */
+	sch = ptr;
+
+	/* Count the number of list entries */
+	while (*sch)
+	{
+		if (*sch == ' ' || *sch == '\t')
+		{
+			list_size++;
+			whole_size += chunk_size;
+			chunk_size = 0;
+		}
+			
+		chunk_size++;
+		sch++;
+	}
+
+	/* Count the last one until NULL */
+	list_size++;
+	whole_size += chunk_size;
+	
+	/* bad */
+	ret = (char **)tmalloc0((sizeof(char *) * list_size) + 1);
+	
+	sch = ptr;
+
+	for(i=0;i<list_size;i++)
+	{
+		old = sch;
+		chunk_size = 0;
+
+		while ((*sch != '\0') && *sch != '\t' && *sch != ' ')
+		{
+			chunk_size++;
+			sch++;
+		}
+
+		ret[i] = tmalloc0(chunk_size + 1);
+
+		strncpy(ret[i],old,chunk_size);
+
+		/* skip over space/tab */
+		if (*sch != '\0')
+			sch++;
+	}
+
+	ret[i] = NULL;
+	
+	return ret;
+}
+	
+

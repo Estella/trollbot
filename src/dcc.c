@@ -680,6 +680,21 @@ void dcc_who(struct network *net, struct trigger *trig, struct irc_data *data, s
   return;
 }
 
+void dcc_chattr(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
+{
+/*	char **args;
+
+	args = tssv_split(egg_makearg(dccbuf,trig->mask));
+
+	 * BS * 
+	if (args != NULL)
+		if (args[0] != NULL)
+			if (args[1] != NULL)
+				if (args[2] != NULL)	
+					egg_chattr(net,args[0],args[1],args[2]);
+*/
+}
+
 void dcc_tbinds(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
   struct trigger *tmp_trig;

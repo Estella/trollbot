@@ -20,6 +20,7 @@
 #include "js_embed.h"
 #endif /* HAVE_JS */
 
+static void channel_banlist_add(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
 static void channel_set_topic(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
 static void dcc_saveall(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
 static void dcc_dump(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
@@ -70,6 +71,7 @@ void add_default_triggers(void)
 		trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".dump",NULL,&dcc_dump));
 		trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".saveall",NULL,&dcc_saveall));
 		trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".rehash",NULL,&rehash_bot));
+		trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".chattr",NULL,&dcc_chattr));
 
 #ifdef HAVE_JS
 		trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".loadjavascript",NULL,&dcc_javascript_load));
@@ -89,9 +91,66 @@ void add_default_triggers(void)
     /* BIND RAW */
     trigger_list_add(&net->trigs->raw,new_trigger(NULL,TRIG_RAW,"353",NULL,&channel_list_populate));
 		trigger_list_add(&net->trigs->raw,new_trigger(NULL,TRIG_RAW,"332",NULL,&channel_set_topic));
+		trigger_list_add(&net->trigs->raw,new_trigger(NULL,TRIG_RAW,"367",NULL,&channel_banlist_add));
 
     net = net->next;
   }
+}
+
+static void channel_banlist_add(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
+{
+	struct channel     *chan = NULL;
+	struct channel_ban *ban  = NULL;
+
+	/* Handle this gracefully? */
+	if ((chan = net->chans) == NULL)
+	{
+		log_entry_printf(net,NULL,"T","channel_banlist_add() called with no chans available.");
+		return;
+	}
+
+	while (chan != NULL)
+	{
+		if (!tstrcasecmp(chan->name,data->c_params[1]))
+		{	
+			break;
+		}
+
+		chan = chan->next;
+	}
+
+	/* Handle this gracefully? */
+	if (chan == NULL)
+	{
+		log_entry_printf(net,data->c_params[1],"T","channel_banlist_add() called with a channel that does not exist: %s",data->c_params[1]);
+		return;
+	}
+
+	/* See if this ban already exists by its unique key, mask */
+	ban = chan->banlist;
+
+	while (ban != NULL)
+	{
+		/* Duplicate, do not add */
+		if (!strcmp(ban->mask,data->c_params[2]))
+			return;
+
+			
+		ban = ban->next;
+	}
+
+	ban = channel_ban_new();
+
+	ban->chan = tstrdup(data->c_params[1]);
+	ban->mask = tstrdup(data->c_params[2]);
+	ban->who  = tstrdup(data->c_params[3]);
+
+	/* FIXME: Proper checking, why? */
+	ban->time = atoi(data->c_params[4]);
+
+	chan->banlist = channel_ban_add(chan->banlist, ban);
+	
+	return;
 }
 
 static void channel_set_topic(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
@@ -184,6 +243,15 @@ void new_join(struct network *net, struct trigger *trig, struct irc_data *data, 
 			cuser->ident = tstrdup(data->prefix->user);
 			/* FIXME: Need check for whether they're a recognized user in the bot */
 			/* FIXME: Check if nick is bot, if so do WHO, and MODE */
+	
+			if (!tstrcasecmp(net->botnick,data->prefix->nick))
+			{
+				irc_printf(net->sock,"MODE %s",chan->name);
+				irc_printf(net->sock,"MODE %s b",chan->name);
+				irc_printf(net->sock,"MODE %s e",chan->name);
+				irc_printf(net->sock,"MODE %s I",chan->name);
+				irc_printf(net->sock,"WHO %s",chan->name);
+			}
 				
 			cuser->next = NULL;
 				

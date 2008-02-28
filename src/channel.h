@@ -1,6 +1,8 @@
 #ifndef __CHANNEL_H__
 #define __CHANNEL_H__
 
+#include <time.h>
+
 struct user;
 struct channel;
 struct tconfig_block;
@@ -8,6 +10,24 @@ struct network;
 struct trigger;
 struct dcc_session;
 struct irc_data;
+
+struct channel_ban
+{
+  /*
+   * >> :swiftco.wa.us.dal.net 367 poutine #php *!*@152.92.113.* global-r.hub.dal.net 1190168062
+   * >> :swiftco.wa.us.dal.net 368 poutine #php :End of Channel Ban List
+   */
+	char *chan;
+
+	char *mask;
+
+	char *who;
+	
+	time_t time;
+
+	struct channel_ban *prev;
+	struct channel_ban *next;
+};
 
 
 struct channel_user
@@ -81,6 +101,7 @@ struct channel
   int shared;
 
   struct channel_user *user_list;
+	struct channel_ban  *banlist;
 
   /* Unhandled blocks get stuck here */
   struct tconfig_block *tcfg;
@@ -88,6 +109,13 @@ struct channel
   struct channel *prev;
   struct channel *next;
 };
+
+
+struct channel_ban *channel_ban_del(struct channel_ban *bans, struct channel_ban *del);
+struct channel_ban *channel_ban_add(struct channel_ban *bans, struct channel_ban *add);
+void channel_ban_free(struct channel_ban *ban);
+struct channel_ban *channel_ban_new(void);
+
 
 struct tconfig_block *chans_to_tconfig(struct channel *chans);
 /* WTF is this */

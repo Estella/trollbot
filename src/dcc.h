@@ -62,6 +62,7 @@ int dcc_in(struct dcc_session *dcc);
 void parse_dcc_line(struct dcc_session *dcc, const char *buffer);
 void dcc_who(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
 void dcc_tbinds(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
+void dcc_chattr(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
 
 #define __DCC_H__
 #endif /* __DCC_H__ */

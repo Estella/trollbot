@@ -70,6 +70,7 @@ struct log_filter *log_filter_add(struct log_filter *filters, struct log_filter 
 	return filters;
 }
 
+/* This doesn't work */
 struct log_filter *log_filter_remove(struct log_filter *filters, struct log_filter *del)
 {
 	struct log_filter *ret = NULL;

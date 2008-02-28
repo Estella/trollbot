@@ -399,30 +399,34 @@ char *egg_chattr(struct network *net, const char *handle, const char *changes, c
   char *new_glob_flags;
   char *tmp;
   int op=-1; /* opinvalid = -1, op- = 0, op+ = 1 */
+	int i;
 
   /* I know it's cheesy to dynamically allocate a constant, but output is freed by user */
   if (changes == NULL)
     return tstrdup("*");
 
   /* Find the user */
-  for(user=net->users;user != NULL && strcmp(handle,user->username);user=user->next);
+  for(user=net->users;user != NULL && tstrcasecmp(handle,user->username); user=user->next);
 
   if (user == NULL)
     return tstrdup("*");
 
+	/* If flags are channel flags */
   if (channel != NULL)
   {
     if (user->chan_flags == NULL)
     {
       /* Make a new one here */
-      user->chan_flags = new_channel_flags(channel,NULL);
+      user->chan_flags       = new_channel_flags(channel,NULL);
       user->chan_flags->prev = NULL;
       user->chan_flags->next = NULL;
+
+			cflags = user->chan_flags;
     }
     else
     {
       /* Find the channel to get the flags */
-      for(cflags=user->chan_flags;cflags != NULL && strcmp(channel,cflags->chan);cflags=cflags->next);
+      for(cflags=user->chan_flags;cflags != NULL && tstrcasecmp(channel,cflags->chan);cflags=cflags->next);
          
       /* Channel not found, make a new record */
       if (cflags == NULL)
@@ -434,7 +438,7 @@ char *egg_chattr(struct network *net, const char *handle, const char *changes, c
 
         cflags->next = new_channel_flags(channel,NULL);
         cflags->next->prev = cflags;
-        cflags->next->next = NULL;
+        cflags       = cflags->next;
       }
     }
 
@@ -450,9 +454,9 @@ char *egg_chattr(struct network *net, const char *handle, const char *changes, c
       new_glob_flags = tmalloc0(strlen(user->flags) + strlen(glob_changes) + 1);
 
       /* Do changes to global flags */
-      for (i=0;*(glob_changes+i) != NULL;i++)
+      for (i=0;glob_changes[i] != '\0';i++)
       {
-        switch(*(glob_changes+i));
+        switch(glob_changes[i])
         {
           case '+':
             op = 1;
@@ -461,48 +465,53 @@ char *egg_chattr(struct network *net, const char *handle, const char *changes, c
             op = 0;
             break;
           default:
-            switch (op)
-            {
-              case -1:
-                break;
-              case  1: /* add to flags */
-                tmp = user->flags;
+						if (op == 1)
+						{
+							/* add to flags */
+							tmp = user->flags;
 
+              while (*tmp != '\0')
+							{
+                if (*tmp == glob_changes[i])
+                  break;
+                else
+                  tmp++;
+							}
+
+              if (*tmp == '\0')
+              {
+                tmp = new_glob_flags;
                 while (*tmp != '\0')
-                  if (*tmp == *(glob_changes+i))
-                    break;
-                  else
-                    tmp++;
+                  tmp++;
 
-                if (*tmp == '\0')
-                {
-                  tmp = new_glob_flags;
-                  while (*tmp != '\0')
-                    tmp++;
-
-                  *tmp = *(glob_changes+i);
-                }
+                *tmp = glob_changes[i];
+              }
                     
-                break;
-              case  1:
-                break;
-            }
-        }
+              break;
+						}
+						else
+						{
+							/* Remove from flags */
+						}
+						break;
+				}
+			}
     }
-    else
-    {
-      glob_flags = NULL;
-      chan_flags = tstrdup(changes);
-    }
-
-    /* The new chan flags can only be as large as 
-     * strlen(oldflags) + glob_flags|chan_flags
-     * I'll use that instead of being more accurate
-     */
+		else
+		{
+			glob_changes = NULL;
+			chan_changes = tstrdup(changes);
+		}
   }
+	else
+	{
+		glob_changes = tstrdup(changes);
+		chan_changes = NULL;
+	}
+
+	return NULL;
 }    
-#endif /* CLOWNS */    
-      
+#endif /* CLOWNS */
 
 /* botattr <handle> [changes [channel]] */
 /* Should be part of chattr */

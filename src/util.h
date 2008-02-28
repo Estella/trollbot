@@ -26,5 +26,6 @@ void *tmalloc0(size_t size);
 char *tstrarrayserialize(char **ptr);
 char *tcrealloc0(char *ptr, size_t size, unsigned int *bufsize);
 char **tsrealloc0(char **ptr, size_t size, unsigned int *bufsize);
+char **tssv_split(char *ptr);
 
 #endif /* __UTIL_H__ */
