@@ -134,6 +134,9 @@ TCL_CPPFLAGS = @TCL_CPPFLAGS@
 TCL_DEFS = @TCL_DEFS@
 TCL_LIBS = @TCL_LIBS@
 VERSION = @VERSION@
+XML2_CONFIG = @XML2_CONFIG@
+XML_CPPFLAGS = @XML_CPPFLAGS@
+XML_LIBS = @XML_LIBS@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
@@ -187,6 +190,7 @@ target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 trollbotmodulesdir = ${prefix}/modules
+EXTRA_DIST = README
 trollbotmodules_DATA = README
 all: all-am
 

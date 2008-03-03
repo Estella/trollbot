@@ -22,6 +22,27 @@ global settings
 	hash_type sha512
 }
 
+/*
+xmpp_server localhost
+{
+  // Acceptable auth modes (Used in order of listing)
+  auth_type DIGEST-MD5
+  auth_type PLAIN
+
+  username Trollbot
+
+  // Default, all others fall to this
+  password_plain foo
+
+  // Optional if password_plain is provided
+  // Used if specified
+  password_md5 d3b07384d113edec49eaa6238ad5ff00
+
+  // XMPP server w/ optional port
+  // Mirrors can be listed
+  // use sslserver if using old style ssl and not SASL
+  server localhost:5222
+}*/
 
 //   network <Network Label>
 //   {

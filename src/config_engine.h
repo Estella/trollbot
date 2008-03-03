@@ -11,6 +11,7 @@
 #include <jsapi.h>
 #endif
 
+struct xmpp_server;
 struct dcc_session;
 struct network;
 struct user;
@@ -27,6 +28,8 @@ struct config
   struct network     *networks;
   struct dcc_session *dccs;
   struct user        *g_users;
+
+	struct xmpp_server *xmpp_servers;
 
   /* Unhandled tconfig blocks at toplevel */
   struct tconfig_block *tcfg;

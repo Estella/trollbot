@@ -30,72 +30,62 @@
 #include "egg_lib.h"
 #include "trigger.h"
 #include "sockets.h"
+#include "log_entry.h"
 
-void dcc_list_del(struct dcc_session **orig, struct dcc_session *old)
+struct dcc_session *dcc_list_del(struct dcc_session *dccs, struct dcc_session *del)
 {
-  struct dcc_session *tmp;
+	struct dcc_session *tmp = NULL;
 
-  if (*orig == NULL || old == NULL)
-    return;
+	if ((tmp = dccs) == NULL)
+	{
+		log_entry_printf(NULL,NULL,"T","dcc_list_del() called with NULL dcc_session list");
+		return NULL;
+	}
 
-  if (*orig == old)
-  {
-    /* Original pointer is modified */
-    if (old->next != NULL)
-      *orig = old->next;
-    else
-      *orig = NULL;
+	while (tmp != NULL)
+	{
+		if (tmp == del)
+		{
+			if (tmp->prev != NULL)
+				tmp->prev->next = tmp->next;
 
-    free(old);
-  } else {
-    /* original pointer is unmodified */
-    tmp = old;
+			if (tmp->next != NULL)
+				tmp->next->prev = tmp->prev;
 
-    while (tmp->prev != NULL) tmp = tmp->prev;
+			while (tmp == del && tmp->prev != NULL)
+				tmp = tmp->prev;
 
-    while (tmp != NULL)
-    {
-      if (tmp == old)
-      {
-        /* match */
-        if (tmp->prev != NULL)
-          tmp->prev->next = tmp->next;
+			while (tmp == del && tmp->next != NULL)
+				tmp = tmp->next;
+		
+			if (tmp == del)
+				return NULL;
+			else
+				return tmp;
 
-        if (tmp->next != NULL)
-          tmp->next->prev = tmp->prev;
+		}
 
-        free(tmp);
-        return;
-      }
+		tmp = tmp->next;
+	}
+	
+	log_entry_printf(NULL,NULL,"T","dcc_list_del() called with a dcc_session deletion that no entry existed for");
 
-      tmp = tmp->next;
-    }
-  }
-
-  return;
+	return dccs;
 }
 
-void dcc_list_add(struct dcc_session **orig, struct dcc_session *new)
+struct dcc_session *dcc_list_add(struct dcc_session *dccs, struct dcc_session *add)
 {
-  struct dcc_session *tmp;
+	struct dcc_session *tmp = NULL;
 
-  if (*orig == NULL)
-  {
-    *orig = new;
-    new->prev = NULL;
-    new->next = NULL;
-  }
-  else
-  {
-    tmp = *orig;
+	if ((tmp = dccs) == NULL)
+		return add;
 
-    while (tmp->next != NULL)
-      tmp = tmp->next;
+	while (tmp->next != NULL) tmp = tmp->next;
 
-    tmp->next       = new;
-    tmp->next->prev = tmp;
-    tmp->next->next = NULL;
-  }
+	tmp->next = add;
+	add->prev = tmp;
+
+	return dccs;
 }
 
 
@@ -234,12 +224,20 @@ struct dcc_session *new_dcc_session(void)
 
 void free_dcc_sessions(struct dcc_session *dccs)
 {
+	struct dcc_session *tmp = NULL;
+
   while (dccs != NULL)
   {
-		struct dcc_session *tmp=dccs->next;
-    free(dccs);
+		tmp  = dccs->next;
+    free_dcc_session(dccs);
     dccs = tmp;
   }
+}
+
+void free_dcc_session(struct dcc_session *dcc)
+{
+	/* et voila */
+	free(dcc);
 }
 
 void reverse_dcc_chat(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
@@ -580,7 +578,8 @@ void parse_dcc_line(struct dcc_session *dcc, const char *buffer)
             irc_printf(dcc->sock,"You do not have the flags to access DCC.");
             close(dcc->sock);
             dcc->sock = -1;
-            dcc_list_del(&dcc->net->dccs,dcc);
+						dcc->net->dccs = dcc_list_del(dcc->net->dccs,dcc);
+						free_dcc_session(dcc);
             return;
           }
           dcc->user = user;
@@ -597,6 +596,8 @@ void parse_dcc_line(struct dcc_session *dcc, const char *buffer)
         irc_printf(dcc->sock,"Incorrect username.");
         close(dcc->sock);
         dcc->sock = -1;
+				dcc->net->dccs = dcc_list_del(dcc->net->dccs, dcc);
+				free_dcc_session(dcc);
       }
  
       break;
@@ -607,6 +608,8 @@ void parse_dcc_line(struct dcc_session *dcc, const char *buffer)
         irc_printf(dcc->sock,"Login failed");
         close(dcc->sock);
         dcc->sock = -1;
+        dcc->net->dccs = dcc_list_del(dcc->net->dccs, dcc);
+        free_dcc_session(dcc);
       }
 
       if (egg_passwdok(dcc->net,dcc->user->username,buffer))
@@ -638,6 +641,8 @@ void parse_dcc_line(struct dcc_session *dcc, const char *buffer)
         irc_printf(dcc->sock,"Incorrect password");
         close(dcc->sock);
         dcc->sock = -1;
+        dcc->net->dccs = dcc_list_del(dcc->net->dccs, dcc);
+        free_dcc_session(dcc);
       }
       
       break;

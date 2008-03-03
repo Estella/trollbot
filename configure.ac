@@ -39,6 +39,18 @@ AC_FUNC_FORK
 
 AC_TYPE_PID_T
 
+dnl check if libxml2 exists
+dnl needed for jabber/xmpp
+AM_PATH_XML2(2.6.13)
+
+AC_SUBST(XML_LIBS)
+AC_SUBST(XML_CPPFLAGS)
+
+if test "x{$XML_LIBS}" != "x"; then
+	AC_DEFINE([HAVE_LIBXML],1,[Ability to use libxml2])
+	AC_DEFINE([HAVE_XMPP],1,[Ability to use XMPP/Jabber])
+fi
+
 dnl check if python exists
 AC_PYTHON_DEVEL
 
@@ -84,10 +96,8 @@ AM_CONDITIONAL(WITH_PHP, test "x${PHP_LDADD}" != "x")
 AX_PROG_PERL
 
 AM_CONDITIONAL(WITH_PERL, test "x${PERL_LDADD}" != "x")
-
-dnl AC_PYTHON_DEVEL
-
 AM_CONDITIONAL(WITH_PYTHON, test "x${PYTHON_LDADD}" != "x")
+AM_CONDITIONAL(WITH_XMPP, test "x${XML_LIBS}" != "x")
 
 AC_PROG_MAKE_SET
 
@@ -114,6 +124,23 @@ AC_OUTPUT(Makefile
 
 echo ""
 echo "  ********** Trollbot Configuration **********  "
+echo ""
+
+
+echo ""
+echo "  -=Protocol Support=-"
+echo ""
+
+echo "  IRC        Support: Yes"
+
+if test "x{XML_LIBS}" != "x"; then
+	echo "  XMPP       Support: Yes"
+else
+	echo "  XMPP       Support: No"
+fi
+
+echo ""
+echo "  -=Scripting Support=-"
 echo ""
 
 if test "x${TCL_LIBS}" != "x"; then

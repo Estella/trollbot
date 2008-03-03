@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+/* Check portability */
 #include <time.h>
 
 #include "log_filter.h"
@@ -28,7 +31,7 @@ void log_filters_check(struct log_filter *filters, struct log_entry *entry)
 			continue;
 		}
 	
-		for (i=0;entry->flags[i] != NULL;i++)
+		for (i=0;entry->flags[i] != '\0';i++)
 		{
 			if (strchr(tmp->flags,entry->flags[i]) == NULL)
 			{
@@ -38,7 +41,7 @@ void log_filters_check(struct log_filter *filters, struct log_entry *entry)
 		}
 
 		/* Didn't find the flag */
-		if (entry->flags[i] != NULL)
+		if (entry->flags[i] != '\0')
 			continue;
 	
 		if (tmp->handler != NULL)

@@ -31,7 +31,8 @@ void die_nicely(int ret)
       free_dcc_sessions(g_cfg->dccs);
 
 #ifdef HAVE_JS
-    JS_DestroyRuntime(g_cfg->js_rt);
+		if (g_cfg->js_rt != NULL)
+	    JS_DestroyRuntime(g_cfg->js_rt);
 #endif
 
 

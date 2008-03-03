@@ -31,6 +31,12 @@
 #include "channel.h"
 #include "user.h"
 
+#ifdef HAVE_XMPP
+#include "xmpp_server.h"
+#include "xmpp_proto.h"
+#include "xmpp_trigger.h"
+#endif /* HAVE_XMPP */
+
 void socket_set_blocking(int sock)
 {
   int opts;
@@ -75,6 +81,7 @@ void socket_set_nonblocking(int sock)
   return;
 }
 
+/*  Program Loop? Split up more also */
 void irc_loop(void)
 {
   struct hostent *he, *vhost;
@@ -83,12 +90,30 @@ void irc_loop(void)
   fd_set writefds;
   struct timeval timeout;
   struct network *net;
+	struct xmpp_server *xs;
   struct server  *svr;
   struct dcc_session *dcc;
   int numsocks = 0;
   socklen_t lon      = 0;
   int valopt   = 0;
   char *vhostip = NULL;
+
+#ifdef HAVE_XMPP
+  xs = g_cfg->xmpp_servers;
+
+  /* Connect to one server for each network, or mark network unconnectable */
+  while (xs != NULL)
+  {
+		/* Shouldn't be done here */
+		xs->cur_server = xs->servers;
+
+		xs->last_try = time(NULL);
+		xs->status   = XMPP_INPROGRESS;
+		xmpp_server_connect(xs);
+
+		xs = xs->next;
+  }
+#endif /* HAVE_XMPP */
 
   net = g_cfg->networks;
 
@@ -105,16 +130,70 @@ void irc_loop(void)
 		net = net->next;
   }
 
-  while (g_cfg->networks != NULL)
+	/* We want this to never interrupt unless told to
+ 	 * There are limbo eggdrop bots which connect to no
+ 	 * network, but operate as relays.
+ 	 */
+  while (1)
   {
     FD_ZERO(&socks);
     FD_ZERO(&writefds);
 
+		timeout.tv_sec  = 1;
+		timeout.tv_usec = 0;
+
+#ifdef HAVE_XMPP
+		xs = g_cfg->xmpp_servers;
+
+		while (xs != NULL)
+		{
+      if (xs->status == XMPP_DISCONNECTED)
+      {
+        if (xs->never_give_up == 1)
+        {
+          if (xs->last_try + xs->connect_delay <= time(NULL))
+          {
+            xs->status = XMPP_INPROGRESS;
+            /* Try a non-blocking connect to the next server */
+            xs->last_try = time(NULL);
+
+            xmpp_server_connect(xs);
+          }
+        }
+			}
+
+      if (xs->status == XMPP_NONBLOCKCONNECT || xs->status == XMPP_WAITINGCONNECT)
+      {
+          numsocks = (xs->sock > numsocks) ? xs->sock : numsocks;
+
+          FD_SET(xs->sock,&writefds);
+
+          /* Now in a FD set */
+          xs->status = XMPP_WAITINGCONNECT;
+      }
+
+      /* Add each xmpp_server to the read fd set */
+      if (xs->sock != -1)
+      {
+				if (xs->status >= XMPP_NOTREADY)
+				{
+					if (xs->status == XMPP_NOTREADY)
+					{
+						xmpp_ball_start_rolling(xs);
+						xs->status = XMPP_CONNECTED;
+					}
+
+        	numsocks = (xs->sock > numsocks) ? xs->sock : numsocks;
+        	FD_SET(xs->sock,&socks);
+				}
+      }
+
+			xs = xs->next;
+		}
+#endif /* HAVE_XMPP */
+
     net = g_cfg->networks;
 
-    /* Set a timeout of 1 second */
-    timeout.tv_sec = 1;
-    timeout.tv_usec = 0;
 
     while (net != NULL)
     {
@@ -198,6 +277,68 @@ void irc_loop(void)
 
     select(numsocks+1, &socks, &writefds, NULL, &timeout);
 
+#ifdef HAVE_XMPP
+		xs = g_cfg->xmpp_servers;
+
+		while (xs != NULL)
+		{
+			if (xs->status == XMPP_WAITINGCONNECT)
+			{
+				if (FD_ISSET(xs->sock, &writefds))
+				{
+					/* Socket is set as writeable */
+					lon = sizeof(int); 
+
+					/* Get the current socket options for the non-blocking socket */
+					if (getsockopt(xs->sock, SOL_SOCKET, SO_ERROR, (void*)(&valopt), &lon) < 0) 
+					{ 
+						xs->sock   = -1;
+						xs->status = XMPP_DISCONNECTED;
+						troll_debug(LOG_ERROR,"Could not get socket options for xmpp_server sock");
+					}
+					else
+					{    
+						if (valopt != 0) 
+						{ 
+							xs->sock   = -1;
+							xs->status = XMPP_DISCONNECTED;
+							troll_debug(LOG_ERROR,"Non-blocking connect() to xmpp_server failed.");
+						}
+						else
+						{
+							/* Socket connect succeeded */
+							troll_debug(LOG_DEBUG,"Non-blocking connect() to xmpp_server succeeded");
+
+							/* Set connection as blocking again */
+							/* socket_set_blocking(dcc->sock); */
+
+
+              xs->status = XMPP_NOTREADY;
+						}
+					}
+				}
+			}
+
+      if (xs->sock != -1 && xs->status >= XMPP_CONNECTED)
+      {
+        if (FD_ISSET(xs->sock,&socks))
+        {
+          if (xs->status == XMPP_CONNECTED)
+          {
+						xs->status = XMPP_AUTHORIZED;
+          } 
+
+          if (!xmpp_in(xs))
+          {
+            xs->status = XMPP_DISCONNECTED;
+          }
+        }
+      }
+			
+			xs = xs->next;
+		}
+#endif /* HAVE_XMPP */
+
     net = g_cfg->networks;
 
     while (net != NULL)
@@ -255,7 +396,8 @@ void irc_loop(void)
         /* Remove dead sessions */
         if (dcc->sock == -1){
 					struct dcc_session *tmp = dcc->next;
-					dcc_list_del(&net->dccs, dcc);
+					net->dccs = dcc_list_del(net->dccs,dcc);
+					free_dcc_session(dcc);
 					dcc = tmp;
 					continue;
 				}
@@ -268,7 +410,8 @@ void irc_loop(void)
             if (!dcc_in(dcc))
             {
               struct dcc_session *tmp = dcc->next;
-              dcc_list_del(&net->dccs,dcc);
+							net->dccs = dcc_list_del(net->dccs,dcc);
+							free_dcc_session(dcc);
               dcc = tmp;
               continue;
             }
@@ -288,7 +431,8 @@ void irc_loop(void)
             { 
               struct dcc_session *tmp = dcc->next;
               troll_debug(LOG_ERROR,"Could not get socket options for DCC sock");
-              dcc_list_del(&net->dccs,dcc);
+							net->dccs = dcc_list_del(net->dccs, dcc);
+							free_dcc_session(dcc);
               dcc = tmp;
               continue;
             }
@@ -298,7 +442,8 @@ void irc_loop(void)
               { 
                 struct dcc_session *tmp = dcc->next;
                 troll_debug(LOG_ERROR,"Non-blocking connect() failed.");
-                dcc_list_del(&net->dccs,dcc);
+								net->dccs = dcc_list_del(net->dccs, dcc);
+								free_dcc_session(dcc);
                 dcc = tmp;
                 continue;
               }

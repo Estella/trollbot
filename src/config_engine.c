@@ -16,6 +16,12 @@
 #include "log_filter.h"
 #include "debug.h"
 
+#ifdef HAVE_XMPP
+#include "xmpp_server.h"
+#include "xmpp_proto.h"
+#include "xmpp_trigger.h"
+#endif /* HAVE_XMPP */
+
 #ifdef HAVE_TCL
 #include "tcl_embed.h"
 #endif /* HAVE_TCL */
@@ -106,8 +112,13 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
   cfg->debug_level  = 0;
 	cfg->hash_type    = NULL;
   cfg->dccs         = NULL;
+	cfg->filters      = NULL;
 
 	cfg->dcc_motd     = NULL;
+
+#ifdef HAVE_XMPP
+	cfg->xmpp_servers = NULL;
+#endif /* HAVE_XMPP */
 
 	cfg->crypto_name  = NULL;
 	cfg->crypto       = NULL;
@@ -184,6 +195,13 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
         search = search->next;
       }
     }
+#ifdef HAVE_XMPP
+		else if (!strcmp(topmost->key,"xmpp_server"))
+		{
+			/* Much simpler this way, isn't it? */
+			cfg->xmpp_servers = xmpp_server_add(cfg->xmpp_servers,xmpp_server_from_tconfig_block(topmost));
+		}
+#endif /* HAVE_XMPP */
     else if (!strcmp(topmost->key,"network"))
     {
       net = cfg->networks;

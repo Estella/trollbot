@@ -52,7 +52,7 @@ am__installdirs = "$(DESTDIR)$(libdir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 crypto_la_LIBADD =
-am_crypto_la_OBJECTS = sha512.lo crypto.lo util.lo
+am_crypto_la_OBJECTS = sha512.lo crypto.lo util.lo blowfish.lo
 crypto_la_OBJECTS = $(am_crypto_la_OBJECTS)
 crypto_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
@@ -154,6 +154,9 @@ TCL_CPPFLAGS = @TCL_CPPFLAGS@
 TCL_DEFS = @TCL_DEFS@
 TCL_LIBS = @TCL_LIBS@
 VERSION = @VERSION@
+XML2_CONFIG = @XML2_CONFIG@
+XML_CPPFLAGS = @XML_CPPFLAGS@
+XML_LIBS = @XML_LIBS@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
@@ -214,7 +217,7 @@ crypto_la_SOURCES = sha512.c tomcrypt_argchk.h tomcrypt_cfg.h \
 										tomcrypt_cipher.h tomcrypt_custom.h tomcrypt.h \
 										tomcrypt_hash.h tomcrypt_mac.h tomcrypt_macros.h \
 										tomcrypt_math.h tomcrypt_misc.h tomcrypt_pkcs.h tomcrypt_pk.h \
-										tomcrypt_prng.h crypto.c util.c util.h
+										tomcrypt_prng.h crypto.c util.c util.h blowfish.c
 
 crypto_la_LDFLAGS = -module -no-undefined -avoid-version
 all: all-am
@@ -286,6 +289,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/blowfish.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/crypto.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sha512.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/util.Plo@am__quote@

@@ -45,12 +45,13 @@ struct dcc_session
 };
 
 void dcc_print_motd(struct dcc_session *dcc);
-void dcc_list_del(struct dcc_session **orig, struct dcc_session *old);
-void dcc_list_add(struct dcc_session **orig, struct dcc_session *new) ;
+struct dcc_session *dcc_list_del(struct dcc_session *dccs, struct dcc_session *del);
+struct dcc_session *dcc_list_add(struct dcc_session *dccs, struct dcc_session *add) ;
 void dcc_init_listener(struct network *net);
 void new_dcc_connection(struct network *net);
 struct dcc_session *new_dcc_session(void);
 void free_dcc_sessions(struct dcc_session *dccs);
+void free_dcc_session(struct dcc_session *dcc);
 void reverse_dcc_chat(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
 void initiate_dcc_chat(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
 void dcc_help_menu(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);

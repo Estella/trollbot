@@ -13,6 +13,14 @@
 #define hash_algorithm_exists crypto_LTX_hash_algorithm_exists
 #define create_hash           crypto_LTX_create_hash
 
+int cipher_algorithm_exists(char *algo)
+{
+	if (!tstrcasecmp(algo,"blowfish"))
+		return 1;
+
+	return 0;
+}
+
 int hash_algoritm_exists(char *algo)
 {
 	/* Cheap */
