@@ -47,38 +47,38 @@
 /* This could be replaced by a ltrim() */
 char *egg_makearg(const char *rest, const char *mask)
 {
-  char *ret;
+	char *ret;
 
-  ret = (char*)(&rest[strlen(mask)]);
+	ret = (char*)(&rest[strlen(mask)]);
 
-  while (*ret != '\0' && (*ret == ' ' || *ret == '\t'))
-    ret++;
+	while (*ret != '\0' && (*ret == ' ' || *ret == '\t'))
+		ret++;
 
-  if (ret == NULL)
-    return "";
+	if (ret == NULL)
+		return "";
 
-  return ret; 
+	return ret; 
 }
 
 /* 
-  ?  matches any single character
-  *  matches 0 or more characters of any type
-  %  matches 0 or more non-space characters (can be used to match a single
-     word)
-  ~  matches 1 or more space characters (can be used for whitespace between
-     words)
+	 ?  matches any single character
+ *  matches 0 or more characters of any type
+ %  matches 0 or more non-space characters (can be used to match a single
+ word)
+ ~  matches 1 or more space characters (can be used for whitespace between
+ words)
 
-  returns 1 if no match, 0 if matched
-  
-  BUG: ~, &, and % don't work
+ returns 1 if no match, 0 if matched
+
+BUG: ~, &, and % don't work
 */
 int egg_matchwilds(const char *haystack, const char *needle)
 {
 	if (needle == NULL || haystack == NULL)
-    return 1;
+		return 1;
 
-  while (*needle)
-  {
+	while (*needle)
+	{
 		if (*haystack == '\0'){
 			/* Hit end of haystack but not the ned of needle, so match fails. */
 			return 1;
@@ -141,67 +141,67 @@ int egg_matchwilds(const char *haystack, const char *needle)
 /* These functions need queue support */
 void egg_putserv(struct network *net, const char *text, int option_next)
 {
-  /* option_next currently ignored */
-  irc_printf(net->sock,text); 
+	/* option_next currently ignored */
+	irc_printf(net->sock,text); 
 }
 
 void egg_puthelp(struct network *net, const char *text, int option_next)
 {
-  /* option_next currently ignored */
-  irc_printf(net->sock,text);
+	/* option_next currently ignored */
+	irc_printf(net->sock,text);
 }
 
 void egg_putquick(struct network *net, const char *text, int option_next)
 {
-  /* option_next currently ignored */
-  irc_printf(net->sock,text);
+	/* option_next currently ignored */
+	irc_printf(net->sock,text);
 }
 
 /* Fully compatible */
 void egg_putkick(struct network *net, const char *chan, const char *nick_list, const char *reason)
 {
-  irc_printf(net->sock,"KICK %s %s :%s",chan,nick_list,reason);
+	irc_printf(net->sock,"KICK %s %s :%s",chan,nick_list,reason);
 }
 
 /* Fully compatible */
 void egg_putlog(struct network *net, const char *text)
 {
-  troll_debug(LOG_DEBUG,text);
+	troll_debug(LOG_DEBUG,text);
 }
 
 /* Not compatible */
 void egg_putcmdlog(struct network *net, const char *text)
 {
-  troll_debug(LOG_DEBUG,text);
+	troll_debug(LOG_DEBUG,text);
 }
 
 /* Not compatible */
 void egg_putxferlog(struct network *net, const char *text)
 {
-  troll_debug(LOG_DEBUG,text);
+	troll_debug(LOG_DEBUG,text);
 }
 
 /* Not compatible */
 void egg_putloglev(struct network *net, const char *levels, const char *chan, const char *text)
 {
-  troll_debug(LOG_DEBUG,text);
+	troll_debug(LOG_DEBUG,text);
 }
 
 void egg_dumpfile(struct network *net, const char *nick, const char *filename); 
 
 /*    Not Compatible  Returns: the number of messages in all queues. If a queue is specified,
-      only the size of this queue is returned. Valid queues are: mode,
-      server, help.
- */
+			only the size of this queue is returned. Valid queues are: mode,
+			server, help.
+			*/
 int egg_queuesize(struct network *net, const char *queue)
 {
-  return 0;
+	return 0;
 }
 
 /* Not compatible Returns: the number of deleted lines from the specified queue. */
 int egg_clearqueue(struct network *net, const char *queue)
 {
-  return 0;
+	return 0;
 }
 
 /* Returns number of users in net, 0 if none */
@@ -210,21 +210,21 @@ int egg_clearqueue(struct network *net, const char *queue)
 /* IMP_IN: Javascript */
 int egg_countusers(struct network *net)
 {
-  struct user *user;
-  int count = 0;  
+	struct user *user;
+	int count = 0;  
 
-  if (net->users == NULL)
-    return 0;
+	if (net->users == NULL)
+		return 0;
 
-  user = net->users;
+	user = net->users;
 
-  while (user != NULL)
-  {
-    count++;
-    user = user->next;
-  }
+	while (user != NULL)
+	{
+		count++;
+		user = user->next;
+	}
 
-  return count;
+	return count;
 }
 
 /* Fully compatible */
@@ -232,19 +232,19 @@ int egg_countusers(struct network *net)
 /* IMP_IN: Javascript[kicken] */
 int egg_validuser(struct network *net, const char *handle)
 {
-  struct user *user;
- 
-  if ((user = net->users) == NULL)
-    return 0;
+	struct user *user;
 
-  while (user != NULL)
-  {
-    if (!strcmp(handle,user->username))
-      return 1;
-    user = user->next;
-  }
+	if ((user = net->users) == NULL)
+		return 0;
 
-  return 0;
+	while (user != NULL)
+	{
+		if (!strcmp(handle,user->username))
+			return 1;
+		user = user->next;
+	}
+
+	return 0;
 }
 
 /* finduser <nick!user@host> */
@@ -254,20 +254,20 @@ int egg_validuser(struct network *net, const char *handle)
 /* IMP_IN: TCL[poutine], Javascript[kicken] */
 struct user *egg_finduser(struct network *net, const char *mask)
 {
-  struct user *user;
+	struct user *user;
 
-  if ((user = net->users) == NULL)
-    return NULL;
+	if ((user = net->users) == NULL)
+		return NULL;
 
-  while (user != NULL)
-  {
-    if (!egg_matchwilds(user->uhost,mask))
-      return user;
+	while (user != NULL)
+	{
+		if (!egg_matchwilds(user->uhost,mask))
+			return user;
 
-    user = user->next;
-  }
+		user = user->next;
+	}
 
-  return NULL;
+	return NULL;
 }
 
 /* net is optional, if NULL, write all user/channel files to disk */
@@ -285,7 +285,7 @@ char *egg_makepasswd(const char *pass, const char *hash_type)
 {
 	if ((g_cfg->crypto == NULL) || g_cfg->crypto->create_hash == NULL)
 		return NULL;
-	
+
 	return g_cfg->crypto->create_hash(pass, hash_type);
 }
 
@@ -298,13 +298,13 @@ int egg_passwdok(struct network *net, const char *handle, const char *pass)
 	char *hash_string = NULL;
 	struct user *user = NULL;
 
-  if ((user = net->users) == NULL)
-    return 0;
+	if ((user = net->users) == NULL)
+		return 0;
 
-  while (user != NULL)
-  {
-    if (!strcmp(handle,user->username))
-    {
+	while (user != NULL)
+	{
+		if (!strcmp(handle,user->username))
+		{
 			/* If pass is null or zero length, or '-', only check to see if user has a password. */
 			if (pass == NULL || strlen(pass) == 0 || (strlen(pass)==1 && pass[0] == '-')){
 				if (user->passhash != NULL){
@@ -336,12 +336,12 @@ int egg_passwdok(struct network *net, const char *handle, const char *pass)
 				free(hash_string);
 				return 0;
 			}
-    }
+		}
 
-    user = user->next;
-  }
+		user = user->next;
+	}
 
-  return 0;
+	return 0;
 }
 
 /* getuser <handle> <entry-type> [extra info] */
@@ -352,142 +352,142 @@ int egg_passwdok(struct network *net, const char *handle, const char *pass)
 /* IMP_IN: Javascript[kicken] */
 int egg_chhandle(struct network *net, const char *old, const char *new)
 {
-  struct user *olduser;
-  struct user *users;
+	struct user *olduser;
+	struct user *users;
 
-  if ((users = net->users) == NULL)
-    return 0;
+	if ((users = net->users) == NULL)
+		return 0;
 
-  if (old == NULL || new == NULL)
-    return 0;
+	if (old == NULL || new == NULL)
+		return 0;
 
-  olduser = NULL;
+	olduser = NULL;
 
-  while (users != NULL)
-  {
-    /* Store the found user for after the loop */
-    if (!strcmp(users->username,old))
-      olduser = users;
- 
-    /* Duplicate username */
-    if (!strcmp(users->username,new))
-      return 0;
- 
-    users = users->next;
-  }
+	while (users != NULL)
+	{
+		/* Store the found user for after the loop */
+		if (!strcmp(users->username,old))
+			olduser = users;
+
+		/* Duplicate username */
+		if (!strcmp(users->username,new))
+			return 0;
+
+		users = users->next;
+	}
 
 	if (olduser == NULL){
 		/* User not found */
 		return 0;
 	}
-  free(olduser->username);
-  
-  olduser->username = tstrdup(new);
+	free(olduser->username);
 
-  return 1;
+	olduser->username = tstrdup(new);
+
+	return 1;
 }
 
 #ifdef CLOWNS
 /* chattr <handle> [changes [channel]] */
 char *egg_chattr(struct network *net, const char *handle, const char *changes, const char *channel)
 {
-  struct user *user;
-  struct channel_flags *cflags;
-  char *glob_changes;
-  char *chan_changes;
-  char *new_chan_flags;
-  char *new_glob_flags;
-  char *tmp;
-  int op=-1; /* opinvalid = -1, op- = 0, op+ = 1 */
+	struct user *user;
+	struct channel_flags *cflags;
+	char *glob_changes;
+	char *chan_changes;
+	char *new_chan_flags;
+	char *new_glob_flags;
+	char *tmp;
+	int op=-1; /* opinvalid = -1, op- = 0, op+ = 1 */
 	int i;
 
-  /* I know it's cheesy to dynamically allocate a constant, but output is freed by user */
-  if (changes == NULL)
-    return tstrdup("*");
+	/* I know it's cheesy to dynamically allocate a constant, but output is freed by user */
+	if (changes == NULL)
+		return tstrdup("*");
 
-  /* Find the user */
-  for(user=net->users;user != NULL && tstrcasecmp(handle,user->username); user=user->next);
+	/* Find the user */
+	for(user=net->users;user != NULL && tstrcasecmp(handle,user->username); user=user->next);
 
-  if (user == NULL)
-    return tstrdup("*");
+	if (user == NULL)
+		return tstrdup("*");
 
 	/* If flags are channel flags */
-  if (channel != NULL)
-  {
-    if (user->chan_flags == NULL)
-    {
-      /* Make a new one here */
-      user->chan_flags       = new_channel_flags(channel,NULL);
-      user->chan_flags->prev = NULL;
-      user->chan_flags->next = NULL;
+	if (channel != NULL)
+	{
+		if (user->chan_flags == NULL)
+		{
+			/* Make a new one here */
+			user->chan_flags       = new_channel_flags(channel,NULL);
+			user->chan_flags->prev = NULL;
+			user->chan_flags->next = NULL;
 
 			cflags = user->chan_flags;
-    }
-    else
-    {
-      /* Find the channel to get the flags */
-      for(cflags=user->chan_flags;cflags != NULL && tstrcasecmp(channel,cflags->chan);cflags=cflags->next);
-         
-      /* Channel not found, make a new record */
-      if (cflags == NULL)
-      {
-        cflags = user->chan_flags;
+		}
+		else
+		{
+			/* Find the channel to get the flags */
+			for(cflags=user->chan_flags;cflags != NULL && tstrcasecmp(channel,cflags->chan);cflags=cflags->next);
 
-        while(cflags->next != NULL)
-          cflags = cflags->next;
+			/* Channel not found, make a new record */
+			if (cflags == NULL)
+			{
+				cflags = user->chan_flags;
 
-        cflags->next = new_channel_flags(channel,NULL);
-        cflags->next->prev = cflags;
-        cflags       = cflags->next;
-      }
-    }
+				while(cflags->next != NULL)
+					cflags = cflags->next;
 
-    /* If | is in there, global flags are in there also */
-    if ((tmp = strchr(changes,"|")) != NULL)
-    {
-      glob_changes = tmalloc0((strlen(changes) - strlen(tmp)) + 1);
-      tmp++;
-      chan_changes = tstrdup(tmp);
+				cflags->next = new_channel_flags(channel,NULL);
+				cflags->next->prev = cflags;
+				cflags       = cflags->next;
+			}
+		}
 
-      strncpy(glob_changes,changes,(strlen(changes) - strlen(tmp)));
+		/* If | is in there, global flags are in there also */
+		if ((tmp = strchr(changes,"|")) != NULL)
+		{
+			glob_changes = tmalloc0((strlen(changes) - strlen(tmp)) + 1);
+			tmp++;
+			chan_changes = tstrdup(tmp);
 
-      new_glob_flags = tmalloc0(strlen(user->flags) + strlen(glob_changes) + 1);
+			strncpy(glob_changes,changes,(strlen(changes) - strlen(tmp)));
 
-      /* Do changes to global flags */
-      for (i=0;glob_changes[i] != '\0';i++)
-      {
-        switch(glob_changes[i])
-        {
-          case '+':
-            op = 1;
-            break;
-          case '-':
-            op = 0;
-            break;
-          default:
+			new_glob_flags = tmalloc0(strlen(user->flags) + strlen(glob_changes) + 1);
+
+			/* Do changes to global flags */
+			for (i=0;glob_changes[i] != '\0';i++)
+			{
+				switch(glob_changes[i])
+				{
+					case '+':
+						op = 1;
+						break;
+					case '-':
+						op = 0;
+						break;
+					default:
 						if (op == 1)
 						{
 							/* add to flags */
 							tmp = user->flags;
 
-              while (*tmp != '\0')
+							while (*tmp != '\0')
 							{
-                if (*tmp == glob_changes[i])
-                  break;
-                else
-                  tmp++;
+								if (*tmp == glob_changes[i])
+									break;
+								else
+									tmp++;
 							}
 
-              if (*tmp == '\0')
-              {
-                tmp = new_glob_flags;
-                while (*tmp != '\0')
-                  tmp++;
+							if (*tmp == '\0')
+							{
+								tmp = new_glob_flags;
+								while (*tmp != '\0')
+									tmp++;
 
-                *tmp = glob_changes[i];
-              }
-                    
-              break;
+								*tmp = glob_changes[i];
+							}
+
+							break;
 						}
 						else
 						{
@@ -496,13 +496,13 @@ char *egg_chattr(struct network *net, const char *handle, const char *changes, c
 						break;
 				}
 			}
-    }
+		}
 		else
 		{
 			glob_changes = NULL;
 			chan_changes = tstrdup(changes);
 		}
-  }
+	}
 	else
 	{
 		glob_changes = tstrdup(changes);
@@ -521,9 +521,9 @@ char *egg_chattr(struct network *net, const char *handle, const char *changes, c
 /* IMP_IN: TCL, Javascript */
 int egg_matchattr(struct network *net, const char *handle, const char *flags, const char *channel)
 {
-  struct user *user;
-  int i;
-  
+	struct user *user;
+	int i;
+
 
 	user = net->users;
 
@@ -537,32 +537,32 @@ int egg_matchattr(struct network *net, const char *handle, const char *flags, co
 		user = user->next;
 	}
 
-  if (user == NULL)
-    return 0;
+	if (user == NULL)
+		return 0;
 
-  /* Deal with this either as a channel or global, not sure if this should
-   * handle eggdrop notation a|f or whatever.
-   * FIXME
-   */
-  if (channel != NULL)
-  {
+	/* Deal with this either as a channel or global, not sure if this should
+	 * handle eggdrop notation a|f or whatever.
+	 * FIXME
+	 */
+	if (channel != NULL)
+	{
 		troll_debug(LOG_ERROR, "FIXME: egg_matchattr() only works for global flags");
-  } 
-  else
-  {
-    if (user->flags == NULL)
-      return 0;
+	} 
+	else
+	{
+		if (user->flags == NULL)
+			return 0;
 
-    /* No channel, just check global flags */
-    for (i=0;flags[i] != '\0';i++)
-    {
-      if (strchr(user->flags,flags[i]) == NULL)
-        return 0;
-    }
-  }
+		/* No channel, just check global flags */
+		for (i=0;flags[i] != '\0';i++)
+		{
+			if (strchr(user->flags,flags[i]) == NULL)
+				return 0;
+		}
+	}
 
-  return 1;
- 
+	return 1;
+
 }
 
 /* adduser <handle> [hostmask] */
@@ -644,7 +644,7 @@ void egg_savechannels(struct network *net)
  * Dynamically loaded channels. this is not
  * the issue here, it's in default_triggers.c
  */
- /* FIXME: Should this return an array of strings instead of one string? */
+/* FIXME: Should this return an array of strings instead of one string? */
 char *egg_channels(struct network *net)
 {
 	int alloc_size      = 0;
@@ -665,9 +665,9 @@ char *egg_channels(struct network *net)
 
 	/* Now make a string */
 	ret = tmalloc0(alloc_size + 1);
-  tmp = net->chans;
+	tmp = net->chans;
 
-  while (tmp->prev != NULL) tmp = tmp->prev;
+	while (tmp->prev != NULL) tmp = tmp->prev;
 
 	while (tmp != NULL)
 	{
@@ -702,11 +702,11 @@ int egg_isbotnick(struct network *net, char *nick)
 /* washalfop <nickname> <channel> */
 
 /* isvoice <nickname> [channel]
-int egg_isvoice(struct network *net, const char *nick, const char *channel)
-{
-  
-}*/
- 
+	 int egg_isvoice(struct network *net, const char *nick, const char *channel)
+	 {
+
+	 }*/
+
 /** 
  * Eggdrop Compatible onchan
  * @param net A network struct where this is to be checked.
@@ -734,7 +734,7 @@ int egg_onchan(struct network *net, char *nickname, char *channel)
 	}
 
 	chan = net->chans;
-	
+
 	/* should use new list stuff in util */
 	while (chan->prev != NULL) chan = chan->prev;
 
@@ -751,7 +751,7 @@ int egg_onchan(struct network *net, char *nickname, char *channel)
 				cuser = chan->user_list;
 
 				while (cuser->prev != NULL) cuser = cuser->prev;
-				
+
 				while (cuser != NULL)
 				{
 					if (!tstrcasecmp(cuser->nick,nickname))
@@ -761,12 +761,12 @@ int egg_onchan(struct network *net, char *nickname, char *channel)
 
 				if (cuser == NULL)
 					return 0; /* Found channel, but not the nick */
-				
+
 			}
 
 			chan = chan->next;
 		}
-	
+
 		if (chan == NULL)
 		{
 			/* Nick is not on chan */
@@ -781,7 +781,7 @@ int egg_onchan(struct network *net, char *nickname, char *channel)
 			{
 				cuser = chan->user_list;
 
-        while (cuser->prev != NULL) cuser = cuser->prev;
+				while (cuser->prev != NULL) cuser = cuser->prev;
 
 				while (cuser != NULL)
 				{
@@ -792,7 +792,7 @@ int egg_onchan(struct network *net, char *nickname, char *channel)
 				}
 
 			}
-			
+
 			chan = chan->next;
 		}
 
@@ -830,22 +830,22 @@ int egg_onchan(struct network *net, char *nickname, char *channel)
 /* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
 void egg_putdcc(struct network *net, int idx, const char *text)
 {
-  struct dcc_session *dtmp;
- 
-  dtmp = net->dccs;
+	struct dcc_session *dtmp;
 
-  while (dtmp != NULL)
-  {
-    if (dtmp->id == idx)
-    {
-      irc_printf(dtmp->sock,text);
-      return;
-    }
-  
-    dtmp = dtmp->next;
-  }
+	dtmp = net->dccs;
 
-  return; 
+	while (dtmp != NULL)
+	{
+		if (dtmp->id == idx)
+		{
+			irc_printf(dtmp->sock,text);
+			return;
+		}
+
+		dtmp = dtmp->next;
+	}
+
+	return; 
 }
 
 /* dccbroadcast <message> */
@@ -853,22 +853,22 @@ void egg_putdcc(struct network *net, int idx, const char *text)
 /* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
 void egg_dccbroadcast(struct network *net, const char *message)
 {
-  struct dcc_session *dtmp;
-  
-  dtmp = net->dccs;
+	struct dcc_session *dtmp;
 
-  while (dtmp != NULL)
-  {
-    if (dtmp->status >= DCC_NOTREADY)
-    {
-      irc_printf(dtmp->sock,message);
-      return;
-    }
-  
-    dtmp = dtmp->next;
-  }
+	dtmp = net->dccs;
 
-  return;
+	while (dtmp != NULL)
+	{
+		if (dtmp->status >= DCC_NOTREADY)
+		{
+			irc_printf(dtmp->sock,message);
+			return;
+		}
+
+		dtmp = dtmp->next;
+	}
+
+	return;
 }
 
 /* dccputchan <channel> <message> */
@@ -879,46 +879,46 @@ void egg_dccbroadcast(struct network *net, const char *message)
 /* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
 int egg_hand2idx(struct network *net, const char *handle)
 {
-  struct dcc_session *dtmp;
+	struct dcc_session *dtmp;
 
-  dtmp = net->dccs;
+	dtmp = net->dccs;
 
-  while (dtmp != NULL)
-  {
-    if (dtmp->status >= DCC_NOTREADY)
-    {
-      if (dtmp->user != NULL)
-      {
-        if (!strcmp(dtmp->user->username,handle))
-          return dtmp->id;
-      }
-    }
+	while (dtmp != NULL)
+	{
+		if (dtmp->status >= DCC_NOTREADY)
+		{
+			if (dtmp->user != NULL)
+			{
+				if (!strcmp(dtmp->user->username,handle))
+					return dtmp->id;
+			}
+		}
 
-    dtmp = dtmp->next;
-  }
+		dtmp = dtmp->next;
+	}
 
-  return 0;
+	return 0;
 }
- 
+
 
 
 /* returns a user struct or NULL based on whether it's found */
 /* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
 struct user *egg_idx2hand(struct network *net, int idx)
 {
-  struct dcc_session *dtmp;
+	struct dcc_session *dtmp;
 
-  dtmp = net->dccs;
+	dtmp = net->dccs;
 
-  while (dtmp != NULL)
-  {
-    if (dtmp->status >= DCC_NOTREADY)
-      return dtmp->user;
+	while (dtmp != NULL)
+	{
+		if (dtmp->status >= DCC_NOTREADY)
+			return dtmp->user;
 
-    dtmp = dtmp->next;
-  }
+		dtmp = dtmp->next;
+	}
 
-  return NULL;
+	return NULL;
 } 
 
 /* valididx <idx> */
@@ -974,101 +974,101 @@ struct user *egg_idx2hand(struct network *net, int idx)
 
 /*
 Description: 
-  'bind' is used to attach procedures to certain events. 
-  flags are the flags the user must have to trigger the event (if applicable). 
-  proc-name is a pointer to the procedure to call for this command.
-  If the proc-name is NULL, no binding is added. 
+'bind' is used to attach procedures to certain events. 
+flags are the flags the user must have to trigger the event (if applicable). 
+proc-name is a pointer to the procedure to call for this command.
+If the proc-name is NULL, no binding is added. 
 Returns: 
-  name of the command that was added, or (if proc-name is NULL), a list of the current bindings for this command
+name of the command that was added, or (if proc-name is NULL), a list of the current bindings for this command
 */
 /* IMP_IN: Javascript, TCL */
 char **egg_bind(struct network *net, char *type, char *flags, char *mask, char *cmd, void (*handler)(struct network *, struct trigger *, struct irc_data *, struct dcc_session *, const char *))
 {
-  char **returnValue=NULL;
-  if (handler == NULL){
-    struct trigger *trigger = NULL;
-    struct trigger *triggerListHead = NULL;
-    int numMatches=0;
+	char **returnValue=NULL;
+	if (handler == NULL){
+		struct trigger *trigger = NULL;
+		struct trigger *triggerListHead = NULL;
+		int numMatches=0;
 
-    /* Get a list of binds matching mask and return that list. */
-    if (!strcmp("pub",type)){ triggerListHead = net->trigs->pub;  }
-    else if (!strcmp("pubm",type)){ triggerListHead = net->trigs->pubm; }
-    else if (!strcmp("msg",type)){  triggerListHead = net->trigs->msg; }
-    else if (!strcmp("msgm",type)){  triggerListHead = net->trigs->msgm; }
-    else if (!strcmp("notc",type)){  triggerListHead = net->trigs->notc; }
-    else if (!strcmp("join",type)){  triggerListHead = net->trigs->join; }
-    else if (!strcmp("part",type)){  triggerListHead = net->trigs->part; }
-    else if (!strcmp("dcc",type)){  triggerListHead = net->trigs->dcc; }
-    else if (!strcmp("raw",type)){  triggerListHead = net->trigs->raw; }
+		/* Get a list of binds matching mask and return that list. */
+		if (!strcmp("pub",type)){ triggerListHead = net->trigs->pub;  }
+		else if (!strcmp("pubm",type)){ triggerListHead = net->trigs->pubm; }
+		else if (!strcmp("msg",type)){  triggerListHead = net->trigs->msg; }
+		else if (!strcmp("msgm",type)){  triggerListHead = net->trigs->msgm; }
+		else if (!strcmp("notc",type)){  triggerListHead = net->trigs->notc; }
+		else if (!strcmp("join",type)){  triggerListHead = net->trigs->join; }
+		else if (!strcmp("part",type)){  triggerListHead = net->trigs->part; }
+		else if (!strcmp("dcc",type)){  triggerListHead = net->trigs->dcc; }
+		else if (!strcmp("raw",type)){  triggerListHead = net->trigs->raw; }
 
-    trigger = triggerListHead;
-    while (trigger != NULL){
-      if (!strcmp(trigger->mask, mask)){
-        numMatches=0;
-      }
-      trigger = trigger->next;
-    }
+		trigger = triggerListHead;
+		while (trigger != NULL){
+			if (!strcmp(trigger->mask, mask)){
+				numMatches=0;
+			}
+			trigger = trigger->next;
+		}
 
-    returnValue = tmalloc0(sizeof(*returnValue)*(numMatches+1));
+		returnValue = tmalloc0(sizeof(*returnValue)*(numMatches+1));
 
-    numMatches=0;
-    while (trigger != NULL){
-      if (!strcmp(trigger->mask, mask)){
-        returnValue[numMatches++]=tstrdup(trigger->command);
-      }
-      trigger = trigger->next;
-    }
-  }
-  else {
-    returnValue = tmalloc0(sizeof(*returnValue));
-    /* Needs to check stackable, and whether dupes exist FIXME */
-    if (!strcmp("pub",type))
-    {
-      trigger_list_add(&net->trigs->pub,new_trigger(NULL,TRIG_PUB,mask,cmd,handler));
-      *returnValue=tstrdup(cmd);
-    }
-    else if (!strcmp("pubm",type))
-    {
-      trigger_list_add(&net->trigs->pubm,new_trigger(NULL,TRIG_PUBM,mask,cmd,handler));
-      *returnValue=tstrdup(cmd);
-    }
-    else if (!strcmp("msg",type))
-    {
-      trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,mask,cmd,handler));
-      *returnValue=tstrdup(cmd);
-    }
-    else if (!strcmp("msgm",type))
-    {
-      trigger_list_add(&net->trigs->msgm,new_trigger(NULL,TRIG_MSGM,mask,cmd,handler));
-      *returnValue=tstrdup(cmd);
-    }
-    else if (!strcmp("notc",type))
-    {
-      trigger_list_add(&net->trigs->notc,new_trigger(NULL,TRIG_NOTC,mask,cmd,handler));
-      *returnValue=tstrdup(cmd);
-    }  
-    else if (!strcmp("join",type))
-    {
-      trigger_list_add(&net->trigs->join,new_trigger(NULL,TRIG_JOIN,mask,cmd,handler));
-      *returnValue=tstrdup(cmd);
-    }
-    else if (!strcmp("part",type))
-    { 
-      trigger_list_add(&net->trigs->part,new_trigger(NULL,TRIG_PART,mask,cmd,handler));
-      *returnValue=tstrdup(cmd);
-    }
-    else if (!strcmp("dcc",type))
-    {
-      trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,mask,cmd,handler));
-      *returnValue=tstrdup(cmd);
-    }
-    else if (!strcmp("raw",type))
-    {
-      trigger_list_add(&net->trigs->raw,new_trigger(NULL,TRIG_RAW,mask,cmd,handler));    
-      *returnValue=tstrdup(cmd);
-    }
-  }
-  return returnValue;
+		numMatches=0;
+		while (trigger != NULL){
+			if (!strcmp(trigger->mask, mask)){
+				returnValue[numMatches++]=tstrdup(trigger->command);
+			}
+			trigger = trigger->next;
+		}
+	}
+	else {
+		returnValue = tmalloc0(sizeof(*returnValue));
+		/* Needs to check stackable, and whether dupes exist FIXME */
+		if (!strcmp("pub",type))
+		{
+			trigger_list_add(&net->trigs->pub,new_trigger(NULL,TRIG_PUB,mask,cmd,handler));
+			*returnValue=tstrdup(cmd);
+		}
+		else if (!strcmp("pubm",type))
+		{
+			trigger_list_add(&net->trigs->pubm,new_trigger(NULL,TRIG_PUBM,mask,cmd,handler));
+			*returnValue=tstrdup(cmd);
+		}
+		else if (!strcmp("msg",type))
+		{
+			trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,mask,cmd,handler));
+			*returnValue=tstrdup(cmd);
+		}
+		else if (!strcmp("msgm",type))
+		{
+			trigger_list_add(&net->trigs->msgm,new_trigger(NULL,TRIG_MSGM,mask,cmd,handler));
+			*returnValue=tstrdup(cmd);
+		}
+		else if (!strcmp("notc",type))
+		{
+			trigger_list_add(&net->trigs->notc,new_trigger(NULL,TRIG_NOTC,mask,cmd,handler));
+			*returnValue=tstrdup(cmd);
+		}  
+		else if (!strcmp("join",type))
+		{
+			trigger_list_add(&net->trigs->join,new_trigger(NULL,TRIG_JOIN,mask,cmd,handler));
+			*returnValue=tstrdup(cmd);
+		}
+		else if (!strcmp("part",type))
+		{ 
+			trigger_list_add(&net->trigs->part,new_trigger(NULL,TRIG_PART,mask,cmd,handler));
+			*returnValue=tstrdup(cmd);
+		}
+		else if (!strcmp("dcc",type))
+		{
+			trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,mask,cmd,handler));
+			*returnValue=tstrdup(cmd);
+		}
+		else if (!strcmp("raw",type))
+		{
+			trigger_list_add(&net->trigs->raw,new_trigger(NULL,TRIG_RAW,mask,cmd,handler));    
+			*returnValue=tstrdup(cmd);
+		}
+	}
+	return returnValue;
 }
 
 /* unbind <type> <flags> <keyword/mask> <proc-name> */
@@ -1086,7 +1086,7 @@ char **egg_bind(struct network *net, char *type, char *flags, char *mask, char *
 /* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
 time_t egg_unixtime(void)
 {
-  return time(NULL);
+	return time(NULL);
 }
 
 /* duration <seconds> */
@@ -1127,26 +1127,26 @@ char *egg_encpass(const char *pass)
 /* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
 void egg_rehash(void)
 {
-  struct tconfig_block *tcfg;
-  struct config *oldcfg;
+	struct tconfig_block *tcfg;
+	struct config *oldcfg;
 	struct config *newcfg;
 	struct network *otmp;
 	struct network *ntmp;
 
-  oldcfg = g_cfg;
+	oldcfg = g_cfg;
 
 	/* FIXME: FFS CONSTANTS?!?!?! */
-  tcfg  = file_to_tconfig("trollbot.conf");
+	tcfg  = file_to_tconfig("trollbot.conf");
 
-  newcfg = config_engine_load(tcfg);
+	newcfg = config_engine_load(tcfg);
 
-  /* keep a copy in the global config */
- 	newcfg->tcfg = tcfg;
- 
-  /* We need to match the old networks to new ones
-   * in case they were renamed, deleted, or added
-   * to properly disconnect or connect  
-   */
+	/* keep a copy in the global config */
+	newcfg->tcfg = tcfg;
+
+	/* We need to match the old networks to new ones
+	 * in case they were renamed, deleted, or added
+	 * to properly disconnect or connect  
+	 */
 	/* Copy over the TCL and JS interpreter shit */
 
 	/* TODO: Get rid of this shit */
@@ -1154,7 +1154,7 @@ void egg_rehash(void)
 	while (otmp->prev != NULL) otmp = otmp->prev;
 
 	ntmp = newcfg->networks;
-	
+
 	/* Figure out what to free from the old, add chans, etc to new */
 	while (otmp != NULL)
 	{
@@ -1176,13 +1176,13 @@ void egg_rehash(void)
 				otmp->servers = NULL;
 
 				/* Need to match this by string 
-				ntmp->cur_server = otmp->cur_server;
-				otmp->cur_server = NULL; */
+					 ntmp->cur_server = otmp->cur_server;
+					 otmp->cur_server = NULL; */
 
 				free_channels(ntmp->chans);
 				ntmp->chans = otmp->chans;
 				otmp->chans = NULL;
-		
+
 				ntmp->sock  = otmp->sock;
 				otmp->sock  = -1;
 
@@ -1192,13 +1192,13 @@ void egg_rehash(void)
 
 				ntmp->status = otmp->status;
 				/* Don't know what to set for the old */
-			
-		    free_users(ntmp->users);
+
+				free_users(ntmp->users);
 				ntmp->users = otmp->users;
 				otmp->users = NULL;
 
-			
-			
+
+
 				printf("Copied over trigs\n");
 				ntmp->trigs = otmp->trigs;
 				/* Bug, cannot NULL out trigs here, they aren't being freed either FIXME */	
@@ -1232,7 +1232,7 @@ void egg_rehash(void)
 				JS_SetContextPrivate(ntmp->cx, ntmp);
 #endif /* HAVE_JS */
 			}
-	
+
 			ntmp = ntmp->next;
 		}
 
@@ -1242,7 +1242,7 @@ void egg_rehash(void)
 	}
 
 	g_cfg = newcfg;
-		
+
 #ifdef HAVE_TCL
 	/* For now just reload TCL and js scripts */
 	tcl_load_scripts_from_config(g_cfg);
@@ -1260,7 +1260,7 @@ void egg_rehash(void)
 
 char *egg_botnick(struct network *net)
 {
-  return net->botnick;
+	return net->botnick;
 }
 
 

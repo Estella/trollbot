@@ -154,6 +154,7 @@ void free_auth_type(struct auth_type *at);
 
 struct auth_type *new_auth_type(void);
 
+struct xmpp_server *xmpp_server_from_tconfig_block(struct tconfig_block *tcfg);
 
 struct xmpp_server *xmpp_server_add(struct xmpp_server *servers, struct xmpp_server *add);
 struct xmpp_server *xmpp_server_del(struct xmpp_server *servers, struct xmpp_server *del);

@@ -43,20 +43,20 @@
 
 void network_connect(struct network *net)
 {
-  struct sockaddr_in serv_addr;
+	struct sockaddr_in serv_addr;
 	struct sockaddr_in my_addr;
 	struct hostent *he;
 
 	char *vhostip      = NULL;
 	struct server *svr = NULL;
 
-  if ((net->sock = socket(AF_INET, SOCK_STREAM, 0)) == -1)
-  {
-    troll_debug(LOG_WARN,"Could not create socket to server for network %s",net->label);
-    return;
-  }
+	if ((net->sock = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+	{
+		troll_debug(LOG_WARN,"Could not create socket to server for network %s",net->label);
+		return;
+	}
 
-  socket_set_nonblocking(net->sock);
+	socket_set_nonblocking(net->sock);
 
 	if (net->vhost != NULL)
 	{
@@ -73,7 +73,7 @@ void network_connect(struct network *net)
 
 	if (svr == NULL)
 	{
-		troll_debug("NULL current server for network %s",net->label);
+		troll_debug(LOG_WARN, "NULL current server for network %s",net->label);
 
 		net->status = NET_DISCONNECTED;
 		net->sock   = -1;
@@ -99,10 +99,10 @@ void network_connect(struct network *net)
 		return;
 	}
 
-  serv_addr.sin_family = AF_INET;
-  serv_addr.sin_port   = htons(svr->port);
-  serv_addr.sin_addr   = *((struct in_addr *)he->h_addr);
-  memset(&(serv_addr.sin_zero), '\0', 8);
+	serv_addr.sin_family = AF_INET;
+	serv_addr.sin_port   = htons(svr->port);
+	serv_addr.sin_addr   = *((struct in_addr *)he->h_addr);
+	memset(&(serv_addr.sin_zero), '\0', 8);
 
 	if (vhostip != NULL)
 	{
@@ -117,19 +117,19 @@ void network_connect(struct network *net)
 			troll_debug(LOG_WARN,"Could not use vhost: %s",net->vhost);
 	}
 
-  if (connect(net->sock,(struct sockaddr *)&serv_addr,sizeof(struct sockaddr)) == -1)
-  {
-    if (errno == EINPROGRESS)
-      troll_debug(LOG_DEBUG,"Non-blocking connect(%s) in progress", svr->host);
-    else
-    {
-      troll_debug(LOG_WARN,"Could not connect to server %s at %d",svr->host,svr->port);
+	if (connect(net->sock,(struct sockaddr *)&serv_addr,sizeof(struct sockaddr)) == -1)
+	{
+		if (errno == EINPROGRESS)
+			troll_debug(LOG_DEBUG,"Non-blocking connect(%s) in progress", svr->host);
+		else
+		{
+			troll_debug(LOG_WARN,"Could not connect to server %s at %d",svr->host,svr->port);
 			net->last_try = time(NULL);
 			net->status   = NET_DISCONNECTED;
-      return;
-    }
+			return;
+		}
 
-  }
+	}
 	else
 	{
 		troll_debug(LOG_DEBUG,"Connected instantly to server %s at %d",svr->host,svr->port);
@@ -141,51 +141,51 @@ void network_connect(struct network *net)
 
 	net->status = NET_NONBLOCKCONNECT;
 
-  return;
+	return;
 }
 
 void free_networks(struct network *net)
 {
-  struct network *ntmp=NULL;
+	struct network *ntmp=NULL;
 
-  if (net == NULL)
-    return;
+	if (net == NULL)
+		return;
 
-  while (net->prev != NULL)
-    net = net->prev;
+	while (net->prev != NULL)
+		net = net->prev;
 
-  while (net != NULL)
-  {
-    if (net->label){  free(net->label); }
-    if (net->botnick){  free(net->botnick); }
-    if (net->nick){  free(net->nick); }
-    if (net->altnick){  free(net->altnick); }
-    if (net->ident){  free(net->ident); }
-    if (net->realname){  free(net->realname); }
-    if (net->vhost){  free(net->vhost); }
-    if (net->shost){  free(net->shost); }
-    if (net->userfile){ free(net->userfile);  }
-    if (net->chanfile){ free(net->chanfile);  }
- 
+	while (net != NULL)
+	{
+		if (net->label){  free(net->label); }
+		if (net->botnick){  free(net->botnick); }
+		if (net->nick){  free(net->nick); }
+		if (net->altnick){  free(net->altnick); }
+		if (net->ident){  free(net->ident); }
+		if (net->realname){  free(net->realname); }
+		if (net->vhost){  free(net->vhost); }
+		if (net->shost){  free(net->shost); }
+		if (net->userfile){ free(net->userfile);  }
+		if (net->chanfile){ free(net->chanfile);  }
+
 		/* hey kicken, free(NULL) is defined and perfectly fine behavior 
- 		 * No need to check pointers beforehand. If it crashes, it's because
- 		 * it's not set to NULL in the new_network() 	
- 		 */
+		 * No need to check pointers beforehand. If it crashes, it's because
+		 * it's not set to NULL in the new_network() 	
+		 */
 		free(net->dcc_motd);
 
-    free_trigger_table(net->trigs);
+		free_trigger_table(net->trigs);
 
-    free_users(net->users);
+		free_users(net->users);
 
-    free_channels(net->chans);
+		free_channels(net->chans);
 
 		free_servers(net->servers);
-	
+
 		t_timers_free(net->timers);
 
 		/* FIXME: free fucking JS shit, PHP shit, etc */
 
-    free_dcc_sessions(net->dccs);
+		free_dcc_sessions(net->dccs);
 
 #ifdef HAVE_TCL
 		tstrfreev(net->tcl_scripts);
@@ -193,100 +193,100 @@ void free_networks(struct network *net)
 
 #ifdef HAVE_JS
 		tstrfreev(net->js_scripts);
-    /* Cleanup Spidermonkey */
-    if (net->cx != NULL){
-      JS_DestroyContext(net->cx);
-    }
+		/* Cleanup Spidermonkey */
+		if (net->cx != NULL){
+			JS_DestroyContext(net->cx);
+		}
 #endif /* HAVE_JS */
 
 #ifdef HAVE_PYTHON
-   tstrfreev(net->py_scripts);
+		tstrfreev(net->py_scripts);
 #endif /* HAVE_PYTHON*/
 
-    ntmp = net;
-    net  = net->next;
-    free(ntmp);
-  }
+		ntmp = net;
+		net  = net->next;
+		free(ntmp);
+	}
 
-  return;
+	return;
 }
- 
+
 
 struct network *new_network(char *label)
 {
-  struct network *ret;
+	struct network *ret;
 
-  ret = tmalloc(sizeof(struct network));
+	ret = tmalloc(sizeof(struct network));
 
-  if (label != NULL)
-    ret->label = tstrdup(label);
-  else
-    ret->label = NULL;
+	if (label != NULL)
+		ret->label = tstrdup(label);
+	else
+		ret->label = NULL;
 
-  ret->prev          = NULL;
-  ret->next          = NULL;
+	ret->prev          = NULL;
+	ret->next          = NULL;
 
-  ret->servers       = NULL; 
+	ret->servers       = NULL; 
 
-  ret->chans         = NULL;
+	ret->chans         = NULL;
 
-  ret->cur_server    = NULL;
+	ret->cur_server    = NULL;
 
-  ret->sock          = -1;
-  ret->status        = 0;
+	ret->sock          = -1;
+	ret->status        = 0;
 
-  ret->botnick       = NULL;
-  ret->nick          = NULL;
-  ret->altnick       = NULL;
-  ret->realname      = NULL;
-  ret->ident         = NULL;
+	ret->botnick       = NULL;
+	ret->nick          = NULL;
+	ret->altnick       = NULL;
+	ret->realname      = NULL;
+	ret->ident         = NULL;
 
 	ret->dcc_motd      = NULL;
 
-  ret->users         = NULL;
+	ret->users         = NULL;
 
 	ret->timers        = NULL;
-  ret->trigs         = new_trig_table();
+	ret->trigs         = new_trig_table();
 
-  ret->vhost         = NULL;
-  ret->shost         = NULL;
- 
-  ret->userfile      = NULL;
-  ret->chanfile      = NULL;
+	ret->vhost         = NULL;
+	ret->shost         = NULL;
 
-	ret->never_give_up = -1;
-  ret->connect_delay = -1;
-
-  ret->last_try      = 0;
-
-  ret->dccs          = NULL;
-
-  ret->dcc_listener  = -1;
-  ret->dcc_port      = -1;
-
-  ret->tcfg          = NULL;
+	ret->userfile      = NULL;
+	ret->chanfile      = NULL;
 
 	ret->never_give_up = -1;
-  /* This is the queueing BS */
-  ret->connect_delay = -1; 
-  ret->last_try      = 0;  
-  
+	ret->connect_delay = -1;
+
+	ret->last_try      = 0;
+
+	ret->dccs          = NULL;
+
+	ret->dcc_listener  = -1;
+	ret->dcc_port      = -1;
+
+	ret->tcfg          = NULL;
+
+	ret->never_give_up = -1;
+	/* This is the queueing BS */
+	ret->connect_delay = -1; 
+	ret->last_try      = 0;  
+
 	ret->handlen       = 32;
 
 	ret->filters       = NULL;
 #ifdef HAVE_TCL
 	ret->tcl_scripts      = NULL;
 	ret->tcl_scripts_size = 0;
-  net_init_tcl(ret);
+	net_init_tcl(ret);
 #endif /* HAVE_TCL */
 
 #ifdef HAVE_PERL
-  net_init_perl(ret);
+	net_init_perl(ret);
 #endif /* HAVE_PERL */
 
 #ifdef HAVE_PYTHON
-  ret->py_scripts = NULL;
-  ret->py_scripts_size = 0;
+	ret->py_scripts = NULL;
+	ret->py_scripts_size = 0;
 #endif /* HAVE_PYTHON */
 
 #ifdef HAVE_JS
@@ -301,7 +301,7 @@ struct network *new_network(char *label)
 	ret->js_scripts_size = 0;
 #endif /* HAVE_JS */
 
-  return ret;
+	return ret;
 }
-    
+
 

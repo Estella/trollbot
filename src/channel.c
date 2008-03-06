@@ -8,6 +8,26 @@
 #include "network.h"
 #include "user.h"
 
+struct chan_egg_var *new_chan_egg_var(void)
+{
+	struct chan_egg_var *ret = tmalloc(sizeof(struct chan_egg_var));
+
+	ret->key   = NULL;
+	ret->value = NULL;
+
+	return ret;
+}
+
+void free_chan_egg_var(void *chan_egg_var_ptr)
+{
+	/* Ridiculous names, I know */
+	struct chan_egg_var *tmp = chan_egg_var_ptr;
+
+	free(tmp->key);
+	free(tmp->value);
+
+	free(tmp);
+}
 
 struct channel_ban *channel_ban_del(struct channel_ban *bans, struct channel_ban *del)
 {
@@ -34,7 +54,7 @@ struct channel_ban *channel_ban_del(struct channel_ban *bans, struct channel_ban
 
 			while (tmp == del && tmp->next != NULL)
 				tmp = tmp->next;
-		
+
 			if (tmp == del)
 				return NULL;
 			else
@@ -44,7 +64,7 @@ struct channel_ban *channel_ban_del(struct channel_ban *bans, struct channel_ban
 
 		tmp = tmp->next;
 	}
-	
+
 	log_entry_printf(NULL,NULL,"T","channel_ban_del() called with a ban deletion that no entry existed for");
 
 	return bans;
@@ -104,7 +124,7 @@ struct channel_ban *channel_ban_new(void)
 	ret->chan = NULL;
 	ret->mask = NULL;
 	ret->who  = NULL;
-	
+
 	ret->time = 0;
 
 	ret->prev = NULL;
@@ -118,17 +138,19 @@ struct tconfig_block *chans_to_tconfig(struct channel *chans)
 	struct channel       *tmp  = NULL;
 	struct tconfig_block *tcfg = NULL;
 	struct tconfig_block *tpar = NULL;
-	char                 *tstr = NULL;
-	int                   size = 0;
+	struct tconfig_block *add  = NULL;
+	struct slist_node    *node = NULL;
+	struct chan_egg_var  *cev  = NULL;
 
 	tmp = chans;
-	
+
 	while (tmp != NULL)
 	{
 		if (tcfg == NULL)
 			tcfg = tconfig_block_new();
 		else
 		{
+			while (tcfg->next != NULL) tcfg = tcfg->next;
 			tcfg->next       = tconfig_block_new();
 			tcfg->next->prev = tcfg;
 			tcfg             = tcfg->next;
@@ -138,29 +160,68 @@ struct tconfig_block *chans_to_tconfig(struct channel *chans)
 		tcfg->key   = tstrdup("channel");
 		tcfg->value = tstrdup(tmp->name);
 
-		/* Create child, save parent pointer */
-		tcfg->child  = tconfig_block_new();
-		tpar         = tcfg;
-		tcfg         = tcfg->child;
-		tcfg->parent = tpar;
+		/* Ensure at least one value exists */
+		if (tmp->egg_vars == NULL)
+		{
+			tmp = tmp->next;
+			continue;
+		}
 
+		/* save parent pointer */
+		tpar         = tcfg;
+
+		tcfg         = NULL;
+
+		if (tmp->egg_vars != NULL)
+		{
+			/* write out all the egg vars */
+			node = tmp->egg_vars->head;
+
+			while (node != NULL)
+			{
+				if (tcfg == NULL)
+				{
+					tcfg = tconfig_block_new();
+					tcfg->parent        = tpar;
+					tcfg->parent->child = tcfg;
+					add                 = tcfg;
+				}
+				else
+				{
+					/* Should operate as if */
+					while (tcfg->next != NULL) tcfg = tcfg->next;
+
+					tcfg->next       = tconfig_block_new();
+					tcfg->next->prev = tcfg;
+					tcfg             = tcfg->next;
+					add              = tcfg;
+				}
+
+				cev = node->data;
+
+				add->key         = tstrdup(cev->key);
+				add->value       = tstrdup(cev->value);
+
+				node = node->next;
+			}
+		}
 
 		/*if (tmp->nick != NULL)
-		{
-	    *//* Nick */
-  	  /*tcfg->key        = tstrdup("nick");
-    	tcfg->value      = tstrdup(tmp->nick);
+			{
+			*//* Nick */
+		/*tcfg->key        = tstrdup("nick");
+			tcfg->value      = tstrdup(tmp->nick);
 			tcfg->next       = tconfig_block_new();
 			tcfg->next->prev = tcfg;
 			tcfg             = tcfg->next;
-		}
+			}
 
-		if (tmp->flags != NULL)
-		{*/
-			/* flags */
-			/*tcfg->key   = tstrdup("flags");
+			if (tmp->flags != NULL)
+			{*/
+		/* flags */
+		/*tcfg->key   = tstrdup("flags");
 			tcfg->value = tstrdup(tmp->flags);
-		}*/
+			}*/
 
 
 		tcfg = tpar;
@@ -177,25 +238,25 @@ struct tconfig_block *chans_to_tconfig(struct channel *chans)
 
 void channel_list_add(struct channel **orig, struct channel *new)
 {
-  struct channel *tmp;
+	struct channel *tmp;
 
-  if (*orig == NULL)
-  {
-    *orig = new;
-    new->prev = NULL;
-    new->next = NULL;
-  }
-  else
-  {
-    tmp = *orig;
+	if (*orig == NULL)
+	{
+		*orig = new;
+		new->prev = NULL;
+		new->next = NULL;
+	}
+	else
+	{
+		tmp = *orig;
 
-    while (tmp->next != NULL)
-      tmp = tmp->next;
+		while (tmp->next != NULL)
+			tmp = tmp->next;
 
-    tmp->next       = new;
-    tmp->next->prev = tmp;
-    tmp->next->next = NULL;
-  }
+		tmp->next       = new;
+		tmp->next->prev = tmp;
+		tmp->next->next = NULL;
+	}
 }
 
 void channel_user_del(struct channel_user **orig, const char *nick)
@@ -211,15 +272,15 @@ void channel_user_del(struct channel_user **orig, const char *nick)
 			free(tmp->uhost);
 			free(tmp->ident);
 			free(tmp->modes);
-			
-		  if (tmp->prev != NULL)
+
+			if (tmp->prev != NULL)
 				tmp->prev->next = tmp->next;
 
 			if (tmp->next != NULL)
 				tmp->next->prev = tmp->prev;
-						
+
 			free(tmp);
-			
+
 			return;
 		}
 
@@ -235,103 +296,143 @@ void channel_user_del(struct channel_user **orig, const char *nick)
 
 void channel_user_add(struct channel_user **orig, struct channel_user *new)
 {
-  struct channel_user *tmp;      
+	struct channel_user *tmp;      
 
-  if (*orig == NULL)
-  {
-    *orig = new;
-    new->prev = NULL;
-    new->next = NULL;
-  }
-  else
-  {
-    tmp = *orig;
+	if (*orig == NULL)
+	{
+		*orig = new;
+		new->prev = NULL;
+		new->next = NULL;
+	}
+	else
+	{
+		tmp = *orig;
 
-    while (tmp->next != NULL)
-      tmp = tmp->next;
+		while (tmp->next != NULL)
+			tmp = tmp->next;
 
-    tmp->next       = new;
-    tmp->next->prev = tmp;
-    tmp->next->next = NULL;
-  }
+		tmp->next       = new;
+		tmp->next->prev = tmp;
+		tmp->next->next = NULL;
+	}
 }
 
 struct channel_user *new_channel_user(const char *nick, int jointime, struct user *urec)
 {
-  struct channel_user *ret;
+	struct channel_user *ret;
 
-  ret = tmalloc(sizeof(struct channel_user));
+	ret = tmalloc(sizeof(struct channel_user));
 
-  ret->nick     = (nick != NULL)     ? tstrdup(nick)     : NULL;
+	ret->nick     = (nick != NULL)     ? tstrdup(nick)     : NULL;
 
-  ret->jointime = jointime;
-  ret->urec     = urec;
-  ret->uhost    = NULL;
+	ret->jointime = jointime;
+	ret->urec     = urec;
+	ret->uhost    = NULL;
 	ret->ident    = NULL;
 	ret->modes    = NULL;
-	
- 
-  ret->prev     = NULL;
-  ret->next     = NULL;
 
-  return ret;
+
+	ret->prev     = NULL;
+	ret->next     = NULL;
+
+	return ret;
+}
+
+void free_channel(void *chanptr)
+{
+	struct channel      *ctmp   = chanptr;
+	struct channel_user *cusers = NULL;
+	struct channel_user *cutmp  = NULL;
+
+	if (ctmp == NULL)
+		return;
+
+	free(ctmp->name);
+
+	/* Free egg vars */
+	slist_destroy(ctmp->egg_vars);
+
+	cusers = ctmp->user_list;
+
+	/* Next for slist? */
+	if (cusers != NULL)
+		while (cusers->prev != NULL) cusers = cusers->prev;
+
+	while (cusers != NULL)
+	{
+		cutmp = cusers->next;
+
+		free(cusers->nick);
+		free(cusers->uhost);
+		free(cusers->ident);
+		free(cusers);
+
+		cusers = cutmp;
+	}
+
+	free(ctmp);
+
+	return;
 }
 
 void free_channels(struct channel *chans)
 {
-  struct channel_user *cusers=NULL;
-  struct channel_user *cusertmp=NULL;
-  struct channel   *chantmp=NULL;
+	struct channel_user *cusers=NULL;
+	struct channel_user *cusertmp=NULL;
+	struct channel   *chantmp=NULL;
 
-  if (chans == NULL)
-    return;
+	if (chans == NULL)
+		return;
 
-  while (chans->prev != NULL)
-    chans = chans->prev;
+	while (chans->prev != NULL)
+		chans = chans->prev;
 
-  while (chans != NULL)
-  {
-    free(chans->name);
+	while (chans != NULL)
+	{
+		free(chans->name);
 
-    cusers  = chans->user_list;
-  
-    if (cusers != NULL)
-    {
-      while (cusers->prev != NULL)
-        cusers = cusers->prev;
- 
-      while (cusers != NULL)
-      {
-        free(cusers->nick);
-        free(cusers->uhost);
+		slist_destroy(chans->egg_vars); 
+
+		cusers  = chans->user_list;
+
+		if (cusers != NULL)
+		{
+			while (cusers->prev != NULL)
+				cusers = cusers->prev;
+
+			while (cusers != NULL)
+			{
+				free(cusers->nick);
+				free(cusers->uhost);
 				free(cusers->ident);
-        cusertmp = cusers;
-        cusers = cusers->next;
-        free(cusertmp);
-      }
-    }
+				cusertmp = cusers;
+				cusers = cusers->next;
+				free(cusertmp);
+			}
+		}
 
 		free(chans->chanmode);
 		free(chans->topic);
 
-    chantmp = chans;
-    chans   = chans->next;
-    free(chantmp);    
-  }
+		chantmp = chans;
+		chans   = chans->next;
+		free(chantmp);    
+	}
 
-  return;
+	return;
 }
 
 
 struct channel *new_channel(const char *chan)
 {
-  struct channel *ret;
+	struct channel *ret;
 
-  ret = tmalloc(sizeof(struct channel));
-  
+	ret = tmalloc(sizeof(struct channel));
+
 	/* Chan should never be NULL but it should be checked nontheless */
-  if (chan != NULL)
-    ret->name = tstrdup(chan);
+	/* Why not? */
+	if (chan != NULL)
+		ret->name = tstrdup(chan);
 	else
 	{
 		troll_debug(LOG_ERROR, "Tried making a new channel without a channel name\n");
@@ -339,113 +440,60 @@ struct channel *new_channel(const char *chan)
 		return NULL;
 	}
 
-	ret->topic = NULL;
+	ret->topic     = NULL;
 
-	/* Eggdrop Vars */
-	ret->flood_chan_count = -1;
-	ret->flood_chan_sec   = -1;
+	ret->egg_vars  = NULL;
 
-	ret->flood_deop_count = -1;
-	ret->flood_deop_sec   = -1;
+	ret->chanmode  = NULL;
+	ret->topic     = NULL;
+	ret->banlist   = NULL;
 
-	ret->flood_kick_count = -1;
-	ret->flood_kick_sec   = -1;
+	ret->tcfg      = NULL;
+	ret->user_list = NULL;
 
-	ret->flood_join_count = -1;
-	ret->flood_join_sec   = -1;
+	ret->prev      = NULL;
+	ret->next      = NULL;
 
-	ret->flood_ctcp_count = -1;
-	ret->flood_ctcp_sec   = -1;
-
-	ret->flood_nick_count = -1;
-	ret->flood_nick_sec   = -1;
-
-	ret->aop_delay_count  = -1;
-	ret->aop_delay_sec    = -1;
-
-	ret->idle_kick        = -1;
-	
-	ret->chanmode         = NULL;
-
-	ret->stopnethack_mode = -1;
-	
-	ret->revenge_mode     = -1;
-	ret->ban_time         = -1;
-
-	ret->exempt_time      = -1;
-	ret->invite_time      = -1;
-
-	ret->autoop           = -1;
-	ret->bitch            = -1;
-
-	ret->autovoice        = -1;
-	ret->cycle            = -1;
-
-	ret->dontkickops      = -1;
-	ret->dynamicexempts   = -1;
-
-	ret->enforcebans      = -1;
-	ret->greet            = -1;
-
-	ret->dynamicinvites   = -1;
-	ret->dynamicbans      = -1;
-	ret->enforcebans      = -1;
-	ret->revenge          = -1;
-	ret->userbans         = -1;
-	ret->userinvites      = -1;
-	ret->autohalfop       = -1;
-	ret->nodesynch        = -1;
-	ret->protectops       = -1;
-	ret->revengebot       = -1;
-	ret->seen             = -1;
-	ret->statuslog        = -1;
-	ret->userexempts      = -1;
-	ret->protecthalfops   = -1;
-	ret->statuslog        = -1;
-	ret->secret           = -1;
-	ret->shared           = -1;
-
-	ret->banlist          = NULL;
-
-  ret->tcfg = NULL;
-  ret->user_list = NULL;
-
-  ret->prev = NULL;
-  ret->next = NULL;
-
-  return ret;
+	return ret;
 }
 
 void join_channels(struct network *net)
 {
-  char *joinstr = NULL;
-  struct channel *tmpchan;
-  int numbytes = 0;
+	char *joinstr = NULL;
+	struct channel *tmpchan;
+	int numbytes = 0;
 
-  joinstr = tmalloc0(BUFFER_SIZE);
+	joinstr = tmalloc0(BUFFER_SIZE);
 
-  if ((tmpchan = net->chans) == NULL)
-    return;
+	if ((tmpchan = net->chans) == NULL)
+		return;
 
-  /* "JOIN " */
-  numbytes += 5;
+	/* "JOIN " */
+	numbytes += 5;
 
-  while (tmpchan != NULL)
-  {
-    if ((numbytes += strlen(tmpchan->name)) > BUFFER_SIZE-3)
-      return;
+	while (tmpchan != NULL)
+	{
+		/* 3 ? */
+		if ((numbytes += strlen(tmpchan->name)) > BUFFER_SIZE-3)
+			return;
 
-    strcat(joinstr,tmpchan->name);
-    strcat(joinstr,",");
-    
-    tmpchan = tmpchan->next;
-  } 
+		/* Why not just sprintf/snprintf? */
+		strcat(joinstr,tmpchan->name);
+		strcat(joinstr,",");
 
-  joinstr[strlen(joinstr)-1] = '\0';
- 
-  irc_printf(net->sock,"JOIN %s\n",joinstr);
-  free(joinstr);
-  return;
+		tmpchan = tmpchan->next;
+	} 
+
+	/* Get rid of the trailing space */
+	joinstr[strlen(joinstr)-1] = '\0';
+
+	/* Hopefully all IRCDs support #chan1,#chan2,#chan3, verify with RFC */
+	irc_printf(net->sock,"JOIN %s\n",joinstr);
+
+	/* Toss it like a used condom */
+	free(joinstr);
+
+	return;
 }
 
 void channel_list_populate(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
@@ -453,18 +501,20 @@ void channel_list_populate(struct network *net, struct trigger *trig, struct irc
 	struct channel *chan       = NULL;
 	struct channel_user *cuser = NULL;
 	int i                      = 0;
+	int j                      = 0;
 	char *ptr                  = NULL;
+	char *modes                = NULL;
 
 	/* First check to see if channel exists, if not, create a record. */
 	chan = net->chans;
-	
+
 	while (chan->prev != NULL) chan = chan->prev;
 
 	while (chan != NULL)
 	{
 		if (!tstrcasecmp(chan->name,data->c_params[2]))
 			break; /* Found a channel record */
-	
+
 		chan = chan->next;
 	}
 
@@ -479,14 +529,34 @@ void channel_list_populate(struct network *net, struct trigger *trig, struct irc
 	}
 
 	/* 353 toodle @ #java :toodle */
+	/* For each user listed after the colon */
 	for(i=0;data->rest[i] != NULL;i++)
 	{
 		/* try to find user first */
 		ptr = data->rest[i];
 
-		while (*ptr == '@' || *ptr == '+')
-			ptr++;
+		modes = tmalloc0(strlen(ptr + 1)); /* Guaranteed Maximum size */
 
+		/* All modes under RFC? FIXME: Verify with IRC RFC */
+		/* Get all modes, nasty code */
+		for (j = 0;*ptr == '@' || *ptr == '+';j++)
+		{
+			switch (*ptr)
+			{
+				case '@':
+					modes[j] = 'o';
+					break;
+				case '+':
+					modes[j] = 'v';
+					break;
+				default:
+					log_entry_printf(NULL,NULL,"o","Unhandled symbol in channel_list_populate: %c",*ptr);
+			}
+
+			ptr++;
+		}
+
+		/* Create the userlist if it doesn't exist already, if it does, just continue */
 		if (chan->user_list == NULL)
 		{
 			chan->user_list = new_channel_user(ptr,time(NULL),NULL);
@@ -495,6 +565,10 @@ void channel_list_populate(struct network *net, struct trigger *trig, struct irc
 		}
 		else
 		{
+			/* Each channel has its own userlist, they are linked 
+			 * afterwards to actual user entries if they match a
+			 * preset mask.
+			 */
 			cuser = chan->user_list;
 
 			/* Check for an existing user first */
@@ -504,30 +578,42 @@ void channel_list_populate(struct network *net, struct trigger *trig, struct irc
 			{
 				if (!tstrcasecmp(cuser->nick,ptr))
 				{
-					/* FIXME: Just update modes if needed and continue */
+					if (cuser->modes != NULL)
+						free(cuser->modes);
+
+					cuser->modes = (strlen(modes) >= 1) ? tstrdup(modes) : NULL;
+
+					free(modes);
+					modes = NULL;
+
 					break;
 				}
-				
+
 				cuser = cuser->next;
 			}
-		
+
 			if (cuser != NULL)
 				continue;
 
 			cuser = chan->user_list;
 
 			while (cuser->next != NULL) cuser = cuser->next;
-	
+
+			/* at tail */
 			cuser->next = new_channel_user(ptr,time(NULL),NULL);
 
 			cuser->next->prev = cuser;
-			cuser->next->next = NULL;			
+
+			cuser = cuser->next;
 		}
-		
-		if (!strncmp(data->rest[i],"@",1))
-		{
-			/* CHECK MODES */
-		}	
+
+		if (cuser->modes != NULL)
+			free(cuser->modes);
+
+		cuser->modes = (strlen(modes) >= 1) ? tstrdup(modes) : NULL;
+
+		free(modes);
+		modes = NULL;
 
 	}
 }
@@ -536,6 +622,8 @@ struct channel *new_chan_from_tconfig_block(struct tconfig_block *tcfg)
 {
 	struct channel       *chan  = NULL;
 	struct tconfig_block *child = NULL;
+	struct chan_egg_var  *cev   = NULL;
+	struct slist         *list  = NULL;
 
 	if (tcfg == NULL)
 	{
@@ -545,22 +633,36 @@ struct channel *new_chan_from_tconfig_block(struct tconfig_block *tcfg)
 
 	if (!strcmp(tcfg->key,"channel"))
 	{
+		if (tcfg->child == NULL)
+			return NULL;
+
 		/* New Chan Record */
 		chan = new_channel(tcfg->value); 
-	
+
 		child = tcfg->child;
-					
+
 		while (child != NULL)
 		{
 			/* Do something here
-			if (!strcmp(child->key,"flags"))
-			{
-				if (user->flags == NULL)
-					user->flags = tstrdup(child->value);
-			}*/
+				 if (!strcmp(child->key,"flags"))
+				 {
+				 if (user->flags == NULL)
+				 user->flags = tstrdup(child->value);
+				 }*/
+
+			/* at least make egg_var nodes */
+			cev = new_chan_egg_var();
+
+			cev->key   = tstrdup(child->key);
+			cev->value = tstrdup(child->value);
+
+			if (chan->egg_vars == NULL)
+				slist_init(&chan->egg_vars, free_chan_egg_var);
+
+			/* Making a NULL first node? */
+			slist_insert_next(chan->egg_vars, NULL, (void *)cev);
 
 			child = child->next;
-
 		}
 	}
 
@@ -584,9 +686,9 @@ void chans_save(struct network *net)
 		{
 			tmpstr = tmalloc0(strlen("./db/chandb.") + strlen(net->label) + 1);
 			sprintf(tmpstr, "./db/chandb.%s",nettmp->label);
-			
+
 			tconfig_to_file(tcfg, tmpstr);
-		
+
 			free(tmpstr);
 		}
 		else
@@ -599,74 +701,76 @@ void chans_save(struct network *net)
 	nettmp = g_cfg->networks;
 
 	while (nettmp->prev != NULL) nettmp = nettmp->prev;
-	
+
 	while (nettmp != NULL)
 	{
-    tcfg = chans_to_tconfig(nettmp->chans);
+		tcfg = chans_to_tconfig(nettmp->chans);
 
-    if (nettmp->chanfile == NULL)
-    {
-      tmpstr = tmalloc0(strlen("./db/chandb.") + strlen(nettmp->label) + 1);
+		if (nettmp->chanfile == NULL)
+		{
+			tmpstr = tmalloc0(strlen("./db/chandb.") + strlen(nettmp->label) + 1);
 			sprintf(tmpstr, "./db/chandb.%s",nettmp->label);
 
-      tconfig_to_file(tcfg, tmpstr);
+			tconfig_to_file(tcfg, tmpstr);
 
-      free(tmpstr);
-    }
-    else
-      tconfig_to_file(tcfg, nettmp->chanfile);
+			free(tmpstr);
+		}
+		else
+			tconfig_to_file(tcfg, nettmp->chanfile);
 
-    free_tconfig(tcfg);
+		free_tconfig(tcfg);
 
 		nettmp = nettmp->next;
 	}
 
 	return;
 }
-		
+
 void chan_init(void)
 {
-  struct network       *net      = NULL;
+	struct network       *net      = NULL;
 	struct tconfig_block *chantcfg = NULL;
 	struct tconfig_block *tmp      = NULL;
 	struct channel       *chan     = NULL;
 	struct channel       *tmpchan  = NULL;
 
-  net  = g_cfg->networks;
+	net  = g_cfg->networks;
 
-  while (net != NULL)
+	while (net != NULL)
 	{
-    if (net->chanfile != NULL)
+		if (net->chanfile != NULL)
 		{
 			/* The idea is to read the chanfile, parse the
- 			 * returned data into the internal format, attach
- 			 * location of tcfg entry, and when saved, the
- 			 * bot will write out this tcfg. New and deleted
- 			 * users will have to be mirrored in the tcfg.
- 			 * forget that last part.
- 			 */
+			 * returned data into the internal format, attach
+			 * location of tcfg entry, and when saved, the
+			 * bot will write out this tcfg. New and deleted
+			 * users will have to be mirrored in the tcfg.
+			 * forget that last part.
+			 */
 			chantcfg = file_to_tconfig(net->chanfile);
-	
+
 			tmp = chantcfg;
 
 			while (tmp != NULL)
 			{
+				if (tmp->key == NULL)
+					break;
 				if (!strcmp(tmp->key,"channel"))
 				{
 					chan = new_chan_from_tconfig_block(tmp);
-			
+
 					if (chan != NULL)
 					{
 						chan->tcfg = tmp;
-	
+
 						/* See if it already exists first */
 						tmpchan = net->chans;
-					
+
 						while (tmpchan != NULL)
 						{
 							if (!tstrcasecmp(tmpchan->name,chan->name))
 								break;
-	
+
 							tmpchan = tmpchan->next;
 						}
 
@@ -676,7 +780,7 @@ void chan_init(void)
 							tmp = tmp->next;								
 							continue;
 						}
-				
+
 						tmpchan = net->chans;
 
 						/* link it into the networks shit */
@@ -690,17 +794,17 @@ void chan_init(void)
 						else
 						{	
 							while (tmpchan->next != NULL)
-							tmpchan       = tmpchan->next;
-							
+								tmpchan       = tmpchan->next;
+
 							tmpchan->next = chan;
 							chan->prev    = tmpchan;	
 						}
 					}
 				}
-					
+
 				tmp = tmp->next;
 			}
-	
+
 			/* Why the child? */
 			tconfig_merge(chantcfg, net->tcfg->child);
 			free_tconfig(chantcfg);
@@ -710,5 +814,5 @@ void chan_init(void)
 		net = net->next;
 	}
 
-  return;
+	return;
 }

@@ -12,6 +12,7 @@ struct tconfig_block;
 struct dcc_session;
 struct t_timer;
 struct log_filter;
+struct slist;
 
 #include <time.h>
 

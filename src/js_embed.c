@@ -14,15 +14,15 @@ JSVersion version;
 JSBool builtins;
 
 JSClass global_class = {
-  "global",0,
-  JS_PropertyStub,
-  JS_PropertyStub,
-  JS_PropertyStub,
-  JS_PropertyStub,
-  JS_EnumerateStub,
-  JS_ResolveStub,
-  JS_ConvertStub,
-  JS_FinalizeStub
+	"global",0,
+	JS_PropertyStub,
+	JS_PropertyStub,
+	JS_PropertyStub,
+	JS_PropertyStub,
+	JS_EnumerateStub,
+	JS_ResolveStub,
+	JS_ConvertStub,
+	JS_FinalizeStub
 };
 
 static void js_error_handler(JSContext *ctx, const char *msg, JSErrorReport *er);
@@ -32,12 +32,12 @@ void dcc_javascript(struct network *net, struct trigger *trig, struct irc_data *
 	jsval rval;
 
 	if (JS_EvaluateScript(dcc->net->cx, 
-												dcc->net->global, 
-												egg_makearg(dccbuf,trig->mask), 
-												strlen(egg_makearg(dccbuf,trig->mask)),
-												"DCC",
-												0,
-												&rval) == JS_TRUE)
+				dcc->net->global, 
+				egg_makearg(dccbuf,trig->mask), 
+				strlen(egg_makearg(dccbuf,trig->mask)),
+				"DCC",
+				0,
+				&rval) == JS_TRUE)
 	{
 		/* Error handling or anything ? */
 	}
@@ -45,27 +45,27 @@ void dcc_javascript(struct network *net, struct trigger *trig, struct irc_data *
 
 void js_load_scripts_from_config(struct config *cfg)
 {
-  int i;
-  struct network *net = cfg->networks;
+	int i;
+	struct network *net = cfg->networks;
 
-  while (net != NULL)
-  {
-    if (net->js_scripts != NULL)
-    {
-      if (net->cx == NULL) /* Should do proper state checking */
-        net_init_js(net);
+	while (net != NULL)
+	{
+		if (net->js_scripts != NULL)
+		{
+			if (net->cx == NULL) /* Should do proper state checking */
+				net_init_js(net);
 
-      for (i=0;net->js_scripts[i] != NULL;i++)
-      {
+			for (i=0;net->js_scripts[i] != NULL;i++)
+			{
 				if (!js_eval_file(net,net->js_scripts[i]))
 				{
 					troll_debug(LOG_WARN, "Could not load Javascript file (%s)",net->js_scripts[i]);
 				}
-      }
-    }
+			}
+		}
 
-    net = net->next;
-  }
+		net = net->next;
+	}
 }
 
 void dcc_javascript_load(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
@@ -83,11 +83,11 @@ void dcc_javascript_load(struct network *net, struct trigger *trig, struct irc_d
 int js_eval_file(struct network *net, char *filename)
 {
 	JSScript *script =  JS_CompileFile(net->cx,net->global,filename);
-  jsval rval;
+	jsval rval;
 
-  if (script == NULL){
-    return 0;
-  }
+	if (script == NULL){
+		return 0;
+	}
 
 	JS_ExecuteScript(net->cx, net->global, script, &rval);
 
@@ -101,21 +101,21 @@ void net_init_js(struct network *net)
 	if (g_cfg->js_rt == NULL)
 	{
 		/* initialize the JS run time, and return result in rt */
-  	g_cfg->js_rt = JS_NewRuntime(0x50000);
+		g_cfg->js_rt = JS_NewRuntime(0x50000);
 
 		/* if rt does not have a value, end the javascript portion here */
 		if (g_cfg->js_rt == NULL)
 			return;
-  }
+	}
 
-  /* create a context and associate it with the JS run time */
-  net->cx = JS_NewContext(g_cfg->js_rt, 8192);
+	/* create a context and associate it with the JS run time */
+	net->cx = JS_NewContext(g_cfg->js_rt, 8192);
 
-  /* if cx does not have a value, end the javascript portion here */
-  if (net->cx == NULL) 
+	/* if cx does not have a value, end the javascript portion here */
+	if (net->cx == NULL) 
 	{
 		net->cx = NULL;
-    return;
+		return;
 	}
 
 	JS_SetErrorReporter(net->cx, js_error_handler);
@@ -132,47 +132,47 @@ void net_init_js(struct network *net)
 }
 
 static void js_error_handler(JSContext *ctx, const char *msg, JSErrorReport *er){
-    char *pointer=NULL;
-    char *line=NULL;
-    int len;
+	char *pointer=NULL;
+	char *line=NULL;
+	int len;
 
-    if (er->linebuf != NULL){
-        line = tstrdup(er->linebuf);
-        len = er->tokenptr - er->linebuf + 2;
-        pointer = malloc(len);
-        memset(pointer, '-', len-2);
-        pointer[len-1]='\0';
-        pointer[len-2]='^';
-    }
-    else {
-        len=0;
-        pointer = malloc(1);
-        line = malloc(1);
-        pointer[0]='\0';
-        line[0] = '\0';
-    }
+	if (er->linebuf != NULL){
+		line = tstrdup(er->linebuf);
+		len = er->tokenptr - er->linebuf + 2;
+		pointer = malloc(len);
+		memset(pointer, '-', len-2);
+		pointer[len-1]='\0';
+		pointer[len-2]='^';
+	}
+	else {
+		len=0;
+		pointer = malloc(1);
+		line = malloc(1);
+		pointer[0]='\0';
+		line[0] = '\0';
+	}
 
-    while (len > 0){
-        if (line[len-1] == '\r' || line[len-1] == '\n'){
-          line[len-1]='\0';
-        }
-        else if (line[len-1]=='\t'){
-            /*Convert tabs into spaces */
-            line[len-1]=' ';
-        }
-        len--;
-    }
+	while (len > 0){
+		if (line[len-1] == '\r' || line[len-1] == '\n'){
+			line[len-1]='\0';
+		}
+		else if (line[len-1]=='\t'){
+			/*Convert tabs into spaces */
+			line[len-1]=' ';
+		}
+		len--;
+	}
 
 
 
-    printf("JS Error: %s\nFile: %s:%u\n", msg, er->filename, er->lineno);
+	printf("JS Error: %s\nFile: %s:%u\n", msg, er->filename, er->lineno);
 
-    if (line[0]){
-        printf("%s\n%s\n", line, pointer);
-    }
+	if (line[0]){
+		printf("%s\n%s\n", line, pointer);
+	}
 
-    free(pointer);
-    free(line);
+	free(pointer);
+	free(line);
 }
 
 void net_init_js_global_object(struct network *net)
@@ -183,12 +183,12 @@ void net_init_js_global_object(struct network *net)
 		return;
 	}
 
-  /* create the global object here */
-  net->global = JS_NewObject(net->cx, &global_class, NULL, NULL);
+	/* create the global object here */
+	net->global = JS_NewObject(net->cx, &global_class, NULL, NULL);
 
-  /* initialize the built-in JS objects and the global object */
+	/* initialize the built-in JS objects and the global object */
 	/* builtins is a global JSBool */
-  builtins = JS_InitStandardClasses(net->cx, net->global);
+	builtins = JS_InitStandardClasses(net->cx, net->global);
 
 	/* Initialize egg_lib functions */
 	JS_DefineFunction(net->cx, net->global, "countusers", js_countusers, 0, 0);

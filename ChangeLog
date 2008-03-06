@@ -1,67 +1,11 @@
-**********************
-* Trollbot ChangeLog *
-**********************
-2008-02-17:
-			* Added initial python support
-				** CAVEAT: expect memory to leak if you enable it
-
-2008-02-09:
-						* Added channel record tracking YAY.
-						* Removed all references to g_cfg in config_engine_load, It now
-							just gets a list of the filenames, to be loaded in the future.
-							This allows us to load separate config instances, and then
-							compare them for differences to change for during a rehash.
+  .-------------------------.
+--| Trollbot -==- ChangeLog |-----------------------------------------
+  `-------------------------'
+----------------------------------------------------------------------
+ 0.0.1
+----------------------------------------------------------------------
 
 
-2007-05-07: 
-						* added nonblocking connect() for dcc sessions so badly formatted requests 
-              don't cause the bot to hang.
-            * Added tstrcasecmp and tstrncasecmp in util.c because most IRCDs send nicks
-              chans, etc exacly as typed, ie /dcc chat trollbot != /dcc chat TrollBot.
-            * Modified the MSG/MSGM triggers to use new case insensitive strcasecmp fixing
-              numerous problems with case sensitivity.
-            * Added egg_hand2idx and egg_idx2hand to egg_lib.c
-            * Added .who for DCC to show who is on the partyline
-            * Added utility funcs for each LL to properly add (and some del) elements to
-              a list.
-            * Fixed putdcc to use a network specific IDX instead of a global DCC system
-            * Added function descriptions to prototypes in egg_lib.h         
-
-2007-05-01: 
-						* tconfigs merge properly now, also did some fixup on dcc in the select() loop
-            * Added .tbinds command to list all bot binds, their command, and use count
-            * Added uhost parameter to user struct, for easy matching with egg_finduser
-            * Added egg_finduser()
-
-2007-04-30: 
-						* Documentation fixups
-            * eliminated some bloat by getting rid of trigger head/tails
-              the lists should always be aligned at head
-
-
-2007-04-26: 
-						* Fixed autoconf stuff so make install now works as expected :)
-            * added egg_chattr()
-            * added crude python support
-            * Started implementing a rehashing routine
-            * fixed crash in trigger.c checking if foo->rest[0] was null instead of foo->rest
-            * Reverse DCC now works
-            * bind DCC now works
-            * made changes so pub/msg binds are no longer stackable as per eggdrop specs
-            * tconfig algo changes, added tconfig_merge for stacking config files instead
-              of running them all through the file_to_tconfig()
-           
-
-2007-04-13: 
-						* Removed head/tail/generic pointers from network, decided to
-              just have a single list, default at head for servers, channels,
-              and users.
-            * matchattr now works with the exception of channel flags, added
-              TCL matchattr, PHP soon to follow.
-
-2007-04-12: 
-						* Started ChangeLog again.
-            * Added free_ functions for channel and user, they both take 
-              care of children structs.
-            * Added egg_matchattr for use with DCC partyline code.
-            * More connections added with user system
+[2008-01-31]
+	*	Company Settings can now load from xml
+	* Database Settings loaded through company settings

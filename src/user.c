@@ -11,7 +11,7 @@ struct tconfig_block *users_to_tconfig(struct user *users)
 	struct tconfig_block *tpar = NULL;
 
 	tmp = users;
-	
+
 	while (tmp != NULL)
 	{
 		if (tcfg == NULL)
@@ -27,6 +27,15 @@ struct tconfig_block *users_to_tconfig(struct user *users)
 		tcfg->key   = tstrdup("user");
 		tcfg->value = tstrdup(tmp->username);
 
+		/* Ensure at least one entry exists so we don't have keys with all nulled keys/values */
+		if (tmp->nick == NULL && tmp->ident == NULL && tmp->host == NULL && 
+				tmp->uhost == NULL && tmp->passhash == NULL && tmp->hash_type == NULL &&
+				tmp->flags == NULL)
+		{
+			tmp = tmp->next;
+			continue;
+		}
+
 		/* Create child, save parent pointer */
 		tcfg->child  = tconfig_block_new();
 		tpar         = tcfg;
@@ -35,9 +44,9 @@ struct tconfig_block *users_to_tconfig(struct user *users)
 
 		if (tmp->nick != NULL)
 		{
-	    /* Nick */
-  	  tcfg->key        = tstrdup("nick");
-    	tcfg->value      = tstrdup(tmp->nick);
+			/* Nick */
+			tcfg->key        = tstrdup("nick");
+			tcfg->value      = tstrdup(tmp->nick);
 			tcfg->next       = tconfig_block_new();
 			tcfg->next->prev = tcfg;
 			tcfg             = tcfg->next;
@@ -45,10 +54,10 @@ struct tconfig_block *users_to_tconfig(struct user *users)
 
 		if (tmp->ident != NULL)
 		{
-    	/* Ident */
+			/* Ident */
 			tcfg->key        = tstrdup("ident");
-	    tcfg->value      = tstrdup(tmp->ident);
-  	  tcfg->next       = tconfig_block_new();
+			tcfg->value      = tstrdup(tmp->ident);
+			tcfg->next       = tconfig_block_new();
 			tcfg->next->prev = tcfg;
 			tcfg             = tcfg->next;
 		}
@@ -67,9 +76,9 @@ struct tconfig_block *users_to_tconfig(struct user *users)
 		{
 			/* UHost */
 			tcfg->key        = tstrdup("uhost");
-	    tcfg->value      = tstrdup(tmp->uhost);
-  	  tcfg->next       = tconfig_block_new();
-    	tcfg->next->prev = tcfg;
+			tcfg->value      = tstrdup(tmp->uhost);
+			tcfg->next       = tconfig_block_new();
+			tcfg->next->prev = tcfg;
 			tcfg             = tcfg->next;
 		}
 
@@ -80,7 +89,7 @@ struct tconfig_block *users_to_tconfig(struct user *users)
 			tcfg->value      = tstrdup(tmp->passhash);
 			tcfg->next       = tconfig_block_new();
 			tcfg->next->prev = tcfg;
-    	tcfg             = tcfg->next;
+			tcfg             = tcfg->next;
 		}
 
 		if (tmp->hash_type != NULL)
@@ -92,7 +101,7 @@ struct tconfig_block *users_to_tconfig(struct user *users)
 			tcfg->next->prev = tcfg;
 			tcfg             = tcfg->next;
 		}
-		
+
 		if (tmp->flags != NULL)
 		{
 			/* flags */
@@ -106,127 +115,128 @@ struct tconfig_block *users_to_tconfig(struct user *users)
 		tmp  = tmp->next;
 	}
 
-	while (tcfg->prev != NULL)
-		tcfg = tcfg->prev;
+	if (tcfg != NULL)
+		while (tcfg->prev != NULL)
+			tcfg = tcfg->prev;
 
 	/* To be returned by caller */
 	return tcfg;
 }
-		
 
-			
+
+
 
 void user_list_add(struct user **orig, struct user *new)
 {
-  struct user *tmp;
+	struct user *tmp;
 
-  if (*orig == NULL)
-  {
-    *orig = new;
-    new->prev = NULL;
-    new->next = NULL;
-  }
-  else
-  {
-    tmp = *orig;
+	if (*orig == NULL)
+	{
+		*orig = new;
+		new->prev = NULL;
+		new->next = NULL;
+	}
+	else
+	{
+		tmp = *orig;
 
-    while (tmp->next != NULL)
-      tmp = tmp->next;
+		while (tmp->next != NULL)
+			tmp = tmp->next;
 
-    tmp->next       = new;
-    tmp->next->prev = tmp;
-    tmp->next->next = NULL;
-  }
+		tmp->next       = new;
+		tmp->next->prev = tmp;
+		tmp->next->next = NULL;
+	}
 }
 
 void free_users(struct user *users)
 {
-  struct user *utmp;
-  struct channel_flags *cftmp;
+	struct user *utmp;
+	struct channel_flags *cftmp;
 
-  if (users == NULL)
-    return;
+	if (users == NULL)
+		return;
 
-  while (users->prev != NULL)
-    users = users->prev;
+	while (users->prev != NULL)
+		users = users->prev;
 
-  while (users != NULL)
-  {
-    free(users->username);
-    free(users->nick);
-    free(users->ident);
-    free(users->host);
-    free(users->uhost);
-    free(users->realname);
-    free(users->passhash);
+	while (users != NULL)
+	{
+		free(users->username);
+		free(users->nick);
+		free(users->ident);
+		free(users->host);
+		free(users->uhost);
+		free(users->realname);
+		free(users->passhash);
 		free(users->hash_type);
-    free(users->flags); 
+		free(users->flags); 
 
-    if (users->chan_flags != NULL)
-    {
-      while (users->chan_flags->prev != NULL)
-        users->chan_flags = users->chan_flags->prev;
+		if (users->chan_flags != NULL)
+		{
+			while (users->chan_flags->prev != NULL)
+				users->chan_flags = users->chan_flags->prev;
 
-      while (users->chan_flags != NULL)
-      {
-        free(users->chan_flags->chan);
-        free(users->chan_flags->flags);
+			while (users->chan_flags != NULL)
+			{
+				free(users->chan_flags->chan);
+				free(users->chan_flags->flags);
 
-        cftmp = users->chan_flags; 
-        
-        users->chan_flags = users->chan_flags->next;
-         
-        free(cftmp);
-      }
-    }
+				cftmp = users->chan_flags; 
 
-    utmp  = users;
-    users = users->next;
+				users->chan_flags = users->chan_flags->next;
 
-    free(utmp);
-  }
+				free(cftmp);
+			}
+		}
+
+		utmp  = users;
+		users = users->next;
+
+		free(utmp);
+	}
 }
 
 
 struct user *new_user(char *username, char *nick, char *passhash, char *ident, char *realname, char *host, char *flags)
 {
-  struct user *ret;
+	struct user *ret;
 
-  ret = tmalloc(sizeof(struct user));
+	ret = tmalloc(sizeof(struct user));
 
-  ret->username = (username != NULL) ? tstrdup(username) : NULL;  
-  ret->nick     = (nick != NULL)     ? tstrdup(nick)     : NULL;
-  ret->passhash = (passhash != NULL) ? tstrdup(passhash) : NULL;
-  ret->ident    = (ident != NULL)    ? tstrdup(ident)    : NULL;
-  ret->realname = (realname != NULL) ? tstrdup(realname) : NULL;
-  ret->host     = (host != NULL)     ? tstrdup(host)     : NULL;
-  ret->flags    = (flags != NULL)    ? tstrdup(flags)    : NULL;
+	ret->username = (username != NULL) ? tstrdup(username) : NULL;  
+	ret->nick     = (nick != NULL)     ? tstrdup(nick)     : NULL;
+	ret->passhash = (passhash != NULL) ? tstrdup(passhash) : NULL;
+	ret->ident    = (ident != NULL)    ? tstrdup(ident)    : NULL;
+	ret->realname = (realname != NULL) ? tstrdup(realname) : NULL;
+	ret->host     = (host != NULL)     ? tstrdup(host)     : NULL;
+	ret->flags    = (flags != NULL)    ? tstrdup(flags)    : NULL;
 
 	ret->hash_type = NULL;
-  ret->uhost     = NULL;
-  
-  ret->chan_flags = NULL;
+	ret->uhost     = NULL;
 
-  ret->tcfg   = NULL;
-  ret->prev   = NULL;
-  ret->next   = NULL;
+	ret->chan_flags = NULL;
 
-  return ret;
+	ret->tcfg   = NULL;
+	ret->prev   = NULL;
+	ret->next   = NULL;
+
+	return ret;
 }
 
 struct channel_flags *new_channel_flags(char *chan, char *flags)
 {
-  struct channel_flags *ret;
+	struct channel_flags *ret;
 
-  ret = tmalloc(sizeof(struct channel_flags));
+	ret = tmalloc(sizeof(struct channel_flags));
 
-  ret->chan  = (chan != NULL)  ? tstrdup(chan)  : NULL;
-  ret->flags = (flags != NULL) ? tstrdup(flags) : NULL;
+	ret->chan  = (chan != NULL)  ? tstrdup(chan)  : NULL;
+	ret->flags = (flags != NULL) ? tstrdup(flags) : NULL;
 
-  ret->prev = NULL;
-  ret->next = NULL;
+	ret->prev = NULL;
+	ret->next = NULL;
 
-  return ret;
+	return ret;
 }
 
 /* Saves users with optional network */
@@ -246,9 +256,9 @@ void users_save(struct network *net)
 		{
 			tmpstr = tmalloc0(strlen("./db/userdb.") + strlen(net->label) + 1);
 			sprintf(tmpstr, "./db/userdb.%s",nettmp->label);
-			
+
 			tconfig_to_file(tcfg, tmpstr);
-		
+
 			free(tmpstr);
 		}
 		else
@@ -261,24 +271,24 @@ void users_save(struct network *net)
 	nettmp = g_cfg->networks;
 
 	while (nettmp->prev != NULL) nettmp = nettmp->prev;
-	
+
 	while (nettmp != NULL)
 	{
-    tcfg = users_to_tconfig(nettmp->users);
+		tcfg = users_to_tconfig(nettmp->users);
 
-    if (nettmp->userfile == NULL)
-    {
-      tmpstr = tmalloc0(strlen("./db/userdb.") + strlen(nettmp->label) + 1);
+		if (nettmp->userfile == NULL)
+		{
+			tmpstr = tmalloc0(strlen("./db/userdb.") + strlen(nettmp->label) + 1);
 			sprintf(tmpstr, "./db/userdb.%s",nettmp->label);
 
-      tconfig_to_file(tcfg, tmpstr);
+			tconfig_to_file(tcfg, tmpstr);
 
-      free(tmpstr);
-    }
-    else
-      tconfig_to_file(tcfg, nettmp->userfile);
+			free(tmpstr);
+		}
+		else
+			tconfig_to_file(tcfg, nettmp->userfile);
 
-    free_tconfig(tcfg);
+		free_tconfig(tcfg);
 
 		nettmp = nettmp->next;
 	}
@@ -286,7 +296,7 @@ void users_save(struct network *net)
 	return;
 }
 
-	
+
 struct user *new_user_from_tconfig_block(struct tconfig_block *tcfg)
 {
 	struct user          *user  = NULL;
@@ -302,15 +312,15 @@ struct user *new_user_from_tconfig_block(struct tconfig_block *tcfg)
 	{
 		/* New User Record */
 		user = new_user(tcfg->value,NULL,NULL,NULL,NULL,NULL,NULL); /* FIXME: That's retarded */
-	
+
 		child = tcfg->child;
-					
+
 		while (child != NULL)
 		{
 			if (!strcmp(child->key,"nick"))
 			{
 				if (user->nick == NULL)
-				user->nick = tstrdup(child->value);
+					user->nick = tstrdup(child->value);
 			}
 			else if (!strcmp(child->key,"passhash"))
 			{
@@ -358,27 +368,27 @@ struct user *new_user_from_tconfig_block(struct tconfig_block *tcfg)
 
 void user_init(void)
 {
-  struct network       *net      = NULL;
+	struct network       *net      = NULL;
 	struct tconfig_block *usertcfg = NULL;
 	struct tconfig_block *tmp      = NULL;
 	struct user          *user     = NULL;
 	struct user          *tmpuser  = NULL;
 
-  net  = g_cfg->networks;
+	net  = g_cfg->networks;
 
-  while (net != NULL)
+	while (net != NULL)
 	{
-    if (net->userfile != NULL)
+		if (net->userfile != NULL)
 		{
 			/* The idea is to read the userfile, parse the
- 			 * returned data into the internal format, attach
- 			 * location of tcfg entry, and when saved, the
- 			 * bot will write out this tcfg. New and deleted
- 			 * users will have to be mirrored in the tcfg.
- 			 * forget that last part.
- 			 */
+			 * returned data into the internal format, attach
+			 * location of tcfg entry, and when saved, the
+			 * bot will write out this tcfg. New and deleted
+			 * users will have to be mirrored in the tcfg.
+			 * forget that last part.
+			 */
 			usertcfg = file_to_tconfig(net->userfile);
-	
+
 			log_entry_printf(net, NULL, "c", "Userfile loaded, unpacking...");
 
 			tmp = usertcfg;
@@ -388,11 +398,11 @@ void user_init(void)
 				if (!strcmp(tmp->key,"user"))
 				{
 					user = new_user_from_tconfig_block(tmp);
-			
+
 					if (user != NULL)
 					{
 						user->tcfg = tmp;
-	
+
 						tmpuser = net->users;
 
 						/* link it into the networks shit */
@@ -406,17 +416,17 @@ void user_init(void)
 						else
 						{	
 							while (tmpuser->next != NULL)
-							tmpuser       = tmpuser->next;
-							
+								tmpuser       = tmpuser->next;
+
 							tmpuser->next = user;
 							user->prev    = tmpuser;	
 						}
 					}
 				}
-					
+
 				tmp = tmp->next;
 			}
-	
+
 			/* Why the child? */
 			tconfig_merge(usertcfg, net->tcfg->child);
 			free_tconfig(usertcfg);
@@ -426,6 +436,6 @@ void user_init(void)
 		net = net->next;
 	}
 
-  return;
+	return;
 }
 

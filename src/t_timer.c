@@ -10,7 +10,7 @@
 void t_timers_check(struct t_timer *timers, time_t timestamp)
 {
 	struct t_timer *tmp = NULL;
-	
+
 	tmp = timers;
 
 	while (tmp != NULL)
@@ -19,7 +19,7 @@ void t_timers_check(struct t_timer *timers, time_t timestamp)
 		{
 			if (tmp->handler != NULL)
 				tmp->handler(tmp->net, tmp);
-		
+
 			tmp = t_timer_remove(tmp->net->timers, tmp);
 
 			continue;
@@ -42,7 +42,7 @@ struct t_timer *t_timer_add(struct t_timer *timers, struct t_timer *add)
 		ret = add;
 		return ret;
 	}
-	
+
 	while (ret->next != NULL) ret = ret->next;
 
 	ret->next = add;

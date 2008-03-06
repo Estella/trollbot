@@ -17,14 +17,18 @@
 #include "main.h"
 #include "xmpp_proto.h"
 #include "xmpp_server.h"
+#include "xmpp_trigger.h"
 #include "log_entry.h"
 
 void xmpp_ball_start_rolling(struct xmpp_server *xs)
 {
+	/* Fuck it */
+	xmpp_printf(xs,"<stream:stream xmlns:stream=\"http://etherx.jabber.org/streams\" xmlns=\"jabber:client\" to=\"%s\" version=\"1.0\">\n", xs->label);
+#ifdef CLOWNS
 	xmlDocPtr  doc       = NULL;/* document pointer */
 	xmlNodePtr root_node = NULL;
 	xmlNodePtr node      = NULL;
-  xmlNodePtr node1     = NULL;/* node pointers */
+	xmlNodePtr node1     = NULL;/* node pointers */
 	xmlNsPtr   ns_stream = NULL;
 	xmlNsPtr   ns_jabber = NULL;
 
@@ -38,16 +42,16 @@ void xmpp_ball_start_rolling(struct xmpp_server *xs)
 
 	/* Create the stream namespace */
 	ns_stream = xmlNewNs(root_node,
-											 /* Hardcode OK */
-											 BAD_CAST "http://etherx.jabber.org/streams",
-											 /* Hardcode OK */
-											 BAD_CAST "stream");
+			/* Hardcode OK */
+			BAD_CAST "http://etherx.jabber.org/streams",
+			/* Hardcode OK */
+			BAD_CAST "stream");
 
 	/* Create the jabber namespace */
 	ns_jabber = xmlNewNs(root_node,
-											 /* Hardcode OK */
-											 BAD_CAST "jabber:client",
-											 NULL);
+			/* Hardcode OK */
+			BAD_CAST "jabber:client",
+			NULL);
 
 	/* Make the node I just created the first node in the document */
 	xmlDocSetRootElement(doc, root_node);
@@ -65,12 +69,13 @@ void xmpp_ball_start_rolling(struct xmpp_server *xs)
 	xmlFreeDoc(doc);
 
 	return;
+#endif /* CLOWNS */
 }
 
 /* This prints an XML document to a XMPP server */
 void xmpp_xml_send(struct xmpp_server *xs, xmlDocPtr doc)
 {
-  xmlChar    *xmlbuf;
+	xmlChar    *xmlbuf;
 	int        buffer_size;
 
 	xmlDocDumpFormatMemory(doc, &xmlbuf, &buffer_size, 0);
@@ -89,35 +94,36 @@ void xmpp_xml_send(struct xmpp_server *xs, xmlDocPtr doc)
  */
 void xmpp_printf(struct xmpp_server *xs, const char *fmt, ...)
 {
-  va_list va;
-  char buf[2048];
-  char buf2[2059];
+	va_list va;
+	char buf[2048];
+	char buf2[2059];
 
-  memset(buf, 0, sizeof(buf));
-  memset(buf2, 0, sizeof(buf2));
+	memset(buf, 0, sizeof(buf));
+	memset(buf2, 0, sizeof(buf2));
 
-  va_start(va, fmt);
+	va_start(va, fmt);
 
-  /* C99 */
-  vsnprintf(buf, sizeof(buf), fmt, va);
-  va_end(va);
+	/* C99 */
+	vsnprintf(buf, sizeof(buf), fmt, va);
+	va_end(va);
 
-  snprintf(buf2,sizeof(buf2),"%s\n",buf);
+	snprintf(buf2,sizeof(buf2),"%s\n",buf);
 
-  send(xs->sock,buf2,strlen(buf2),0);
+	printf("Sent: %s\n",buf2);
+	send(xs->sock,buf2,strlen(buf2),0);
 }
 
 /* Constructor */
 struct xmpp_data *xmpp_data_new(void)
 {
-  struct xmpp_data *local;
+	struct xmpp_data *local;
 
-  local = tmalloc(sizeof(struct xmpp_data));
+	local = tmalloc(sizeof(struct xmpp_data));
 
 	local->txt_packet = NULL;
 	local->xml_packet = NULL;
 
-  return local;
+	return local;
 }
 
 /* Destructor */
@@ -127,18 +133,18 @@ void xmpp_data_free(struct xmpp_data *data)
 
 	free(data->txt_packet);
 
-  free(data);
+	free(data);
 }
 
 /* This function gets an unparsed line from XMPP, and makes it into the xmpp_data struct */
 void parse_xmpp_line(struct xmpp_server *xs, const char *buffer)
 {
-  struct xmpp_data *data    = NULL;
+	struct xmpp_data *data    = NULL;
 	struct auth_type *at      = NULL;
 	xmlNodePtr        node    = NULL;
 	xmlNodePtr        node2   = NULL;
 	xmlNodePtr        splnker = NULL;
-	
+
 	data = xmpp_data_new();
 
 	printf("Incoming Packet: %s\n",buffer);
@@ -162,7 +168,7 @@ void parse_xmpp_line(struct xmpp_server *xs, const char *buffer)
 		xmpp_data_free(data);
 		return;
 	}
-	
+
 	/* For all the ugly one time stuff that I'm not going to create a bind type for */
 	if (!xmlStrcmp(node->name, (const xmlChar *)"features"))
 	{
@@ -207,7 +213,7 @@ void parse_xmpp_line(struct xmpp_server *xs, const char *buffer)
 					{
 						at       = new_auth_type();
 						at->name = xmlNodeListGetString(data->xml_packet, splnker->xmlChildrenNode, 1);
-				
+
 						log_entry_printf(NULL,NULL,"X","Server accepts algorithm type: %s",at->name);
 						/* Add it to the server's list */
 						xs->auth_types_remote = auth_type_add(xs->auth_types_remote, at);
@@ -218,99 +224,115 @@ void parse_xmpp_line(struct xmpp_server *xs, const char *buffer)
 
 					splnker = splnker->next;
 				}
-	
+
 				log_entry_printf(NULL,NULL,"X","Server Mechanisms complete");
 			}
 
 			node2 = node2->next;
 		}
+
+		xmpp_printf(xs, "<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'/>");
 	}
 
 	xmpp_trigger_match(xs, data);
-	
-  xmpp_data_free(data);
+
+	xmpp_data_free(data);
 }
 
 /* Needs to be adapted for the possibility of SSL */
+/* This is broken
+ * Problem: no newlines, or EOL indicator
+ * Solutions: Wait until it validates?
+ * will work on anything but the beginning and end packet
+ * which contain <stream:stream> and </stream:stream>
+ * could skip first packet but it won't guarantee that
+ * it will get everything in the first packet.
+ * different status perhaps.
+ */
 int xmpp_in(struct xmpp_server *xs)
 {
-  static char         *buffer  = NULL;
-  static size_t       size     = BUFFER_SIZE;
-  int                 recved   = 0;
-  char                *line    = NULL;
-  const char          *ptr     = NULL;
-  char                *optr    = NULL;
-  char                *bufcopy = NULL;
+
+	/* This method is deprecated for XMPP */
+	/* Big Ol FIXME */
+	return 0;
+#ifdef CLOWNS
+	static char         *buffer  = NULL;
+	static size_t       size     = BUFFER_SIZE;
+	int                 recved   = 0;
+	char                *line    = NULL;
+	const char          *ptr     = NULL;
+	char                *optr    = NULL;
+	char                *bufcopy = NULL;
 
 
-  if (buffer == NULL)
-  {
-    buffer = tmalloc0(BUFFER_SIZE + 1);
-    recved = recv(xs->sock,buffer,BUFFER_SIZE-1,0);
-  } else {
-    /* There was a fragment left over */
-    buffer = tcrealloc0(buffer,
-                        strlen(buffer) + BUFFER_SIZE + 1,
-                        &size);
+	if (buffer == NULL)
+	{
+		buffer = tmalloc0(BUFFER_SIZE + 1);
+		recved = recv(xs->sock,buffer,BUFFER_SIZE-1,0);
+	} else {
+		/* There was a fragment left over */
+		buffer = tcrealloc0(buffer,
+				strlen(buffer) + BUFFER_SIZE + 1,
+				&size);
 
-    recved = recv(xs->sock,&buffer[strlen(buffer)],BUFFER_SIZE-1,0);
+		recved = recv(xs->sock,&buffer[strlen(buffer)],BUFFER_SIZE-1,0);
 
-  }
+	}
 
 
-  switch (recved)
-  {
-    case -1:
-      free(buffer);
-      buffer = NULL;
-      return 1;
-    case 0:
-			/* Try parsing what's left of the buffer if it has any contents */
+	switch (recved)
+	{
+		case -1:
+			free(buffer);
+			buffer = NULL;
+			return 1;
+		case 0:
+			/* Try parsing what's left of the buffer if it has any contents *NON-VALIDATED* */
 			if (buffer != NULL)
 				parse_xmpp_line(xs,buffer);
 
-      xs->sock = -1;
-		  free(buffer);
+			xs->sock = -1;
+			free(buffer);
 			buffer = NULL;
-      return 0;
-  }
+			return 0;
+	}
 
-  while (strchr(buffer,'\n') != NULL)
-  { /* Complete IRC line */
-    line = tmalloc0(strlen(buffer)+1);
+	/* Check if validates here */
+	line = tmalloc0(strlen(buffer)+1);
 
-    optr = line;
+	optr = line;
 
-    for(ptr = buffer;*ptr != '\n' && *ptr != '\r';ptr++)
-    {
-      *optr = *ptr;
-      optr++;
-    }
+	for(ptr = buffer;*ptr != '\0';ptr++)
+	{
+		*optr = *ptr;
+		optr++;
+	}
 
-    /* This should deal with ircds which output \r only, \r\n, or \n */
-    while (*ptr == '\r' || *ptr == '\n')
-      ptr++;
+	/* IF VALIDATES */
+	if (xs->status == XMPP_CONNECTED)
+	{
 
-    parse_xmpp_line(xs,line);
+		parse_xmpp_line(xs,line);
+	}
 
-    free(line);
-		line = NULL;
+	free(line);
+	line = NULL;
 
-    if (strlen(ptr) == 0)
-    {
-      free(buffer);
-      buffer = NULL;
-      break;
-    }
+	if (strlen(ptr) == 0)
+	{
+		free(buffer);
+		buffer = NULL;
+		break;
+	}
 
-    bufcopy = tstrdup(ptr);
+	bufcopy = tstrdup(ptr);
 
-    free(buffer);
+	free(buffer);
 
-    size   = strlen(bufcopy) + 1;
+	size   = strlen(bufcopy) + 1;
 
-    buffer = bufcopy;
-  }
+	buffer = bufcopy;
 
-  return 1;
+	return 1;
+#endif /* CLOWNS */
 }

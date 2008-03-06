@@ -15,7 +15,6 @@ struct xmpp_trigger_table
   /* All point to head */
 	struct xmpp_trigger *msg;
 	struct xmpp_trigger *error;
-	struct xmpp_trigger *starttls;
 };
 
 struct xmpp_trigger

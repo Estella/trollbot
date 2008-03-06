@@ -9,11 +9,11 @@
 
 void net_init_perl(struct network *net)
 {
-  net->perlinterp = perl_alloc();
+	net->perlinterp = perl_alloc();
 
-  perl_construct(net->perlinterp);
+	perl_construct(net->perlinterp);
 
-  troll_debug(LOG_DEBUG,"Started perl interpreter for net (%s)",net->label);
+	troll_debug(LOG_DEBUG,"Started perl interpreter for net (%s)",net->label);
 }
 
 

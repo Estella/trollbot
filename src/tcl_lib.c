@@ -27,13 +27,13 @@ int tcl_finduser(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *c
 	char *mask = NULL;
 	char *ret  = NULL;
 
-  if (objc != 2)
-  {
-    Tcl_WrongNumArgs(interp, objc, objv,"finduser <mask>");
-    return TCL_ERROR;
-  }
+	if (objc != 2)
+	{
+		Tcl_WrongNumArgs(interp, objc, objv,"finduser <mask>");
+		return TCL_ERROR;
+	}
 
-  mask = Tcl_GetString(objv[1]);
+	mask = Tcl_GetString(objv[1]);
 
 	user = egg_finduser(net,mask);
 
@@ -42,11 +42,11 @@ int tcl_finduser(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *c
 		Tcl_SetResult(interp, "*", NULL);
 		return TCL_OK;
 	}
-	
+
 	ret = tstrdup(user->username);
 
-  /* FIXME: Memory Leak TCL_DYNAMIC for the free func causes crash */
-  Tcl_SetResult(interp, ret, NULL);
+	/* FIXME: Memory Leak TCL_DYNAMIC for the free func causes crash */
+	Tcl_SetResult(interp, ret, NULL);
 
 	return TCL_OK;
 }
@@ -91,8 +91,8 @@ int tcl_botname(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *co
 	struct network *net = clientData;
 
 	/* Ignore extra args rather than check it, check with eggdrop
- 	 * to see if this is how it acts.
- 	 */
+	 * to see if this is how it acts.
+	 */
 	ret = egg_botname(net);
 
 	/* FIXME: Memory Leak TCL_DYNAMIC for the free func causes crash */
@@ -105,7 +105,7 @@ int tcl_botname(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *co
 int tcl_onchan(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {
 	int ret;
-  struct network *net = clientData;
+	struct network *net = clientData;
 
 	char *nickname = NULL;
 	char *chan     = NULL;
@@ -120,63 +120,63 @@ int tcl_onchan(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *con
 	chan     = Tcl_GetString(objv[2]);
 
 	ret = egg_onchan(net,nickname,chan);
-	
-  if (ret == 0)
-    Tcl_SetResult(interp,"0",NULL);
-  else
-    Tcl_SetResult(interp,"1",NULL);
 
-  return TCL_OK;
+	if (ret == 0)
+		Tcl_SetResult(interp,"0",NULL);
+	else
+		Tcl_SetResult(interp,"1",NULL);
+
+	return TCL_OK;
 }
 
 
 int tcl_matchwild(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {
-  int ret;
+	int ret;
 
-  if (objc != 3)
-  {
-    Tcl_WrongNumArgs(interp,objc,objv,"matchwild haystack needle");
-    return TCL_ERROR;
-  }
+	if (objc != 3)
+	{
+		Tcl_WrongNumArgs(interp,objc,objv,"matchwild haystack needle");
+		return TCL_ERROR;
+	}
 
-  ret = egg_matchwilds(Tcl_GetString(objv[1]),Tcl_GetString(objv[2]));
+	ret = egg_matchwilds(Tcl_GetString(objv[1]),Tcl_GetString(objv[2]));
 
-  if (ret == 0)
-    Tcl_SetResult(interp,"0",NULL);
-  else
-    Tcl_SetResult(interp,"1",NULL);  
+	if (ret == 0)
+		Tcl_SetResult(interp,"0",NULL);
+	else
+		Tcl_SetResult(interp,"1",NULL);  
 
-  return TCL_OK;
+	return TCL_OK;
 }
 
 int tcl_rand(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {
-  int ret;
-  int tcln;
-  char *foo;
+	int ret;
+	int tcln;
+	char *foo;
 
-  if (objc != 2)
-  {
-    Tcl_WrongNumArgs(interp,objc,objv,"rand limit");
-    return TCL_ERROR;
-  }
- 
-  foo = tmalloc0(1024);
+	if (objc != 2)
+	{
+		Tcl_WrongNumArgs(interp,objc,objv,"rand limit");
+		return TCL_ERROR;
+	}
 
-  srand(time(NULL));
+	foo = tmalloc0(1024);
 
-  Tcl_GetIntFromObj(interp,objv[1],&tcln);
+	srand(time(NULL));
 
-  /* BAD */
-  ret = ((rand() % tcln) + 1)-1;
+	Tcl_GetIntFromObj(interp,objv[1],&tcln);
 
-  /* C99 */
-  snprintf(foo,1024,"%d",ret);
+	/* BAD */
+	ret = ((rand() % tcln) + 1)-1;
 
-  Tcl_SetResult(interp,foo,NULL);
+	/* C99 */
+	snprintf(foo,1024,"%d",ret);
 
-  return TCL_OK;
+	Tcl_SetResult(interp,foo,NULL);
+
+	return TCL_OK;
 }
 
 /* puthelp <message>
@@ -184,17 +184,17 @@ int tcl_rand(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const
  */
 int tcl_puthelp(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {
-  struct network *net = clientData;
+	struct network *net = clientData;
 
-  if (objc != 2)
-  {
-    Tcl_WrongNumArgs(interp,objc,objv,"puthelp message");
-    return TCL_ERROR;
-  }
+	if (objc != 2)
+	{
+		Tcl_WrongNumArgs(interp,objc,objv,"puthelp message");
+		return TCL_ERROR;
+	}
 
-  irc_printf(net->sock,"%s",Tcl_GetString(objv[1]));
+	irc_printf(net->sock,"%s",Tcl_GetString(objv[1]));
 
-  return TCL_OK;
+	return TCL_OK;
 }
 
 
@@ -203,70 +203,70 @@ int tcl_puthelp(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *co
  */
 int tcl_putserv(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {
-  struct network *net = clientData;
+	struct network *net = clientData;
 
-  if (objc != 2)
-  {
-    Tcl_WrongNumArgs(interp,objc,objv,"putserv message");
-    return TCL_ERROR;
-  }
+	if (objc != 2)
+	{
+		Tcl_WrongNumArgs(interp,objc,objv,"putserv message");
+		return TCL_ERROR;
+	}
 
-  irc_printf(net->sock,"%s",Tcl_GetString(objv[1]));
+	irc_printf(net->sock,"%s",Tcl_GetString(objv[1]));
 
-  return TCL_OK;
+	return TCL_OK;
 }
 
 /* bind <type> <flags> <keyword/mask> [proc-name] */
 int tcl_bind(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]) 
 {
-  struct network *net = clientData;
+	struct network *net = clientData;
 
-  if (objc != 5) 
-  {
-    Tcl_WrongNumArgs(interp,objc,objv,"bind type flags keyword proc");
-    return TCL_ERROR;
-  }
+	if (objc != 5) 
+	{
+		Tcl_WrongNumArgs(interp,objc,objv,"bind type flags keyword proc");
+		return TCL_ERROR;
+	}
 
-  /* Pass it to egg_lib */
-  if (!egg_bind(net,Tcl_GetString(objv[1]),Tcl_GetString(objv[2]),Tcl_GetString(objv[3]),Tcl_GetString(objv[4]),tcl_handler))
-    return TCL_ERROR;
-     
-  return TCL_OK; 
+	/* Pass it to egg_lib */
+	if (!egg_bind(net,Tcl_GetString(objv[1]),Tcl_GetString(objv[2]),Tcl_GetString(objv[3]),Tcl_GetString(objv[4]),tcl_handler))
+		return TCL_ERROR;
+
+	return TCL_OK; 
 }
 
 int tcl_matchattr(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {
-  Tcl_Obj *ret;
-  struct network *net;
+	Tcl_Obj *ret;
+	struct network *net;
 
-  net = clientData;
+	net = clientData;
 
-  if (objc != 3 && objc != 4)
-  {
-    Tcl_WrongNumArgs(interp,objc,objv,"matchattr <handle> <flags> [channel]");
-    return TCL_ERROR;
-  }
+	if (objc != 3 && objc != 4)
+	{
+		Tcl_WrongNumArgs(interp,objc,objv,"matchattr <handle> <flags> [channel]");
+		return TCL_ERROR;
+	}
 
-  /* No channel flag support FIXME */
-  ret = Tcl_NewIntObj(egg_matchattr(net,Tcl_GetString(objv[1]),Tcl_GetString(objv[2]),NULL));
+	/* No channel flag support FIXME */
+	ret = Tcl_NewIntObj(egg_matchattr(net,Tcl_GetString(objv[1]),Tcl_GetString(objv[2]),NULL));
 
-  Tcl_SetObjResult(interp,ret);
+	Tcl_SetObjResult(interp,ret);
 
-  return TCL_OK;
+	return TCL_OK;
 }
 
 
 int tcl_countusers(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {
-  Tcl_Obj *ret;
-  struct network *net;
+	Tcl_Obj *ret;
+	struct network *net;
 
-  net = clientData;
+	net = clientData;
 
-  ret = Tcl_NewIntObj(egg_countusers(net));
+	ret = Tcl_NewIntObj(egg_countusers(net));
 
-  Tcl_SetObjResult(interp,ret);  
+	Tcl_SetObjResult(interp,ret);  
 
-  return TCL_OK;
+	return TCL_OK;
 }
 

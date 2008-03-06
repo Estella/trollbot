@@ -19,6 +19,8 @@
 
 #include "main.h"
 #include "xmpp_server.h"
+#include "xmpp_proto.h"
+#include "xmpp_trigger.h"
 #include "server.h"
 #include "t_timer.h"
 #include "sockets.h"
@@ -91,7 +93,7 @@ struct auth_type *auth_type_del(struct auth_type *auth_types, struct auth_type *
 
 			while (tmp == del && tmp->next != NULL)
 				tmp = tmp->next;
-		
+
 			if (tmp == del)
 				return NULL;
 			else
@@ -101,7 +103,7 @@ struct auth_type *auth_type_del(struct auth_type *auth_types, struct auth_type *
 
 		tmp = tmp->next;
 	}
-	
+
 	log_entry_printf(NULL,NULL,"X","auth_type_del() called with a auth_type deletion that no entry existed for");
 
 	return auth_types;
@@ -110,19 +112,19 @@ struct auth_type *auth_type_del(struct auth_type *auth_types, struct auth_type *
 
 void free_auth_types(struct auth_type *auth_types)
 {
-  struct auth_type *xtmp=NULL;
+	struct auth_type *xtmp=NULL;
 	struct auth_type *xold=NULL;
 
-  if (auth_types == NULL)
-    return;
+	if (auth_types == NULL)
+		return;
 
 	xtmp = auth_types;
 
-  while (xtmp->prev != NULL)
-    xtmp = xtmp->prev;
+	while (xtmp->prev != NULL)
+		xtmp = xtmp->prev;
 
-  while (xtmp != NULL)
-  {
+	while (xtmp != NULL)
+	{
 		xold = xtmp->next;
 
 		free_auth_type(xtmp);
@@ -142,17 +144,17 @@ void free_auth_type(struct auth_type *at)
 
 struct auth_type *new_auth_type(void)
 {
-  struct auth_type *ret;
+	struct auth_type *ret;
 
-  ret = tmalloc(sizeof(struct auth_type));
+	ret = tmalloc(sizeof(struct auth_type));
 
 	ret->name					 = NULL;
 	ret->algo_name     = NULL;
 
-  ret->prev          = NULL;
-  ret->next          = NULL;
+	ret->prev          = NULL;
+	ret->next          = NULL;
 
-  return ret;
+	return ret;
 }
 
 struct xmpp_server *xmpp_server_from_tconfig_block(struct tconfig_block *tcfg)
@@ -252,7 +254,7 @@ struct xmpp_server *xmpp_server_del(struct xmpp_server *servers, struct xmpp_ser
 
 			while (tmp == del && tmp->next != NULL)
 				tmp = tmp->next;
-		
+
 			if (tmp == del)
 				return NULL;
 			else
@@ -262,7 +264,7 @@ struct xmpp_server *xmpp_server_del(struct xmpp_server *servers, struct xmpp_ser
 
 		tmp = tmp->next;
 	}
-	
+
 	log_entry_printf(NULL,NULL,"X","xmpp_server_del() called with a server deletion that no entry existed for");
 
 	return servers;
@@ -271,20 +273,20 @@ struct xmpp_server *xmpp_server_del(struct xmpp_server *servers, struct xmpp_ser
 
 void xmpp_server_connect(struct xmpp_server *xs)
 {
-  struct sockaddr_in serv_addr;
+	struct sockaddr_in serv_addr;
 	struct sockaddr_in my_addr;
 	struct hostent *he;
 
 	char *vhostip      = NULL;
 	struct server *svr = NULL;
 
-  if ((xs->sock = socket(AF_INET, SOCK_STREAM, 0)) == -1)
-  {
-    troll_debug(LOG_WARN,"Could not create socket to server for XMPP server %s",xs->label);
-    return;
-  }
+	if ((xs->sock = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+	{
+		troll_debug(LOG_WARN,"Could not create socket to server for XMPP server %s",xs->label);
+		return;
+	}
 
-  socket_set_nonblocking(xs->sock);
+	socket_set_nonblocking(xs->sock);
 
 	if (xs->vhost != NULL)
 	{
@@ -327,10 +329,10 @@ void xmpp_server_connect(struct xmpp_server *xs)
 		return;
 	}
 
-  serv_addr.sin_family = AF_INET;
-  serv_addr.sin_port   = htons(svr->port);
-  serv_addr.sin_addr   = *((struct in_addr *)he->h_addr);
-  memset(&(serv_addr.sin_zero), '\0', 8);
+	serv_addr.sin_family = AF_INET;
+	serv_addr.sin_port   = htons(svr->port);
+	serv_addr.sin_addr   = *((struct in_addr *)he->h_addr);
+	memset(&(serv_addr.sin_zero), '\0', 8);
 
 	if (vhostip != NULL)
 	{
@@ -345,19 +347,19 @@ void xmpp_server_connect(struct xmpp_server *xs)
 			troll_debug(LOG_WARN,"Could not use vhost: %s",xs->vhost);
 	}
 
-  if (connect(xs->sock,(struct sockaddr *)&serv_addr,sizeof(struct sockaddr)) == -1)
-  {
-    if (errno == EINPROGRESS)
-      troll_debug(LOG_DEBUG,"Non-blocking connect(%s) in progress", svr->host);
-    else
-    {
-      troll_debug(LOG_WARN,"Could not connect to server %s at %d",svr->host,svr->port);
+	if (connect(xs->sock,(struct sockaddr *)&serv_addr,sizeof(struct sockaddr)) == -1)
+	{
+		if (errno == EINPROGRESS)
+			troll_debug(LOG_DEBUG,"Non-blocking connect(%s) in progress", svr->host);
+		else
+		{
+			troll_debug(LOG_WARN,"Could not connect to server %s at %d",svr->host,svr->port);
 			xs->last_try = time(NULL);
 			xs->status   = XMPP_DISCONNECTED;
-      return;
-    }
+			return;
+		}
 
-  }
+	}
 	else
 	{
 		troll_debug(LOG_DEBUG,"Connected instantly to server %s at %d",svr->host,svr->port);
@@ -369,24 +371,24 @@ void xmpp_server_connect(struct xmpp_server *xs)
 
 	xs->status = XMPP_NONBLOCKCONNECT;
 
-  return;
+	return;
 }
 
 void free_xmpp_servers(struct xmpp_server *servers)
 {
-  struct xmpp_server *xtmp=NULL;
+	struct xmpp_server *xtmp=NULL;
 	struct xmpp_server *xold=NULL;
 
-  if (servers == NULL)
-    return;
+	if (servers == NULL)
+		return;
 
 	xtmp = servers;
 
-  while (xtmp->prev != NULL)
-    xtmp = xtmp->prev;
+	while (xtmp->prev != NULL)
+		xtmp = xtmp->prev;
 
-  while (xtmp != NULL)
-  {
+	while (xtmp != NULL)
+	{
 		xold = xtmp->next;
 
 		free_xmpp_server(xtmp);
@@ -402,7 +404,7 @@ void free_xmpp_server(struct xmpp_server *xs)
 	free(xs->label);
 	free(xs->vhost);
 	free(xs->shost); 
- 
+
 	free_servers(xs->servers);
 	t_timers_free(xs->timers);
 	free_xmpp_trigger_table(xs->xmpp_trigger_table);
@@ -428,48 +430,48 @@ void free_xmpp_server(struct xmpp_server *xs)
 
 	free(xs);
 
-  return;
+	return;
 }
- 
+
 
 struct xmpp_server *new_xmpp_server(char *label)
 {
-  struct xmpp_server *ret;
+	struct xmpp_server *ret;
 
-  ret = tmalloc(sizeof(struct xmpp_server));
+	ret = tmalloc(sizeof(struct xmpp_server));
 
-  if (label != NULL)
-    ret->label = tstrdup(label);
-  else
-    ret->label = NULL;
+	if (label != NULL)
+		ret->label = tstrdup(label);
+	else
+		ret->label = NULL;
 
-  ret->prev          = NULL;
-  ret->next          = NULL;
+	ret->prev          = NULL;
+	ret->next          = NULL;
 
-  ret->servers       = NULL; 
+	ret->servers       = NULL; 
 
-  ret->cur_server    = NULL;
+	ret->cur_server    = NULL;
 
-  ret->sock          = -1;
-  ret->status        = 0;
+	ret->sock          = -1;
+	ret->status        = 0;
 
 	ret->timers        = NULL;
 
-  ret->vhost         = NULL;
-  ret->shost         = NULL;
- 
-	ret->never_give_up = -1;
-  ret->connect_delay = -1;
-
-  ret->last_try      = 0;
-
-  ret->tcfg          = NULL;
+	ret->vhost         = NULL;
+	ret->shost         = NULL;
 
 	ret->never_give_up = -1;
-  /* This is the queueing BS */
-  ret->connect_delay = -1; 
-  ret->last_try      = 0;  
-  
+	ret->connect_delay = -1;
+
+	ret->last_try      = 0;
+
+	ret->tcfg          = NULL;
+
+	ret->never_give_up = -1;
+	/* This is the queueing BS */
+	ret->connect_delay = -1; 
+	ret->last_try      = 0;  
+
 	ret->filters       = NULL;
 
 	/* Ridiculously long */
@@ -482,16 +484,16 @@ struct xmpp_server *new_xmpp_server(char *label)
 #ifdef HAVE_TCL
 	ret->tcl_scripts      = NULL;
 	ret->tcl_scripts_size = 0;
-  /* net_init_tcl(ret); Need Jabber func */
+	/* net_init_tcl(ret); Need Jabber func */
 #endif /* HAVE_TCL */
 
 #ifdef HAVE_PERL
-  /* net_init_perl(ret); Need Jabber func */
+	/* net_init_perl(ret); Need Jabber func */
 #endif /* HAVE_PERL */
 
 #ifdef HAVE_PYTHON
-  ret->py_scripts = NULL;
-  ret->py_scripts_size = 0;
+	ret->py_scripts = NULL;
+	ret->py_scripts_size = 0;
 #endif /* HAVE_PYTHON */
 
 #ifdef HAVE_JS
@@ -506,7 +508,7 @@ struct xmpp_server *new_xmpp_server(char *label)
 	ret->js_scripts_size = 0;
 #endif /* HAVE_JS */
 
-  return ret;
+	return ret;
 }
-    
+
 

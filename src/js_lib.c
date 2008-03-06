@@ -17,14 +17,14 @@
 
 JSBool js_countusers(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-  struct network *net = JS_GetContextPrivate(cx);
+	struct network *net = JS_GetContextPrivate(cx);
 	int ret;
 
-  ret = egg_countusers(net);
+	ret = egg_countusers(net);
 
 	*rval = INT_TO_JSVAL(ret);
 
-  return JS_TRUE;
+	return JS_TRUE;
 }
 
 JSBool js_validuser(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval){
@@ -54,9 +54,9 @@ JSBool js_savechannels(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, js
 
 JSBool js_finduser(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-  struct network *net  = JS_GetContextPrivate(cx);
+	struct network *net  = JS_GetContextPrivate(cx);
 	struct user    *user = NULL;
-  char           *mask = NULL;
+	char           *mask = NULL;
 
 	if (argc != 1)
 	{
@@ -83,8 +83,8 @@ JSBool js_finduser(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 
 JSBool js_matchattr(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-  struct network *net = JS_GetContextPrivate(cx);
-  char *handle  = NULL;
+	struct network *net = JS_GetContextPrivate(cx);
+	char *handle  = NULL;
 	char *flags   = NULL;
 	char *channel = NULL;
 
@@ -99,15 +99,15 @@ JSBool js_matchattr(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 	flags   = tstrdup(JS_GetStringBytes(JS_ValueToString(cx, argv[1])));
 
 	if (argc == 3)
-	  channel = tstrdup(JS_GetStringBytes(JS_ValueToString(cx, argv[2])));
+		channel = tstrdup(JS_GetStringBytes(JS_ValueToString(cx, argv[2])));
 
-  *rval = INT_TO_JSVAL(egg_matchattr(net,handle,flags,channel));
+	*rval = INT_TO_JSVAL(egg_matchattr(net,handle,flags,channel));
 
 	free(handle);
 	free(flags);
 	free(channel);
 
-  return JS_TRUE;
+	return JS_TRUE;
 }
 
 JSBool js_save(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
@@ -139,14 +139,14 @@ JSBool js_eval(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	script = tstrdup(JS_GetStringBytes(jsc_script));
 
 	efunk = JS_CompileFunction(net->plain_cx, net->plain_global,
-														 "eval_func", 0, NULL, script, strlen(script),
-														 "Internal", 0);
-	
+			"eval_func", 0, NULL, script, strlen(script),
+			"Internal", 0);
+
 	if ((JS_CallFunction(net->plain_cx, net->plain_global, efunk, 0, NULL, &our_rval)) == JS_TRUE)
 	{
 		jsc_return = JS_ValueToString(net->plain_cx, our_rval); 
-	  irc_printf(net->sock,"PRIVMSG %s :Javascript result: %s\n", JS_GetStringBytes(jsc_chan), JS_GetStringBytes(jsc_return));
-	
+		irc_printf(net->sock,"PRIVMSG %s :Javascript result: %s\n", JS_GetStringBytes(jsc_chan), JS_GetStringBytes(jsc_return));
+
 		return JS_TRUE;
 	}
 
@@ -156,20 +156,20 @@ JSBool js_eval(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 
 JSBool js_bind(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-  char *type  = NULL;
-  char *flags = NULL;
-  char *mask  = NULL;
-  char *func  = NULL;
-  char **returnValue = NULL;
+	char *type  = NULL;
+	char *flags = NULL;
+	char *mask  = NULL;
+	char *func  = NULL;
+	char **returnValue = NULL;
 	struct network *net = JS_GetContextPrivate(cx);
 
-  type = tstrdup(JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
+	type = tstrdup(JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
 	flags = tstrdup(JS_GetStringBytes(JS_ValueToString(cx, argv[1])));
 	mask = tstrdup(JS_GetStringBytes(JS_ValueToString(cx, argv[2])));
 
-  if (!JSVAL_IS_NULL(argv[3]) && !JSVAL_IS_VOID(argv[3])){
-  	func = tstrdup(JS_GetStringBytes(JS_ValueToString(cx, argv[3])));
-  }
+	if (!JSVAL_IS_NULL(argv[3]) && !JSVAL_IS_VOID(argv[3])){
+		func = tstrdup(JS_GetStringBytes(JS_ValueToString(cx, argv[3])));
+	}
 
 	if (!type || !flags || !mask)
 	{
@@ -182,56 +182,56 @@ JSBool js_bind(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 		return JS_FALSE;
 	}
 
-  returnValue = egg_bind(net,type,flags,mask,func,js_handler);
+	returnValue = egg_bind(net,type,flags,mask,func,js_handler);
 	if (returnValue == NULL)
 	{
-    JS_ReportError(cx, "Cannot perform bind operation.");
+		JS_ReportError(cx, "Cannot perform bind operation.");
 		return JS_FALSE;
 	}
-  else {
-    if (func == NULL){
-      int curIdx=0;
-      JSObject *array;
+	else {
+		if (func == NULL){
+			int curIdx=0;
+			JSObject *array;
 
-      while (returnValue[curIdx] != NULL){ curIdx++; }
+			while (returnValue[curIdx] != NULL){ curIdx++; }
 
-      array = JS_NewArrayObject(cx, curIdx, NULL);
+			array = JS_NewArrayObject(cx, curIdx, NULL);
 
-      curIdx=0;
-      while (returnValue[curIdx] != NULL){ 
-        JSString *str = JS_NewStringCopyZ(cx, returnValue[curIdx]);
-        JS_DefineElement(cx, array, curIdx, STRING_TO_JSVAL(str), NULL, NULL, 0);
-        free(returnValue[curIdx++]);
-      }
-      free(returnValue);
+			curIdx=0;
+			while (returnValue[curIdx] != NULL){ 
+				JSString *str = JS_NewStringCopyZ(cx, returnValue[curIdx]);
+				JS_DefineElement(cx, array, curIdx, STRING_TO_JSVAL(str), NULL, NULL, 0);
+				free(returnValue[curIdx++]);
+			}
+			free(returnValue);
 
-      *rval = OBJECT_TO_JSVAL(array);
-    }
-    else {
-      *rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, returnValue[0]));
-    }
-    free(returnValue[0]);
-    free(returnValue);
-  }
+			*rval = OBJECT_TO_JSVAL(array);
+		}
+		else {
+			*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, returnValue[0]));
+		}
+		free(returnValue[0]);
+		free(returnValue);
+	}
 
-  free(type);
-  free(flags);
-  free(mask);
-  free(func);
+	free(type);
+	free(flags);
+	free(mask);
+	free(func);
 
 	return JS_TRUE;
 }
 
 JSBool js_putserv(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-  struct network *net = JS_GetContextPrivate(cx);
+	struct network *net = JS_GetContextPrivate(cx);
 	JSString *str;
 
 	str = JS_ValueToString(cx, argv[0]);
 
 	irc_printf(net->sock,"%s",JS_GetStringBytes(str));
 
-  *rval = JSVAL_VOID;
+	*rval = JSVAL_VOID;
 
 	return JS_TRUE;
 }
@@ -239,25 +239,25 @@ JSBool js_putserv(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 
 JSBool js_botname(JSContext *cx, JSObject *obj, jsval id, jsval *rval)
 {
-  struct network *net = JS_GetContextPrivate(cx);
+	struct network *net = JS_GetContextPrivate(cx);
 	char *botname;
-  JSString *botnameJS;
+	JSString *botnameJS;
 
-  botname = egg_botname(net);
-  botnameJS = JS_NewStringCopyZ(cx, botname);
-  free(botname);
-  *rval = STRING_TO_JSVAL(botnameJS);
-  
+	botname = egg_botname(net);
+	botnameJS = JS_NewStringCopyZ(cx, botname);
+	free(botname);
+	*rval = STRING_TO_JSVAL(botnameJS);
+
 	return JS_TRUE;
 }
 
 JSBool js_version(JSContext *cx, JSObject *obj, jsval id, jsval *rval)
 {
-  JSString *botversionJS;
+	JSString *botversionJS;
 
-  botversionJS = JS_NewStringCopyZ(cx, egg_version());
-  *rval = STRING_TO_JSVAL(botversionJS);
-  
+	botversionJS = JS_NewStringCopyZ(cx, egg_version());
+	*rval = STRING_TO_JSVAL(botversionJS);
+
 	return JS_TRUE;
 }
 
@@ -265,20 +265,20 @@ JSBool js_version(JSContext *cx, JSObject *obj, jsval id, jsval *rval)
 
 JSBool js_onchan(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
-  struct network *net = JS_GetContextPrivate(cx);
+	struct network *net = JS_GetContextPrivate(cx);
 	char *nickToCheck=NULL;
-  char *channelToCheck=NULL;
+	char *channelToCheck=NULL;
 
-  nickToCheck = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
-  if (argc == 2){
-    if (JSVAL_IS_NULL(argv[1]) == JS_FALSE && JSVAL_IS_VOID(argv[1]) == JS_FALSE){
-      channelToCheck = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
-    }
-  }
+	nickToCheck = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+	if (argc == 2){
+		if (JSVAL_IS_NULL(argv[1]) == JS_FALSE && JSVAL_IS_VOID(argv[1]) == JS_FALSE){
+			channelToCheck = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
+		}
+	}
 
-  *rval = INT_TO_JSVAL(egg_onchan(net, nickToCheck, channelToCheck));
+	*rval = INT_TO_JSVAL(egg_onchan(net, nickToCheck, channelToCheck));
 
-  
+
 	return JS_TRUE;
 }
 
@@ -290,7 +290,7 @@ JSBool js_passwdok(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval 
 
 	handle = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
 	pass = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
- 
+
 	ret =egg_passwdok(net, handle, pass);
 
 	*rval = INT_TO_JSVAL(ret);
@@ -338,42 +338,42 @@ void js_handler(struct network *net, struct trigger *trig, struct irc_data *data
 		return;
 	}
 
-  switch (trig->type)
-  {
-    case TRIG_PUB:
+	switch (trig->type)
+	{
+		case TRIG_PUB:
 			argv[0] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->prefix->nick));
 			argv[1] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->prefix->host));
 			argv[2]	= STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, "*"));
-      argv[3] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->c_params[0]));
+			argv[3] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->c_params[0]));
 			argv[4] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, egg_makearg(data->rest_str,trig->mask)));
 
 			JS_CallFunctionName(net->cx, net->global, trig->command, 5, argv, &rval);
 			break;
 		case TRIG_PUBM:
-      argv[0] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->prefix->nick));
-      argv[1] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->prefix->host));
-      argv[2] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, "*"));
-      argv[3] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->c_params[0]));
-      argv[4] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->rest_str));
+			argv[0] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->prefix->nick));
+			argv[1] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->prefix->host));
+			argv[2] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, "*"));
+			argv[3] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->c_params[0]));
+			argv[4] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->rest_str));
 
-      JS_CallFunctionName(net->cx, net->global, trig->command, 5, argv, &rval);
+			JS_CallFunctionName(net->cx, net->global, trig->command, 5, argv, &rval);
 			break;
 		case TRIG_MSG:
-      argv[0] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->prefix->nick));
-      argv[1] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->prefix->host));
-      argv[2] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, "*"));
-      argv[3] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, egg_makearg(data->rest_str,trig->mask)));
+			argv[0] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->prefix->nick));
+			argv[1] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->prefix->host));
+			argv[2] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, "*"));
+			argv[3] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, egg_makearg(data->rest_str,trig->mask)));
 
-      JS_CallFunctionName(net->cx, net->global, trig->command, 4, argv, &rval);
+			JS_CallFunctionName(net->cx, net->global, trig->command, 4, argv, &rval);
 
 			break;
 		case TRIG_MSGM:
-      argv[0] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->prefix->nick));
-      argv[1] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->prefix->host));
-      argv[2] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, "*"));
-      argv[3] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->rest_str));
+			argv[0] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->prefix->nick));
+			argv[1] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->prefix->host));
+			argv[2] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, "*"));
+			argv[3] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->rest_str));
 
-      JS_CallFunctionName(net->cx, net->global, trig->command, 4, argv, &rval);
+			JS_CallFunctionName(net->cx, net->global, trig->command, 4, argv, &rval);
 
 			break;
 		case TRIG_JOIN:	

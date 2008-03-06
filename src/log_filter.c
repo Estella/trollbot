@@ -16,7 +16,7 @@ void log_filters_check(struct log_filter *filters, struct log_entry *entry)
 {
 	struct log_filter *tmp = NULL;
 	int i;
-	
+
 	tmp = filters;
 
 	while (tmp != NULL)
@@ -24,13 +24,13 @@ void log_filters_check(struct log_filter *filters, struct log_entry *entry)
 		if (tmp->flags == NULL || entry->flags == NULL)
 		{
 			troll_debug(LOG_WARN,"It's funny I should use this deprecated method inside the "
-													 "new logging system, but I thought I should let the developer "
-													 "who fixes this to know that the the entry's or log_filter's "
-													 "flags were NULL");
+					"new logging system, but I thought I should let the developer "
+					"who fixes this to know that the the entry's or log_filter's "
+					"flags were NULL");
 			tmp = tmp->next;
 			continue;
 		}
-	
+
 		for (i=0;entry->flags[i] != '\0';i++)
 		{
 			if (strchr(tmp->flags,entry->flags[i]) == NULL)
@@ -43,7 +43,7 @@ void log_filters_check(struct log_filter *filters, struct log_entry *entry)
 		/* Didn't find the flag */
 		if (entry->flags[i] != '\0')
 			continue;
-	
+
 		if (tmp->handler != NULL)
 			tmp->handler(tmp->net, tmp, entry);
 
@@ -64,7 +64,7 @@ struct log_filter *log_filter_add(struct log_filter *filters, struct log_filter 
 		ret = add;
 		return ret;
 	}
-	
+
 	while (ret->next != NULL) ret = ret->next;
 
 	ret->next = add;
@@ -135,7 +135,7 @@ struct log_filter *log_filter_new(void)
 	ret->net     = NULL;
 	ret->chan    = NULL;
 	ret->flags   = NULL;
-  ret->handler = NULL;
+	ret->handler = NULL;
 
 	ret->prev      = NULL;
 	ret->next      = NULL;

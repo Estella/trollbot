@@ -19,162 +19,162 @@
 
 PHP_FUNCTION(putdcc)
 {
-  long idx;
-  char *network;
-  char *message;
-  int network_len;
-  int message_len;
-  struct network *net;
+	long idx;
+	char *network;
+	char *message;
+	int network_len;
+	int message_len;
+	struct network *net;
 
 
-  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sls", &network,
-                                                              &network_len,
-                                                              &idx,
-                                                              &message,
-                                                              &message_len) == FAILURE)
-  {
-    RETURN_FALSE;
-  }
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sls", &network,
+				&network_len,
+				&idx,
+				&message,
+				&message_len) == FAILURE)
+	{
+		RETURN_FALSE;
+	}
 
-  net = g_cfg->networks;
+	net = g_cfg->networks;
 
-  while (net != NULL)
-  {
-    if (!strcmp(net->label,network))
-      break;
+	while (net != NULL)
+	{
+		if (!strcmp(net->label,network))
+			break;
 
-    net = net->next;
-  }
+		net = net->next;
+	}
 
-  if (net == NULL)
-    RETURN_FALSE;
+	if (net == NULL)
+		RETURN_FALSE;
 
 
-  egg_putdcc(net,(int)idx,message);
+	egg_putdcc(net,(int)idx,message);
 
-  RETURN_TRUE;
+	RETURN_TRUE;
 }
 
 
 /* This operates according to Eggdrop spec */
 PHP_FUNCTION(matchwild)
 {
-  char *haystack;
-  char *needle;
-  int haystack_len;
-  int needle_len;
-  int ret;
+	char *haystack;
+	char *needle;
+	int haystack_len;
+	int needle_len;
+	int ret;
 
-  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss", &haystack,
-                                                             &haystack_len,
-                                                             &needle,
-                                                             &needle_len) == FAILURE)
-  {
-    RETURN_TRUE;
-  }
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss", &haystack,
+				&haystack_len,
+				&needle,
+				&needle_len) == FAILURE)
+	{
+		RETURN_TRUE;
+	}
 
-  ret = egg_matchwilds(haystack,needle);
+	ret = egg_matchwilds(haystack,needle);
 
-  if (ret)
-  {
-    RETURN_TRUE;
-  }
-  else
-  {
-    RETURN_FALSE;
-  }
+	if (ret)
+	{
+		RETURN_TRUE;
+	}
+	else
+	{
+		RETURN_FALSE;
+	}
 
 }
 
-  
+
 PHP_FUNCTION(bind)
 {
-  struct network *net;
+	struct network *net;
 
-  char *netw;
-  char *type;
-  char *flags;
-  char *mask;
-  char *func;
-  
-  int netw_len;
-  int type_len;
-  int flags_len;
-  int mask_len;
-  int func_len;
+	char *netw;
+	char *type;
+	char *flags;
+	char *mask;
+	char *func;
 
-  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sssss", 
-                                                       &netw,   /* Network Name */
-                                                       &netw_len, 
-                                                       &type, 
-                                                       &type_len,
-                                                       &flags,
-                                                       &flags_len,
-                                                       &mask,
-                                                       &mask_len,
-                                                       &func,
-                                                       &func_len) == FAILURE)
-  {
-    RETURN_FALSE;
-  }
+	int netw_len;
+	int type_len;
+	int flags_len;
+	int mask_len;
+	int func_len;
 
-  net = g_cfg->networks;
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sssss", 
+				&netw,   /* Network Name */
+				&netw_len, 
+				&type, 
+				&type_len,
+				&flags,
+				&flags_len,
+				&mask,
+				&mask_len,
+				&func,
+				&func_len) == FAILURE)
+	{
+		RETURN_FALSE;
+	}
 
-  while (net != NULL)
-  {
-    if (!strcmp(net->label,netw))
-      break;
+	net = g_cfg->networks;
 
-    net = net->next;
-  }
+	while (net != NULL)
+	{
+		if (!strcmp(net->label,netw))
+			break;
 
-  if (net == NULL)
-    RETURN_FALSE;
+		net = net->next;
+	}
 
-  /* pass it off to egg_lib */
-  if (!egg_bind(net,type,flags,mask,func,php_handler))
-    RETURN_FALSE;
+	if (net == NULL)
+		RETURN_FALSE;
 
-  RETURN_TRUE;
+	/* pass it off to egg_lib */
+	if (!egg_bind(net,type,flags,mask,func,php_handler))
+		RETURN_FALSE;
+
+	RETURN_TRUE;
 }
 
 /* Need to figure out optional parameters in Zend
-PHP_FUNCTION(matchattr)
-{
-  struct network *net;
+	 PHP_FUNCTION(matchattr)
+	 {
+	 struct network *net;
 
-  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss", &netw, &netw_len, &msg, &msg_len) == FAILURE)
-  {
-    RETURN_FALSE;
-  }
-*/
+	 if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss", &netw, &netw_len, &msg, &msg_len) == FAILURE)
+	 {
+	 RETURN_FALSE;
+	 }
+	 */
 
 PHP_FUNCTION(putserv)
 {
-  struct network *net;
-  char *netw;
-  int netw_len;
-  char *msg;
-  int msg_len;
+	struct network *net;
+	char *netw;
+	int netw_len;
+	char *msg;
+	int msg_len;
 
-  if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss", &netw, &netw_len, &msg, &msg_len) == FAILURE)
-  {
-    RETURN_FALSE;
-  }
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss", &netw, &netw_len, &msg, &msg_len) == FAILURE)
+	{
+		RETURN_FALSE;
+	}
 
-  net = g_cfg->networks;
+	net = g_cfg->networks;
 
-  while (net != NULL)
-  {
-    if (!strcmp(net->label,netw))
-      break;
-    
-    net = net->next;
-  }
+	while (net != NULL)
+	{
+		if (!strcmp(net->label,netw))
+			break;
 
-  if (net == NULL)
-    RETURN_FALSE;
- 
-  irc_printf(net->sock,msg);
+		net = net->next;
+	}
+
+	if (net == NULL)
+		RETURN_FALSE;
+
+	irc_printf(net->sock,msg);
 }
 

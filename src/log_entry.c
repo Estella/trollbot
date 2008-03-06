@@ -3,6 +3,7 @@
 #include <time.h>
 #include <stdarg.h>
 
+#include "log_filter.h"
 #include "log_entry.h"
 #include "debug.h"
 #include "config_engine.h"
@@ -13,25 +14,33 @@
 
 void log_entry_printf(struct network *net, char *chan, const char *flags, const char *fmt, ...)
 {
-  va_list va;
-  char buf[2048];
+	va_list va;
+	char buf[2048];
 	char *ret;
 	struct log_entry *entry = NULL;
 
-	if (g_cfg->filters == NULL)
-		return;
+	if (g_cfg != NULL)
+		if (g_cfg->filters == NULL)
+			return;
 
-  memset(buf, 0, sizeof(buf));
+	memset(buf, 0, sizeof(buf));
 
-  va_start(va, fmt);
+	va_start(va, fmt);
 
-  /* C99 */
-  vsnprintf(buf, sizeof(buf), fmt, va);
-  va_end(va);
+	/* C99 */
+	vsnprintf(buf, sizeof(buf), fmt, va);
+	va_end(va);
 
 	ret = tmalloc0(strlen(buf) + 1);
 
 	strcpy(ret,buf);
+
+	if (g_cfg == NULL)
+	{
+		printf("Pre-load: %s\n",ret);
+		free(ret);
+		return;
+	}
 
 	/* We've now got the text in ret, make a log entry, then check filters */
 	entry = log_entry_new();
@@ -39,14 +48,13 @@ void log_entry_printf(struct network *net, char *chan, const char *flags, const 
 	entry->log_text = ret;
 	entry->net      = net;
 	entry->chan     = chan;
-	entry->flags    = flags;
-	
+	entry->flags    = tstrdup(flags);
+
 	log_filters_check(g_cfg->filters,entry);
 
-	/* Error, not using dynamic memory */
-	entry->flags = NULL;
-
 	log_entry_free(entry);
+	
+	return;
 }
 
 void log_entry_free(struct log_entry *entry)
@@ -66,7 +74,7 @@ struct log_entry *log_entry_new(void)
 	ret->net       = NULL;
 	ret->chan      = NULL;
 	ret->flags     = NULL;
-  ret->log_text  = NULL;
+	ret->log_text  = NULL;
 
 	/* Not used, can't think of a reason for a list */
 	ret->prev      = NULL;

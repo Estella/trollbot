@@ -19,67 +19,67 @@
 
 void server_list_add(struct server **orig, struct server *new)
 {
-  struct server *tmp;
+	struct server *tmp;
 
-  if (*orig == NULL)
-  {
-    *orig = new;
-    new->prev = NULL;
-    new->next = NULL;
-  }
-  else
-  {
-    tmp = *orig;
+	if (*orig == NULL)
+	{
+		*orig = new;
+		new->prev = NULL;
+		new->next = NULL;
+	}
+	else
+	{
+		tmp = *orig;
 
-    while (tmp->next != NULL)
-      tmp = tmp->next;
+		while (tmp->next != NULL)
+			tmp = tmp->next;
 
-    tmp->next       = new;
-    tmp->next->prev = tmp;
-    tmp->next->next = NULL;
-  }
+		tmp->next       = new;
+		tmp->next->prev = tmp;
+		tmp->next->next = NULL;
+	}
 }
 
 struct server *new_server(char *hostport)
 {
-  struct server *ret;
-  char *ctmp;
-  char *host;
+	struct server *ret;
+	char *ctmp;
+	char *host;
 
-  ret = tmalloc(sizeof(struct server));
+	ret = tmalloc(sizeof(struct server));
 
-  if (hostport != NULL)
-  {
-    if ((ctmp = strchr(hostport,':')) != NULL)
-    {
-      ctmp++;
+	if (hostport != NULL)
+	{
+		if ((ctmp = strchr(hostport,':')) != NULL)
+		{
+			ctmp++;
 
-      ret->port = atoi(ctmp);
+			ret->port = atoi(ctmp);
 
-      /* off by one to leave room for '\0' */
-      host = tmalloc0((strlen(hostport) - strlen(ctmp)));
+			/* off by one to leave room for '\0' */
+			host = tmalloc0((strlen(hostport) - strlen(ctmp)));
 
-      strncpy(host,hostport,strlen(hostport) - strlen(ctmp) - 1);
-      ret->host = host;
-    } 
-    else
-    {
-      ret->host = tstrdup(hostport);
-      ret->port = 6667;
-    }
-  }
-  else
-  {
-    ret->host = NULL;
-    ret->port = 6667;
-  }
+			strncpy(host,hostport,strlen(hostport) - strlen(ctmp) - 1);
+			ret->host = host;
+		} 
+		else
+		{
+			ret->host = tstrdup(hostport);
+			ret->port = 6667;
+		}
+	}
+	else
+	{
+		ret->host = NULL;
+		ret->port = 6667;
+	}
 
-  ret->tcfg = NULL;
+	ret->tcfg = NULL;
 
-  ret->prev = NULL;
-  ret->next = NULL;
+	ret->prev = NULL;
+	ret->next = NULL;
 
-  return ret;
+	return ret;
 
 }
 
