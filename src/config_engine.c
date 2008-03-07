@@ -14,6 +14,7 @@
 #include "trigger.h"
 #include "t_crypto_module.h"
 #include "log_filter.h"
+#include "log_entry.h"
 #include "debug.h"
 
 #ifdef HAVE_XMPP

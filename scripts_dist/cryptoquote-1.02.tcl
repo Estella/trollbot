@@ -21,7 +21,7 @@
 
 # Set this to the channels you want this game to run in.
 # Separate the list of channels with spaces
-set crypto_chans "#tcl #fascism #cryptoquote #php #drinkers #christian_debate #" 
+set crypto_chans "#tcl #fascism #cryptoquote #php #drinkers #christian_debate # #grass" 
 
 # Set this to where you want the scores file to be stored
 set crypto_scores_file "text/cryptoscores.txt"

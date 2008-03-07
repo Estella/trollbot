@@ -13,6 +13,7 @@
 #include "user.h"
 #include "util.h"
 #include "egg_lib.h"
+#include "troll_lib.h"
 #include "log_filter.h"
 #include "log_entry.h"
 
@@ -53,6 +54,9 @@ void add_default_triggers(void)
 		trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,"ident",NULL,&check_user_pass));
 		trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,"hello",NULL,&introduce_user));
 		trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,"goodbye",NULL,&disconnect_bot));
+
+		/* BIND TOPC */
+		trigger_list_add(&net->trigs->topc,new_trigger(NULL,TRIG_TOPC,"*",NULL,&troll_trig_update_topic));
 
 		/* BIND JOIN */
 		trigger_list_add(&net->trigs->join,new_trigger(NULL,TRIG_JOIN,"*",NULL,&new_join));

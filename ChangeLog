@@ -1,11 +1,48 @@
   .-------------------------.
---| Trollbot -==- ChangeLog |-----------------------------------------
+--| Trollbot -/\- ChangeLog |-----------------------------------------
   `-------------------------'
 ----------------------------------------------------------------------
- 0.0.1
+| 0.0.1 - RELEASE DATE: ??/??/2008                                   |
 ----------------------------------------------------------------------
 
+1. /2008-03-06/!\acidtoken\
+	[IRC]
+	* Added onjoin population of chanmode.
+	* Added egg_vars to channel instead of the huge amount of ints.
+	* New function: new_chan_egg_var  [channel.c]
+	* New function: free_chan_egg_var [channel.c]
+	* New function: free_channel      [channel.c]
+	* New struct  : chan_egg_var      [channel.h]
 
-[2008-01-31]
-	*	Company Settings can now load from xml
-	* Database Settings loaded through company settings
+	[COMMON]
+	* Added new slist, free_structureS() is deprecated, list adds
+		should all be done through this from now on. Old code needs 
+		ported.
+	* Fixed formatting tabs vs. spaces issue on most c files. it is
+		recommended if you use vim to set tabstop=2, shiftwidth=2. and
+		to hit gg=G before you save (auto-indents).
+  * New function: tstrcount         [util.c][broken]
+  * New function: slist_init        [util.c]
+  * New function: slist_destroy     [util.c]
+  * New function: slist_insert_next [util.c]
+  * New function: slist_remove_next [util.c]
+
+	* New struct  : slist_node        [util.h]
+	* New struct  : slist             [util.h]
+
+	[XMPP]
+	* New function: xmpp_server_from_tconfig_block [xmpp_server.h]
+
+2. /2008-03-07/!\acidtoken\
+	[IRC]
+	* Added new troll_lib, troll_lib will be like egg_lib, except
+		egg_lib will return strict eggdrop stuff and wrap troll_lib.
+		troll_lib will be trollbot specific data structure handling
+		and such.
+	* Added bind type TOPC to all languages and core!
+	* New file    : troll_lib.c
+	* New file    : troll_lib.h
+	* New function: troll_trig_update_topic [troll_lib.c]
+
+	[MISC]
+	* Fixed some compiler warnings, still a lot more to go through

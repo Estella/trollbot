@@ -250,6 +250,42 @@ void php_handler(struct network *net, struct trigger *trig, struct irc_data *dat
 				 if (arg)   FREE_ZVAL(arg); */
 
 			break;
+		case TRIG_TOPC:
+			MAKE_STD_ZVAL(func);
+			MAKE_STD_ZVAL(netw);
+			MAKE_STD_ZVAL(nick);
+			MAKE_STD_ZVAL(uhost);
+			MAKE_STD_ZVAL(hand);
+			MAKE_STD_ZVAL(arg);
+
+			ALLOC_INIT_ZVAL(ret);
+
+			ZVAL_STRING(func, trig->command, 1);
+			ZVAL_STRING(netw, net->label, 1);
+			ZVAL_STRING(nick, data->prefix->nick, 1);
+			ZVAL_STRING(uhost, data->prefix->host, 1);
+			ZVAL_STRING(hand, "*", 1);
+			ZVAL_STRING(arg, data->rest_str, 1);
+
+			php_args[0] = netw;
+			php_args[1] = nick;
+			php_args[2] = uhost;
+			php_args[3] = hand;
+			php_args[4] = arg;
+
+			if (call_user_function(CG(function_table), NULL, func, ret, 5, php_args TSRMLS_CC) != SUCCESS)
+				troll_debug(LOG_WARN,"Error calling function\n");
+			else
+				FREE_ZVAL(ret);
+
+			/* if (netw)  FREE_ZVAL(netw);
+				 if (nick)  FREE_ZVAL(nick);
+				 if (uhost) FREE_ZVAL(uhost);
+				 if (hand)  FREE_ZVAL(hand);
+				 if (arg)   FREE_ZVAL(arg); */
+
+			break;
+
 		case TRIG_MSGM:
 			MAKE_STD_ZVAL(func);
 			MAKE_STD_ZVAL(netw);

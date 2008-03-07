@@ -212,6 +212,27 @@ void tcl_handler(struct network *net, struct trigger *trig, struct irc_data *dat
 			}
 
 			break;
+		case TRIG_TOPC:
+			/* nick uhost hand chan arg */
+			ret = Tcl_VarEval(net->tclinterp,
+					trig->command,
+					" {",
+					data->prefix->nick,
+					"} {",
+					data->prefix->host,
+					"} {} {", /* hand */
+					data->c_params[0], /* chan */
+					"} {",
+					data->rest_str,
+					"}",
+					NULL);
+
+			if (ret == TCL_ERROR)
+			{
+				troll_debug(LOG_WARN,"TCL Error: %s\n",net->tclinterp->result);
+			}
+
+			break;
 		case TRIG_MSGM:
 			break;
 		case TRIG_JOIN:

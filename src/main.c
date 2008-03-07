@@ -23,6 +23,7 @@
 #include "sockets.h"
 #include "dcc.h"
 #include "default_triggers.h"
+#include "log_entry.h"
 
 struct config *g_cfg = NULL;
 
@@ -91,10 +92,10 @@ int main(int argc, char *argv[])
 
 	add_default_triggers();
 
-  log_entry_printf(NULL,NULL,"o","Dumping formatted tconfig tree to out.txt");
-  tconfig_to_file(g_cfg->tcfg,"out.txt");
+	log_entry_printf(NULL,NULL,"o","Dumping formatted tconfig tree to out.txt");
+	tconfig_to_file(g_cfg->tcfg,"out.txt");
 
-  egg_save(NULL);
+	egg_save(NULL);
 
 
 #ifdef HAVE_WORKING_FORK

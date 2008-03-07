@@ -231,49 +231,85 @@ void trigger_match(struct network *net, struct irc_data *data)
 	{
 		trig = net->trigs->part;
 
-		if (data->rest != NULL)
+		while (trig != NULL)
 		{
-			snprintf(newmask,sizeof(newmask),"%s %s!%s@%s",data->rest[0],
-					data->prefix->nick,
-					data->prefix->user,
-					data->prefix->host);
-
-			if (!egg_matchwilds(newmask,trig->mask))
+			if ((data->rest != NULL) && data->prefix->nick != NULL && data->prefix->user != NULL && data->prefix->host != NULL)
 			{
-				if (trig->handler != NULL)
+				snprintf(newmask,sizeof(newmask),"%s %s!%s@%s",data->rest[0],
+						data->prefix->nick,
+						data->prefix->user,
+						data->prefix->host);
+
+				if (!egg_matchwilds(newmask,trig->mask))
 				{
-					trig->usecount++;
-					trig->handler(net,trig,data,NULL,NULL);
+					if (trig->handler != NULL)
+					{
+						trig->usecount++;
+						trig->handler(net,trig,data,NULL,NULL);
+						/* Stackable, do not break */
+					}
 				}
+
 			}
+
+			trig = trig->next;
 		}
 	}
 	else if (!strcmp(data->command,"QUIT"))
 	{
 
+	}	
+	else if (!strcmp(data->command,"TOPIC")) /* Eggdrop Compatible */
+	{
+		trig = net->trigs->topc;
+
+		while (trig != NULL)
+		{
+			if ((data->c_params != NULL) && data->c_params[0] != NULL && data->rest_str != NULL)
+			{
+				snprintf(newmask,sizeof(newmask),"%s %s",data->c_params[0],data->rest_str);
+
+				if (!egg_matchwilds(newmask,trig->mask))
+				{
+					if (trig->handler != NULL)
+					{
+						trig->usecount++;
+						trig->handler(net,trig,data,NULL,NULL);
+						/* Stackable, do not break */
+					}
+				}
+
+			}
+
+			trig = trig->next;
+		}
 	}
-	else if (!strcmp(data->command,"KICK"))
+	else if (!strcmp(data->command,"KICK")) /* Eggdrop Compatible */
 	{
 		trig = net->trigs->kick;
 
-		if (data->c_params[0] != NULL && data->c_params[1] != NULL)
+		while (trig != NULL)
 		{
-			snprintf(newmask,sizeof(newmask),"%s %s",data->c_params[0],
-					data->c_params[1]);
-
-			if (!egg_matchwilds(newmask,trig->mask))
+			if ((data->c_params != NULL) && data->c_params[0] != NULL && data->c_params[1] != NULL)
 			{
-				if (trig->handler != NULL)
+				snprintf(newmask,sizeof(newmask),"%s %s %s",data->c_params[0],data->c_params[1],data->rest_str);
+
+				if (!egg_matchwilds(newmask,trig->mask))
 				{
-					trig->usecount++;
-					trig->handler(net,trig,data,NULL,NULL);
+					if (trig->handler != NULL)
+					{
+						trig->usecount++;
+						trig->handler(net,trig,data,NULL,NULL);
+						/* Stackable, do not break */
+					}
 				}
+
 			}
 
+			trig = trig->next;
 		}
-
 	}
-	else if (!strcmp(data->command,"NOTICE"))
+	else if (!strcmp(data->command,"NOTICE")) /* Needs verified as Eggdrop Compatible */
 	{
 		/* Check bind NOTC, STACKABLE */
 		trig = net->trigs->notc;
@@ -288,6 +324,7 @@ void trigger_match(struct network *net, struct irc_data *data)
 					{
 						trig->usecount++;
 						trig->handler(net,trig,data,NULL,NULL);
+						/* Stackable, do not break */
 					}
 				}
 			}
@@ -334,6 +371,7 @@ struct trig_table *new_trig_table(void)
 	ret->notc      = NULL;
 	ret->dcc       = NULL;
 	ret->raw       = NULL;
+	ret->topc      = NULL;
 
 	return ret;
 }
@@ -361,10 +399,10 @@ struct trig_table *new_trig_table(void)
 	 };*/
 
 void free_trigger(struct trigger *trig){
-	if (trig->glob_flags){ free(trig->glob_flags); }
-	if (trig->chan_flags){ free(trig->chan_flags); }
-	if (trig->mask){ free(trig->mask); }
-	if (trig->command){ free(trig->command); }
+	free(trig->glob_flags);
+	free(trig->chan_flags);
+	free(trig->mask);
+	free(trig->command);
 	free(trig);
 }
 
@@ -381,6 +419,7 @@ void free_trigger_table(struct trig_table *table){
 	if (table->notc){  free_trigger_list(table->notc);  }
 	if (table->dcc){  free_trigger_list(table->dcc);  }
 	if (table->raw){  free_trigger_list(table->raw);  }
+	if (table->topc){	free_trigger_list(table->topc); }
 	free(table);
 }
 

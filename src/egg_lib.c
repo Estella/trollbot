@@ -1000,6 +1000,7 @@ char **egg_bind(struct network *net, char *type, char *flags, char *mask, char *
 		else if (!strcmp("part",type)){  triggerListHead = net->trigs->part; }
 		else if (!strcmp("dcc",type)){  triggerListHead = net->trigs->dcc; }
 		else if (!strcmp("raw",type)){  triggerListHead = net->trigs->raw; }
+		else if (!strcmp("topc",type)){	triggerListHead = net->trigs->topc; }
 
 		trigger = triggerListHead;
 		while (trigger != NULL){
@@ -1060,6 +1061,11 @@ char **egg_bind(struct network *net, char *type, char *flags, char *mask, char *
 		else if (!strcmp("dcc",type))
 		{
 			trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,mask,cmd,handler));
+			*returnValue=tstrdup(cmd);
+		}
+		else if (!strcmp("topc",type))
+		{
+			trigger_list_add(&net->trigs->topc,new_trigger(NULL,TRIG_TOPC,mask,cmd,handler));
 			*returnValue=tstrdup(cmd);
 		}
 		else if (!strcmp("raw",type))

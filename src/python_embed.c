@@ -101,6 +101,7 @@ void bootstrap_binding_module() {
 	PyModule_AddStringConstant(module, "TRIG_DCC", "dcc");
 	PyModule_AddStringConstant(module, "TRIG_RAW", "raw");
 	PyModule_AddStringConstant(module, "TRIG_KICK", "kick");
+	PyModule_AddStringConstant(module, "TRIG_TOPC", "topc");
 
 }
 
@@ -291,6 +292,16 @@ void py_handler(struct network *net, struct trigger *trig, struct irc_data *data
 			 *  bind msg <flags> <command> <proc>
 			 *  procname <nick> <user@host> <handle> <text>
 			 */
+		case TRIG_TOPC:
+			PY_DICT_ADD(dict, "user_nick", data->prefix->nick);
+			PY_DICT_ADD(dict, "user_nick", data->prefix->nick);
+			PY_DICT_ADD(dict, "user_host", data->prefix->host);
+			PY_DICT_ADD(dict, "channel", data->c_params[0]);
+			PY_DICT_ADD(dict, "text", data->rest_str);
+
+			rval = call_python_method(PY_CORE_LIB, PY_NET_CALL_METH, args, 3);
+			troll_debug(LOG_DEBUG, "[python] executed TRIG_TOPC callback");
+			break;
 		case TRIG_MSG:
 			PY_DICT_ADD(dict, "user_nick", data->prefix->nick);
 			PY_DICT_ADD(dict, "user_nick", data->prefix->nick);
@@ -817,6 +828,7 @@ void python_add_path(char * pathname) {
 	rval = call_python_method(PY_CORE_LIB, PY_NET_ADD_PATH_METH, args, 1);
 }
 
+/* Oops, sorry about the formatting [acidtoken] */
 #ifdef PY_INTERNAL_CORE
 char * python_core_module_code = 
 "import imp\n"
