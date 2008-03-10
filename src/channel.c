@@ -730,6 +730,7 @@ void chan_init(void)
 {
 	struct network       *net      = NULL;
 	struct tconfig_block *chantcfg = NULL;
+	struct tconfig_block *defaults = NULL;
 	struct tconfig_block *tmp      = NULL;
 	struct channel       *chan     = NULL;
 	struct channel       *tmpchan  = NULL;
@@ -748,6 +749,13 @@ void chan_init(void)
 			 * forget that last part.
 			 */
 			chantcfg = file_to_tconfig(net->chanfile);
+			defaults = file_to_tconfig("db/chandb.defaults");
+
+			if (defaults != NULL)
+			{
+				tconfig_merge(defaults,chantcfg);
+				free_tconfig(defaults);
+			}
 
 			tmp = chantcfg;
 

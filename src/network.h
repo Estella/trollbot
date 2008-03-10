@@ -162,6 +162,9 @@ struct network
   char *chanfile;
 };
 
+/* Child Operations */
+struct channel *network_channel_find(struct network *net, const char *name);
+
 void network_connect(struct network *net);
 void free_networks(struct network *net);
 

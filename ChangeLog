@@ -46,3 +46,11 @@
 
 	[MISC]
 	* Fixed some compiler warnings, still a lot more to go through
+
+3. /2008-03-08/!\acidtoken\
+	[IRC]
+	* Fixed the way channels are loaded and saved to give defaults.
+
+	* New file    : db_dist/chandb.defaults
+	* New function: network_channel_find [network.c]
+	* New function: void troll_trig_update_ban [troll_lib.c] [STUB]

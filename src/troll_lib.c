@@ -12,6 +12,10 @@
 #include "log_entry.h"
 #include "debug.h"
 
+void troll_trig_update_ban(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
+{
+}
+
 /*
  * [00:19] Nick: poutine
  * [00:19] User: ben

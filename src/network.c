@@ -41,6 +41,22 @@
 #include "js_embed.h"
 #endif /* HAVE_JS */
 
+struct channel *network_channel_find(struct network *net, const char *name)
+{
+	struct channel *chan = net->chans;
+
+	while (chan != NULL)
+	{
+		if (!tstrcasecmp(chan->name,name))
+		{
+			break;
+		}
+		chan = chan->next;
+	}
+
+	return chan;
+}
+
 void network_connect(struct network *net)
 {
 	struct sockaddr_in serv_addr;

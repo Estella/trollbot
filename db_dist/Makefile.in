@@ -190,8 +190,8 @@ target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 trollbotdbdir = ${prefix}/db
-EXTRA_DIST = README
-trollbotdb_DATA = README 
+EXTRA_DIST = README chandb.defaults
+trollbotdb_DATA = README chandb.defaults
 all: all-am
 
 .SUFFIXES:
