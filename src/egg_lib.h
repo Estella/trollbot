@@ -91,4 +91,7 @@ char *egg_makepasswd(const char *pass, const char *hash_type);
 void egg_savechannels(struct network *net);
 char *egg_channels(struct network *net);
 char *egg_encpass(const char *pass);
+
+char *egg_topic(struct network *net, char *chan);
+
 #endif /* __EGGLIB_H__ */

@@ -44,15 +44,14 @@ struct channel_user
 
 	char *modes;
 
-  char *uhost;
+  char *host;
+
+	char *realname;
   
   int jointime;
 
   /* Actual user record */
   struct user *urec;
-
-  struct channel_user *prev;
-  struct channel_user *next;
 };
 
 struct channel
@@ -62,7 +61,7 @@ struct channel
 
 	struct slist *egg_vars;
 
-  struct channel_user *user_list;
+  struct slist *user_list;
 
 	char *chanmode;
 	char *topic;
@@ -86,11 +85,17 @@ struct channel_ban *channel_ban_new(void);
 
 
 struct tconfig_block *chans_to_tconfig(struct channel *chans);
-/* WTF is this */
+
+/* TODO: Needs replaced with slist */
 void channel_list_add(struct channel **orig, struct channel *new);
-void channel_user_add(struct channel_user **orig, struct channel_user *new);
-void channel_user_del(struct channel_user **orig, const char *nick);
-struct channel_user *new_channel_user(const char *nick, int jointime, struct user *urec);
+
+/* Channel Users */
+struct channel_user *new_channel_user(void);
+void free_channel_user(void *);
+struct slist_node *channel_channel_user_node_find(struct channel *chan, char *find);
+struct channel_user *channel_channel_user_find(struct channel *, char *);
+
+/* TODO: Replace with slist */
 void free_channels(struct channel *chans);
 void free_channel(void *chanptr);
 struct channel *new_channel(const char *chan);

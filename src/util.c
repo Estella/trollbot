@@ -35,6 +35,9 @@ void slist_destroy(struct slist *list)
 {
 	void *data;
 
+	if (list == NULL)
+		return;
+
 	while (list->size > 0)
 	{
 		if (slist_remove_next(list,NULL,&data) == 0)
@@ -73,6 +76,59 @@ int slist_insert_next(struct slist *list, struct slist_node *node, void *data)
 	list->size++;
 
 	return 0;    
+}
+
+int slist_remove(struct slist *list, struct slist_node *node, void **data)
+{
+	struct slist_node *oldnode;
+	struct slist_node *find;
+
+	if (list->size == 0)
+		return -1;
+
+	if (node == NULL)
+	{
+		*data      = list->head->data;
+		oldnode    = list->head;
+		list->head = list->head->next;
+
+		if (list->size == 1)
+			list->tail = NULL;
+	}
+	else
+	{
+		*data   = node->data;
+
+		oldnode = node;
+
+		/* ugly */
+		find = list->head;
+
+		do
+		{
+			if (find == node)
+			{
+				break;
+			}
+
+			find = find->next;
+		}
+		while (find->next != node);
+
+		node->next = oldnode->next;
+
+		if (list->head == oldnode)
+			list->head = oldnode->next;
+
+		if (list->tail == oldnode)
+			list->tail = find;
+	}
+
+	free(oldnode);
+
+	list->size--;
+
+	return 0;
 }
 
 int slist_remove_next(struct slist *list, struct slist_node *node, void **data)

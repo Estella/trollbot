@@ -13,6 +13,7 @@
 #undef END_EXTERN_C
 #endif /* HAVE_PERL */
 
+PHP_FUNCTION(countusers);
 PHP_FUNCTION(putdcc);
 PHP_FUNCTION(matchwild);
 PHP_FUNCTION(bind);

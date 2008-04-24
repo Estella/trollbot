@@ -33,24 +33,26 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = trollbot$(EXEEXT)
-@WITH_XMPP_TRUE@am__append_1 = xmpp_server.c xmpp_server.h xmpp_proto.c xmpp_proto.h xmpp_trigger.c xmpp_trigger.h
-@WITH_XMPP_TRUE@am__append_2 = ${XML_CPPFLAGS}
-@WITH_XMPP_TRUE@am__append_3 = ${XML_LIBS}
-@WITH_JS_TRUE@am__append_4 = js_embed.c js_embed.h js_lib.c js_lib.h
-@WITH_JS_TRUE@am__append_5 = ${JS_CFLAGS}
-@WITH_JS_TRUE@am__append_6 = ${JS_LIBS}
-@WITH_TCL_TRUE@am__append_7 = tcl_embed.c tcl_embed.h tcl_lib.c tcl_lib.h
-@WITH_TCL_TRUE@am__append_8 = ${TCL_CPPFLAGS}
-@WITH_TCL_TRUE@am__append_9 = ${TCL_LIBS}
-@WITH_PHP_TRUE@am__append_10 = apachecompat.c apachecompat.h php_embed.c php_embed.h php_lib.c php_lib.h
-@WITH_PHP_TRUE@am__append_11 = ${PHP_CFLAGS}
-@WITH_PHP_TRUE@am__append_12 = ${PHP_LDADD}
-@WITH_PERL_TRUE@am__append_13 = perl_embed.c perl_embed.h perl_lib.c perl_lib.h
-@WITH_PERL_TRUE@am__append_14 = ${PERL_CFLAGS}
-@WITH_PERL_TRUE@am__append_15 = ${PERL_LDADD}
-@WITH_PYTHON_TRUE@am__append_16 = python_embed.c python_embed.h python_lib.c python_lib.h
-@WITH_PYTHON_TRUE@am__append_17 = ${PYTHON_CFLAGS}
-@WITH_PYTHON_TRUE@am__append_18 = ${PYTHON_LDADD}
+@WITH_PGSQL_TRUE@am__append_1 = "-dlopen" modules/pgsql_log_filter/pgsql_log_filter.la
+@WITH_PGSQL_TRUE@am__append_2 = modules/pgsql_log_filter/pgsql_log_filter.la
+@WITH_XMPP_TRUE@am__append_3 = xmpp_server.c xmpp_server.h xmpp_proto.c xmpp_proto.h xmpp_trigger.c xmpp_trigger.h
+@WITH_XMPP_TRUE@am__append_4 = ${XML_CPPFLAGS}
+@WITH_XMPP_TRUE@am__append_5 = ${XML_LIBS}
+@WITH_JS_TRUE@am__append_6 = js_embed.c js_embed.h js_lib.c js_lib.h
+@WITH_JS_TRUE@am__append_7 = ${JS_CFLAGS}
+@WITH_JS_TRUE@am__append_8 = ${JS_LIBS}
+@WITH_TCL_TRUE@am__append_9 = tcl_embed.c tcl_embed.h tcl_lib.c tcl_lib.h
+@WITH_TCL_TRUE@am__append_10 = ${TCL_CPPFLAGS}
+@WITH_TCL_TRUE@am__append_11 = ${TCL_LIBS}
+@WITH_PHP_TRUE@am__append_12 = apachecompat.c apachecompat.h php_embed.c php_embed.h php_lib.c php_lib.h
+@WITH_PHP_TRUE@am__append_13 = ${PHP_CFLAGS}
+@WITH_PHP_TRUE@am__append_14 = ${PHP_LDADD}
+@WITH_PERL_TRUE@am__append_15 = perl_embed.c perl_embed.h perl_lib.c perl_lib.h
+@WITH_PERL_TRUE@am__append_16 = ${PERL_CFLAGS}
+@WITH_PERL_TRUE@am__append_17 = ${PERL_LDADD}
+@WITH_PYTHON_TRUE@am__append_18 = python_embed.c python_embed.h python_lib.c python_lib.h
+@WITH_PYTHON_TRUE@am__append_19 = ${PYTHON_CFLAGS}
+@WITH_PYTHON_TRUE@am__append_20 = ${PYTHON_LDADD}
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -288,15 +290,16 @@ trollbot_SOURCES = channel.c config_engine.c dcc.c debug.c \
 	egg_lib.h irc.h log_entry.h log_filter.h main.h network.h \
 	server.h sockets.h tconfig.h t_crypto_module.h trigger.h \
 	user.h util.h t_timer.c t_timer.h troll_lib.c troll_lib.h \
-	$(am__append_1) $(am__append_4) $(am__append_7) \
-	$(am__append_10) $(am__append_13) $(am__append_16)
-trollbot_CFLAGS = -O0 -Wall -std=c99 -pedantic ${LTDLINCL} \
-	$(am__append_2) $(am__append_5) $(am__append_8) \
-	$(am__append_11) $(am__append_14) $(am__append_17)
-trollbot_LDADD = ${LIBLTDL} "-dlopen" modules/crypto/crypto.la \
 	$(am__append_3) $(am__append_6) $(am__append_9) \
 	$(am__append_12) $(am__append_15) $(am__append_18)
-trollbot_DEPENDENCIES = modules/crypto/crypto.la
+trollbot_CFLAGS = -O0 -Wall -std=c99 -pedantic ${LTDLINCL} \
+	$(am__append_4) $(am__append_7) $(am__append_10) \
+	$(am__append_13) $(am__append_16) $(am__append_19)
+trollbot_LDADD = ${LIBLTDL} "-dlopen" modules/crypto/crypto.la \
+	$(am__append_1) $(am__append_5) $(am__append_8) \
+	$(am__append_11) $(am__append_14) $(am__append_17) \
+	$(am__append_20)
+trollbot_DEPENDENCIES = modules/crypto/crypto.la $(am__append_2)
 all: all-recursive
 
 .SUFFIXES:

@@ -206,24 +206,6 @@ struct tconfig_block *chans_to_tconfig(struct channel *chans)
 			}
 		}
 
-		/*if (tmp->nick != NULL)
-			{
-			*//* Nick */
-		/*tcfg->key        = tstrdup("nick");
-			tcfg->value      = tstrdup(tmp->nick);
-			tcfg->next       = tconfig_block_new();
-			tcfg->next->prev = tcfg;
-			tcfg             = tcfg->next;
-			}
-
-			if (tmp->flags != NULL)
-			{*/
-		/* flags */
-		/*tcfg->key   = tstrdup("flags");
-			tcfg->value = tstrdup(tmp->flags);
-			}*/
-
-
 		tcfg = tpar;
 
 		tmp  = tmp->next;
@@ -259,90 +241,93 @@ void channel_list_add(struct channel **orig, struct channel *new)
 	}
 }
 
-void channel_user_del(struct channel_user **orig, const char *nick)
-{
-	struct channel_user *tmp = *orig;
-
-	while (tmp != NULL)
-	{
-		if (!tstrcasecmp(tmp->nick,nick))
-		{
-			/* This is the one that needs removed */
-			free(tmp->nick);
-			free(tmp->uhost);
-			free(tmp->ident);
-			free(tmp->modes);
-
-			if (tmp->prev != NULL)
-				tmp->prev->next = tmp->next;
-
-			if (tmp->next != NULL)
-				tmp->next->prev = tmp->prev;
-
-			free(tmp);
-
-			return;
-		}
-
-		tmp = tmp->next;
-	}
-
-	if (tmp == NULL)
-	{
-		troll_debug(LOG_ERROR, "channel_user_del() called with non-existing nickname\n");
-		return;
-	}
-}
-
-void channel_user_add(struct channel_user **orig, struct channel_user *new)
-{
-	struct channel_user *tmp;      
-
-	if (*orig == NULL)
-	{
-		*orig = new;
-		new->prev = NULL;
-		new->next = NULL;
-	}
-	else
-	{
-		tmp = *orig;
-
-		while (tmp->next != NULL)
-			tmp = tmp->next;
-
-		tmp->next       = new;
-		tmp->next->prev = tmp;
-		tmp->next->next = NULL;
-	}
-}
-
-struct channel_user *new_channel_user(const char *nick, int jointime, struct user *urec)
+struct channel_user *new_channel_user(void)
 {
 	struct channel_user *ret;
 
 	ret = tmalloc(sizeof(struct channel_user));
 
-	ret->nick     = (nick != NULL)     ? tstrdup(nick)     : NULL;
+	ret->nick     = NULL;
 
-	ret->jointime = jointime;
-	ret->urec     = urec;
-	ret->uhost    = NULL;
+	ret->jointime = 0;
+	ret->urec     = NULL;
+	ret->host     = NULL;
 	ret->ident    = NULL;
+	ret->realname = NULL;
 	ret->modes    = NULL;
 
-
-	ret->prev     = NULL;
-	ret->next     = NULL;
-
 	return ret;
+}
+
+void free_channel_user(void *ptr)
+{
+	struct channel_user *tmp = ptr;
+
+	if (tmp == NULL)
+		return;
+
+	free(tmp->nick);
+	free(tmp->ident);
+	free(tmp->host);
+	free(tmp->realname);
+
+	free(tmp->modes);
+	
+	free(tmp);
+}
+
+/* silly */
+struct slist_node *channel_channel_user_node_find(struct channel *chan, char *find)
+{
+	struct slist_node   *node;
+	struct channel_user *cuser;
+
+	if (chan->user_list != NULL)
+	{
+		/* write out all the egg vars */
+		node = chan->user_list->head;
+
+		while (node != NULL)
+		{
+			cuser = node->data;
+
+			if (!tstrcasecmp(cuser->nick, find))
+				return node;
+
+			node = node->next;
+		}
+	}
+	
+	return NULL;
+}
+
+struct channel_user *channel_channel_user_find(struct channel *chan, char *find)
+{
+	struct slist_node   *node;
+	struct channel_user *cuser;
+
+	if (chan->user_list != NULL)
+	{
+		/* write out all the egg vars */
+		node = chan->user_list->head;
+
+		while (node != NULL)
+		{
+			cuser = node->data;
+
+			if (!tstrcasecmp(cuser->nick, find))
+				return cuser;
+
+			node = node->next;
+		}
+	}
+	
+	return NULL;
 }
 
 void free_channel(void *chanptr)
 {
 	struct channel      *ctmp   = chanptr;
-	struct channel_user *cusers = NULL;
-	struct channel_user *cutmp  = NULL;
 
 	if (ctmp == NULL)
 		return;
@@ -352,23 +337,7 @@ void free_channel(void *chanptr)
 	/* Free egg vars */
 	slist_destroy(ctmp->egg_vars);
 
-	cusers = ctmp->user_list;
-
-	/* Next for slist? */
-	if (cusers != NULL)
-		while (cusers->prev != NULL) cusers = cusers->prev;
-
-	while (cusers != NULL)
-	{
-		cutmp = cusers->next;
-
-		free(cusers->nick);
-		free(cusers->uhost);
-		free(cusers->ident);
-		free(cusers);
-
-		cusers = cutmp;
-	}
+	slist_destroy(ctmp->user_list);
 
 	free(ctmp);
 
@@ -377,8 +346,6 @@ void free_channel(void *chanptr)
 
 void free_channels(struct channel *chans)
 {
-	struct channel_user *cusers=NULL;
-	struct channel_user *cusertmp=NULL;
 	struct channel   *chantmp=NULL;
 
 	if (chans == NULL)
@@ -393,23 +360,7 @@ void free_channels(struct channel *chans)
 
 		slist_destroy(chans->egg_vars); 
 
-		cusers  = chans->user_list;
-
-		if (cusers != NULL)
-		{
-			while (cusers->prev != NULL)
-				cusers = cusers->prev;
-
-			while (cusers != NULL)
-			{
-				free(cusers->nick);
-				free(cusers->uhost);
-				free(cusers->ident);
-				cusertmp = cusers;
-				cusers = cusers->next;
-				free(cusertmp);
-			}
-		}
+		slist_destroy(chans->user_list);
 
 		free(chans->chanmode);
 		free(chans->topic);
@@ -535,7 +486,7 @@ void channel_list_populate(struct network *net, struct trigger *trig, struct irc
 		/* try to find user first */
 		ptr = data->rest[i];
 
-		modes = tmalloc0(strlen(ptr + 1)); /* Guaranteed Maximum size */
+		modes = tmalloc0(strlen(ptr) + 1); /* Guaranteed Maximum size */
 
 		/* All modes under RFC? FIXME: Verify with IRC RFC */
 		/* Get all modes, nasty code */
@@ -556,65 +507,28 @@ void channel_list_populate(struct network *net, struct trigger *trig, struct irc
 			ptr++;
 		}
 
-		/* Create the userlist if it doesn't exist already, if it does, just continue */
+		cuser = channel_channel_user_find(chan,data->rest[i]);
+
 		if (chan->user_list == NULL)
+			slist_init(&chan->user_list, free_channel_user);
+		
+		if (cuser == NULL)
 		{
-			chan->user_list = new_channel_user(ptr,time(NULL),NULL);
-			cuser           = chan->user_list;
-			cuser->prev     = NULL;
+			cuser = new_channel_user();
+			/* nick is how they're found, a sort of primary key, so do not set it when updating */
+			cuser->nick = tstrdup(data->rest[i]);
+
+			slist_insert_next(chan->user_list, NULL, (void *)cuser);
 		}
+
+		free(cuser->modes);
+	
+		if ((modes == NULL) || strlen(modes) <= 0)
+			cuser->modes = NULL;
 		else
-		{
-			/* Each channel has its own userlist, they are linked 
-			 * afterwards to actual user entries if they match a
-			 * preset mask.
-			 */
-			cuser = chan->user_list;
-
-			/* Check for an existing user first */
-			while (cuser->prev != NULL) cuser = cuser->prev;
-
-			while (cuser != NULL)
-			{
-				if (!tstrcasecmp(cuser->nick,ptr))
-				{
-					if (cuser->modes != NULL)
-						free(cuser->modes);
-
-					cuser->modes = (strlen(modes) >= 1) ? tstrdup(modes) : NULL;
-
-					free(modes);
-					modes = NULL;
-
-					break;
-				}
-
-				cuser = cuser->next;
-			}
-
-			if (cuser != NULL)
-				continue;
-
-			cuser = chan->user_list;
-
-			while (cuser->next != NULL) cuser = cuser->next;
-
-			/* at tail */
-			cuser->next = new_channel_user(ptr,time(NULL),NULL);
-
-			cuser->next->prev = cuser;
-
-			cuser = cuser->next;
-		}
-
-		if (cuser->modes != NULL)
-			free(cuser->modes);
-
-		cuser->modes = (strlen(modes) >= 1) ? tstrdup(modes) : NULL;
+			cuser->modes = tstrdup(modes);	
 
 		free(modes);
-		modes = NULL;
-
 	}
 }
 
@@ -623,7 +537,6 @@ struct channel *new_chan_from_tconfig_block(struct tconfig_block *tcfg)
 	struct channel       *chan  = NULL;
 	struct tconfig_block *child = NULL;
 	struct chan_egg_var  *cev   = NULL;
-	struct slist         *list  = NULL;
 
 	if (tcfg == NULL)
 	{

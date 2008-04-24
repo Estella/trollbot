@@ -99,6 +99,7 @@ void add_default_triggers(void)
 
 
 		/* BIND RAW */
+		trigger_list_add(&net->trigs->raw,new_trigger(NULL,TRIG_RAW,"352",NULL,&troll_parse_who));
 		trigger_list_add(&net->trigs->raw,new_trigger(NULL,TRIG_RAW,"353",NULL,&channel_list_populate));
 		trigger_list_add(&net->trigs->raw,new_trigger(NULL,TRIG_RAW,"324",NULL,&channel_set_modes));
 		trigger_list_add(&net->trigs->raw,new_trigger(NULL,TRIG_RAW,"332",NULL,&channel_set_topic));
@@ -113,7 +114,6 @@ void add_default_triggers(void)
 static void channel_set_modes(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
 	struct channel     *chan = NULL;
-	struct channel_ban *ban  = NULL;
 
 	/* Handle this gracefully? */
 	if ((chan = net->chans) == NULL)
@@ -263,43 +263,32 @@ void new_join(struct network *net, struct trigger *trig, struct irc_data *data, 
 	{
 		if (!tstrcasecmp(data->rest_str,chan->name))
 		{
+			cuser = channel_channel_user_find(chan, data->prefix->nick);
+
 			if (chan->user_list == NULL)
+				slist_init(&chan->user_list, free_channel_user);
+
+			if (cuser == NULL)
 			{
-				/* Add a new channel user with a jointime of now. */
-				chan->user_list = new_channel_user(data->prefix->nick, time(NULL), NULL);
-				cuser           = chan->user_list;
-				cuser->prev     = NULL;
-			}
-			else
-			{
-				cuser = chan->user_list;
-
-				while(cuser->next != NULL)
-					cuser = cuser->next;
-
-				cuser->next       = new_channel_user(data->prefix->nick, time(NULL), NULL);
-				cuser->next->prev = cuser;
-
-				cuser             = cuser->next;
+				cuser = new_channel_user();
+				cuser->nick = tstrdup(data->prefix->nick);
+				slist_insert_next(chan->user_list, NULL, (void *)cuser);
 			}
 
-
-			/*cuser->nick  = tstrdup(data->prefix->nick); --Done in new_channel_user */
-			cuser->uhost = tstrdup(data->prefix->host); 
+			cuser->host  = tstrdup(data->prefix->host); 
 			cuser->ident = tstrdup(data->prefix->user);
 			/* FIXME: Need check for whether they're a recognized user in the bot */
-			/* FIXME: Check if nick is bot, if so do WHO, and MODE */
 
+			/* Check if nick is bot, if so do WHO, and MODE */
 			if (!tstrcasecmp(net->botnick,data->prefix->nick))
 			{
+				/* Definitely want to queue this */
 				irc_printf(net->sock,"MODE %s",chan->name);
 				irc_printf(net->sock,"MODE %s b",chan->name);
 				irc_printf(net->sock,"MODE %s e",chan->name);
 				irc_printf(net->sock,"MODE %s I",chan->name);
 				irc_printf(net->sock,"WHO %s",chan->name);
 			}
-
-			cuser->next = NULL;
 
 			return;
 
@@ -321,7 +310,9 @@ void new_join(struct network *net, struct trigger *trig, struct irc_data *data, 
 
 void new_part(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
-	struct channel *chan       = net->chans;
+	struct channel       *chan     = net->chans;
+	struct channel_user  *cuser    = NULL;
+	struct slist_node    *cusrnode = NULL;
 
 	log_entry_printf(net,"j","%s parted %s.",data->prefix->nick,data->c_params[0]);
 
@@ -331,12 +322,14 @@ void new_part(struct network *net, struct trigger *trig, struct irc_data *data, 
 		{
 			if (chan->user_list == NULL)
 			{
-				troll_debug(LOG_ERROR, "Got a part message for %s, but no user exists on the channel by that name",data->prefix->nick);
+				troll_debug(LOG_ERROR, "Got a part message for %s, but no users exist for this channel",data->prefix->nick);
 				return;
 			}
 
 			/* Found the bugger */
-			channel_user_del(&chan->user_list, data->prefix->nick);
+			cusrnode = channel_channel_user_node_find(chan, data->prefix->nick);
+			slist_remove(net->chans, cusrnode, &cuser);
+			free_channel_user(cuser);
 
 			return;
 		}

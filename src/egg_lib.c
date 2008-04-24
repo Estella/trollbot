@@ -747,21 +747,12 @@ int egg_onchan(struct network *net, char *nickname, char *channel)
 				if (chan->user_list == NULL)
 					return 0; /* This would probably be a bug if occurred */
 
-				/* Found the channel, now find the channel user */
-				cuser = chan->user_list;
-
-				while (cuser->prev != NULL) cuser = cuser->prev;
-
-				while (cuser != NULL)
-				{
-					if (!tstrcasecmp(cuser->nick,nickname))
-						return 1; /* Found the user on the channel */
-					cuser = cuser->next;
-				}
+				cuser = channel_channel_user_find(chan, nickname);
 
 				if (cuser == NULL)
-					return 0; /* Found channel, but not the nick */
-
+					return 0;
+		
+				return 1;
 			}
 
 			chan = chan->next;
@@ -779,17 +770,11 @@ int egg_onchan(struct network *net, char *nickname, char *channel)
 		{
 			if (chan->user_list != NULL)
 			{
-				cuser = chan->user_list;
 
-				while (cuser->prev != NULL) cuser = cuser->prev;
+				cuser = channel_channel_user_find(chan, nickname);
 
-				while (cuser != NULL)
-				{
-					if (!tstrcasecmp(cuser->nick,nickname))
-						return 1; /* Found the user */
-
-					cuser = cuser->next;
-				}
+				if (cuser != NULL)
+					return 1;
 
 			}
 
@@ -823,8 +808,28 @@ int egg_onchan(struct network *net, char *nickname, char *channel)
 /* jump [server [port [password]]] */
 /* pushmode <channel> <mode> [arg] */
 /* flushmode <channel> */
-/* topic <channel> */
-/* validchan <channel> */
+
+/*
+ *   topic <channel>
+ *       Returns: string containing the current topic of the specified channel
+ *       Module: irc
+ */
+/* NEED_IMP: TCL, PHP, Javascript, Python, Perl */
+/* Eggdrop Compatible */
+char *egg_topic(struct network *net, char *chan)
+{
+	struct channel *channel = NULL;
+
+	/* Should be guaranteed by the *_lib func, but return a sane
+ 	 * value should this ever be encountered.
+ 	 */
+	if (net == NULL || ((channel = network_channel_find(net,chan)) == NULL))
+		return tstrdup(""); /* tstrdup since caller frees */
+
+	return tstrdup(channel->topic);
+}
+
+/* validchan <channel> PROBLEM: trollbot doesn't track chans like required for this */
 /* isdynamic <channel> */
 
 /* NEED_IMP: TCL, PHP, Perl, Python, Javascript */

@@ -79,6 +79,8 @@ if test "x${JS_LIBS}" != "x"; then
 	AC_DEFINE([HAVE_JS],1,[Ability to use Javascript scripting])
 fi
 
+AM_CONDITIONAL(WITH_PGSQL, test "x${PG_LIBS}" != "x")
+
 AM_CONDITIONAL(WITH_JS, test "x${JS_LIBS}" != "x")
 
 dnl test if TCL exists

@@ -39,6 +39,7 @@ void slist_init(struct slist **list, void (*destroy)(void *));
 void slist_destroy(struct slist *list);
 int slist_insert_next(struct slist *list, struct slist_node *node, void *data);
 int slist_remove_next(struct slist *list, struct slist_node *node, void **data);
+int slist_remove(struct slist *list, struct slist_node *node, void **data);
 
 int tstrncasecmp(const char *first, const char *second, int check_size);
 int tstrcasecmp(const char *first, const char *second);
