@@ -15,26 +15,27 @@
 #include "network.h"
 #include "egg_lib.h"
 
-JSBool js_countusers(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+JSBool js_validuser(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	struct network *net = JS_GetContextPrivate(cx);
 	int ret;
 
-	ret = egg_countusers(net);
+	if (argc != 1)
+		return JS_FALSE;
+
+	ret = egg_validuser(net, JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
 
 	*rval = INT_TO_JSVAL(ret);
 
 	return JS_TRUE;
 }
 
-JSBool js_validuser(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval){
+JSBool js_countusers(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
 	struct network *net = JS_GetContextPrivate(cx);
-	int ret = 0;
-	char *handle;
+	int ret;
 
-	handle = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
-
-	ret = egg_validuser(net, handle);
+	ret = egg_countusers(net);
 
 	*rval = INT_TO_JSVAL(ret);
 

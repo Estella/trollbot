@@ -228,7 +228,7 @@ int egg_countusers(struct network *net)
 }
 
 /* Fully compatible */
-/* NEED_IMP: TCL, PHP, Perl, Python  */
+/* NEED_IMP: Perl, Python  */
 /* IMP_IN: Javascript[kicken] */
 int egg_validuser(struct network *net, const char *handle)
 {

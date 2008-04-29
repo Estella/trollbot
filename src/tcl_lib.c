@@ -11,6 +11,25 @@
 #include "egg_lib.h"
 #include "user.h"
 
+int tcl_validuser(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	struct network *net    = clientData;
+
+	if (objc != 2)
+	{
+		Tcl_WrongNumArgs(interp, objc, objv,"validuser <handle>");
+		return TCL_ERROR;
+	}
+
+	/* If not found, return 0 */
+	if (!egg_validuser(net,Tcl_GetString(objv[1])))
+		Tcl_SetResult(interp, "0", NULL);
+	else
+		Tcl_SetResult(interp, "1", NULL);
+
+	return TCL_OK;
+}
+
 int tcl_savechannels(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {
 	struct network *net = clientData;

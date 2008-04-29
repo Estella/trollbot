@@ -15,6 +15,34 @@
 #include "irc.h"
 #include "user.h"
 
+PyObject *py_validuser(PyObject *self, PyObject *args)
+{
+	struct network *net;
+	PyObject *network;
+
+	char *whom;
+
+	if (!PyArg_ParseTuple(args, "Os", &network, &whom)) 
+	{
+		troll_debug(LOG_DEBUG, "[python-bindings] py_bind failed to parse arguments from script");
+		Py_RETURN_FALSE;
+	}
+
+	Py_XINCREF(network); 
+
+	net = (struct network *) PyCObject_AsVoidPtr(network); 
+
+	if (net == NULL) 
+	{
+		troll_debug(LOG_DEBUG, "[python-bindings] py_bind failed to resolve network object reference");
+		Py_RETURN_FALSE;
+	}
+
+	if (egg_validuser(net, whom))
+		Py_RETURN_TRUE;
+	else
+		Py_RETURN_FALSE;
+}
 
 PyObject *py_bind(PyObject *self, PyObject *args) {
 

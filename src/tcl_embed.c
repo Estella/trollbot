@@ -62,6 +62,13 @@ void net_init_tcl(struct network *net)
 
 void net_tcl_init_commands(struct network *net)
 {
+	Tcl_CreateObjCommand(
+		net->tclinterp,
+		"validuser",
+		tcl_validuser,
+		net,
+		NULL);
+
 	Tcl_CreateObjCommand(net->tclinterp,
 			"savechannels",
 			tcl_savechannels,

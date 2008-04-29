@@ -17,6 +17,44 @@
 #include "irc.h"
 
 
+PHP_FUNCTION(validuser)
+{
+	char *network;
+	int  network_len;
+	char *whom;
+	int   whom_len;
+	struct network *net;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss", &network, &network_len, &whom, &whom_len))
+	{
+		/* Need to differentiate between error and 0 */
+		RETURN_FALSE;
+	}
+
+	net = g_cfg->networks;
+
+	while (net != NULL)
+	{
+		if (!strcmp(net->label,network))
+			break;
+
+		net = net->next;
+	}
+
+	/* Need to differentiate between error and 0 */
+	if (net == NULL)
+		RETURN_FALSE;
+
+	if (egg_validuser(net,whom))
+	{
+		RETURN_TRUE;
+	}
+	else
+	{
+		RETURN_FALSE;
+	}
+}
+
 PHP_FUNCTION(putdcc)
 {
 	long idx;

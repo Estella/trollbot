@@ -54,3 +54,11 @@
 	* New file    : db_dist/chandb.defaults
 	* New function: network_channel_find [network.c]
 	* New function: void troll_trig_update_ban [troll_lib.c] [STUB]
+
+4. /2008-04-28/!\acidtoken\
+	[IRC]
+	
+	* New function: tcl_validuser [tcl_lib.c]
+	* New function: PHP_FUNCTION(validuser) [php_lib.c]
+	* New function: Py_validuser [python_lib.c]
+	* New function: js_validuser [js_lib.c]

@@ -578,13 +578,15 @@ void php_embed_shutdown(TSRMLS_D)
 #endif
 }
 
-	static function_entry trollbot_functions[] = {
-		PHP_FE(putdcc, NULL)
-			PHP_FE(matchwild, NULL)
-			PHP_FE(putserv, NULL)
-			PHP_FE(bind, NULL)
-			{NULL, NULL, NULL}
-	};
+static function_entry trollbot_functions[] = 
+{
+	PHP_FE(validuser, NULL)
+	PHP_FE(putdcc, NULL)
+	PHP_FE(matchwild, NULL)
+	PHP_FE(putserv, NULL)
+	PHP_FE(bind, NULL)
+	{NULL, NULL, NULL}
+};
 
 zend_module_entry trollbot_module_entry =
 {

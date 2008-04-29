@@ -32,13 +32,18 @@
 /* Exported functions to Python */
 PyMethodDef PyTbMethods[] = {
 
+	{"validuser", py_validuser, METH_VARARGS,
+		"Checks if a user is valid"},
+
 	{"bind", py_bind, METH_VARARGS,
 		"binds an IRC event to python function"},
 
 	{"putserv", py_putserv, METH_VARARGS,
 		"Sends the text to the network."},
+
 	{"log", py_troll_debug, METH_VARARGS, 
 		"Logs a message to the bot log."},
+
 	{"privmsg", py_privmsg, METH_VARARGS, 
 		"Sends a private message to a channel or user"},
 	{NULL, NULL, 0, NULL}

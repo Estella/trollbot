@@ -191,6 +191,8 @@ void net_init_js_global_object(struct network *net)
 	builtins = JS_InitStandardClasses(net->cx, net->global);
 
 	/* Initialize egg_lib functions */
+	JS_DefineFunction(net->cx, net->global, "validuser", js_validuser, 1, 0);
+
 	JS_DefineFunction(net->cx, net->global, "countusers", js_countusers, 0, 0);
 
 	JS_DefineFunction(net->cx, net->global, "savechannels", js_savechannels, 0, 0);

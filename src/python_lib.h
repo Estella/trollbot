@@ -2,7 +2,7 @@
 #define __PYTHON_LIB_H__
 
 #include <Python.h>
-
+PyObject *py_validuser(PyObject *self, PyObject *args);
 PyObject *py_bind(PyObject *self, PyObject *args);
 PyObject *py_putserv(PyObject *self, PyObject *args);
 PyObject *py_troll_debug(PyObject*self, PyObject *args);
