@@ -17,6 +17,34 @@
 #include "irc.h"
 
 
+PHP_FUNCTION(savechannels)
+{
+	char *network;
+	int  network_len;
+	struct network *net;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &network, &network_len))
+	{
+		RETURN_FALSE;
+	}
+
+	while (net != NULL)
+	{
+		if (!strcmp(net->label,network))
+			break;
+
+		net = net->next;
+	}
+
+	/* Need to differentiate between error and 0 */
+	if (net == NULL)
+		RETURN_FALSE;
+
+	egg_savechannels(net);
+	
+	RETURN_TRUE;
+}
+	
 PHP_FUNCTION(validuser)
 {
 	char *network;

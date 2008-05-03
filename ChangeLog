@@ -62,3 +62,13 @@
 	* New function: PHP_FUNCTION(validuser) [php_lib.c]
 	* New function: Py_validuser [python_lib.c]
 	* New function: js_validuser [js_lib.c]
+
+5. /2008-05-03/!\acidtoken\
+	[IRC]
+		
+	* New function: py_savechannels [python_lib.c]
+	* New function: PHP_FUNCTION(savechannels) [php_lib.c]
+	* New function: tcl_topic [tcl_lib.c]
+	* New function: js_topic [js_lib.c]
+	* New function: js_encpass [js_lib.c]
+	* New function: tcl_encpass [tcl_lib.c]

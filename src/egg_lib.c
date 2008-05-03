@@ -44,6 +44,7 @@
  */
 
 
+/* This is not an eggdrop function, put it in troll_lib */
 /* This could be replaced by a ltrim() */
 char *egg_makearg(const char *rest, const char *mask)
 {
@@ -72,6 +73,7 @@ char *egg_makearg(const char *rest, const char *mask)
 
 BUG: ~, &, and % don't work
 */
+/* This is not an eggdrop function, this should go in troll_lib */
 int egg_matchwilds(const char *haystack, const char *needle)
 {
 	if (needle == NULL || haystack == NULL)
@@ -158,6 +160,7 @@ void egg_putquick(struct network *net, const char *text, int option_next)
 }
 
 /* Fully compatible */
+/* I highly doubt that */
 void egg_putkick(struct network *net, const char *chan, const char *nick_list, const char *reason)
 {
 	irc_printf(net->sock,"KICK %s %s :%s",chan,nick_list,reason);
@@ -628,8 +631,8 @@ int egg_getting_users(struct network *net)
 /* channel remove <name> */
 
 /* Eggdrop Compatible */
-/* NEED_IMP: PHP, Perl, Python */
-/* IMP_IN: TCL, Javascript */
+/* NEED_IMP: Perl */
+/* IMP_IN: PHP, Python, TCL, Javascript */
 void egg_savechannels(struct network *net)
 {
 	chans_save(net);
@@ -814,7 +817,9 @@ int egg_onchan(struct network *net, char *nickname, char *channel)
  *       Returns: string containing the current topic of the specified channel
  *       Module: irc
  */
-/* NEED_IMP: TCL, PHP, Javascript, Python, Perl */
+
+/* NEED_IMP: PHP, Python, Perl */
+/* IMP_IN: TCL, Javascript */
 /* Eggdrop Compatible */
 char *egg_topic(struct network *net, char *chan)
 {
@@ -1094,6 +1099,7 @@ char **egg_bind(struct network *net, char *type, char *flags, char *mask, char *
 /* killtimer <timerID> */
 /* killutimer <timerID> */
 
+/* Consider not implementing in languages which already have this BS */
 /* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
 time_t egg_unixtime(void)
 {
@@ -1115,7 +1121,7 @@ time_t egg_unixtime(void)
 /* This will have issues due to the password style switchover needs documented */
 /* In Trollbot: Encrypts based on hash_type in g_cfg */
 /* In Eggdrop: uses blowfish or somesuch */
-/* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
+/* NEED_IMP: PHP, Perl, Python, Javascript */
 char *egg_encpass(const char *pass)
 {
 	return egg_makepasswd(pass, g_cfg->hash_type);

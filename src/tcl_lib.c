@@ -11,6 +11,44 @@
 #include "egg_lib.h"
 #include "user.h"
 
+int tcl_encpass(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	char *ret;
+	
+	if (objc != 2)
+	{
+		Tcl_WrongNumArgs(interp, objc, objv, "encpass <password>");
+		return TCL_ERROR;
+	}
+
+	ret = egg_encpass(Tcl_GetString(objv[1]));
+
+	/* FIXME: Memory leak */
+	Tcl_SetResult(interp, ret, NULL);
+	
+	return TCL_OK;
+}
+
+int tcl_topic(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	struct network *net = clientData;
+	char *topic;
+	char *ret;
+	
+	if (objc != 2)
+	{
+		Tcl_WrongNumArgs(interp, objc, objv, "topic <channel>");
+		return TCL_ERROR;
+	}
+
+	ret = egg_topic(net, Tcl_GetString(objv[1]));
+
+	/* FIXME: Memory leak */
+	Tcl_SetResult(interp, ret, NULL);
+	
+	return TCL_OK;
+}
+
 int tcl_validuser(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {
 	struct network *net    = clientData;

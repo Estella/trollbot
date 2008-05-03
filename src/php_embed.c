@@ -580,6 +580,7 @@ void php_embed_shutdown(TSRMLS_D)
 
 static function_entry trollbot_functions[] = 
 {
+	PHP_FE(savechannels, NULL)
 	PHP_FE(validuser, NULL)
 	PHP_FE(putdcc, NULL)
 	PHP_FE(matchwild, NULL)

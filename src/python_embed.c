@@ -31,6 +31,8 @@
 
 /* Exported functions to Python */
 PyMethodDef PyTbMethods[] = {
+	{"savechannels", py_savechannels, METH_VARARGS,
+	  "Saves channel file"},
 
 	{"validuser", py_validuser, METH_VARARGS,
 		"Checks if a user is valid"},

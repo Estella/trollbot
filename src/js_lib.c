@@ -15,6 +15,39 @@
 #include "network.h"
 #include "egg_lib.h"
 
+JSBool js_encpass(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+	char *ret;
+
+	if (argc != 1)
+		return JS_FALSE;
+
+	ret = egg_encpass(JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
+
+	*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, ret));
+
+	free(ret);
+
+	return JS_TRUE;
+}
+
+JSBool js_topic(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+	struct network *net = JS_GetContextPrivate(cx);
+	char *ret;
+
+	if (argc != 1)
+		return JS_FALSE;
+
+	ret = egg_topic(net, JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
+
+	*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, ret));
+
+	free(ret);
+
+	return JS_TRUE;
+}
+
 JSBool js_validuser(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	struct network *net = JS_GetContextPrivate(cx);

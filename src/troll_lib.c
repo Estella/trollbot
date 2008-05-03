@@ -52,6 +52,13 @@ void troll_parse_who(struct network *net, struct trigger *trig, struct irc_data 
 
 void troll_trig_update_ban(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
+	/* I need to parse out this motherfucker */
+	/* Needs to deal with stackables */
+	/* The modes dealt with here are probably network specific */
+	/* I should be able to deal with this in an easy to use and update format,
+ 	 * Most of these behaviors are detectable, so I should be able to update trollbot's
+ 	 * knowledge of the network */
+
 }
 
 /*

@@ -64,6 +64,21 @@ void net_tcl_init_commands(struct network *net)
 {
 	Tcl_CreateObjCommand(
 		net->tclinterp,
+		"encpass",
+		tcl_encpass,
+		net,
+		NULL);
+
+	Tcl_CreateObjCommand(
+		net->tclinterp,
+		"topic",
+		tcl_topic,
+		net,
+		NULL);
+
+
+	Tcl_CreateObjCommand(
+		net->tclinterp,
 		"validuser",
 		tcl_validuser,
 		net,
