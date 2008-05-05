@@ -62,108 +62,25 @@ void net_init_tcl(struct network *net)
 
 void net_tcl_init_commands(struct network *net)
 {
-	Tcl_CreateObjCommand(
-		net->tclinterp,
-		"encpass",
-		tcl_encpass,
-		net,
-		NULL);
-
-	Tcl_CreateObjCommand(
-		net->tclinterp,
-		"topic",
-		tcl_topic,
-		net,
-		NULL);
-
-
-	Tcl_CreateObjCommand(
-		net->tclinterp,
-		"validuser",
-		tcl_validuser,
-		net,
-		NULL);
-
-	Tcl_CreateObjCommand(net->tclinterp,
-			"savechannels",
-			tcl_savechannels,
-			net,
-			NULL);
-
-	Tcl_CreateObjCommand(net->tclinterp,
-			"finduser",
-			tcl_finduser,
-			net,
-			NULL);
-
-	Tcl_CreateObjCommand(net->tclinterp,
-			"channels",
-			tcl_channels,
-			net,
-			NULL);
-
-	Tcl_CreateObjCommand(net->tclinterp,
-			"save",
-			tcl_save,
-			net,
-			NULL);
-
-	Tcl_CreateObjCommand(net->tclinterp,
-			"botname",
-			tcl_botname,
-			net,
-			NULL);
-
-	Tcl_CreateObjCommand(net->tclinterp,
-			"onchan",
-			tcl_onchan,
-			net,
-			NULL);
-
-
-	Tcl_CreateObjCommand(net->tclinterp,
-			"matchwild",
-			tcl_matchwild,
-			net,
-			NULL);
-
-	Tcl_CreateObjCommand(net->tclinterp,
-			"putserv",
-			tcl_putserv,
-			net,
-			NULL);
-
-	Tcl_CreateObjCommand(net->tclinterp,
-			"puthelp",
-			tcl_puthelp,
-			net,
-			NULL);
-
-	Tcl_CreateObjCommand(net->tclinterp,
-			"rand",
-			tcl_rand,
-			net,
-			NULL);
-
-
-	Tcl_CreateObjCommand(net->tclinterp,
-			"bind",
-			tcl_bind,
-			net,
-			NULL);
-
-	Tcl_CreateObjCommand(net->tclinterp,
-			"matchattr",
-			tcl_matchattr,
-			net,
-			NULL);
-
-	Tcl_CreateObjCommand(net->tclinterp,
-			"countusers",
-			tcl_countusers,
-			net,
-			NULL);
-
+	Tcl_CreateObjCommand(net->tclinterp, "isop", tcl_isop, net, NULL);
+	Tcl_CreateObjCommand(net->tclinterp, "isvoice", tcl_isvoice, net, NULL);
+	Tcl_CreateObjCommand(net->tclinterp, "getchanmode", tcl_getchanmode, net, NULL);
+	Tcl_CreateObjCommand(net->tclinterp, "encpass", tcl_encpass, net, NULL);
+	Tcl_CreateObjCommand(net->tclinterp, "topic", tcl_topic, net, NULL);
+	Tcl_CreateObjCommand(net->tclinterp, "validuser", tcl_validuser, net, NULL);
+	Tcl_CreateObjCommand(net->tclinterp, "savechannels", tcl_savechannels, net, NULL);
+	Tcl_CreateObjCommand(net->tclinterp, "finduser", tcl_finduser, net, NULL);
+	Tcl_CreateObjCommand(net->tclinterp, "channels", tcl_channels, net, NULL);
+	Tcl_CreateObjCommand(net->tclinterp, "save", tcl_save, net, NULL);
+	Tcl_CreateObjCommand(net->tclinterp, "botname", tcl_botname, net, NULL);
+	Tcl_CreateObjCommand(net->tclinterp, "onchan", tcl_onchan, net, NULL);
+	Tcl_CreateObjCommand(net->tclinterp, "matchwild", tcl_matchwild, net, NULL);
+	Tcl_CreateObjCommand(net->tclinterp, "putserv", tcl_putserv, net, NULL);
+	Tcl_CreateObjCommand(net->tclinterp, "puthelp", tcl_puthelp, net, NULL);
+	Tcl_CreateObjCommand(net->tclinterp, "rand", tcl_rand, net, NULL);
+	Tcl_CreateObjCommand(net->tclinterp, "bind", tcl_bind, net, NULL);
+	Tcl_CreateObjCommand(net->tclinterp, "matchattr", tcl_matchattr, net, NULL); 
+	Tcl_CreateObjCommand(net->tclinterp, "countusers", tcl_countusers, net, NULL);
 }
 
 

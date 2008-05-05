@@ -52,23 +52,50 @@
 	* Fixed the way channels are loaded and saved to give defaults.
 
 	* New file    : db_dist/chandb.defaults
-	* New function: network_channel_find [network.c]
+	* New function: network_channel_find       [network.c]
 	* New function: void troll_trig_update_ban [troll_lib.c] [STUB]
 
 4. /2008-04-28/!\acidtoken\
 	[IRC]
 	
-	* New function: tcl_validuser [tcl_lib.c]
+	* New function: tcl_validuser           [tcl_lib.c]
 	* New function: PHP_FUNCTION(validuser) [php_lib.c]
-	* New function: Py_validuser [python_lib.c]
-	* New function: js_validuser [js_lib.c]
+	* New function: Py_validuser            [python_lib.c]
+	* New function: js_validuser            [js_lib.c]
 
 5. /2008-05-03/!\acidtoken\
 	[IRC]
 		
-	* New function: py_savechannels [python_lib.c]
+	* New function: py_savechannels            [python_lib.c]
 	* New function: PHP_FUNCTION(savechannels) [php_lib.c]
-	* New function: tcl_topic [tcl_lib.c]
-	* New function: js_topic [js_lib.c]
-	* New function: js_encpass [js_lib.c]
-	* New function: tcl_encpass [tcl_lib.c]
+	* New function: tcl_topic                  [tcl_lib.c]
+	* New function: js_topic                   [js_lib.c]
+	* New function: js_encpass                 [js_lib.c]
+	* New function: tcl_encpass                [tcl_lib.c]
+	* New function: js_putdcc                  [js_lib.c]
+	* New function: js_dccbroadcast            [js_lib.c]
+	* New function: js_isbotnick               [js_lib.c]
+
+6. /2008-05-04/!\acidtoken\
+	[IRC]
+	* Fixed it so people already existing in a channel are recognized
+	  by the bot.
+	* Fixed it so nick changes are now tracked by trollbot.
+	* Trollbot now tracks channel banlist changes.
+	* Trollbot now tracks op changes.
+	* Trollbot now tracks voice changes.
+	* Trollbot now populates on join with proper op and voice data
+
+	* New function: egg_valididx           [egg_lib.c]
+	* New function: egg_getchanmode        [egg_lib.c] 
+	* New function: js_getchanmode         [js_lib.c]
+	* New function: tcl_getchanmode        [tcl_lib.c]
+	* New function: egg_isop               [egg_lib.c]
+	* New function: egg_isvoice            [egg_lib.c]
+	* New function: js_isop                [js_lib.c]
+	* New function: js_isvoice             [js_lib.c]
+	* New function: tcl_isop               [tcl_lib.c]
+	* New function: tcl_isvoice            [tcl_lib.c]
+	* New function: troll_trig_update_nick [troll_lib.c]
+	* New function: troll_trig_update_mode [troll_lib.c]
+	*          Old: troll_trig_update_ban  [troll_lib.c]

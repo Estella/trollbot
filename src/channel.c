@@ -8,6 +8,8 @@
 #include "network.h"
 #include "user.h"
 
+
+
 struct chan_egg_var *new_chan_egg_var(void)
 {
 	struct chan_egg_var *ret = tmalloc(sizeof(struct chan_egg_var));
@@ -507,7 +509,7 @@ void channel_list_populate(struct network *net, struct trigger *trig, struct irc
 			ptr++;
 		}
 
-		cuser = channel_channel_user_find(chan,data->rest[i]);
+		cuser = channel_channel_user_find(chan,ptr);
 
 		if (chan->user_list == NULL)
 			slist_init(&chan->user_list, free_channel_user);
@@ -516,11 +518,12 @@ void channel_list_populate(struct network *net, struct trigger *trig, struct irc
 		{
 			cuser = new_channel_user();
 			/* nick is how they're found, a sort of primary key, so do not set it when updating */
-			cuser->nick = tstrdup(data->rest[i]);
+			cuser->nick = tstrdup(ptr);
 
 			slist_insert_next(chan->user_list, NULL, (void *)cuser);
 		}
 
+		/* In case they're an old user */
 		free(cuser->modes);
 	
 		if ((modes == NULL) || strlen(modes) <= 0)

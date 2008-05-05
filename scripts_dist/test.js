@@ -8,8 +8,71 @@ bind("pub","-","!js-countusers","do_countusers");
 bind("pub","-","!js-validuser","do_validuser");
 bind("pub","-","!js-passwdok","do_passwdok");
 bind("pub","-","!js-channels","do_channels");
+bind("pub","-","!js-encpass","do_encpass");
+bind("pub","-","!js-topic","do_topic");
+bind("pub","-","!js-getchanmode", "do_getchanmode");
+bind("pub","-","!js-isop", "do_isop");
+bind("pub","-","!js-isvoice", "do_isvoice");
 
 var bold = String.fromCharCode(2);
+
+function do_isop(nick, uhost, hand, chan, arg)
+{
+	var args = arg.split(' ');
+	if (args.length == 2)
+	{
+		var tnick  = args[0];
+		var tchan  = args[1];
+		var result = isop(tnick, tchan);
+	}
+	else
+	{
+		var tnick  = args[0];
+		var result = isop(tnick);
+	}
+
+	putserv("PRIVMSG "+chan+" :"+bold+result+bold);
+}
+
+function do_isvoice(nick, uhost, hand, chan, arg)
+{
+	var args = arg.split(' ');
+	if (args.length == 2)
+	{
+		var tnick  = args[0];
+		var tchan  = args[1];
+		var result = isvoice(tnick, tchan);
+	}
+	else
+	{
+		var tnick  = args[0];
+		var result = isvoice(tnick);
+	}
+
+	putserv("PRIVMSG "+chan+" :"+bold+result+bold);
+}
+
+
+function do_getchanmode(nick, uhost, hand, chan, arg)
+{
+	var args = arg.split(' ');
+	var tchan = args[0];
+
+	putserv("PRIVMSG "+chan+" :Modes for ("+bold+tchan+bold+") are ("+bold+getchanmode(tchan)+bold+")");
+}
+
+function do_topic(nick, uhost, hand, chan, arg)
+{
+	var args = arg.split(' ');
+	var tchan = args[0];
+	
+	putserv("PRIVMSG "+chan+" :Topic for ("+bold+tchan+bold+") is ("+bold+topic(tchan)+bold+")");
+}
+
+function do_encpass(nick, uhost, hand, chan, arg)
+{
+	putserv("PRIVMSG "+chan+" :Pass hash for ("+arg+") == "+encpass(arg));
+}
 
 function do_channels(nick, uhost, hand, chan, arg){
 	var chans = channels();

@@ -11,6 +11,91 @@
 #include "egg_lib.h"
 #include "user.h"
 
+int tcl_isvoice(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	struct network *net = clientData;
+	char *nickname;
+	char *channel;
+
+	if (objc == 2)
+	{
+		nickname = Tcl_GetString(objv[1]); 
+		channel  = NULL;
+	}
+	else if (objc == 3)
+	{
+		nickname = Tcl_GetString(objv[2]);
+		channel  = Tcl_GetString(objv[3]);
+	}
+	else
+	{
+		Tcl_WrongNumArgs(interp, objc, objv, "isop <nickname> [channel]");
+		return TCL_ERROR;
+	}
+
+	/* If not found, return 0 */
+	if (!egg_isvoice(net,nickname, channel))
+		Tcl_SetResult(interp, "0", NULL);
+	else
+		Tcl_SetResult(interp, "1", NULL);
+
+	return TCL_OK;
+}
+
+int tcl_isop(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	struct network *net = clientData;
+	char *nickname;
+	char *channel;
+
+	if (objc == 2)
+	{
+		nickname = Tcl_GetString(objv[1]); 
+		channel  = NULL;
+	}
+	else if (objc == 3)
+	{
+		nickname = Tcl_GetString(objv[2]);
+		channel  = Tcl_GetString(objv[3]);
+	}
+	else
+	{
+		Tcl_WrongNumArgs(interp, objc, objv, "isop <nickname> [channel]");
+		return TCL_ERROR;
+	}
+
+	/* If not found, return 0 */
+	if (!egg_isop(net,nickname, channel))
+		Tcl_SetResult(interp, "0", NULL);
+	else
+		Tcl_SetResult(interp, "1", NULL);
+
+	return TCL_OK;
+}
+
+int tcl_getchanmode(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	struct network *net = clientData;
+	char *ret;
+
+	if (objc != 2)
+	{
+		Tcl_WrongNumArgs(interp, objc, objv, "getchanmode <channel>");
+		return TCL_ERROR;
+	}
+
+	ret = egg_getchanmode(net, Tcl_GetString(objv[1]));
+	
+	/* FIXME: Eggdrop reports "invalid channel: #channel" when it doesn't exist */
+	if (ret == NULL)
+		return TCL_ERROR;
+
+	/* FIXME: Memory leak */
+	Tcl_SetResult(interp, ret, NULL);
+
+	return TCL_OK;
+}
+
 int tcl_encpass(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {
 	char *ret;

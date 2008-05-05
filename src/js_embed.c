@@ -191,38 +191,32 @@ void net_init_js_global_object(struct network *net)
 	builtins = JS_InitStandardClasses(net->cx, net->global);
 
 	/* Initialize egg_lib functions */
+	JS_DefineFunction(net->cx, net->global, "isop", js_isop, 1, 0);
+	JS_DefineFunction(net->cx, net->global, "isvoice", js_isvoice, 1, 0);
+	JS_DefineFunction(net->cx, net->global, "getchanmode", js_getchanmode, 1, 0);
+	JS_DefineFunction(net->cx, net->global, "getting-users", js_getting_users, 0, 0); /* Is this valid? */
+	JS_DefineFunction(net->cx, net->global, "dccbroadcast", js_dccbroadcast, 1, 0);
+	JS_DefineFunction(net->cx, net->global, "putdcc", js_putdcc, 2, 0);
+	JS_DefineFunction(net->cx, net->global, "isbotnick", js_isbotnick, 1, 0);
 	JS_DefineFunction(net->cx, net->global, "encpass", js_encpass, 1, 0);
 	JS_DefineFunction(net->cx, net->global, "topic", js_topic, 1, 0);
 	JS_DefineFunction(net->cx, net->global, "validuser", js_validuser, 1, 0);
-
 	JS_DefineFunction(net->cx, net->global, "countusers", js_countusers, 0, 0);
-
 	JS_DefineFunction(net->cx, net->global, "savechannels", js_savechannels, 0, 0);
-
 	JS_DefineFunction(net->cx, net->global, "finduser", js_finduser, 1, 0);
-
 	JS_DefineFunction(net->cx, net->global, "matchattr", js_matchattr, 3, 0);
-
 	JS_DefineFunction(net->cx, net->global, "bind", js_bind, 5, 0);
-
 	JS_DefineFunction(net->cx, net->global, "putserv", js_putserv, 1, 0);
-
 	/* JS_DefineFunction(net->cx, net->global, "js_eval", js_eval, 1, 0); */
 
 	JS_DefineProperty(net->cx, net->global, "botname", JSVAL_VOID, js_botname, NULL, 0);
-
 	JS_DefineProperty(net->cx, net->global, "version", JSVAL_VOID, js_version, NULL, 0);
 
 	JS_DefineFunction(net->cx, net->global, "onchan", js_onchan, 5, 0);
-
 	JS_DefineFunction(net->cx, net->global, "validuser", js_validuser, 1, 0);
-
 	JS_DefineFunction(net->cx, net->global, "passwdok", js_passwdok, 2, 0);
-
 	JS_DefineFunction(net->cx, net->global, "chhandle", js_chhandle, 2, 0);
-
 	JS_DefineFunction(net->cx, net->global, "channels", js_channels, 2, 0);
-
 	JS_DefineFunction(net->cx, net->global, "save", js_save, 0, 0);
 
 	/* Store a pointer to the net struct in the Javascript context */

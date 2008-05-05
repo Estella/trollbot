@@ -15,6 +15,146 @@
 #include "network.h"
 #include "egg_lib.h"
 
+JSBool js_isvoice(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+	struct network *net = JS_GetContextPrivate(cx);
+	char *nickname;
+	char *channel;
+	int ret;
+
+	if (argc == 1)
+	{
+		/* Just searching for the nickname */
+		nickname = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+		channel  = NULL;
+	}
+	else if (argc == 2)
+	{
+		nickname = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+		channel  = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
+	}
+	else
+	{
+		/* TODO: Error handling */
+		return JS_FALSE;
+	}
+
+	ret = egg_isvoice(net, nickname, channel);
+
+	*rval = INT_TO_JSVAL(ret);
+
+	return JS_TRUE;
+}
+
+JSBool js_isop(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+	struct network *net = JS_GetContextPrivate(cx);
+	char *nickname;
+	char *channel;
+	int ret;
+
+	if (argc == 1)
+	{
+		/* Just searching for the nickname */
+		nickname = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+		channel  = NULL;
+	}
+	else if (argc == 2)
+	{
+		nickname = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+		channel  = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
+	}
+	else
+	{
+		/* TODO: Error Handling */
+		return JS_FALSE;
+	}
+
+	ret = egg_isop(net, nickname, channel);
+
+	*rval = INT_TO_JSVAL(ret);
+
+	return JS_TRUE;
+}
+
+JSBool js_getchanmode(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+	struct network *net = JS_GetContextPrivate(cx);
+	char *ret;
+	
+	if (argc != 1)
+		return JS_FALSE;
+
+	ret = egg_getchanmode(net,JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
+
+	*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, ret));
+
+	free(ret);
+
+	return JS_TRUE;
+}
+
+JSBool js_getting_users(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+	struct network *net = JS_GetContextPrivate(cx);
+	int ret;
+
+	ret = egg_getting_users(net);
+
+	*rval = INT_TO_JSVAL(ret);
+
+	return JS_TRUE;
+}
+	
+
+JSBool js_dccbroadcast(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+	struct network *net = JS_GetContextPrivate(cx);
+	
+	if (argc != 1)
+		return JS_FALSE;
+	
+	egg_dccbroadcast(net, JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
+
+	*rval = JSVAL_VOID;
+
+	return JS_TRUE;
+}
+
+JSBool js_putdcc(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+	struct network *net = JS_GetContextPrivate(cx);
+	int idx;
+	
+	if (argc != 2)
+		return JS_FALSE;
+	
+	/* FIXME: Error checking */
+	JS_ValueToInt32(cx, argv[0], &idx);
+
+	egg_putdcc(net, idx, JS_GetStringBytes(JS_ValueToString(cx, argv[1])));
+
+	*rval = JSVAL_VOID;
+
+	return JS_TRUE;
+}
+
+JSBool js_isbotnick(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+	struct network *net = JS_GetContextPrivate(cx);
+	int ret;
+
+	if (argc != 1)
+		return JS_FALSE;
+
+	ret = egg_isbotnick(net, JS_GetStringBytes(JS_ValueToString(cx, argv[0])));
+
+	*rval = INT_TO_JSVAL(ret);
+
+	return JS_TRUE;
+}
+
+
 JSBool js_encpass(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	char *ret;
@@ -155,6 +295,7 @@ JSBool js_save(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	return JS_TRUE;
 }
 
+/* Uh, no */
 JSBool js_eval(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	JSString *jsc_script;

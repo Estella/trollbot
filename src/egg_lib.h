@@ -16,6 +16,11 @@ struct irc_data;
 struct trigger;
 struct dcc_session;
 
+int egg_isop(struct network *net, const char *nickname, const char *channel);
+int egg_isvoice(struct network *net, const char *nickname, const char *channel);
+
+char *egg_getchanmode(struct network *net, const char *channel);
+
 /* This is a band-aid function to make an arg to match against FIXME */
 char *egg_makearg(const char *rest, const char *mask);
 
@@ -62,6 +67,8 @@ struct user *egg_idx2hand(struct network *net, int idx);
 
 /* Returns 0 on error, an idx if successful */
 int egg_hand2idx(struct network *net, const char *handle);
+
+int egg_valididx(struct network *net, int idx);
 
 /* Binds an event handler to an event */
 char **egg_bind(struct network *net, char *type, char *flags, char *mask, char *cmd, void (*handler)(struct network *, struct trigger *, struct irc_data *, struct dcc_session *, const char *));

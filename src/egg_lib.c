@@ -618,7 +618,8 @@ int egg_matchattr(struct network *net, const char *handle, const char *flags, co
 /* backup */
 
 /* getting-users: Returns 1 if bot is downloading a userfile, 0 if not */
-/* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
+/* NEED_IMP: TCL, PHP, Perl, Python */
+/* IMP_IN: Javascript */
 int egg_getting_users(struct network *net)
 {
 	return 0;
@@ -689,7 +690,8 @@ char *egg_channels(struct network *net)
 }
 
 /* isbotnick: Returns 1 if nick is bot's nick */
-/* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
+/* NEED_IMP: TCL, PHP, Perl, Python  */
+/* IMP_IN: Javascript */
 int egg_isbotnick(struct network *net, char *nick)
 {
 	return (!tstrcasecmp(net->botnick,nick));
@@ -699,16 +701,120 @@ int egg_isbotnick(struct network *net, char *nick)
 /* botishalfop [channel] */
 /* botisvoice [channel] */
 /* botonchan [channel] */
-/* isop <nickname> [channel] */
+
+/* isop <nickname> [channel]
+ *   isop <nickname> [channel]
+ *     Returns: 1 if someone by the specified nickname is on the channel (or
+ *     any channel if no channel name is specified) and has ops; 0 otherwise
+ *     Module: irc
+ */
+/* NEED_IMP: TCL, PHP, Javascript, Python */
+int egg_isop(struct network *net, const char *nickname, const char *channel)
+{
+	struct channel      *chan  = NULL;
+	struct channel_user *cuser = NULL;
+
+	if ((channel == NULL) || strlen(channel) == 0)
+	{
+		/* check all channels */
+		chan = net->chans;
+
+		/* No channels are on bot */
+		if (chan == NULL)
+			return 0;
+
+		while (chan != NULL)
+		{
+			cuser = channel_channel_user_find(chan, nickname);
+		
+			if (cuser != NULL)
+				if (cuser->modes != NULL)
+					if (strchr(cuser->modes, 'o') != NULL)
+						return 1;
+
+			chan = chan->next;
+		}
+	
+		return 0;
+	}
+
+	chan = network_channel_find(net, channel);
+
+	if (chan == NULL)
+		return 0;
+
+	cuser = channel_channel_user_find(chan, nickname);
+
+	if (cuser == NULL)
+		return 0;
+
+	if (cuser->modes == NULL)
+		return 0;
+
+	if (strchr(cuser->modes, 'o') == NULL)
+		return 0;
+
+	return 1;
+}
+
+
 /* ishalfop <nickname> [channel] */
 /* wasop <nickname> <channel> */
 /* washalfop <nickname> <channel> */
 
 /* isvoice <nickname> [channel]
-	 int egg_isvoice(struct network *net, const char *nick, const char *channel)
-	 {
+ *   Returns: 1 if someone by that nickname is on the channel (or any
+ *   channel if no channel is specified) and has voice (+v); 0 otherwise
+ *    Module: irc
+ */
+/* NEED_IMP: TCL, PHP, Python, Javascript */
+int egg_isvoice(struct network *net, const char *nickname, const char *channel)
+{
+	struct channel      *chan  = NULL;
+	struct channel_user *cuser = NULL;
 
-	 }*/
+	if ((channel == NULL) || strlen(channel) == 0)
+	{
+		/* check all channels */
+		chan = net->chans;
+
+		/* No channels are on bot */
+		if (chan == NULL)
+			return 0;
+
+		while (chan != NULL)
+		{
+			cuser = channel_channel_user_find(chan, nickname);
+		
+			if (cuser != NULL)
+				if (cuser->modes != NULL)
+					if (strchr(cuser->modes, 'v') != NULL)
+						return 1;
+
+			chan = chan->next;
+		}
+	
+		return 0;
+	}
+
+	chan = network_channel_find(net, channel);
+
+	if (chan == NULL)
+		return 0;
+
+	cuser = channel_channel_user_find(chan, nickname);
+
+	if (cuser == NULL)
+		return 0;
+
+	if (cuser->modes == NULL)
+		return 0;
+
+	if (strchr(cuser->modes, 'v') == NULL)
+		return 0;
+
+	return 1;
+}
 
 /** 
  * Eggdrop Compatible onchan
@@ -789,9 +895,16 @@ int egg_onchan(struct network *net, char *nickname, char *channel)
 
 	return 0; /* never should be reached */
 }
+
+/* Handle in trollbot is the nick */
 /* nick2hand <nickname> [channel] */
 /* hand2nick <handle> [channel] */
+
+/* Could link to egg_onchan() */
 /* handonchan <handle> [channel] */
+
+
+
 /* ischanban <ban> <channel> */
 /* ischanexempt <exempt> <channel> */
 /* ischaninvite <invite> <channel> */
@@ -807,7 +920,25 @@ int egg_onchan(struct network *net, char *nickname, char *channel)
 /* onchansplit <nick> [channel] */
 /* chanlist <channel> [flags[&chanflags]] */
 /* getchanidle <nickname> <channel> */
-/* getchanmode <channel> */
+/* getchanmode <channel>
+ *   getchanmode <channel>
+ *     Returns: string of the type "+ntik key" for the channel specified
+ *     Module: irc
+ */
+/* NEED_IMP: PHP, Python */
+/* IMP_IN: Javascript, TCL */
+char *egg_getchanmode(struct network *net, const char *channel)
+{
+	struct channel *chan = NULL;
+
+	chan = network_channel_find(net, channel);
+
+	/* TODO: Error handling */
+	if (chan == NULL)
+		return NULL;	
+
+	return tstrdup(chan->chanmode);
+}
 /* jump [server [port [password]]] */
 /* pushmode <channel> <mode> [arg] */
 /* flushmode <channel> */
@@ -837,7 +968,8 @@ char *egg_topic(struct network *net, char *chan)
 /* validchan <channel> PROBLEM: trollbot doesn't track chans like required for this */
 /* isdynamic <channel> */
 
-/* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
+/* NEED_IMP: TCL, PHP, Perl, Python */
+/* IMP_IN: Javascript */
 void egg_putdcc(struct network *net, int idx, const char *text)
 {
 	struct dcc_session *dtmp;
@@ -860,7 +992,8 @@ void egg_putdcc(struct network *net, int idx, const char *text)
 
 /* dccbroadcast <message> */
 /* Trollbot: Only broadcasts on the net specified */
-/* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
+/* NEED_IMP: TCL, PHP, Perl, Python */
+/* IMP_IN: Javascript */
 void egg_dccbroadcast(struct network *net, const char *message)
 {
 	struct dcc_session *dtmp;
@@ -931,7 +1064,29 @@ struct user *egg_idx2hand(struct network *net, int idx)
 	return NULL;
 } 
 
-/* valididx <idx> */
+/* valididx <idx>
+ *	 Returns: 1 if the idx currently exists; 0 otherwise
+ * Module: core
+ */
+/* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
+int egg_valididx(struct network *net, int idx)
+{
+	struct dcc_session *dtmp;
+	
+	dtmp = net->dccs;
+
+	while (dtmp != NULL)
+	{
+		if (dtmp->id == idx && dtmp->status >= DCC_NOTREADY)
+			return 1;
+	
+		dtmp = dtmp->next;
+	}
+
+	return NULL;
+}
+
+
 /* getchan <idx> */
 /* setchan <idx> <channel> */
 /* console <idx> [channel] [console-modes] */
@@ -983,13 +1138,13 @@ struct user *egg_idx2hand(struct network *net, int idx)
 /* setflags <dir> [<flags> [channel]] */
 
 /*
-Description: 
-'bind' is used to attach procedures to certain events. 
-flags are the flags the user must have to trigger the event (if applicable). 
-proc-name is a pointer to the procedure to call for this command.
-If the proc-name is NULL, no binding is added. 
-Returns: 
-name of the command that was added, or (if proc-name is NULL), a list of the current bindings for this command
+ * Description: 
+ * 'bind' is used to attach procedures to certain events. 
+ * flags are the flags the user must have to trigger the event (if applicable). 
+ * proc-name is a pointer to the procedure to call for this command.
+ * If the proc-name is NULL, no binding is added. 
+ * Returns: 
+ * name of the command that was added, or (if proc-name is NULL), a list of the current bindings for this command
 */
 /* IMP_IN: Javascript, TCL */
 char **egg_bind(struct network *net, char *type, char *flags, char *mask, char *cmd, void (*handler)(struct network *, struct trigger *, struct irc_data *, struct dcc_session *, const char *))

@@ -78,13 +78,18 @@ struct channel
 struct chan_egg_var *new_chan_egg_var(void);
 void free_chan_egg_var(void *chan_egg_var_ptr);
 
+
+/* channel bans */
 struct channel_ban *channel_ban_del(struct channel_ban *bans, struct channel_ban *del);
 struct channel_ban *channel_ban_add(struct channel_ban *bans, struct channel_ban *add);
 void channel_ban_free(struct channel_ban *ban);
 struct channel_ban *channel_ban_new(void);
+void channel_bans_free(struct channel_ban *bans);
 
 
 struct tconfig_block *chans_to_tconfig(struct channel *chans);
+
+
 
 /* TODO: Needs replaced with slist */
 void channel_list_add(struct channel **orig, struct channel *new);

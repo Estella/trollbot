@@ -6,6 +6,11 @@ bind pub - "!onchan" do:onchan
 bind pub - "!botname" do:botname
 bind pub - "!channels" do:channels
 bind pub - "!tcl-finduser" do:finduser
+bind pub - "!tcl-getchanmode" do:getchanmode
+
+proc do:getchanmode { nick uhost hand chan arg } {
+	putserv "PRIVMSG $chan :Result: [getchanmode $arg]";
+}
 
 proc do:finduser { nick uhost hand chan arg } {
 	putserv "PRIVMSG $chan :Result: [finduser $arg]";
