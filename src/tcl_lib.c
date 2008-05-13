@@ -117,7 +117,6 @@ int tcl_encpass(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *co
 int tcl_topic(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {
 	struct network *net = clientData;
-	char *topic;
 	char *ret;
 	
 	if (objc != 2)

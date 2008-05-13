@@ -72,7 +72,7 @@ void myphp_eval_file(char *filename)
 
 	if (has_started == 0)
 	{
-		php_embed_init(0,NULL PTSRMLS_DC);
+		php_embed_init(0,NULL PTSRMLS_CC);
 		has_started = 1;
 	}
 

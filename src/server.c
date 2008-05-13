@@ -83,13 +83,19 @@ struct server *new_server(char *hostport)
 
 }
 
-void free_servers(struct server *servers){
-	struct server *nextServer=NULL;
-	while (servers != NULL){
-		nextServer = servers->next;
+void free_servers(struct server *servers)
+{
+	struct server *tmp = NULL;
+
+	while (servers != NULL)
+	{
+		tmp = servers->next;
 
 		free(servers->host);
 		free(servers);
-		servers = nextServer;
+
+		servers = tmp;
 	}
+
+	return;
 }

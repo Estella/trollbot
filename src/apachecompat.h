@@ -44,5 +44,6 @@ const char *apr_pool_cleanup_null(void);
 const char *ap_set_last_modified(void);
 const char *ap_add_common_vars(void);
 const char *apr_pool_userdata_get(void);
+const char *ap_hook_child_init(void);
 
 #endif /* __APRCOMPAT_H__ */

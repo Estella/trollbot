@@ -99,3 +99,9 @@
 	* New function: troll_trig_update_nick [troll_lib.c]
 	* New function: troll_trig_update_mode [troll_lib.c]
 	*          Old: troll_trig_update_ban  [troll_lib.c]
+
+7. /2008-05-07/!\acidtoken\
+	[IRC]
+
+	* New function: egg_ischanban [egg_lib.c]
+	:

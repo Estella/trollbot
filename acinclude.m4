@@ -79,7 +79,7 @@ if test "$with_tcl" != "no"; then
       # filename, it should be safe to add it (to the front of the line --
       # somef vendors have older, badly installed tclshs that we want to avoid
       # if we can)
-      AC_PATH_PROGS(TCLSH, [tclsh8.4 tclsh8.3 tclsh8.2 tclsh8.1 tclsh8.0 tclsh], "unknown")
+      AC_PATH_PROGS(TCLSH, [tclsh8.5 tclsh8.4 tclsh8.3 tclsh8.2 tclsh8.1 tclsh8.0 tclsh], "unknown")
     fi
 
     # Do we know where to get a tclsh?
@@ -180,11 +180,11 @@ AC_DEFUN([AX_PROG_PHP],[
         [ with_php_config="$withval" ] )             
   AC_ARG_WITH(php-lib,    [  --with-php-lib=PATH      PATH to libphp5.so or libphp4.so],
         [ with_php_lib="$withval" ] )
-  AC_ARG_WITH(php,        [  --with-php=(4|5)         configure with PHP4 or 5 support],
+  AC_ARG_WITH(php,        [  --with-php=4|5|6         configure with PHP4 PHP5 or PHP6 support],
         [ with_php="$withval" ] )
 
   dnl Default to check for PHP
-  if test "${with_php}" = "yes" || test "${with_php}" = "5" || test "${with_php}" = "4"; then
+  if test "${with_php}" = "yes" || test "${with_php}" = "6" || test "${with_php}" = "5" || test "${with_php}" = "4"; then
     AC_MSG_CHECKING([if there's a valid user specified php-config])
 
     if test -f "${with_php_config}/php-config"; then
@@ -278,6 +278,56 @@ AC_DEFUN([AX_PROG_PHP],[
             AC_MSG_RESULT([Error, cannot use PHP5])
           fi
         fi
+
+        if test "${with_php}" = "6"; then 
+          AC_MSG_CHECKING([for LDFLAGS to use with PHP6])
+        
+          if test "x${with_php_ldflags}" != "x"; then
+            PHP_LDADD="${with_php_ldflags} `${PHPCONFIG} --libs` `${PHPCONFIG} --ldflags` -lphp6 -Wl,--unresolved-symbols=ignore-all"
+          else
+            PHP_LDADD="`${PHPCONFIG} --libs` `${PHPCONFIG} --ldflags` -lphp6 -Wl,--unresolved-symbols=ignore-all"
+          fi
+
+          if test "x${with_php_lib}" != "x"; then
+            PHP_LDADD="-L${with_php_lib} -Wl,-rpath=${with_php_lib} ${PHP_LDADD}"
+          fi
+
+          AC_MSG_RESULT([${PHP_LDADD}])
+
+          AC_MSG_CHECKING([whether our test PHP6 program can link])
+          
+          oldlibs="${LIBS}"
+          LIBS="${oldlibs} ${PHP_LDADD}"
+
+          AC_TRY_LINK([#include <main/php.h>
+                       #include <main/SAPI.h>
+                       #include <main/php_main.h>
+                       #include <main/php_variables.h>
+                       #include <main/php_ini.h>
+                       #include <zend_ini.h>
+                       ],[
+                         zval *test;
+                       ],[
+                         php_link="yes"
+                       ],[
+                         php_link="no"
+                       ])
+
+          LIBS="${oldlibs}"
+
+          if test "${php_link}" = "yes"; then
+            AC_MSG_RESULT([Wonderbar])
+            AC_DEFINE([HAVE_PHP],1,[Ability to use PHP scripting])
+
+            AC_SUBST(PHP_CFLAGS)
+            AC_SUBST(PHP_LDADD)
+          else
+            PHP_CFLAGS=""
+            PHP_LDADD=""
+            AC_MSG_RESULT([Error, cannot use PHP6])
+          fi
+        fi
+
 
         if test "${with_php}" = "4" || test "${php_link}" = "no"; then
           AC_MSG_CHECKING([for LDFLAGS to use with PHP4])

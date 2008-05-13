@@ -79,7 +79,7 @@ if test "$with_tcl" != "no"; then
       # filename, it should be safe to add it (to the front of the line --
       # somef vendors have older, badly installed tclshs that we want to avoid
       # if we can)
-      AC_PATH_PROGS(TCLSH, [tclsh8.4 tclsh8.3 tclsh8.2 tclsh8.1 tclsh8.0 tclsh], "unknown")
+      AC_PATH_PROGS(TCLSH, [tclsh8.5 tclsh8.4 tclsh8.3 tclsh8.2 tclsh8.1 tclsh8.0 tclsh], "unknown")
     fi
 
     # Do we know where to get a tclsh?

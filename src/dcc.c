@@ -334,11 +334,6 @@ void initiate_dcc_chat(struct network *net, struct trigger *trig, struct irc_dat
 	/* So we know which userdb to read from */
 	newdcc->net    = net; 
 
-	/* Print the welcome message NOT NOW
-		 irc_printf(newdcc->sock,"Welcome to Trollbot.");
-		 irc_printf(newdcc->sock,"Enter your username to continue.");
-		 */ 
-
 	/* Insert it into the global DCC list */
 	if (net->dccs == NULL)
 	{

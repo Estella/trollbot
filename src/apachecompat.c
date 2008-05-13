@@ -47,4 +47,4 @@ const char *apr_pool_cleanup_null(void) { return 0; }
 const char *ap_set_last_modified(void) { return 0; }
 const char *ap_add_common_vars(void) { return 0; }
 const char *apr_pool_userdata_get(void) { return 0; }
-
+const char *ap_hook_child_init(void) { return 0; }

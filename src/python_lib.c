@@ -75,7 +75,6 @@ PyObject *py_bind(PyObject *self, PyObject *args) {
 	struct network *net;
 	PyObject *network;
 
-	char *netw;
 	char *type;
 	char *flags;
 	char *keyword;

@@ -708,7 +708,8 @@ int egg_isbotnick(struct network *net, char *nick)
  *     any channel if no channel name is specified) and has ops; 0 otherwise
  *     Module: irc
  */
-/* NEED_IMP: TCL, PHP, Javascript, Python */
+/* NEED_IMP: PHP, Python */
+/* IMP_IN: Javascript, TCL */
 int egg_isop(struct network *net, const char *nickname, const char *channel)
 {
 	struct channel      *chan  = NULL;
@@ -767,7 +768,8 @@ int egg_isop(struct network *net, const char *nickname, const char *channel)
  *   channel if no channel is specified) and has voice (+v); 0 otherwise
  *    Module: irc
  */
-/* NEED_IMP: TCL, PHP, Python, Javascript */
+/* NEED_IMP: PHP, Python */
+/* IMP_IN: TCL, Javascript */
 int egg_isvoice(struct network *net, const char *nickname, const char *channel)
 {
 	struct channel      *chan  = NULL;
@@ -905,7 +907,30 @@ int egg_onchan(struct network *net, char *nickname, char *channel)
 
 
 
-/* ischanban <ban> <channel> */
+/* ischanban <ban> <channel>
+ * Returns: 1 if the specified ban is on the given channel's ban list
+ * (not the bot's banlist for the channel)
+ * Module: irc
+ */
+/* NEED_IMP: Javascript, PHP, TCL, Python */
+int egg_ischanban(struct network *net, const char *ban, const char *channel)
+{
+	struct channel      *chan  = NULL;
+	struct channel_ban  *cban  = NULL;
+
+	chan = network_channel_find(net, channel);
+
+	if (chan == NULL)
+		return 0;
+
+	cban = channel_channel_ban_find(chan, ban);
+
+	if (cban == NULL)
+		return 0;
+
+	return 1;
+}
+
 /* ischanexempt <exempt> <channel> */
 /* ischaninvite <invite> <channel> */
 /* chanbans <channel> */
@@ -939,6 +964,7 @@ char *egg_getchanmode(struct network *net, const char *channel)
 
 	return tstrdup(chan->chanmode);
 }
+
 /* jump [server [port [password]]] */
 /* pushmode <channel> <mode> [arg] */
 /* flushmode <channel> */
@@ -948,7 +974,6 @@ char *egg_getchanmode(struct network *net, const char *channel)
  *       Returns: string containing the current topic of the specified channel
  *       Module: irc
  */
-
 /* NEED_IMP: PHP, Python, Perl */
 /* IMP_IN: TCL, Javascript */
 /* Eggdrop Compatible */
@@ -1083,7 +1108,7 @@ int egg_valididx(struct network *net, int idx)
 		dtmp = dtmp->next;
 	}
 
-	return NULL;
+	return 0;
 }
 
 

@@ -135,6 +135,26 @@ struct channel_ban *channel_ban_new(void)
 	return ret;
 }
 
+struct channel_ban *channel_channel_ban_find(struct channel *chan, char *find)
+{
+	struct channel_ban *cban;
+
+	if (chan->banlist == NULL)
+		return NULL;
+
+	cban = chan->banlist;
+
+	while (cban != NULL)
+	{
+		if (!tstrcasecmp(cban->mask, find))
+			return cban;
+
+		cban = cban->next;
+	}
+	
+	return NULL;
+}
+
 struct tconfig_block *chans_to_tconfig(struct channel *chans)
 {
 	struct channel       *tmp  = NULL;

@@ -85,6 +85,7 @@ struct channel_ban *channel_ban_add(struct channel_ban *bans, struct channel_ban
 void channel_ban_free(struct channel_ban *ban);
 struct channel_ban *channel_ban_new(void);
 void channel_bans_free(struct channel_ban *bans);
+struct channel_ban *channel_channel_ban_find(struct channel *, char *);
 
 
 struct tconfig_block *chans_to_tconfig(struct channel *chans);

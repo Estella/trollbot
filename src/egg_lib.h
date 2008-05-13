@@ -16,6 +16,7 @@ struct irc_data;
 struct trigger;
 struct dcc_session;
 
+int egg_ischanban(struct network *net, const char *ban, const char *channel);
 int egg_isop(struct network *net, const char *nickname, const char *channel);
 int egg_isvoice(struct network *net, const char *nickname, const char *channel);
 
