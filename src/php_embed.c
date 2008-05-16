@@ -124,12 +124,30 @@ void php_handler(struct network *net, struct trigger *trig, struct irc_data *dat
 	zval *ret;
 	zval *idx;
 	zval *php_args[10]; /* may need changed */
+#ifdef WANT_PHP_OBJECT_TRIGGERS
+	zend_object *network;
+	zend_object *irc_data;
+	zend_object *trigger;
+#endif /* WANT_PHP_OBJECT_TRIGGERS */
 
 	/* We have to create the arguments for the called function as zvals */
 	TSRMLS_FETCH();
 
 	switch (trig->type)
 	{
+#ifdef WANT_PHP_OBJECT_TRIGGERS
+		case TRIG_OPUB:
+			/* Create stdClass objects */
+			zend_object_std_init(&network,  class_type TSRMLS_CC);
+			zend_object_std_init(&irc_data, class_type TSRMLS_CC);
+			zend_object_std_init(&trigger,  class_type TSRMLS_CC);
+			
+			/* Give them default properties */
+			zend_hash_copy(network.properties,  &class_type->default_properties, (copy_ctor_func_t) zval_add_ref, (void *) &tmp, sizeof(zval *));
+			zend_hash_copy(irc_data.properties, &class_type->default_properties, (copy_ctor_func_t) zval_add_ref, (void *) &tmp, sizeof(zval *));
+			zend_hash_copy(trigger.properties,  &class_type->default_properties, (copy_ctor_func_t) zval_add_ref, (void *) &tmp, sizeof(zval *));
+			break;
+#endif /* WANT_PHP_OBJECT_TRIGGERS */
 		case TRIG_PUB:
 			MAKE_STD_ZVAL(func);
 			MAKE_STD_ZVAL(netw);
@@ -586,6 +604,11 @@ static function_entry trollbot_functions[] =
 	PHP_FE(matchwild, NULL)
 	PHP_FE(putserv, NULL)
 	PHP_FE(bind, NULL)
+	PHP_FE(chhandle, NULL);
+	PHP_FE(passwdok, NULL);
+	PHP_FE(save, NULL);
+	PHP_FE(finduser, NULL);
+	PHP_FE(countusers, NULL);
 	{NULL, NULL, NULL}
 };
 

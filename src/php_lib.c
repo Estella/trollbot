@@ -15,7 +15,132 @@
 #include "network.h"
 #include "egg_lib.h"
 #include "irc.h"
+#include "user.h"
 
+/*
+ * Zend/zend.h:#define INTERNAL_FUNCTION_PARAMETERS int ht, zval *return_value, zval **return_value_ptr, zval *this_ptr, int return_value_used TSRMLS_DC
+ * WTF this actually gets parameters as
+ */
+
+
+PHP_FUNCTION(chhandle)
+{
+	char *network;
+	int network_len;
+	char *oldh;
+	int oldh_len;
+	char *newh;
+	int newh_len;
+	struct network *net;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sss", &network, &network_len, &oldh, &oldh_len, &newh, &newh_len))
+	{
+		RETURN_FALSE;
+	}
+
+	net = g_cfg->networks;	
+
+	while (net != NULL)
+	{
+		if (!tstrcasecmp(net->label,network))
+			break;
+		
+		net = net->next;
+	}	
+
+	if (net == NULL)
+		RETURN_FALSE;
+
+	RETURN_LONG(egg_chhandle(net, oldh, newh));
+}
+
+PHP_FUNCTION(passwdok)
+{
+	char *network;
+	int network_len;
+	char *passwd;
+	int passwd_len;
+	char *user;
+	int user_len;
+	struct network *net;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sss", &network, &network_len, &user, &user_len, &passwd, &passwd_len))
+	{
+		RETURN_FALSE;
+	}
+	
+	net = g_cfg->networks;
+
+	while (net != NULL)
+	{
+		if (!tstrcasecmp(net->label,network))
+			break;
+		
+		net = net->next;
+	}	
+
+	if (net == NULL)
+		RETURN_FALSE;
+
+	RETURN_LONG(egg_passwdok(net, user, passwd));
+}
+
+PHP_FUNCTION(save)
+{
+	char *network;
+	int network_len;
+	struct network *net;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &network, &network_len))
+	{
+		RETURN_FALSE;
+	}
+
+	net = g_cfg->networks;
+
+	while (net != NULL)
+	{
+		if (!tstrcasecmp(net->label,network))
+			break;
+		
+		net = net->next;
+	}	
+
+	if (net == NULL)
+		RETURN_FALSE;
+
+	egg_save(net);
+
+	RETURN_TRUE;
+}
+
+
+PHP_FUNCTION(countusers)
+{
+	char *network;
+	int network_len;
+	struct network *net;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &network, &network_len))
+	{
+		RETURN_FALSE;
+	}
+
+	net = g_cfg->networks;
+
+	while (net != NULL)
+	{
+		if (!tstrcasecmp(net->label,network))
+			break;
+		
+		net = net->next;
+	}	
+
+	if (net == NULL)
+		RETURN_FALSE;
+
+	RETURN_LONG(egg_countusers(net));
+}
 
 PHP_FUNCTION(savechannels)
 {
@@ -27,6 +152,8 @@ PHP_FUNCTION(savechannels)
 	{
 		RETURN_FALSE;
 	}
+	
+	net = g_cfg->networks;
 
 	while (net != NULL)
 	{
@@ -40,11 +167,47 @@ PHP_FUNCTION(savechannels)
 	if (net == NULL)
 		RETURN_FALSE;
 
+
 	egg_savechannels(net);
 	
 	RETURN_TRUE;
 }
 	
+PHP_FUNCTION(finduser)
+{
+	char *network;
+	int  network_len;
+	char *whom;
+	int   whom_len;
+	struct network *net;
+	struct user *user;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss", &network, &network_len, &whom, &whom_len))
+	{
+		/* Need to differentiate between error and 0 */
+		RETURN_FALSE;
+	}
+
+	net = g_cfg->networks;
+
+	while (net != NULL)
+	{
+		if (!tstrcasecmp(net->label,network))
+			break;
+
+		net = net->next;
+	}
+
+	/* Need to differentiate between error and 0 */
+	if (net == NULL)
+		RETURN_FALSE;
+
+	if ((user = egg_finduser(net, whom)) == NULL)
+		RETURN_FALSE;
+
+	RETURN_UTF8_STRING((char *)user->nick, ZSTR_DUPLICATE);
+}
+
 PHP_FUNCTION(validuser)
 {
 	char *network;

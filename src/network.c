@@ -41,6 +41,47 @@
 #include "js_embed.h"
 #endif /* HAVE_JS */
 
+/* The plan for this function is to do a test of commonly needed
+ * server capabilities, like maximum message length, etc for use
+ * by scripting to determine how to split up stuff and whatnot.
+ */
+void network_capabilities_test(struct network *net)
+{
+	return;
+}
+
+struct network_capabilities *network_capabilities_new(void)
+{
+	struct network_capabilities *ret;
+
+	ret->nicklen    = -1;
+  ret->chanellen  = -1;
+  ret->kicklen    = -1;
+  ret->topiclen   = -1;
+  ret->awaylen    = -1;
+  ret->maxtargets = -1;
+
+  ret->chantypes  = NULL;
+  ret->statusmsg  = NULL;
+  ret->prefix     = NULL;
+  ret->modes      = NULL;
+
+  ret->modes_with_args = NULL;
+
+	return ret;
+}
+
+void network_capabilities_free(struct network_capabilities *caps)
+{
+	free(caps->chantypes);
+	free(caps->statusmsg);
+	free(caps->prefix);
+	free(caps->modes);
+	free(caps->modes_with_args);
+
+	free(caps);
+}
+
 struct channel *network_channel_find(struct network *net, const char *name)
 {
 	struct channel *chan = net->chans;
@@ -290,6 +331,7 @@ struct network *new_network(char *label)
 	ret->handlen       = 32;
 
 	ret->filters       = NULL;
+	ret->caps          = NULL;
 #ifdef HAVE_TCL
 	ret->tcl_scripts      = NULL;
 	ret->tcl_scripts_size = 0;

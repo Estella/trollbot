@@ -103,5 +103,9 @@
 7. /2008-05-07/!\acidtoken\
 	[IRC]
 
-	* New function: egg_ischanban [egg_lib.c]
-	:
+	* New function: egg_ischanban            [egg_lib.c]
+	* New function: PHP_FUNCTION(chhandle)   [php_lib.c]
+	* New function: PHP_FUNCTION(passwdok)   [php_lib.c]
+	* New function: PHP_FUNCTION(save)       [php_lib.c]
+	* New function: PHP_FUNCTION(finduser)   [php_lib.c]
+	* New function: PHP_FUNCTION(countusers) [php_lib.c]

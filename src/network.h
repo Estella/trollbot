@@ -47,6 +47,26 @@ enum network_status {
 	NET_IDLE
 };
 
+struct network_capabilities
+{
+	int nicklen;
+	int chanellen; /* Undernet specific ? */
+
+	int kicklen;
+	int topiclen;
+	int awaylen;
+	int maxtargets;
+
+	char *chantypes;
+	
+	char *statusmsg;
+
+	char *prefix;
+
+	char *modes;
+	char *modes_with_args;
+};
+
 /* All lists are at head */
 struct network
 {
@@ -119,6 +139,8 @@ struct network
   /* Unhandled blocks go here */
   struct tconfig_block *tcfg;
 
+	struct network_capabilities *caps;
+
   struct network *prev;
   struct network *next;
 
@@ -162,8 +184,14 @@ struct network
   char *chanfile;
 };
 
+/* Network capabilities */
+struct network_capabilities *network_capabilities_new(void);
+void network_capabilities_free(struct network_capabilities *caps);
+
 /* Child Operations */
 struct channel *network_channel_find(struct network *net, const char *name);
+
+void network_capabilities_test(struct network *net);
 
 void network_connect(struct network *net);
 void free_networks(struct network *net);

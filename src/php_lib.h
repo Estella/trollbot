@@ -13,6 +13,11 @@
 #undef END_EXTERN_C
 #endif /* HAVE_PERL */
 
+PHP_FUNCTION(chhandle);
+PHP_FUNCTION(passwdok);
+PHP_FUNCTION(save);
+PHP_FUNCTION(finduser);
+PHP_FUNCTION(countusers);
 PHP_FUNCTION(savechannels);
 PHP_FUNCTION(validuser);
 PHP_FUNCTION(countusers);

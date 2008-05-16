@@ -209,8 +209,8 @@ int egg_clearqueue(struct network *net, const char *queue)
 
 /* Returns number of users in net, 0 if none */
 /* Ready for export */
-/* NEED_IMP: PHP, Python, Perl */
-/* IMP_IN: Javascript */
+/* NEED_IMP: Python, Perl */
+/* IMP_IN: Javascript, TCL, PHP */
 int egg_countusers(struct network *net)
 {
 	struct user *user;
@@ -232,7 +232,7 @@ int egg_countusers(struct network *net)
 
 /* Fully compatible */
 /* NEED_IMP: Perl, Python  */
-/* IMP_IN: Javascript[kicken] */
+/* IMP_IN: Javascript[kicken], PHP, TCL */
 int egg_validuser(struct network *net, const char *handle)
 {
 	struct user *user;
@@ -253,8 +253,8 @@ int egg_validuser(struct network *net, const char *handle)
 /* finduser <nick!user@host> */
 /* Eggdrop: Returns: the handle found, or "*" if none */
 /* Trollbot: Returns: a user struct, NULL if none */
-/* NEED_IMP: PHP, Perl, Python */
-/* IMP_IN: TCL[poutine], Javascript[kicken] */
+/* NEED_IMP: Perl, Python */
+/* IMP_IN: TCL[poutine], Javascript[kicken], PHP */
 struct user *egg_finduser(struct network *net, const char *mask)
 {
 	struct user *user;
@@ -274,8 +274,8 @@ struct user *egg_finduser(struct network *net, const char *mask)
 }
 
 /* net is optional, if NULL, write all user/channel files to disk */
-/* NEED_IMP: PHP, Perl, Python  */
-/* IMP_IN: TCL, Javascript */
+/* NEED_IMP: Perl, Python  */
+/* IMP_IN: TCL, Javascript, PHP */
 void egg_save(struct network *net)
 {
 	users_save(net);
@@ -294,8 +294,8 @@ char *egg_makepasswd(const char *pass, const char *hash_type)
 
 /* Fully Compatible */
 /* passwdok <handle> <pass> */
-/* NEED_IMP: TCL, PHP, Perl, Python */
-/* IMP_IN: Javascript[kicken] */
+/* NEED_IMP: TCL, Perl, Python */
+/* IMP_IN: Javascript[kicken], PHP */
 int egg_passwdok(struct network *net, const char *handle, const char *pass) 
 {
 	char *hash_string = NULL;
@@ -351,8 +351,8 @@ int egg_passwdok(struct network *net, const char *handle, const char *pass)
 /* setuser <handle> <entry-type> [extra info] */
 
 /* All good */
-/* NEED_IMP: TCL, PHP, Perl, Python */
-/* IMP_IN: Javascript[kicken] */
+/* NEED_IMP: TCL, Perl, Python */
+/* IMP_IN: Javascript[kicken], PHP  */
 int egg_chhandle(struct network *net, const char *old, const char *new)
 {
 	struct user *olduser;
@@ -520,7 +520,7 @@ char *egg_chattr(struct network *net, const char *handle, const char *changes, c
 /* Should be part of chattr */
 
 /* matchattr <handle> <flags> [channel] */
-/* NEED_IMP: PHP, Perl, Python  */
+/* NEED_IMP: Perl, Python, PHP  */
 /* IMP_IN: TCL, Javascript */
 int egg_matchattr(struct network *net, const char *handle, const char *flags, const char *channel)
 {
