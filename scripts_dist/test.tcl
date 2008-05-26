@@ -7,6 +7,16 @@ bind pub - "!botname" do:botname
 bind pub - "!channels" do:channels
 bind pub - "!tcl-finduser" do:finduser
 bind pub - "!tcl-getchanmode" do:getchanmode
+bind pub - "!tcl-utimertest" do:utimertest
+
+proc finish:utimertest { chan } {
+	putserv "PRIVMSG $chan :utimertest has finished"
+}
+
+proc do:utimertest { nick uhost hand chan arg } {
+	putserv "PRIVMSG $chan :Starting utimer test for 10 seconds"
+	utimer 10 "finish:utimertest $chan"
+}
 
 proc do:getchanmode { nick uhost hand chan arg } {
 	putserv "PRIVMSG $chan :Result: [getchanmode $arg]";

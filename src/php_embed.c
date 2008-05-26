@@ -28,6 +28,7 @@
 #include <zend_ini.h>
 
 #include "php_lib.h"
+#include "t_timer.h"
 
 /* HACK */
 #ifdef HAVE_PERL
@@ -454,6 +455,7 @@ static void php_embed_send_header(sapi_header_struct *sapi_header, void *server_
 static void php_embed_log_message(char *message)
 {
 	troll_debug(LOG_WARN, "PHP LOG: %s\n", message);
+	exit(1);
 }
 
 /* Everything is really dealt with through functions, not really needed */
@@ -596,19 +598,28 @@ void php_embed_shutdown(TSRMLS_D)
 #endif
 }
 
+void t_timer_php_handler(struct network *net, struct t_timer *timer)
+{
+	TSRMLS_FETCH();
+
+	zend_eval_string_ex(timer->command,NULL,"Timer Code",1 TSRMLS_CC);
+}
+
 static function_entry trollbot_functions[] = 
 {
+	PHP_FE(utimer, NULL)
 	PHP_FE(savechannels, NULL)
 	PHP_FE(validuser, NULL)
 	PHP_FE(putdcc, NULL)
 	PHP_FE(matchwild, NULL)
 	PHP_FE(putserv, NULL)
 	PHP_FE(bind, NULL)
-	PHP_FE(chhandle, NULL);
-	PHP_FE(passwdok, NULL);
-	PHP_FE(save, NULL);
-	PHP_FE(finduser, NULL);
-	PHP_FE(countusers, NULL);
+	PHP_FE(chhandle, NULL)
+	PHP_FE(passwdok, NULL)
+	PHP_FE(save, NULL)
+	PHP_FE(finduser, NULL)
+	PHP_FE(countusers, NULL)
+	PHP_FE(botnick, NULL)
 	{NULL, NULL, NULL}
 };
 

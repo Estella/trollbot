@@ -16,12 +16,70 @@
 #include "egg_lib.h"
 #include "irc.h"
 #include "user.h"
+#include "t_timer.h"
 
 /*
  * Zend/zend.h:#define INTERNAL_FUNCTION_PARAMETERS int ht, zval *return_value, zval **return_value_ptr, zval *this_ptr, int return_value_used TSRMLS_DC
  * WTF this actually gets parameters as
  */
+PHP_FUNCTION(utimer)
+{
+	char *network;
+	int network_len;
+	char *evalstr;
+	int evalstr_len;
+	long seconds = 1;
+	struct network *net;
 
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sls", &network, &network_len, &seconds, &evalstr, &evalstr_len))
+	{
+		RETURN_FALSE;
+	}
+
+	net = g_cfg->networks;	
+
+	while (net != NULL)
+	{
+		if (!tstrcasecmp(net->label,network))
+			break;
+		
+		net = net->next;
+	}	
+
+	if (net == NULL)
+		RETURN_FALSE;
+
+	egg_utimer(net, (int)seconds, evalstr, t_timer_php_handler);
+
+	RETURN_TRUE;
+}
+
+PHP_FUNCTION(botnick)
+{
+	char *network;
+	int network_len;
+	struct network *net;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &network, &network_len))
+	{
+		RETURN_FALSE;
+	}
+
+	net = g_cfg->networks;	
+
+	while (net != NULL)
+	{
+		if (!tstrcasecmp(net->label,network))
+			break;
+		
+		net = net->next;
+	}	
+
+	if (net == NULL)
+		RETURN_FALSE;
+
+	RETURN_UTF8_STRING((char *)net->botnick, ZSTR_DUPLICATE);
+}
 
 PHP_FUNCTION(chhandle)
 {

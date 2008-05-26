@@ -152,6 +152,28 @@ int tcl_validuser(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *
 	return TCL_OK;
 }
 
+int tcl_utimer(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+  struct network *net = clientData;
+	int seconds   = -1;
+	char *command = NULL;
+
+	if (objc != 3)
+	{
+		Tcl_WrongNumArgs(interp, objc, objv,"utimer <seconds> <command>");
+		return TCL_ERROR;
+	}
+
+	seconds = atoi(Tcl_GetString(objv[1]));
+	command = Tcl_GetString(objv[2]);
+
+  troll_debug(LOG_DEBUG,"[TIMERS] Started Timer: Command %s",command);
+
+	egg_utimer(net,seconds,command,t_timer_tcl_handler);
+
+	return TCL_OK;
+}
+
 int tcl_savechannels(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {
 	struct network *net = clientData;
@@ -192,11 +214,6 @@ int tcl_finduser(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *c
 	return TCL_OK;
 }
 
-int tcl_utimer(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
-{
-	/* Initiate Timers */
-	return TCL_OK;
-}
 
 int tcl_timer(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {

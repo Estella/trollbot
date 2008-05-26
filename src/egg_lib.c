@@ -11,6 +11,7 @@
 #include "dcc.h"
 #include "trigger.h"
 #include "t_crypto_module.h"
+#include "t_timer.h"
 
 #ifdef HAVE_TCL
 #include "tcl_embed.h"
@@ -1271,8 +1272,47 @@ char **egg_bind(struct network *net, char *type, char *flags, char *mask, char *
 /* binds ?type/mask? */
 /* logfile [<modes> <channel> <filename>] */
 /* maskhost <nick!user@host> */
+
 /* timer <minutes> <tcl-command> */
-/* utimer <seconds> <tcl-command> */
+/* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
+/* DO NOT TOUCH THIS */
+int egg_utimer(struct network *net, int seconds, char *command, void (*handler)(struct network *, struct t_timer *))
+{
+  struct t_timer *timer = NULL;
+
+  timer = t_timer_new();
+
+  timer->time_set  = time(NULL);
+  timer->time_trig = (time(NULL) + seconds);
+  timer->command   = tstrdup(command);
+  timer->handler   = handler;
+	timer->net 	     = net;
+
+  net->timers = t_timer_add(net->timers,timer);
+
+  /* FIXME */
+  return -1;
+}
+
+/* timer <minutes> <tcl-command> */
+/* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
+/* DO NOT TOUCH THIS */
+int egg_timer(struct network *net, int minutes, char *command, void (*handler)(struct network *, struct t_timer *))
+{
+	struct t_timer *timer = NULL;
+	
+	timer = t_timer_new();
+
+	timer->time_set  = time(NULL);
+	timer->time_trig = timer->time_set + (60*minutes);
+	timer->command   = tstrdup(command);
+	timer->handler   = handler;
+
+	net->timers = t_timer_add(net->timers,timer);
+
+	/* FIXME */
+	return -1;
+}
 
 /* timers */
 /* utimers */
@@ -1455,6 +1495,7 @@ void egg_rehash(void)
 	free(oldcfg);
 }
 
+// Not egg function, egg variable, do not free
 char *egg_botnick(struct network *net)
 {
 	return net->botnick;

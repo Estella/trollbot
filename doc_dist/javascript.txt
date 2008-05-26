@@ -1,0 +1,182 @@
+Trollbot Javascript Library:
+----------------------------
+
+The following functions are provided in addition to the
+standard javascript implementation given by seamonkey.
+
+In order to enable javascript, you will need to have 
+the development packages, or have compiled and installed
+the following:
+
+  SpiderMonkey - http://www.mozilla.org/js/spidermonkey/ 
+
+If you're running Debian or Ubuntu. You should be able
+to use this functionality by doing:
+  
+  apt-get install libmozjs-dev
+
+make sure to ./configure --with-js
+
+========================================================
+function isop(nick [, channel)
+
+Description:
+
+	This function checks if a nick is opped in any channel
+when no channel is specified. If a channel is specified
+it checks if that nick is opped in that channel.
+
+Return Value: true if nick is an op, false otherwise.
+========================================================
+function isvoice(nick [, channel])
+
+Description:
+
+	This function checks if a nick is voiced in any channel
+when no channel is specified. If a channel is specified
+it checks if that nick is voiced in that channel.
+
+Return Value: true if nick is an voice, false otherwise.
+========================================================
+function getchanmode(channel)
+
+Description:
+
+	Gets the channels modes.
+
+Return Value: The channels modes in "+ntj 4:20" format
+========================================================
+function getting_users()
+
+Description:
+	
+	[NOT IMPLEMENTED] This will check if Trollbot is 
+getting users. This will deal with botlinking.
+
+Return Value: true if getting users, false otherwise.
+========================================================
+function dccbroadcast(message)
+
+Description:
+
+	This function broadcasts a message to everybody on the
+DCC partyline of Trollbot.
+
+Return Value: Nothing.
+========================================================
+function putdcc(idx , message)
+
+Description:
+	This function echos the message to a specified idx's
+socket. idx is the internal DCC ID of a user who is 
+connected to Trollbot's DCC partyline. Future functions
+will make this function useful.
+
+Return Value: Nothing.
+========================================================
+function isbotnick(nick)
+
+Description:
+	This function checks if a nick is the bot's nick.
+
+Return Value: true if the nick is the bot's nick
+              false otherwise.
+========================================================
+function encpass(pass)
+
+Description:
+	This function encrypts [sic one way hashes] given
+plaintext using the same algorithm it uses for password
+files.
+
+Return Value: The encrypted pass.
+========================================================
+function topic(channel)
+
+Description:
+	This function gets the specified channel's topic.
+
+Return Value: The channel's topic
+========================================================
+function validuser(user)
+
+Description:
+	This function checks if the user provided exists in
+Trollbot's internal user system.
+
+Return Value: true if the user exists, false otherwise.
+========================================================
+function countusers()
+
+Description:
+	This function gets the count of users in Trollbot's
+internal user system.
+
+Return Value: the number of users the bot has.
+========================================================
+function savechannels()
+
+
+Description:
+	This function saves the channel list to a file so it
+will use those channels afterwards. This is done by
+Trollbot normally, but future functions will allow you
+to add and remove channels, and saving them afterwards
+is recommended in case of a crash.
+
+Return Value: True
+========================================================
+function finduser(user)
+========================================================
+function matchattr(user, mask)
+========================================================
+function save()
+========================================================
+function bind(type, flags, mask, callback_function)
+
+Description:
+	This function ties an event to a function to be called
+when a specific event happens. callback_function's
+argument list is defined by the bind type. The following
+bind types and the functions their callbacks take are 
+listed here:
+
+  Bind Types:
+	-----------
+  RAW - Used for server numerics and commands that do not
+        have their own specific bind type handler.
+    
+  DCC - Used for commands entered in via the DCC
+        partyline
+
+  JOIN - Used for joins to a channel.
+  PUB  - Used for public messages in a channel.
+  PUBM - Used for wildcard matching public messages.
+	MSG  - Used for private messages.
+  MSGM - Used for wildcard matching private messages.
+  SIGN - Used for quits.
+  PART - Used for parts.
+  
+
+	
+
+========================================================
+function putserv(message)
+
+Description:
+	This functions puts the raw message to the server.
+
+Return Value: None.
+========================================================
+botname
+========================================================
+version
+========================================================
+onchan
+========================================================
+passwdok
+========================================================
+chhandle
+========================================================
+channels
+========================================================

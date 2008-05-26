@@ -10,6 +10,7 @@
 #include "channel.h"
 #include "user.h"
 #include "dcc.h"
+#include "t_timer.h"
 
 #include "egg_lib.h"
 
@@ -62,6 +63,7 @@ void net_init_tcl(struct network *net)
 
 void net_tcl_init_commands(struct network *net)
 {
+	Tcl_CreateObjCommand(net->tclinterp, "utimer",tcl_utimer, net, NULL);
 	Tcl_CreateObjCommand(net->tclinterp, "isop", tcl_isop, net, NULL);
 	Tcl_CreateObjCommand(net->tclinterp, "isvoice", tcl_isvoice, net, NULL);
 	Tcl_CreateObjCommand(net->tclinterp, "getchanmode", tcl_getchanmode, net, NULL);
@@ -83,6 +85,21 @@ void net_tcl_init_commands(struct network *net)
 	Tcl_CreateObjCommand(net->tclinterp, "countusers", tcl_countusers, net, NULL);
 }
 
+void t_timer_tcl_handler(struct network *net, struct t_timer *timer)
+{
+	int ret;
+
+	ret = Tcl_VarEval(net->tclinterp,
+										timer->command,
+										NULL);
+
+	if (ret == TCL_ERROR)
+	{
+		troll_debug(LOG_WARN,"TCL Error: %s\n",net->tclinterp->result);
+	}
+	
+	return;
+}
 
 /* needs fixed FIXME */
 void tcl_handler(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)

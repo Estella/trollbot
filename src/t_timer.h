@@ -27,7 +27,7 @@ struct t_timer
 	struct t_timer *next;
 };
 
-void t_timers_check(struct t_timer *timers, time_t timestamp);
+struct t_timer *t_timers_check(struct t_timer *timers, time_t timestamp);
 struct t_timer *t_timer_add(struct t_timer *timers, struct t_timer *add);
 struct t_timer *t_timer_remove(struct t_timer *timers, struct t_timer *del);
 void t_timers_free(struct t_timer *timers);

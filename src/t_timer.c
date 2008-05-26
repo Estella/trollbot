@@ -7,11 +7,13 @@
 #include "network.h"
 #include "util.h"
 
-void t_timers_check(struct t_timer *timers, time_t timestamp)
+struct t_timer *t_timers_check(struct t_timer *timers, time_t timestamp)
 {
 	struct t_timer *tmp = NULL;
+	struct t_timer *ret = NULL;
 
 	tmp = timers;
+	ret = timers;
 
 	while (tmp != NULL)
 	{
@@ -20,15 +22,13 @@ void t_timers_check(struct t_timer *timers, time_t timestamp)
 			if (tmp->handler != NULL)
 				tmp->handler(tmp->net, tmp);
 
-			tmp = t_timer_remove(tmp->net->timers, tmp);
-
-			continue;
+			 ret = t_timer_remove(ret, tmp);
 		}
 
 		tmp = tmp->next;
 	}
 
-	return;	
+	return ret;	
 }
 
 struct t_timer *t_timer_add(struct t_timer *timers, struct t_timer *add)
@@ -68,9 +68,9 @@ struct t_timer *t_timer_remove(struct t_timer *timers, struct t_timer *del)
 
 	if (ret == timers)
 	{
-		ret = ret->next;
-		t_timer_free(timers);
-		return ret; /* Will be NULL if no other timers exist */
+		timers = timers->next;
+		t_timer_free(ret);
+		return timers; /* Will be NULL if no other timers exist */
 	}	
 
 	if (ret->next != NULL)

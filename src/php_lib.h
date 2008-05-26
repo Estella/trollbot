@@ -13,6 +13,8 @@
 #undef END_EXTERN_C
 #endif /* HAVE_PERL */
 
+PHP_FUNCTION(utimer);
+PHP_FUNCTION(botnick);
 PHP_FUNCTION(chhandle);
 PHP_FUNCTION(passwdok);
 PHP_FUNCTION(save);

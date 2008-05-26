@@ -30,6 +30,7 @@
 #include "server.h"
 #include "channel.h"
 #include "user.h"
+#include "t_timer.h"
 
 #ifdef HAVE_XMPP
 #include "xmpp_server.h"
@@ -93,6 +94,7 @@ void irc_loop(void)
 	int numsocks = 0;
 	socklen_t lon      = 0;
 	int valopt   = 0;
+	time_t last = 0;
 
 #ifdef HAVE_XMPP
 	xs = g_cfg->xmpp_servers;
@@ -271,7 +273,7 @@ void irc_loop(void)
 			net = net->next;
 		}
 
-		select(numsocks+1, &socks, &writefds, NULL, &timeout);
+		select(numsocks+1, &socks, &writefds, NULL, NULL);
 
 #ifdef HAVE_XMPP
 		xs = g_cfg->xmpp_servers;
@@ -381,6 +383,16 @@ void irc_loop(void)
 					}
 				}
 			}
+
+			if (net->status >= NET_CONNECTED && net->timers != NULL)
+			{
+				if (last <= time(NULL))
+				{
+					net->timers = t_timers_check(net->timers,time(NULL));
+					last = time(NULL);
+				}
+			}
+
 
 			while (dcc != NULL)
 			{

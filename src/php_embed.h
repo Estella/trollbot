@@ -65,6 +65,7 @@
   php_embed_shutdown(TSRMLS_C); \
 }
 
+struct t_timer;
 struct trigger;
 struct irc_data;
 struct network;
@@ -72,6 +73,7 @@ struct network;
 extern zend_module_entry trollbot_module_entry;
 #define phpext_trollbot_ptr &trollbot_module_entry
 
+void t_timer_php_handler(struct network *net, struct t_timer *timer);
 void php_load_scripts_from_config(struct config *cfg);
 void myphp_eval_file(char *filename);
 void php_handler(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);

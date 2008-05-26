@@ -15,6 +15,11 @@ struct network;
 struct irc_data;
 struct trigger;
 struct dcc_session;
+struct t_timer;
+
+int egg_utimer(struct network *net, int seconds, char *command, void (*handler)(struct network *, struct t_timer *));
+int egg_timer(struct network *net, int minutes, char *command, void (*handler)(struct network *, struct t_timer *));
+
 
 int egg_ischanban(struct network *net, const char *ban, const char *channel);
 int egg_isop(struct network *net, const char *nickname, const char *channel);
