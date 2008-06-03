@@ -109,3 +109,16 @@
 	* New function: PHP_FUNCTION(save)       [php_lib.c]
 	* New function: PHP_FUNCTION(finduser)   [php_lib.c]
 	* New function: PHP_FUNCTION(countusers) [php_lib.c]
+
+8. /2008-05-26/!\acidtoken
+	[IRC]
+		
+	* Merged horrid timer scheme I had patched and left in a branch
+	* JS now supports JOIN, PART, and DCC bind types.
+
+	* New function: PHP_FUNCTION(utimer)      [php_lib.c]
+	* New function: troll_nick_in_use_handler [troll_lib.c]
+	* New function: tcl_utimer                [tcl_lib.c]
+	* New function: PHP_FUNCTION(botnick)     [php_lib.c]
+	* New function: egg_utimer                [egg_lib.c]
+	* New function: egg_timer                 [egg_lib.c]

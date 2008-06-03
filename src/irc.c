@@ -298,37 +298,6 @@ void parse_irc_line(struct network *net, const char *buffer)
 			irc_printf(net->sock, "PONG :%s\n",data->rest[0]);
 	}
 
-	/* Deal with end of MOTD to join channels */
-	if (!strcmp("376",data->command))
-	{
-		irc_printf(net->sock,"USERHOST %s",net->nick);
-		join_channels(net);
-		net->status = NET_IDLE;
-
-	}
-
-	/* Deal with ERR_NICKNAMEINUSE
-	 * this should be in default_triggers,
-	 * but there's no raw trigger type yet
-	 */
-	/* Also needs bind time event for changing
-	 * nickname back to regular nick. Perhaps
-	 * even a custom event for nickserv ghost and
-	 * such.
-	 */
-	if (!strcmp("433",data->command))
-	{
-		if (net->altnick != NULL)
-			irc_printf(net->sock,"NICK %s",net->altnick);
-
-		if (net->botnick != NULL)
-			free(net->botnick);
-
-		/* Should just make this a pointer to nick
-		 * or altnick
-		 */
-		net->botnick = tstrdup(net->altnick);
-	}
 
 	/* 302, Ip? */
 	if (!strcmp("302",data->command))

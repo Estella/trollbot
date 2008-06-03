@@ -11,11 +11,6 @@ trollbot_LDADD  = ${LIBLTDL} "-dlopen" modules/crypto/crypto.la
 
 trollbot_DEPENDENCIES = modules/crypto/crypto.la
 
-if WITH_PGSQL
-trollbot_LDADD  += "-dlopen" modules/pgsql_log_filter/pgsql_log_filter.la
-trollbot_DEPENDENCIES += modules/pgsql_log_filter/pgsql_log_filter.la
-endif
-
 if WITH_XMPP
 
 trollbot_SOURCES += xmpp_server.c xmpp_server.h xmpp_proto.c xmpp_proto.h xmpp_trigger.c xmpp_trigger.h

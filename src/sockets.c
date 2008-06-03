@@ -341,7 +341,7 @@ void irc_loop(void)
 				if (FD_ISSET(net->dcc_listener,&socks))
 				{
 					/* Accept a new connection that's waiting */
-					//new_dcc_connection(net);
+					new_dcc_connection(net);
 				}
 			}
 

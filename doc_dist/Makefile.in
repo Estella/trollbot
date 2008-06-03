@@ -190,7 +190,7 @@ target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 trollbotdocdir = ${prefix}/doc
-EXTRA_DIST = SCRIPTING.PHP SCRIPTING.TCL SCRIPTING.PERL SCRIPTING.PYTHON GPL PHP tcl-commands.doc
+EXTRA_DIST = SCRIPTING.PHP SCRIPTING.TCL SCRIPTING.PERL SCRIPTING.PYTHON GPL PHP tcl-commands.doc javascript.txt
 trollbotdoc_DATA = SCRIPTING.PHP SCRIPTING.TCL SCRIPTING.PERL SCRIPTING.PYTHON GPL PHP tcl-commands.doc
 all: all-am
 

@@ -41,12 +41,18 @@ AC_TYPE_PID_T
 
 dnl check if libxml2 exists
 dnl needed for jabber/xmpp
-AM_PATH_XML2(2.6.13)
 
-AC_SUBST(XML_LIBS)
-AC_SUBST(XML_CPPFLAGS)
+AC_ARG_WITH(xmpp, [  --with-xmpp=[yes/no]  Whether to include XMPP support],
+	[ with_xmpp="$withval" ])
 
-if test "x{$XML_LIBS}" != "x"; then
+if test "${with_xmpp}" = "yes"; then
+	AM_PATH_XML2(2.6.13)
+
+	AC_SUBST(XML_LIBS)
+	AC_SUBST(XML_CPPFLAGS)
+fi
+
+if test "x${XML_LIBS}" != "x"; then
 	AC_DEFINE([HAVE_LIBXML],1,[Ability to use libxml2])
 	AC_DEFINE([HAVE_XMPP],1,[Ability to use XMPP/Jabber])
 fi
@@ -135,7 +141,7 @@ echo ""
 
 echo "  IRC        Support: Yes"
 
-if test "x{XML_LIBS}" != "x"; then
+if test "with_xmpp" = "yes"; then
 	echo "  XMPP       Support: Yes"
 else
 	echo "  XMPP       Support: No"

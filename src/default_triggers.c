@@ -106,6 +106,10 @@ void add_default_triggers(void)
 		trigger_list_add(&net->trigs->raw,new_trigger(NULL,TRIG_RAW,"367",NULL,&channel_banlist_add));
 		trigger_list_add(&net->trigs->raw,new_trigger(NULL,TRIG_RAW,"NICK",NULL,&troll_trig_update_nick));
 		trigger_list_add(&net->trigs->raw,new_trigger(NULL,TRIG_RAW,"MODE",NULL,&troll_trig_update_mode));
+		trigger_list_add(&net->trigs->raw,new_trigger(NULL,TRIG_RAW,"433",NULL,&troll_nick_in_use_handler));
+		trigger_list_add(&net->trigs->raw,new_trigger(NULL,TRIG_RAW,"376",NULL,&troll_user_host_handler));
+
+
 
 		net = net->next;
 	}

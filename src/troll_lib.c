@@ -14,6 +14,30 @@
 #include "log_entry.h"
 #include "debug.h"
 
+
+void troll_user_host_handler(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
+{
+	irc_printf(net->sock,"USERHOST %s",net->nick);
+	join_channels(net);
+	net->status = NET_IDLE;
+}
+
+void troll_nick_in_use_handler(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
+{
+	if (net->altnick != NULL)
+		irc_printf(net->sock,"NICK %s",net->altnick);
+
+	if (net->botnick != NULL)
+		free(net->botnick);
+
+	/* Should just make this a pointer to nick
+	 * or altnick
+	 */
+	net->botnick = tstrdup(net->altnick);
+
+	return;
+}
+
 /*                            C    CP0    CP1   CP2                     CP3                       CP4             CP5  CP6  REST    */
 /* >> :swiftco.wa.us.dal.net 352 poutine #php ~address c-69-251-232-134.hsd1.md.comcast.net jade.fl.us.dal.net Wildblue H :5 yonder */
 void troll_parse_who(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)

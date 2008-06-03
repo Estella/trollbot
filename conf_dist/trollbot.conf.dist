@@ -1,6 +1,8 @@
 /* Comments can be c++ style or c */
-
-
+/* All lines are <key> <value>, both the keys and the
+ * values can have spaces, but they need to be wrapped in
+ * quotes
+ */ 
 //   global settings
 //   {
 //     fork <0 for no fork, 1 to fork>
@@ -112,4 +114,22 @@ network DALnet
 
 		/* Servers:ports to try and connect to */
     server swiftco.dal.net:6668
+
+		// New feature, see log_filter.txt in doc/ (not there yet)
+		// This config gets passed to the module, which 
+		log_filter_module pgsql_log_filter
+		{
+			db_host localhost
+			db_port 5432
+			db_name troll_log
+
+			db_user troll_log
+			db_pass troll_log
+
+			// Will auto-create
+			db_tbl dalnet_log
+			
+			// Logs joins to database
+			log_flags j
+		}
 }
