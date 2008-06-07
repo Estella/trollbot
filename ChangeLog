@@ -110,7 +110,7 @@
 	* New function: PHP_FUNCTION(finduser)   [php_lib.c]
 	* New function: PHP_FUNCTION(countusers) [php_lib.c]
 
-8. /2008-05-26/!\acidtoken
+8. /2008-05-26/!\acidtoken\
 	[IRC]
 		
 	* Merged horrid timer scheme I had patched and left in a branch
@@ -122,3 +122,17 @@
 	* New function: PHP_FUNCTION(botnick)     [php_lib.c]
 	* New function: egg_utimer                [egg_lib.c]
 	* New function: egg_timer                 [egg_lib.c]
+
+8. /2008-06-06/!\acidtoken\
+	[IRC]
+
+	* Added more JS documentation:  [javascript.txt]
+	* New function: egg_isban       [egg_lib.c]
+	* New function: egg_ispermban   [egg_lib.c]
+	* New function: egg_isbansticky [egg_lib.c]
+	* New function: egg_botonchan   [egg_lib.c]
+	* New function: egg_botisop     [egg_lib.c]
+	* New function: egg_botisvoice  [egg_lib.c]
+	* New function: js_isban        [js_lib.c]
+	* New function: js_ispermban    [js_lib.c]
+	* New function: js_isbansticky  [js_lib.c]

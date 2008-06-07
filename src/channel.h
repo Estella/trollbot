@@ -11,6 +11,13 @@ struct trigger;
 struct dcc_session;
 struct irc_data;
 
+enum channel_ban_types
+{
+	CHANNEL_BAN_UNKNOWN = 0,
+	CHANNEL_BAN_DYNAMIC,
+	CHANNEL_BAN_EGG
+};
+
 /* Used with struct slist, no prev, next */
 struct chan_egg_var
 {
@@ -31,6 +38,14 @@ struct channel_ban
 	char *who;
 	
 	time_t time;
+
+	/* See channel_ban_types enum */
+	int type;
+
+	int is_sticky;
+	int is_perm;
+	
+	time_t expire_time;
 
 	struct channel_ban *prev;
 	struct channel_ban *next;

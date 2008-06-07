@@ -596,13 +596,102 @@ int egg_matchattr(struct network *net, const char *handle, const char *flags, co
 /* killchaninvite <channel> <invite> */
 /* killinvite <invite> */
 /* ischanjuped <channel> */
+
 /* isban <ban> [channel] */
+/* NEED_IMP: TCL, PHP, Python */
+/* IMP_IN: Javascript */
+int egg_isban(struct network *net, char *ban, char *channel)
+{
+	struct channel     *chan;
+	struct channel_ban *cban;
+
+	if ((channel == NULL) || strlen(channel) == 0)
+	{
+		/* TODO: Check Global list, which doesn't exist yet */
+		return 0;
+	}
+
+	/* Find the channel */
+	chan = network_channel_find(net, channel);
+	
+	if (chan == NULL)
+		return 0;
+
+	cban = channel_channel_ban_find(chan, ban);
+
+	if (cban == NULL)
+		return 0;
+
+	return 1;
+}
+
 /* ispermban <ban> [channel] */
+/* NEED_IMP: TCL, PHP, Python */
+/* IMP_IN: Javascript */
+int egg_ispermban(struct network *net, char *ban, char *channel)
+{
+	struct channel     *chan;
+	struct channel_ban *cban;
+
+	if ((channel == NULL) || strlen(channel) == 0)
+	{
+		/* TODO: Check Global list, which doesn't exist yet */
+		return 0;
+	}
+
+	/* Find the channel */
+	chan = network_channel_find(net, channel);
+	
+	if (chan == NULL)
+		return 0;
+
+	cban = channel_channel_ban_find(chan, ban);
+
+	if (cban == NULL)
+		return 0;
+	
+	return cban->is_perm;
+}
+
 /* isexempt <exempt> [channel] */
 /* ispermexempt <exempt> [channel] */
 /* isinvite <invite> [channel] */
 /* isperminvite <invite> [channel] */
-/* isbansticky <ban> [channel] */
+
+/*
+ *   isbansticky <ban> [channel]
+ *   Returns: 1 if the specified ban is marked as sticky in the global ban
+ *   list; 0 otherwise. If a channel is specified, that channel's ban list
+ *   is checked as well.
+ *   Module: channels
+ */
+/* NEED_IMP: TCL, PHP, Python */
+/* IMP_IN: Javascript */
+int egg_isbansticky(struct network *net,  char *ban, char *channel)
+{
+	struct channel     *chan;
+	struct channel_ban *cban;
+
+	if ((channel == NULL) || strlen(channel) == 0)
+	{
+		/* TODO: Check Global list, which doesn't exist yet */
+		return 0;
+	}
+
+	/* Find the channel */
+	chan = network_channel_find(net, channel);
+	
+	if (chan == NULL)
+		return 0;
+
+	cban = channel_channel_ban_find(chan, ban);
+
+	if (cban == NULL)
+		return 0;
+	
+	return cban->is_sticky;
+}
+
 /* isexemptsticky <exempt> [channel] */
 /* isinvitesticky <invite> [channel] */
 /* matchban <nick!user@host> [channel] */
@@ -641,6 +730,7 @@ void egg_savechannels(struct network *net)
 }
 
 /* loadchannels */
+
 
 /* Eggdrop Compatible */
 /* NEED_IMP: PHP, Perl, Python             */
@@ -699,9 +789,29 @@ int egg_isbotnick(struct network *net, char *nick)
 }
 
 /* botisop [channel] */
+/* NEED_IMP: Javascript, TCL, PHP, Python */
+int egg_botisop(struct network *net, const char *nickname, const char *channel)
+{
+	return egg_isop(net, egg_botnick(net), channel);
+}
+
 /* botishalfop [channel] */
+
 /* botisvoice [channel] */
+/* NEED_IMP: Javascript, TCL, PHP, Python */
+int egg_botisvoice(struct network *net, const char *nickname, const char *channel)
+{
+	return egg_isvoice(net, egg_botnick(net), channel);
+}
+
+
 /* botonchan [channel] */
+/* NEED_IMP: Javascript, TCL, PHP, Python */
+int egg_botonchan(struct network *net, const char *nickname, const char *channel)
+{
+	/* This function is stupid, but part of eggdrop */
+	return egg_onchan(net, egg_botnick(net), channel);
+}
 
 /* isop <nickname> [channel]
  *   isop <nickname> [channel]

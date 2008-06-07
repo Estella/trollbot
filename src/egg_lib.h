@@ -17,6 +17,16 @@ struct trigger;
 struct dcc_session;
 struct t_timer;
 
+
+int egg_botisvoice(struct network *net, const char *nickname, const char *channel);
+int egg_botisop(struct network *net, const char *nickname, const char *channel);
+int egg_botonchan(struct network *net, const char *nickname, const char *channel);
+
+int egg_isban(struct network *net, char *ban, char *channel);
+int egg_ispermban(struct network *net, char *ban, char *channel);
+int egg_isbansticky(struct network *net,  char *ban, char *channel);
+int egg_isbansticky(struct network *net,  char *ban, char *channel);
+
 int egg_utimer(struct network *net, int seconds, char *command, void (*handler)(struct network *, struct t_timer *));
 int egg_timer(struct network *net, int minutes, char *command, void (*handler)(struct network *, struct t_timer *));
 

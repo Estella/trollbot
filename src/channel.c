@@ -127,7 +127,12 @@ struct channel_ban *channel_ban_new(void)
 	ret->mask = NULL;
 	ret->who  = NULL;
 
-	ret->time = 0;
+	ret->time        = 0;
+	ret->expire_time = 0;
+
+	ret->type        = CHANNEL_BAN_UNKNOWN;
+	ret->is_sticky   = 0;
+	ret->is_perm     = 0;
 
 	ret->prev = NULL;
 	ret->next = NULL;

@@ -126,11 +126,17 @@ is recommended in case of a crash.
 
 Return Value: True
 ========================================================
-function finduser(user)
+function finduser(user , mask)
 ========================================================
 function matchattr(user, mask)
 ========================================================
 function save()
+
+Description:
+	I'm not quite sure what this does, but I know it's
+working as expected
+
+Return Value: Not sure
 ========================================================
 function bind(type, flags, mask, callback_function)
 
@@ -172,11 +178,38 @@ botname
 ========================================================
 version
 ========================================================
-onchan
+function onchan(nick [, channel])
+
+Description:
+	This function checks whether a specified nickname is
+on a channel or not. if channel is not specified it will
+check whether a nick is on any of the channel's the bot
+is in.
+
+Return Value: true if nick is on the channel, false 
+							if not.
 ========================================================
-passwdok
+function passwdok(username , password)
+
+Description:
+	This function checks whether a username's password is
+correct using the bot's global or network specific 
+encryption type.
+
+Return Value: true if the password matches, false if 
+							not.
 ========================================================
-chhandle
+function chhandle(old_username , new_username)
+
+Description:
+	This function changes a user's username.
+
+Return Value: None (verify this)
 ========================================================
-channels
+function channels()
+
+Description:
+	This function retrieves a channel list from the bot.
+
+Return Value: an array of channels.
 ========================================================

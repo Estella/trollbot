@@ -15,6 +15,99 @@
 #include "network.h"
 #include "egg_lib.h"
 
+JSBool js_isbansticky(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+	struct network *net = JS_GetContextPrivate(cx);
+	char *banmask;
+	char *channel;
+	int ret;
+
+	if (argc == 1)
+	{
+		/* Just searching for the ban mask */
+		banmask  = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+		channel  = NULL;
+	}
+	else if (argc == 2)
+	{
+		banmask  = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+		channel  = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
+	}
+	else
+	{
+		/* TODO: Error handling */
+		return JS_FALSE;
+	}
+
+	ret = egg_isbansticky(net, banmask, channel);
+
+	*rval = INT_TO_JSVAL(ret);
+
+	return JS_TRUE;
+}
+
+JSBool js_ispermban(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+	struct network *net = JS_GetContextPrivate(cx);
+	char *banmask;
+	char *channel;
+	int ret;
+
+	if (argc == 1)
+	{
+		/* Just searching for the ban mask */
+		banmask  = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+		channel  = NULL;
+	}
+	else if (argc == 2)
+	{
+		banmask  = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+		channel  = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
+	}
+	else
+	{
+		/* TODO: Error handling */
+		return JS_FALSE;
+	}
+
+	ret = egg_ispermban(net, banmask, channel);
+
+	*rval = INT_TO_JSVAL(ret);
+
+	return JS_TRUE;
+}
+
+JSBool js_isban(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+	struct network *net = JS_GetContextPrivate(cx);
+	char *banmask;
+	char *channel;
+	int ret;
+
+	if (argc == 1)
+	{
+		/* Just searching for the ban mask */
+		banmask  = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+		channel  = NULL;
+	}
+	else if (argc == 2)
+	{
+		banmask  = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+		channel  = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
+	}
+	else
+	{
+		/* TODO: Error handling */
+		return JS_FALSE;
+	}
+
+	ret = egg_isban(net, banmask, channel);
+
+	*rval = INT_TO_JSVAL(ret);
+
+	return JS_TRUE;
+}
+
 JSBool js_isvoice(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	struct network *net = JS_GetContextPrivate(cx);
