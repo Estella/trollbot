@@ -190,6 +190,8 @@ void network_capabilities_free(struct network_capabilities *caps);
 
 /* Child Operations */
 struct channel *network_channel_find(struct network *net, const char *name);
+struct user    *network_user_find_by_username(struct network *net, const char *username);
+struct user    *network_user_find_by_hostmask(struct network *net, const char *hostmask);
 
 void network_capabilities_test(struct network *net);
 

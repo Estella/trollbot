@@ -50,30 +50,6 @@ struct tconfig_block *file_to_tconfig(const char *filename)
     return NULL;
   }
 
-	/* Reverted: This is not portable. [acidtoken]
- 	 * from the FAQ :-
- 	 * "Text mode translations also affect the apparent size of a file as
- 	 * it's read. Because the characters read from and written to a file in
- 	 * text mode do not necessarily match the characters stored in the file
- 	 * exactly, the size of the file on disk may not always match the number
- 	 * of characters which can be read from it. Furthermore, for analogous
- 	 * reasons, the fseek and ftell functions do not necessarily deal in pure
- 	 * byte offsets from the beginning of the file. (Strictly speaking, in
- 	 * text mode, the offset values used by fseek and ftell should not be
- 	 * interpreted at all: a value returned by ftell should only be used as a
- 	 * later argument to fseek, and only values returned by ftell should be
-	 * used as arguments to fseek.)" 
-	
-   * Read the entire file into memory *
-  fseek(cfile, 0, SEEK_END);
-  size = ftell(cfile);
-  fseek(cfile, 0, SEEK_SET);
-
-  fbuf = tmalloc0(sizeof(*fbuf)*(size+1));
-  fread(fbuf, sizeof(*fbuf), size+1, cfile);
-  size=0;
-	*/
-
   fbuf = tmalloc0(BUFFER_SIZE);
 
   /* Read the entire file into memory */

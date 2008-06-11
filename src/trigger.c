@@ -9,6 +9,47 @@
 
 #include "egg_lib.h"
 
+struct trigger *trigger_list_del(struct trigger *triggers, struct trigger *del)
+{
+	struct trigger *tmp = NULL;
+
+	if ((tmp = triggers) == NULL)
+	{
+		log_entry_printf(NULL,NULL,"T","trigger_list_del() called with NULL trigger list");
+		return NULL;
+	}
+
+	while (tmp != NULL)
+	{
+		if (tmp == del)
+		{
+			if (tmp->prev != NULL)
+				tmp->prev->next = tmp->next;
+
+			if (tmp->next != NULL)
+				tmp->next->prev = tmp->prev;
+
+			while (tmp == del && tmp->prev != NULL)
+				tmp = tmp->prev;
+
+			while (tmp == del && tmp->next != NULL)
+				tmp = tmp->next;
+
+			if (tmp == del)
+				return NULL;
+			else
+				return tmp;
+
+		}
+
+		tmp = tmp->next;
+	}
+
+	log_entry_printf(NULL,NULL,"T","trigger_list_del() called with a trigger deletion that no entry existed for");
+
+	return triggers;
+}
+
 void trigger_list_add(struct trigger **orig, struct trigger *new)
 {
 	struct trigger *tmp;
@@ -108,7 +149,7 @@ void trigger_match(struct network *net, struct irc_data *data)
 	/* First let's determine what trigger table to check */
 	if (!strcmp(data->command,"PRIVMSG"))
 	{
-		/* Could be PUB, PUBM, MSG, MSGM atm */
+		/* Could be PUB, PUBM, MSG, MSGM, CTCP atm */
 		if (data->c_params[0] != NULL)
 		{
 			if (!strcasecmp(data->c_params[0],net->botnick))
@@ -367,6 +408,7 @@ struct trig_table *new_trig_table(void)
 	ret->join      = NULL;
 	ret->part      = NULL;
 	ret->sign      = NULL;
+	ret->ctcp      = NULL;
 	ret->kick      = NULL;
 	ret->notc      = NULL;
 	ret->dcc       = NULL;
@@ -415,6 +457,7 @@ void free_trigger_table(struct trig_table *table){
 	if (table->join){  free_trigger_list(table->join);  }
 	if (table->part){  free_trigger_list(table->part);  }
 	if (table->sign){  free_trigger_list(table->sign);  }
+	if (table->ctcp){  free_trigger_list(table->ctcp);  }
 	if (table->kick){  free_trigger_list(table->kick);  }
 	if (table->notc){  free_trigger_list(table->notc);  }
 	if (table->dcc){  free_trigger_list(table->dcc);  }

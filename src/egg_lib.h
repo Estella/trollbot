@@ -17,6 +17,7 @@ struct trigger;
 struct dcc_session;
 struct t_timer;
 
+char *egg_unbind(struct network *net, char *type, char *flags, char *mask, char *command);
 
 int egg_botisvoice(struct network *net, const char *nickname, const char *channel);
 int egg_botisop(struct network *net, const char *nickname, const char *channel);

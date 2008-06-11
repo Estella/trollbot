@@ -41,6 +41,40 @@
 #include "js_embed.h"
 #endif /* HAVE_JS */
 
+struct user *network_user_find_by_hostmask(struct network *net, const char *hostmask)
+{
+	struct user *tmpusr;
+	
+	tmpusr = net->users;
+
+	while (tmpusr != NULL)
+	{
+		if (!egg_matchwilds(tmpusr->uhost, hostmask))
+			return tmpusr;
+
+		tmpusr = tmpusr->next;
+	}
+
+	return NULL;
+}
+
+struct user *network_user_find_by_username(struct network *net, const char *username)
+{
+	struct user *tmpusr;
+
+	tmpusr = net->users;
+
+	while (tmpusr != NULL)
+	{
+		if (!tstrcasecmp(tmpusr->username, username))
+			return tmpusr;
+	
+		tmpusr = tmpusr->next;
+	}
+
+	return NULL;
+}
+
 /* The plan for this function is to do a test of commonly needed
  * server capabilities, like maximum message length, etc for use
  * by scripting to determine how to split up stuff and whatnot.

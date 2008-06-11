@@ -136,3 +136,15 @@
 	* New function: js_isban        [js_lib.c]
 	* New function: js_ispermban    [js_lib.c]
 	* New function: js_isbansticky  [js_lib.c]
+
+9. /2008-06-08/!\acidtoken\
+	[IRC]
+
+	* Added ctcp trigger list to triggers [trigger.c]
+	* Added SIGN bind type to Javascript  [js_lib.c]
+	* Added CTCP bind type to Javascript  [js_lib.c]
+	* Added eggdrop's match.c, since it's public domain
+		and the current implementation is lacking some details
+		(Not implemented in code yet)
+
+	* New function: egg_unbind            [egg_lib.c]

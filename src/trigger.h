@@ -14,6 +14,7 @@ enum
 	TRIG_NOTC,
 	TRIG_JOIN,
 	TRIG_SIGN,
+	TRIG_CTCP,
 	TRIG_KICK,
 	TRIG_DCC,
 	TRIG_TOPC,
@@ -30,6 +31,7 @@ struct trig_table
 	struct trigger *part;
 	struct trigger *join;
 	struct trigger *sign;
+	struct trigger *ctcp;
 	struct trigger *kick;
 	struct trigger *notc;
 	struct trigger *dcc;
@@ -57,6 +59,7 @@ struct trigger
 	struct trigger *next;  
 };
 
+struct trigger *trigger_list_del(struct trigger *triggers, struct trigger *del);
 void trigger_list_add(struct trigger **orig, struct trigger *new);
 struct trigger *new_trigger(char *flags, int type, char *mask, char *command, void (*handler)(struct network *, struct trigger *, struct irc_data *, struct dcc_session *, const char *));
 void trigger_match(struct network *net, struct irc_data *data);

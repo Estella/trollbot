@@ -142,18 +142,24 @@ int egg_matchwilds(const char *haystack, const char *needle)
 }
 
 /* These functions need queue support */
+/* NEED_IMP: ??? */
+/* IMP_IN: ??? */
 void egg_putserv(struct network *net, const char *text, int option_next)
 {
 	/* option_next currently ignored */
 	irc_printf(net->sock,text); 
 }
 
+/* NEED_IMP: ??? */
+/* IMP_IN: ??? */
 void egg_puthelp(struct network *net, const char *text, int option_next)
 {
 	/* option_next currently ignored */
 	irc_printf(net->sock,text);
 }
 
+/* NEED_IMP: ??? */
+/* IMP_IN: ??? */
 void egg_putquick(struct network *net, const char *text, int option_next)
 {
 	/* option_next currently ignored */
@@ -162,30 +168,40 @@ void egg_putquick(struct network *net, const char *text, int option_next)
 
 /* Fully compatible */
 /* I highly doubt that */
+/* NEED_IMP: ??? */
+/* IMP_IN: ??? */
 void egg_putkick(struct network *net, const char *chan, const char *nick_list, const char *reason)
 {
 	irc_printf(net->sock,"KICK %s %s :%s",chan,nick_list,reason);
 }
 
 /* Fully compatible */
+/* NEED_IMP: ??? */
+/* IMP_IN: ??? */
 void egg_putlog(struct network *net, const char *text)
 {
 	troll_debug(LOG_DEBUG,text);
 }
 
 /* Not compatible */
+/* NEED_IMP: ??? */
+/* IMP_IN: ??? */
 void egg_putcmdlog(struct network *net, const char *text)
 {
 	troll_debug(LOG_DEBUG,text);
 }
 
 /* Not compatible */
+/* NEED_IMP: ??? */
+/* IMP_IN: ??? */
 void egg_putxferlog(struct network *net, const char *text)
 {
 	troll_debug(LOG_DEBUG,text);
 }
 
 /* Not compatible */
+/* NEED_IMP: ??? */
+/* IMP_IN: ??? */
 void egg_putloglev(struct network *net, const char *levels, const char *chan, const char *text)
 {
 	troll_debug(LOG_DEBUG,text);
@@ -569,7 +585,24 @@ int egg_matchattr(struct network *net, const char *handle, const char *flags, co
 
 }
 
+/* NOT DONE */
+#ifdef CLOWNS
 /* adduser <handle> [hostmask] */
+int egg_adduser(struct network *net, char *username, char *hostmask)
+{
+	struct user *new_user = NULL;
+
+	if (username == NULL)
+		return 0;
+
+	/* Already exists */
+	if (network_user_find_by_username(net, username) != NULL)
+		return 0;
+	
+	return 1;
+}
+#endif /* CLOWNS */
+
 /* addbot <handle> <address> */
 /* deluser <handle> */
 /* delhost <handle> <hostmask> */
@@ -1044,7 +1077,55 @@ int egg_ischanban(struct network *net, const char *ban, const char *channel)
 
 /* ischanexempt <exempt> <channel> */
 /* ischaninvite <invite> <channel> */
+
 /* chanbans <channel> */
+/*  chanbans <channel>
+ *  Returns: a list of the current bans on the channel. Each element is
+ *    a sublist of the form {<ban> <bywho> <age>}. age is seconds from the
+ *    bot's point of view
+ *  Module: irc
+ *  bywho: uhost of setter.
+ *  age: needs an eggdrop semantic check
+ *  Age starts over on eggdrop if it for any reason leaves the channel. Quite
+ *  an odd thing to do as that information would be available to it. Perhaps
+ *  this is a candidate for eggdrop strict versus trollbot modes.
+ */
+/* NEED_IMP: Javascript, PHP, Python, TCL */
+/* IMP_IN: None */
+#ifdef CLOWNS
+char **egg_chanbans(struct network *net, const char *channel)
+{
+	struct channel *chan;
+	struct channel_ban *cban;
+	char **ret;
+	int count = 0;
+
+	/* If channel not found return NULL */
+	if ((chan = network_channel_find(net, channel)) == NULL)
+		return NULL;
+
+	/* Scan through the bans to get a count */
+	cban = chan->banlist;
+
+	while (cban != NULL)
+	{
+		count++;
+		cban = cban->next;
+	}
+
+	ret = tmalloc0(sizeof(char *) * count + 1);
+
+	cban = cban->banlist;
+	
+	for (count
+	while (chan != NULL)
+	{
+		
+	}
+
+}
+#endif /* CLOWNS */
+
 /* chanexempts <channel> */
 /* chaninvites <channel> */
 /* resetbans <channel> */
@@ -1301,6 +1382,7 @@ char **egg_bind(struct network *net, char *type, char *flags, char *mask, char *
 		else if (!strcmp("part",type)){  triggerListHead = net->trigs->part; }
 		else if (!strcmp("dcc",type)){  triggerListHead = net->trigs->dcc; }
 		else if (!strcmp("raw",type)){  triggerListHead = net->trigs->raw; }
+		else if (!strcmp("ctcp",type)){  triggerListHead = net->trigs->ctcp; }
 		else if (!strcmp("topc",type)){	triggerListHead = net->trigs->topc; }
 
 		trigger = triggerListHead;
@@ -1359,6 +1441,16 @@ char **egg_bind(struct network *net, char *type, char *flags, char *mask, char *
 			trigger_list_add(&net->trigs->part,new_trigger(NULL,TRIG_PART,mask,cmd,handler));
 			*returnValue=tstrdup(cmd);
 		}
+		else if (!strcmp("sign",type))
+		{ 
+			trigger_list_add(&net->trigs->sign,new_trigger(NULL,TRIG_SIGN,mask,cmd,handler));
+			*returnValue=tstrdup(cmd);
+		}
+		else if (!strcmp("ctcp",type))
+		{ 
+			trigger_list_add(&net->trigs->ctcp,new_trigger(NULL,TRIG_CTCP,mask,cmd,handler));
+			*returnValue=tstrdup(cmd);
+		}
 		else if (!strcmp("dcc",type))
 		{
 			trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,mask,cmd,handler));
@@ -1379,6 +1471,74 @@ char **egg_bind(struct network *net, char *type, char *flags, char *mask, char *
 }
 
 /* unbind <type> <flags> <keyword/mask> <proc-name> */
+/*
+ *   unbind <type> <flags> <keyword/mask> <proc-name>
+ *    Description: removes a previously created bind
+ *    Returns: name of the command that was removed
+ *   Module: core
+ */               
+/* Returns NULL if no binding exists, eggdrop error message: no such binding */
+/* Tested on Eggdrop for behavior with undefined events, the following occurs:
+ *   If flags does not match, it is removed anyways
+ *   What must match is mask and command
+ *   mask is case sensitive, command suprisingly is not
+ */
+/* NEED_IMP: TCL, PHP, Perl, Python */
+/* IMP_IN: None */
+char *egg_unbind(struct network *net, char *type, char *flags, char *mask, char *command)
+{
+	struct trigger *trig_list = NULL;
+	struct trigger *trig_head = NULL;
+	char *ret               = NULL;
+
+	/* Case insensitive, checked eggdrop */
+	if (!tstrcasecmp("pub",type))
+		trig_head = trig_list = net->trigs->pub;
+	else if (!tstrcasecmp("pubm",type))
+		trig_head = trig_list = net->trigs->pubm;
+	else if (!tstrcasecmp("msg",type))
+		trig_head = trig_list = net->trigs->msg;
+	else if (!tstrcasecmp("msgm",type))
+		trig_head = trig_list = net->trigs->msgm;
+	else if (!tstrcasecmp("notc",type))
+		trig_head = trig_list = net->trigs->notc;
+	else if (!tstrcasecmp("join",type))
+		trig_head = trig_list = net->trigs->join;
+	else if (!tstrcasecmp("part",type))
+		trig_head = trig_list = net->trigs->part;
+	else if (!tstrcasecmp("dcc",type))
+		trig_head = trig_list = net->trigs->dcc;
+	else if (!tstrcasecmp("topc",type))
+		trig_head = trig_list = net->trigs->topc;
+	else if (!tstrcasecmp("raw",type))
+		trig_head = trig_list = net->trigs->raw;
+	else
+	{
+		troll_debug(LOG_DEBUG, "egg_unbind called for trigger type of (%s), not recognized or handled",type);
+		return NULL;
+	}
+
+	while (trig_list != NULL)
+	{
+		/* Verified case sensitive on eggdrop */
+		if (!strcmp(mask, trig_list->mask) && !tstrcasecmp(command, trig_list->command))
+		{
+			trigger_list_del(trig_head, trig_list);
+			/* Saves reallocation */
+			ret = trig_list->mask;
+			trig_list->mask = NULL;
+			free_trigger(trig_list);
+			return ret;
+		}
+
+		trig_list = trig_list->next;
+	}
+
+	return NULL;
+}
+
+
+
 /* binds ?type/mask? */
 /* logfile [<modes> <channel> <filename>] */
 /* maskhost <nick!user@host> */
