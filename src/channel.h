@@ -67,6 +67,9 @@ struct channel_user
 
   /* Actual user record */
   struct user *urec;
+	
+	struct channel_user *prev;
+	struct channel_user *next;
 };
 
 struct channel
@@ -76,7 +79,7 @@ struct channel
 
 	struct slist *egg_vars;
 
-  struct slist *user_list;
+  struct channel_user *user_list;
 
 	char *chanmode;
 	char *topic;
@@ -107,16 +110,18 @@ struct tconfig_block *chans_to_tconfig(struct channel *chans);
 
 
 
-/* TODO: Needs replaced with slist */
 void channel_list_add(struct channel **orig, struct channel *new);
 
 /* Channel Users */
 struct channel_user *new_channel_user(void);
 void free_channel_user(void *);
-struct slist_node *channel_channel_user_node_find(struct channel *chan, char *find);
-struct channel_user *channel_channel_user_find(struct channel *, char *);
+struct channel_user *channel_user_add(struct channel_user *cusers, struct channel_user *add);
+struct channel_user *channel_user_del(struct channel_user *cusers, struct channel_user *del);
+void channel_users_free(struct channel_user *cusers);
+void channel_user_free(struct channel_user *cuser);
+struct channel_user *channel_channel_user_find(struct channel *chan, char *find);
 
-/* TODO: Replace with slist */
+
 void free_channels(struct channel *chans);
 void free_channel(void *chanptr);
 struct channel *new_channel(const char *chan);

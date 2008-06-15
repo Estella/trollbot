@@ -148,3 +148,9 @@
 		(Not implemented in code yet)
 
 	* New function: egg_unbind            [egg_lib.c]
+
+10. /2008-06-12/!\acidtoken\
+	[IRC]
+	
+	* channel users now properly removed from lists on kick [default_triggers.c]
+

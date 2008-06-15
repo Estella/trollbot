@@ -63,6 +63,7 @@ void net_init_tcl(struct network *net)
 
 void net_tcl_init_commands(struct network *net)
 {
+	Tcl_CreateObjCommand(net->tclinterp, "die", tcl_die, net, NULL);
 	Tcl_CreateObjCommand(net->tclinterp, "utimer",tcl_utimer, net, NULL);
 	Tcl_CreateObjCommand(net->tclinterp, "isop", tcl_isop, net, NULL);
 	Tcl_CreateObjCommand(net->tclinterp, "isvoice", tcl_isvoice, net, NULL);

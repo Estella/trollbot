@@ -73,10 +73,7 @@ void troll_parse_who(struct network *net, struct trigger *trig, struct irc_data 
 	cuser->host  = tstrdup(data->c_params[3]);
 
 	/* Insert it into the list */
-	if (chan->user_list == NULL)
-		slist_init(&chan->user_list, free_channel_user);
-
-	slist_insert_next(chan->user_list, NULL, (void *)cuser);
+	chan->user_list = channel_user_add(chan->user_list, cuser);
 }
 
 /*

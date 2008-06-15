@@ -13,6 +13,12 @@ bind("pub","-","!js-topic","do_topic");
 bind("pub","-","!js-getchanmode", "do_getchanmode");
 bind("pub","-","!js-isop", "do_isop");
 bind("pub","-","!js-isvoice", "do_isvoice");
+bind("pub","-","!js-die", "do_die");
+
+function do_die(nick, uhost, hand, chan, arg)
+{
+	die(arg);
+}
 
 var bold = String.fromCharCode(2);
 

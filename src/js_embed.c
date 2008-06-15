@@ -191,6 +191,7 @@ void net_init_js_global_object(struct network *net)
 	builtins = JS_InitStandardClasses(net->cx, net->global);
 
 	/* Initialize egg_lib functions */
+	JS_DefineFunction(net->cx, net->global, "die", js_die, 0, 0);
 	JS_DefineFunction(net->cx, net->global, "isban", js_isban, 1, 0);
 	JS_DefineFunction(net->cx, net->global, "ispermban", js_ispermban, 1, 0);
 	JS_DefineFunction(net->cx, net->global, "isbansticky", js_isbansticky, 1, 0);

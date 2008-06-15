@@ -15,6 +15,30 @@
 #include "network.h"
 #include "egg_lib.h"
 
+JSBool js_die(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+	struct network *net = JS_GetContextPrivate(cx);
+	char *reason;
+
+	/* Not that this will be used */	
+	*rval = JSVAL_VOID;
+
+	if (argc == 0)
+	{
+		egg_die(net, NULL);
+		return JS_TRUE;
+	}
+
+	if (argc > 0)
+	{
+		reason = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+	}
+
+	egg_die(net, reason);
+
+	return JS_TRUE;
+}
+
 JSBool js_isbansticky(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	struct network *net = JS_GetContextPrivate(cx);

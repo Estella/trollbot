@@ -8,6 +8,89 @@
 #include "network.h"
 #include "user.h"
 
+struct channel_user *channel_user_add(struct channel_user *cusers, struct channel_user *add)
+{
+	struct channel_user *tmp = NULL;
+
+	if ((tmp = cusers) == NULL)
+		return add;
+
+	while (tmp->next != NULL) tmp = tmp->next;
+
+	tmp->next = add;
+	add->prev = tmp;
+
+	return cusers;
+}
+
+struct channel_user *channel_user_del(struct channel_user *cusers, struct channel_user *del)
+{
+	struct channel_user *tmp = NULL;
+
+	if ((tmp = cusers) == NULL)
+	{
+		log_entry_printf(NULL,NULL,"T","channel_user_del() called with NULL channel user list");
+		return NULL;
+	}
+
+	while (tmp != NULL)
+	{
+		if (tmp == del)
+		{
+			if (tmp->prev != NULL)
+				tmp->prev->next = tmp->next;
+
+			if (tmp->next != NULL)
+				tmp->next->prev = tmp->prev;
+
+			while (tmp == del && tmp->prev != NULL)
+				tmp = tmp->prev;
+
+			while (tmp == del && tmp->next != NULL)
+				tmp = tmp->next;
+
+			if (tmp == del)
+				return NULL;
+			else
+				return tmp;
+
+		}
+
+		tmp = tmp->next;
+	}
+
+	log_entry_printf(NULL,NULL,"T","channel_user_del() called with a channel user deletion that no entry existed for");
+
+	return cusers;
+}
+
+void channel_users_free(struct channel_user *cusers)
+{
+	struct channel_user *walk;
+	struct channel_user *tmp;
+
+	walk = cusers;
+
+	while (walk != NULL)
+	{
+		tmp = walk->next;
+		channel_user_free(walk);
+		walk = tmp;
+	}
+}
+
+void channel_user_free(struct channel_user *cuser)
+{
+	free(cuser->nick);
+	free(cuser->ident);
+
+	free(cuser->modes);
+
+  free(cuser->host);
+
+	free(cuser->realname);
+	free(cuser);
+}
 
 
 struct chan_egg_var *new_chan_egg_var(void)
@@ -283,6 +366,9 @@ struct channel_user *new_channel_user(void)
 	ret->realname = NULL;
 	ret->modes    = NULL;
 
+	ret->prev     = NULL;
+	ret->next     = NULL;
+
 	return ret;
 }
 
@@ -303,50 +389,20 @@ void free_channel_user(void *ptr)
 	free(tmp);
 }
 
-/* silly */
-struct slist_node *channel_channel_user_node_find(struct channel *chan, char *find)
-{
-	struct slist_node   *node;
-	struct channel_user *cuser;
-
-	if (chan->user_list != NULL)
-	{
-		/* write out all the egg vars */
-		node = chan->user_list->head;
-
-		while (node != NULL)
-		{
-			cuser = node->data;
-
-			if (!tstrcasecmp(cuser->nick, find))
-				return node;
-
-			node = node->next;
-		}
-	}
-	
-	return NULL;
-}
 
 struct channel_user *channel_channel_user_find(struct channel *chan, char *find)
 {
-	struct slist_node   *node;
 	struct channel_user *cuser;
 
-	if (chan->user_list != NULL)
+	/* write out all the egg vars */
+	cuser = chan->user_list;
+
+	while (cuser != NULL)
 	{
-		/* write out all the egg vars */
-		node = chan->user_list->head;
+		if (!tstrcasecmp(cuser->nick, find))
+			return cuser;
 
-		while (node != NULL)
-		{
-			cuser = node->data;
-
-			if (!tstrcasecmp(cuser->nick, find))
-				return cuser;
-
-			node = node->next;
-		}
+		cuser = cuser->next;
 	}
 	
 	return NULL;
@@ -364,7 +420,7 @@ void free_channel(void *chanptr)
 	/* Free egg vars */
 	slist_destroy(ctmp->egg_vars);
 
-	slist_destroy(ctmp->user_list);
+	channel_users_free(ctmp->user_list);
 
 	free(ctmp);
 
@@ -387,7 +443,7 @@ void free_channels(struct channel *chans)
 
 		slist_destroy(chans->egg_vars); 
 
-		slist_destroy(chans->user_list);
+		channel_users_free(chans->user_list);
 
 		free(chans->chanmode);
 		free(chans->topic);
@@ -536,16 +592,13 @@ void channel_list_populate(struct network *net, struct trigger *trig, struct irc
 
 		cuser = channel_channel_user_find(chan,ptr);
 
-		if (chan->user_list == NULL)
-			slist_init(&chan->user_list, free_channel_user);
-		
 		if (cuser == NULL)
 		{
 			cuser = new_channel_user();
 			/* nick is how they're found, a sort of primary key, so do not set it when updating */
 			cuser->nick = tstrdup(ptr);
 
-			slist_insert_next(chan->user_list, NULL, (void *)cuser);
+			chan->user_list = channel_user_add(chan->user_list, cuser);
 		}
 
 		/* In case they're an old user */

@@ -80,53 +80,46 @@ int slist_insert_next(struct slist *list, struct slist_node *node, void *data)
 
 int slist_remove(struct slist *list, struct slist_node *node, void **data)
 {
-	struct slist_node *oldnode;
-	struct slist_node *find;
+	struct slist_node *nodesearch = NULL;
+	struct slist_node *oldnode    = NULL;
+	struct slist_node *find       = NULL;
+	int i = 0;
 
 	if (list->size == 0)
 		return -1;
 
+	/* I wonder why I did this */
 	if (node == NULL)
 	{
 		*data      = list->head->data;
 		oldnode    = list->head;
 		list->head = list->head->next;
 
-		if (list->size == 1)
+		list->size--;
+
+		if (list->size == 0)
 			list->tail = NULL;
+
+		return 0;
 	}
 	else
 	{
-		*data   = node->data;
-
-		oldnode = node;
-
-		/* ugly */
-		find = list->head;
-
-		do
+		nodesearch = list->head;
+		oldnode    = NULL;
+		
+		for (i=0; i<list->size; i++)
 		{
-			if (find == node)
-			{
+			if (nodesearch == node)
 				break;
-			}
 
-			find = find->next;
+			oldnode    = nodesearch;
+			nodesearch = nodesearch->next;
 		}
-		while (find->next != node);
+		
+		if (nodesearch != NULL)
+			slist_remove_next(list, oldnode, &data);
 
-		node->next = oldnode->next;
-
-		if (list->head == oldnode)
-			list->head = oldnode->next;
-
-		if (list->tail == oldnode)
-			list->tail = find;
 	}
-
-	free(oldnode);
-
-	list->size--;
 
 	return 0;
 }

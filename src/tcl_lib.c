@@ -11,6 +11,27 @@
 #include "egg_lib.h"
 #include "user.h"
 
+int tcl_die(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	struct network *net = clientData;
+	char *reason;
+
+	if (objc == 1)
+	{
+		egg_die(net, NULL);
+		return TCL_OK;
+	}
+
+	if (objc > 1)
+	{
+		reason = Tcl_GetString(objv[1]);
+		egg_die(net, reason);
+	}
+
+	/* Never reached */
+	return TCL_OK;
+}
+
 int tcl_isvoice(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {
 	struct network *net = clientData;

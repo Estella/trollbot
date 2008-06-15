@@ -138,7 +138,7 @@ static void channel_set_modes(struct network *net, struct trigger *trig, struct 
 		chan = chan->next;
 	}
 
-	/* Handle this gracefully? */
+	/* Handle this quietly? */
 	if (chan == NULL)
 	{
 		log_entry_printf(net,data->c_params[1],"T","channel_banlist_add() called with a channel that does not exist: %s",data->c_params[1]);
@@ -154,7 +154,7 @@ static void channel_banlist_add(struct network *net, struct trigger *trig, struc
 	struct channel     *chan = NULL;
 	struct channel_ban *ban  = NULL;
 
-	/* Handle this gracefully? */
+	/* Handle this quietly? */
 	if ((chan = net->chans) == NULL)
 	{
 		log_entry_printf(net,NULL,"T","channel_banlist_add() called with no chans available.");
@@ -271,14 +271,11 @@ void new_join(struct network *net, struct trigger *trig, struct irc_data *data, 
 		{
 			cuser = channel_channel_user_find(chan, data->prefix->nick);
 
-			if (chan->user_list == NULL)
-				slist_init(&chan->user_list, free_channel_user);
-
 			if (cuser == NULL)
 			{
 				cuser = new_channel_user();
 				cuser->nick = tstrdup(data->prefix->nick);
-				slist_insert_next(chan->user_list, NULL, (void *)cuser);
+				chan->user_list = channel_user_add(chan->user_list, cuser);
 			}
 
 			cuser->host  = tstrdup(data->prefix->host); 
@@ -318,7 +315,6 @@ void new_part(struct network *net, struct trigger *trig, struct irc_data *data, 
 {
 	struct channel       *chan     = net->chans;
 	struct channel_user  *cuser    = NULL;
-	struct slist_node    *cusrnode = NULL;
 
 	log_entry_printf(net,"j","%s parted %s.",data->prefix->nick,data->c_params[0]);
 
@@ -333,8 +329,8 @@ void new_part(struct network *net, struct trigger *trig, struct irc_data *data, 
 			}
 
 			/* Found the bugger */
-			cusrnode = channel_channel_user_node_find(chan, data->prefix->nick);
-			slist_remove(net->chans, cusrnode, &cuser);
+			cuser = channel_channel_user_find(chan, data->prefix->nick);
+			chan->user_list = channel_user_del(chan->user_list, cuser);
 			free_channel_user(cuser);
 
 			return;
@@ -355,32 +351,46 @@ void new_part(struct network *net, struct trigger *trig, struct irc_data *data, 
 
 void new_quit(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
-	struct channel *chan       = net->chans;
+	struct channel      *chan      = net->chans;
+	struct channel_user *cuser     = NULL;
 
 	log_entry_printf(net,"j","%s quit irc",data->prefix->nick);
 
-
 	while (chan != NULL)
 	{
-		if (egg_onchan(net, data->prefix->nick, chan->name)){
-			/*channel_list_del(&chan->user_list, data->prefix->nick);*/
+
+		if ((cuser =channel_channel_user_find(chan, data->prefix->nick)) != NULL)
+		{
+			chan->user_list = channel_user_del(chan->user_list, cuser);
+			channel_user_free(cuser);
 		}
 
 		chan = chan->next;
 	}
-
 
 	return;
 }
 
 void new_kick(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
+	struct channel      *chan     = NULL;
+	struct channel_user *cuser    = NULL;
+
 	/* if bot was kicked, try a rejoin immediately */
 	/* Verified eggdrop behavior, there is no setting for this [acidtoken] */
 	if (!strcmp(data->c_params[1],net->nick))
 		irc_printf(net->sock,"JOIN %s",data->c_params[0]);
 
-	log_entry_printf(net,"k","%s Got kicked from <FILL ME IN>",data->prefix->nick);
+	chan = network_channel_find(net, data->c_params[0]);
+
+	if (chan != NULL)
+	{
+		cuser =channel_channel_user_find(chan, data->c_params[1]);
+		chan->user_list = channel_user_del(chan->user_list, cuser);
+		free_channel_user(cuser);
+	}
+
+	log_entry_printf(net,"k","%s Got kicked from %s",data->prefix->nick, data->c_params[0]);
 }
 
 void new_user_pass(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
@@ -415,6 +425,7 @@ void new_user_pass(struct network *net, struct trigger *trig, struct irc_data *d
 	irc_printf(net->sock,"PRIVMSG %s :Your password has been set as '%s'",data->prefix->nick,data->rest[1]);
 
 	users_save(net);
+
 	return;
 }
 
@@ -426,7 +437,7 @@ void disconnect_bot(struct network *net, struct trigger *trig, struct irc_data *
 {
 	egg_save(NULL);
 	irc_printf(net->sock,"QUIT :Trollbot v1.0");
-	/*die_nicely(0); */
+	die_nicely(0);
 }
 
 void introduce_user(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
@@ -435,6 +446,7 @@ void introduce_user(struct network *net, struct trigger *trig, struct irc_data *
 
 	if (net->users == NULL)
 	{
+		/* FIXME: Pull default flags from conf file */
 		net->users = new_user(data->prefix->nick,  /* username */
 				data->prefix->nick,  /* nickname */
 				NULL,                /* passhash */
@@ -461,6 +473,7 @@ void introduce_user(struct network *net, struct trigger *trig, struct irc_data *
 			return;
 		}
 
+		/* FIXME: Pull default user flags from conf */
 		user->next       = new_user(data->prefix->nick,  /* username */
 				data->prefix->nick,  /* nickname */
 				NULL,                /* passhash */

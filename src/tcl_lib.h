@@ -7,6 +7,9 @@
 #undef END_EXTERN_C
 
 /* Function prototypes */
+int tcl_die(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]);
+
+
 int tcl_isop(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]);
 int tcl_isvoice(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]);
 

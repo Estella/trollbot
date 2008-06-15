@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <ctype.h>
 
+#include <sys/socket.h>
+
 #include "main.h"
 #include "egg_lib.h"
 #include "network.h"
@@ -1619,6 +1621,32 @@ char *egg_encpass(const char *pass)
 
 
 /* die [reason] */
+/* Require network for log message */
+/* NEED_IMP: PHP, Python */
+/* IMP_IN: TCL, Javascript */
+void egg_die(struct network *net, const char *reason)
+{
+	struct network *tmp;
+
+	tmp = g_cfg->networks;
+
+	while (tmp != NULL)
+	{
+		if (reason == NULL)
+			irc_printf(tmp, "QUIT");
+		else
+			irc_printf(tmp, "QUIT :%s",reason);
+
+		/* Flush out the socket TODO: Make function for this */
+		shutdown(net->sock, SHUT_RDWR);
+		net->sock = -1;
+		
+		tmp = tmp->next;
+	}
+
+	die_nicely(0);
+}
+
 /* unames */
 /* dnslookup <ip-address/hostname> <proc> [[arg1] [arg2] ... [argN]] */
 /* md5 <string> */

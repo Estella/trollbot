@@ -8,6 +8,8 @@ struct irc_data;
 struct network;
 struct dcc_session;
 
+JSBool js_die(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+
 JSBool js_isban(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 JSBool js_isbansticky(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 JSBool js_ispermban(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);

@@ -28,6 +28,7 @@
 #include "sockets.h"
 #include "debug.h"
 #include "log_filter.h"
+#include "egg_lib.h"
 
 #ifdef HAVE_TCL
 #include "tcl_embed.h"
