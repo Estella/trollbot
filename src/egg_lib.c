@@ -144,8 +144,8 @@ int egg_matchwilds(const char *haystack, const char *needle)
 }
 
 /* These functions need queue support */
-/* NEED_IMP: ??? */
-/* IMP_IN: ??? */
+/* NEED_IMP: None */
+/* IMP_IN: TCL, PHP, Python, Javascript */
 void egg_putserv(struct network *net, const char *text, int option_next)
 {
 	/* option_next currently ignored */

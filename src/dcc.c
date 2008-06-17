@@ -368,10 +368,19 @@ void initiate_dcc_chat(struct network *net, struct trigger *trig, struct irc_dat
 void dcc_help_menu(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
 	irc_printf(dcc->sock,"TrollBot v1.0 DCC MENU\n"
+			"----------------------\n"
+			" Prepend commands with a period (.)\n"
+			" Any other text goes to the partyline\n"
 			"----------------------\n\n"
-			" +chan -chan +user -user\n"
-			" chattr rehash tcl tbinds\n"
-			" msg\n");
+			" +chan, -chan: Add or remove a channel respectively.\n"
+			" +user, -user: Add or remove a user respectively.\n"
+			" chattr: Change user attributes (flags).\n"
+			" rehash: Reload the bot (not well defined)\n"
+			" tcl: Runs a TCL command and returns the result\n"
+			" tbinds: Shows current binds and usage counts\n"
+			" who: Displays a list of users connected to the partyline\n"
+			" dump: Sends raw text to the server\n"
+			" msg: Messages the specified target with a string\n");
 
 	return;
 

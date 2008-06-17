@@ -11,6 +11,17 @@
 #include <sys/time.h>
 #endif /* HAVE_SYS_TIME_H */
 
+enum stripcodes_flags
+{
+	STRIPCODES_NONE      = 0,
+	STRIPCODES_BOLD      = 1,
+	STRIPCODES_COLOR     = 2,
+	STRIPCODES_REVERSE   = 4,
+	STRIPCODES_UNDERLINE = 8,
+	STRIPCODES_ANSI      = 16,
+	STRIPCODES_BELL      = 32
+};
+
 struct network;
 struct irc_data;
 struct trigger;
