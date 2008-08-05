@@ -1,8 +1,6 @@
 /******************************
  * Trollbot                   *
  ******************************
- * Written by poutine DALnet  *
- ******************************
  * This software is public    *
  * domain. Free for any use   *
  * whatsoever.                *
@@ -31,6 +29,13 @@
 #include "channel.h"
 #include "user.h"
 #include "t_timer.h"
+
+
+#ifdef HAVE_ICS
+#include "ics-server.h"
+#include "ics-proto.h"
+#include "ics-trigger.h"
+#endif /* HAVE_ICS */
 
 #ifdef HAVE_XMPP
 #include "xmpp_server.h"
@@ -89,12 +94,34 @@ void irc_loop(void)
 	fd_set writefds;
 	struct timeval timeout;
 	struct network *net;
+#ifdef HAVE_ICS
+	struct ics_server *ics;
+#endif /* HAVE_ICS */
+#ifdef HAVE_XMPP
 	struct xmpp_server *xs;
+#endif /* HAVE_XMPP */
 	struct dcc_session *dcc;
 	int numsocks = 0;
 	socklen_t lon      = 0;
 	int valopt   = 0;
 	time_t last = 0;
+
+#ifdef HAVE_ICS
+	ics = g_cfg->ics_servers;
+
+	/* Connect to one server for each network, or mark network unconnectable */
+	while (ics != NULL)
+	{
+		/* Shouldn't be done here */
+		ics->cur_server = ics->ics_servers;
+
+		ics->last_try = time(NULL);
+		ics->status   = ICS_INPROGRESS;
+		ics_server_connect(ics);
+
+		ics = ics->next;
+	}
+#endif /* HAVE_ICS */
 
 #ifdef HAVE_XMPP
 	xs = g_cfg->xmpp_servers;
@@ -139,6 +166,57 @@ void irc_loop(void)
 
 		timeout.tv_sec  = 1;
 		timeout.tv_usec = 0;
+
+#ifdef HAVE_ICS
+		ics = g_cfg->ics_servers;
+
+		while (ics != NULL)
+		{
+			if (ics->status == ICS_DISCONNECTED)
+			{
+				if (ics->never_give_up == 1)
+				{
+					if (ics->last_try + ics->connect_delay <= time(NULL))
+					{
+						ics->status = ICS_INPROGRESS;
+						/* Try a non-blocking connect to the next server */
+						ics->last_try = time(NULL);
+
+						ics_server_connect(ics);
+					}
+				}
+			}
+
+			if (ics->status == ICS_NONBLOCKCONNECT || ics->status == ICS_WAITINGCONNECT)
+			{
+				numsocks = (ics->sock > numsocks) ? ics->sock : numsocks;
+
+				FD_SET(ics->sock,&writefds);
+
+				/* Now in a FD set */
+				ics->status = ICS_WAITINGCONNECT;
+			}
+
+			/* Add each xmpp_server to the read fd set */
+			if (ics->sock != -1)
+			{
+				if (ics->status >= ICS_NOTREADY)
+				{
+					if (ics->status == ICS_NOTREADY)
+					{
+						ics_ball_start_rolling(ics);
+						ics->status = ICS_CONNECTED;
+					}
+
+					numsocks = (ics->sock > numsocks) ? ics->sock : numsocks;
+					FD_SET(ics->sock,&socks);
+				}
+			}
+
+			ics = ics->next;
+		}
+#endif /* HAVE_ICS */
+
 
 #ifdef HAVE_XMPP
 		xs = g_cfg->xmpp_servers;
@@ -188,10 +266,10 @@ void irc_loop(void)
 
 			xs = xs->next;
 		}
+
 #endif /* HAVE_XMPP */
 
 		net = g_cfg->networks;
-
 
 		while (net != NULL)
 		{
@@ -274,6 +352,64 @@ void irc_loop(void)
 		}
 
 		select(numsocks+1, &socks, &writefds, NULL, NULL);
+
+#ifdef HAVE_ICS
+		ics = g_cfg->ics_servers;
+
+		while (ics != NULL)
+		{
+			if (ics->status == ICS_WAITINGCONNECT)
+			{
+				if (FD_ISSET(ics->sock, &writefds))
+				{
+					/* Socket is set as writeable */
+					lon = sizeof(int); 
+
+					/* Get the current socket options for the non-blocking socket */
+					if (getsockopt(ics->sock, SOL_SOCKET, SO_ERROR, (void*)(&valopt), &lon) < 0) 
+					{ 
+						ics->sock   = -1;
+						ics->status = ICS_DISCONNECTED;
+						troll_debug(LOG_ERROR,"Could not get socket options for ics_server sock");
+					}
+					else
+					{    
+						if (valopt != 0) 
+						{ 
+							ics->sock   = -1;
+							ics->status = ICS_DISCONNECTED;
+							troll_debug(LOG_ERROR,"Non-blocking connect() to ics_server failed.");
+						}
+						else
+						{
+							/* Socket connect succeeded */
+							troll_debug(LOG_DEBUG,"Non-blocking connect() to ics_server succeeded");
+
+							/* Set connection as blocking again */
+							/* socket_set_blocking(dcc->sock); */
+
+
+							ics->status = ICS_NOTREADY;
+						}
+					}
+				}
+			}
+
+			if (ics->sock != -1 && ics->status >= ICS_CONNECTED)
+			{
+				if (FD_ISSET(ics->sock,&socks))
+				{
+					if (!ics_in(ics))
+					{
+						ics->status = ICS_DISCONNECTED;
+					}
+				}
+			}
+
+			ics = ics->next;
+		}
+#endif /* HAVE_ICS */
+
 
 #ifdef HAVE_XMPP
 		xs = g_cfg->xmpp_servers;

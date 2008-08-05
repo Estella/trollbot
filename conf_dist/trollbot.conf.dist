@@ -42,6 +42,16 @@ global settings
 	hash_type sha512
 }
 
+
+/*
+ics_server freechess.org
+{
+	username jeanclaude
+	password maisno
+
+	server freechess.org:5000
+}
+*/
 /*
 xmpp_server localhost
 {

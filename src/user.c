@@ -270,6 +270,12 @@ void users_save(struct network *net)
 
 	nettmp = g_cfg->networks;
 
+	if (nettmp == NULL)
+	{
+		free_tconfig(tcfg);
+		return;
+	}
+
 	while (nettmp->prev != NULL) nettmp = nettmp->prev;
 
 	while (nettmp != NULL)

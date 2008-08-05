@@ -17,6 +17,12 @@
 #include "log_entry.h"
 #include "debug.h"
 
+#ifdef HAVE_ICS
+#include "ics-server.h"
+#include "ics-proto.h"
+#include "ics-trigger.h"
+#endif /* HAVE_ICS */
+
 #ifdef HAVE_XMPP
 #include "xmpp_server.h"
 #include "xmpp_proto.h"
@@ -134,6 +140,9 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 
 	cfg->dcc_motd     = NULL;
 
+#ifdef HAVE_ICS
+	cfg->ics_servers = NULL;
+#endif /* HAVE_ICS */
 #ifdef HAVE_XMPP
 	cfg->xmpp_servers = NULL;
 #endif /* HAVE_XMPP */
@@ -213,6 +222,14 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 				search = search->next;
 			}
 		}
+#ifdef HAVE_ICS
+		else if (!strcmp(topmost->key,"ics_server"))
+		{
+			/* Much simpler this way, isn't it? */
+			cfg->ics_servers = ics_server_add(cfg->ics_servers,ics_server_from_tconfig_block(topmost));
+		}
+#endif /* HAVE_ICS */
+
 #ifdef HAVE_XMPP
 		else if (!strcmp(topmost->key,"xmpp_server"))
 		{

@@ -11,6 +11,12 @@ trollbot_LDADD  = ${LIBLTDL} "-dlopen" modules/crypto/crypto.la
 
 trollbot_DEPENDENCIES = modules/crypto/crypto.la
 
+if WITH_ICS
+
+trollbot_SOURCES += ics-server.c ics-server.h ics-proto.c ics-proto.h ics-trigger.c ics-trigger.h
+
+endif
+
 if WITH_XMPP
 
 trollbot_SOURCES += xmpp_server.c xmpp_server.h xmpp_proto.c xmpp_proto.h xmpp_trigger.c xmpp_trigger.h

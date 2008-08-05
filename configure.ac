@@ -42,6 +42,11 @@ AC_TYPE_PID_T
 dnl check if libxml2 exists
 dnl needed for jabber/xmpp
 
+AC_ARG_WITH(ics, [  --with-ics=[yes/no]  Whether to include ICS support],
+	[ AC_DEFINE([HAVE_ICS],1,[Whether to use ICS support])
+		with_ics="yesy" ])
+
+
 AC_ARG_WITH(xmpp, [  --with-xmpp=[yes/no]  Whether to include XMPP support],
 	[ with_xmpp="$withval" ])
 
@@ -89,6 +94,8 @@ AM_CONDITIONAL(WITH_PGSQL, test "x${PG_LIBS}" != "x")
 
 AM_CONDITIONAL(WITH_JS, test "x${JS_LIBS}" != "x")
 
+AM_CONDITIONAL(WITH_ICS, test "x${with_ics}" != "x")
+
 dnl test if TCL exists
 AX_PROG_TCL
 
@@ -97,6 +104,7 @@ AM_CONDITIONAL(WITH_TCL, test "x${TCL_LIBS}" != "x")
 
 dnl test if PHP exists
 AX_PROG_PHP
+
 
 dnl supply automake a WITH_PHP conditional
 AM_CONDITIONAL(WITH_PHP, test "x${PHP_LDADD}" != "x")
@@ -146,6 +154,13 @@ if test "with_xmpp" = "yes"; then
 else
 	echo "  XMPP       Support: No"
 fi
+
+if test "with_ics" = "yes"; then
+	echo "  ICS        Support: Yes"
+else
+	echo "  ICS        Support: No"
+fi
+
 
 echo ""
 echo "  -=Scripting Support=-"
