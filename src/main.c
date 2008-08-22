@@ -24,6 +24,7 @@
 #include "dcc.h"
 #include "default_triggers.h"
 #include "log_entry.h"
+#include "egg_lib.h"
 
 struct config *g_cfg = NULL;
 

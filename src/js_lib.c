@@ -714,7 +714,7 @@ void js_handler(struct network *net, struct trigger *trig, struct irc_data *data
 			break;
 		case TRIG_DCC:
 			argv[0] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, dcc->user->username));
-			argv[1] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, dcc->id));
+			argv[1] = INT_TO_JSVAL(dcc->id);
 			argv[2] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, dccbuf));
 			break;
 	}

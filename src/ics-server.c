@@ -289,7 +289,7 @@ void free_ics_server(struct ics_server *ics)
 	free(ics->vhost);
 	free(ics->shost); 
 
-	free_ics_server(ics->ics_servers);
+	free_servers(ics->ics_servers);
 	t_timers_free(ics->timers);
 	free_ics_trigger_table(ics->ics_trigger_table);
 

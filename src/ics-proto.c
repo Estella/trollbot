@@ -17,10 +17,31 @@
 #include "ics-trigger.h"
 #include "log_entry.h"
 
+void init_ics_triggers(struct ics_server *ics)
+{
+	struct ics_trigger *trig;
+
+	trig          = new_ics_trigger();
+	trig->type    = ICS_TRIG_MSG;
+	/* I know this is stupid */
+	trig->mask    = tstrdup(LOGIN_TRIGGER);
+	trig->handler = ics_internal_login;
+	trig->command = NULL;
+
+	ics->ics_trigger_table->msg = ics_trigger_add(ics->ics_trigger_table->msg, trig);
+}
+
+void ics_internal_login(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data)
+{
+	ics_printf(ics, "Fujiyama");
+}
+
+
 void ics_ball_start_rolling(struct ics_server *ics)
 {
 	/* Fuck it */
 /*ics_printf(ics,"<stream:stream xmlns:stream=\"http://etherx.jabber.org/streams\" xmlns=\"jabber:client\" to=\"%s\" version=\"1.0\">\n", ics->label);*/
+	init_ics_triggers(ics);
 }
 
 /* This is different from ics_printf() (should be sock_printf())

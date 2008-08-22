@@ -6,6 +6,7 @@
 #include "server.h"
 #include "channel.h"
 #include "user.h"
+#include "log_entry.h"
 
 #include "egg_lib.h"
 

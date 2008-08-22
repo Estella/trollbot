@@ -63,7 +63,7 @@ struct ics_server
 	/* Copy over on rehash */
   int sock;
 
-	struct ics_trigger *ics_trigger_table;
+	struct ics_trigger_table *ics_trigger_table;
 
   char *vhost;
   char *shost; /* Server given host */

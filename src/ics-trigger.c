@@ -94,6 +94,23 @@ struct ics_trigger *new_ics_trigger(void)
 int ics_trigger_match(struct ics_server *xs, struct ics_data *data)
 {
 	int trig_count = 0;
+	struct ics_trigger *trig;
+
+	trig = xs->ics_trigger_table->msg;
+
+	while (trig != NULL)
+	{
+		if (!egg_matchwilds(data->txt_packet, trig->mask))
+		{
+			if (trig->handler != NULL)
+			{
+				trig->handler(xs, trig, data);
+				trig_count++;
+			}
+		}
+
+		trig = trig->next;
+	}
 
 	return trig_count;
 }
