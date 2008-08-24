@@ -33,8 +33,8 @@ void dcc_javascript(struct network *net, struct trigger *trig, struct irc_data *
 
 	if (JS_EvaluateScript(dcc->net->cx, 
 				dcc->net->global, 
-				egg_makearg(dccbuf,trig->mask), 
-				strlen(egg_makearg(dccbuf,trig->mask)),
+				troll_makearg(dccbuf,trig->mask), 
+				strlen(troll_makearg(dccbuf,trig->mask)),
 				"DCC",
 				0,
 				&rval) == JS_TRUE)
@@ -73,9 +73,9 @@ void dcc_javascript_load(struct network *net, struct trigger *trig, struct irc_d
 	if (!strcmp(trig->mask,dccbuf))
 		return;
 
-	js_eval_file(net, egg_makearg(dccbuf,trig->mask));
+	js_eval_file(net, troll_makearg(dccbuf,trig->mask));
 
-	irc_printf(dcc->sock, "Loaded Javascript file: %s",egg_makearg(dccbuf,trig->mask));
+	irc_printf(dcc->sock, "Loaded Javascript file: %s",troll_makearg(dccbuf,trig->mask));
 
 	return;
 }
@@ -191,6 +191,7 @@ void net_init_js_global_object(struct network *net)
 	builtins = JS_InitStandardClasses(net->cx, net->global);
 
 	/* Initialize egg_lib functions */
+	JS_DefineFunction(net->cx, net->global, "unbind", js_unbind, 4, 0);
 	JS_DefineFunction(net->cx, net->global, "die", js_die, 0, 0);
 	JS_DefineFunction(net->cx, net->global, "isban", js_isban, 1, 0);
 	JS_DefineFunction(net->cx, net->global, "ispermban", js_ispermban, 1, 0);

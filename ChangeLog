@@ -150,7 +150,24 @@
 	* New function: egg_unbind            [egg_lib.c]
 
 10. /2008-06-12/!\acidtoken\
-	[IRC]
-	
+	[IRC]	
 	* channel users now properly removed from lists on kick [default_triggers.c]
 
+
+11. /2008-08-23/!\acidtoken\
+	[IRC]
+	* Added JOIN, PART, DCC, SIGN, and CTCP bind types to Javascript.
+
+	* New function: egg_unbind   [egg_lib.c]
+	* New function: tcl_unbind   [tcl_lib.c]
+	* New function: php_unbind   [php_lib.c]
+	* New function: py_unbind    [python_lib.c]
+	* New function: js_unbind    [js_lib.c]
+	* New function: tcl_passwdok [tcl_lib.c]
+
+	[ICS] (www.freechess.org only currently)
+	* Added crude support for FICS, added trollbot.conf parameters, crude
+  	triggers, etc.
+		
+	[Global]
+	* Added eggdrop compatible wildcard matching.

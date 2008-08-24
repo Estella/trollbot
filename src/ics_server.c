@@ -18,9 +18,9 @@
 #include <errno.h>
 
 #include "main.h"
-#include "ics-server.h"
-#include "ics-proto.h"
-#include "ics-trigger.h"
+#include "ics_server.h"
+#include "ics_proto.h"
+#include "ics_trigger.h"
 #include "server.h"
 #include "t_timer.h"
 #include "sockets.h"

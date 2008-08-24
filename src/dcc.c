@@ -661,12 +661,12 @@ void parse_dcc_line(struct dcc_session *dcc, const char *buffer)
 void dcc_add_chan(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
 	/* hack */
-	irc_printf(dcc->net->sock,"JOIN %s",egg_makearg(dccbuf,trig->mask));
+	irc_printf(dcc->net->sock,"JOIN %s",troll_makearg(dccbuf,trig->mask));
 }
 
 void dcc_del_chan(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
-	irc_printf(dcc->net->sock,"PART %s",egg_makearg(dccbuf,trig->mask));
+	irc_printf(dcc->net->sock,"PART %s",troll_makearg(dccbuf,trig->mask));
 }
 
 void dcc_rehash(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
@@ -697,7 +697,7 @@ void dcc_chattr(struct network *net, struct trigger *trig, struct irc_data *data
 {
 	/*	char **args;
 
-			args = tssv_split(egg_makearg(dccbuf,trig->mask));
+			args = tssv_split(troll_makearg(dccbuf,trig->mask));
 
 	 * BS * 
 	 if (args != NULL)

@@ -18,6 +18,44 @@
 #include "user.h"
 #include "t_timer.h"
 
+PHP_FUNCTION(unbind)
+{
+	char *network;
+	int network_len;
+	char type;
+	int type_len;
+	char *flags;
+	int flags_len;
+	char *mask;
+	int mask_len;
+	char *command;
+	int command_len;
+	struct network *net;
+
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sssss", &network, &network_len, &type, &type_len, &flags, &flags_len, &mask, &mask_len, &command, &command_len))
+	{
+		RETURN_FALSE;
+	}
+
+	net = g_cfg->networks;	
+
+	while (net != NULL)
+	{
+		if (!tstrcasecmp(net->label,network))
+			break;
+		
+		net = net->next;
+	}	
+
+	if (net == NULL)
+		RETURN_FALSE;
+
+	egg_unbind(net, type, flags, mask, command);
+
+	RETURN_TRUE;
+}
+
 /*
  * Zend/zend.h:#define INTERNAL_FUNCTION_PARAMETERS int ht, zval *return_value, zval **return_value_ptr, zval *this_ptr, int return_value_used TSRMLS_DC
  * WTF this actually gets parameters as
@@ -78,7 +116,7 @@ PHP_FUNCTION(botnick)
 	if (net == NULL)
 		RETURN_FALSE;
 
-	RETURN_UTF8_STRING((char *)net->botnick, ZSTR_DUPLICATE);
+	RETURN_STRING((char *)net->botnick, 1);
 }
 
 PHP_FUNCTION(chhandle)
@@ -263,7 +301,7 @@ PHP_FUNCTION(finduser)
 	if ((user = egg_finduser(net, whom)) == NULL)
 		RETURN_FALSE;
 
-	RETURN_UTF8_STRING((char *)user->nick, ZSTR_DUPLICATE);
+	RETURN_STRING((char *)user->nick, 1);
 }
 
 PHP_FUNCTION(validuser)

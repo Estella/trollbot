@@ -15,6 +15,34 @@
 #include "network.h"
 #include "egg_lib.h"
 
+JSBool js_unbind(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+	struct network *net = JS_GetContextPrivate(cx);
+	char *type;
+	char *flags;
+	char *mask;
+	char *command;
+
+	/* Not that this will be used */	
+	*rval = JSVAL_VOID;
+
+	/* type, flags, mask, command */
+	if (argc != 4)
+	{
+		return JS_FALSE;
+	}
+
+	type    = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+	flags   = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
+	mask    = JS_GetStringBytes(JS_ValueToString(cx, argv[2]));
+	command = JS_GetStringBytes(JS_ValueToString(cx, argv[3]));
+  
+	egg_unbind(net, type, flags, mask, command);
+
+	return JS_TRUE;
+}
+
+
 JSBool js_die(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	struct network *net = JS_GetContextPrivate(cx);
@@ -637,7 +665,7 @@ void js_handler(struct network *net, struct trigger *trig, struct irc_data *data
 			argv[1] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->prefix->host));
 			argv[2]	= STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, "*"));
 			argv[3] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->c_params[0]));
-			argv[4] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, egg_makearg(data->rest_str,trig->mask)));
+			argv[4] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, troll_makearg(data->rest_str,trig->mask)));
 
 			JS_CallFunctionName(net->cx, net->global, trig->command, 5, argv, &rval);
 			break;
@@ -654,7 +682,7 @@ void js_handler(struct network *net, struct trigger *trig, struct irc_data *data
 			argv[0] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->prefix->nick));
 			argv[1] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, data->prefix->host));
 			argv[2] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, "*"));
-			argv[3] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, egg_makearg(data->rest_str,trig->mask)));
+			argv[3] = STRING_TO_JSVAL(JS_NewStringCopyZ(net->cx, troll_makearg(data->rest_str,trig->mask)));
 
 			JS_CallFunctionName(net->cx, net->global, trig->command, 4, argv, &rval);
 

@@ -241,7 +241,7 @@ static void dcc_saveall(struct network *net, struct trigger *trig, struct irc_da
 
 static void dcc_dump(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
-	irc_printf(net->sock, "%s", egg_makearg(dccbuf,trig->mask));
+	irc_printf(net->sock, "%s", troll_makearg(dccbuf,trig->mask));
 }
 
 static void rehash_bot(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)

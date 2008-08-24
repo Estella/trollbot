@@ -14,6 +14,20 @@
 #include "log_entry.h"
 #include "debug.h"
 
+char *troll_makearg(const char *rest, const char *mask)
+{
+	char *ret;
+
+	ret = (char*)(&rest[strlen(mask)]);
+
+	while (*ret != '\0' && (*ret == ' ' || *ret == '\t'))
+		ret++;
+
+	if (ret == NULL)
+		return "";
+
+	return ret; 
+}
 
 void troll_user_host_handler(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {

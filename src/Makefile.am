@@ -13,7 +13,7 @@ trollbot_DEPENDENCIES = modules/crypto/crypto.la
 
 if WITH_ICS
 
-trollbot_SOURCES += ics-server.c ics-server.h ics-proto.c ics-proto.h ics-trigger.c ics-trigger.h
+trollbot_SOURCES += ics_server.c ics_server.h ics_proto.c ics_proto.h ics_trigger.c ics_trigger.h
 
 endif
 

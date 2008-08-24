@@ -51,9 +51,6 @@ int egg_isvoice(struct network *net, const char *nickname, const char *channel);
 
 char *egg_getchanmode(struct network *net, const char *channel);
 
-/* This is a band-aid function to make an arg to match against FIXME */
-char *egg_makearg(const char *rest, const char *mask);
-
 /* This is an eggdrop compliant pattern matching recursive function */
 int egg_matchwilds(const char *haystack, const char *needle);
 

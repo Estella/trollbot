@@ -18,7 +18,7 @@ void dcc_tcl(struct network *net, struct trigger *trig, struct irc_data *data, s
 {
 	int ret;
 
-	ret = Tcl_VarEval(dcc->net->tclinterp, egg_makearg(dccbuf,trig->mask), NULL);
+	ret = Tcl_VarEval(dcc->net->tclinterp, troll_makearg(dccbuf,trig->mask), NULL);
 
 	if (ret == TCL_ERROR)
 	{
@@ -63,6 +63,8 @@ void net_init_tcl(struct network *net)
 
 void net_tcl_init_commands(struct network *net)
 {
+	Tcl_CreateObjCommand(net->tclinterp, "passwdok", tcl_passwdok, net, NULL);
+	Tcl_CreateObjCommand(net->tclinterp, "unbind", tcl_unbind, net, NULL);
 	Tcl_CreateObjCommand(net->tclinterp, "die", tcl_die, net, NULL);
 	Tcl_CreateObjCommand(net->tclinterp, "utimer",tcl_utimer, net, NULL);
 	Tcl_CreateObjCommand(net->tclinterp, "isop", tcl_isop, net, NULL);
@@ -120,7 +122,7 @@ void tcl_handler(struct network *net, struct trigger *trig, struct irc_data *dat
 					"} {} {", /* hand */
 					data->c_params[0], /* chan */
 					"} {", 
-					egg_makearg(data->rest_str,trig->mask),
+					troll_makearg(data->rest_str,trig->mask),
 					"}",
 					NULL);
 

@@ -48,36 +48,17 @@
  */
 
 
-/* This is not an eggdrop function, put it in troll_lib */
-/* This could be replaced by a ltrim() */
-char *egg_makearg(const char *rest, const char *mask)
-{
-	char *ret;
-
-	ret = (char*)(&rest[strlen(mask)]);
-
-	while (*ret != '\0' && (*ret == ' ' || *ret == '\t'))
-		ret++;
-
-	if (ret == NULL)
-		return "";
-
-	return ret; 
-}
-
 /* 
 	 ?  matches any single character
- *  matches 0 or more characters of any type
- %  matches 0 or more non-space characters (can be used to match a single
- word)
- ~  matches 1 or more space characters (can be used for whitespace between
- words)
+   *  matches 0 or more characters of any type
+   %  matches 0 or more non-space characters (can be used to match a single
+      word)
+   ~  matches 1 or more space characters (can be used for whitespace between
+      words)
 
- returns 1 if no match, 0 if matched
+   returns 1 if no match, 0 if matched
 
-BUG: ~, &, and % don't work
 */
-/* This is not an eggdrop function, this should go in troll_lib */
 int egg_matchwilds(const char *haystack, const char *needle)
 {
 	return (_wild_match(haystack, needle) == 0) ? 1 : 0;
@@ -253,8 +234,8 @@ char *egg_makepasswd(const char *pass, const char *hash_type)
 
 /* Fully Compatible */
 /* passwdok <handle> <pass> */
-/* NEED_IMP: TCL, Perl, Python */
-/* IMP_IN: Javascript[kicken], PHP */
+/* NEED_IMP: Python */
+/* IMP_IN: Javascript[kicken], PHP, TCL */
 int egg_passwdok(struct network *net, const char *handle, const char *pass) 
 {
 	char *hash_string = NULL;
@@ -1425,8 +1406,8 @@ char **egg_bind(struct network *net, char *type, char *flags, char *mask, char *
  *   What must match is mask and command
  *   mask is case sensitive, command suprisingly is not
  */
-/* NEED_IMP: TCL, PHP, Perl, Python */
-/* IMP_IN: None */
+/* NEED_IMP: NONE */
+/* IMP_IN: Javascript, PHP, Python, TCL*/
 char *egg_unbind(struct network *net, char *type, char *flags, char *mask, char *command)
 {
 	struct trigger *trig_list = NULL;

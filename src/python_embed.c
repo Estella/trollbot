@@ -31,6 +31,9 @@
 
 /* Exported functions to Python */
 PyMethodDef PyTbMethods[] = {
+	{"unbind", py_unbind, METH_VARARGS,
+		"Unbinds a previously set bind"},
+
 	{"savechannels", py_savechannels, METH_VARARGS,
 	  "Saves channel file"},
 
@@ -274,7 +277,7 @@ void py_handler(struct network *net, struct trigger *trig, struct irc_data *data
 			PY_DICT_ADD(dict, "user_nick", data->prefix->nick);
 			PY_DICT_ADD(dict, "user_host", data->prefix->host);
 			PY_DICT_ADD(dict, "channel", data->c_params[0]);
-			PY_DICT_ADD(dict, "text", egg_makearg(data->rest_str, trig->mask));
+			PY_DICT_ADD(dict, "text", troll_makearg(data->rest_str, trig->mask));
 
 			rval = call_python_method(PY_CORE_LIB, PY_NET_CALL_METH, args, 3);
 			troll_debug(LOG_DEBUG, "[python] executed TRIG_PUB callback");
@@ -313,7 +316,7 @@ void py_handler(struct network *net, struct trigger *trig, struct irc_data *data
 		case TRIG_MSG:
 			PY_DICT_ADD(dict, "user_nick", data->prefix->nick);
 			PY_DICT_ADD(dict, "user_nick", data->prefix->nick);
-			PY_DICT_ADD(dict, "text", egg_makearg(data->rest_str, trig->mask));
+			PY_DICT_ADD(dict, "text", troll_makearg(data->rest_str, trig->mask));
 			rval = call_python_method(PY_CORE_LIB, PY_NET_CALL_METH, args, 3);
 			troll_debug(LOG_DEBUG, "[python] executed TRIG_MSG callback");
 			break;

@@ -15,6 +15,39 @@
 #include "irc.h"
 #include "user.h"
 
+PyObject *py_unbind(PyObject *self, PyObject *args)
+{
+	struct network *net;
+	PyObject *network;
+
+	char *type;
+	char *flags;
+	char *mask;
+	char *command;
+
+	if (!PyArg_ParseTuple(args, "Ossss", &network, &type, &flags, &mask, &command)) 
+	{
+		troll_debug(LOG_DEBUG, "[python-bindings] py_bind failed to parse arguments from script");
+		Py_RETURN_FALSE;
+	}
+
+	Py_XINCREF(network); 
+
+	net = (struct network *) PyCObject_AsVoidPtr(network); 
+
+	if (net == NULL) 
+	{
+		troll_debug(LOG_DEBUG, "[python-bindings] py_bind failed to resolve network object reference");
+		Py_RETURN_FALSE;
+	}
+
+	egg_unbind(net, type, flags, mask, command);
+
+	Py_RETURN_TRUE;
+}
+
+
+/* How the fuck do I return non boolean values? */
 #ifdef CLOWNS
 PyObject *py_countusers(PyObject *self, PyObject *args)
 {

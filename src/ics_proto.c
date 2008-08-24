@@ -12,9 +12,9 @@
 #include <stdarg.h>
 
 #include "main.h"
-#include "ics-proto.h"
-#include "ics-server.h"
-#include "ics-trigger.h"
+#include "ics_proto.h"
+#include "ics_server.h"
+#include "ics_trigger.h"
 #include "log_entry.h"
 
 void init_ics_triggers(struct ics_server *ics)

@@ -32,9 +32,9 @@
 
 
 #ifdef HAVE_ICS
-#include "ics-server.h"
-#include "ics-proto.h"
-#include "ics-trigger.h"
+#include "ics_server.h"
+#include "ics_proto.h"
+#include "ics_trigger.h"
 #endif /* HAVE_ICS */
 
 #ifdef HAVE_XMPP

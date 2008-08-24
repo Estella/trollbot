@@ -11,6 +11,56 @@
 #include "egg_lib.h"
 #include "user.h"
 
+int tcl_passwdok(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	struct network *net = clientData;
+	char *username;
+	char *pass;
+	int ret;
+
+	if (objc != 3)
+	{
+		Tcl_WrongNumArgs(interp, objc, objv, "passwdok <handle> <password>");
+		return TCL_ERROR;
+	}
+
+	username = Tcl_GetString(objv[1]);
+	pass     = Tcl_GetString(objv[2]);
+
+	ret = egg_passwdok(net, username, pass);
+
+	if (ret == 0)
+		Tcl_SetResult(interp,"0",NULL);
+	else
+		Tcl_SetResult(interp,"1",NULL);  
+
+	return TCL_OK;
+}
+	
+int tcl_unbind(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	struct network *net = clientData;
+	char *type;
+	char *flags;
+	char *mask;
+	char *command;
+
+	if (objc != 5)
+	{
+		Tcl_WrongNumArgs(interp, objc, objv, "unbind <type> <flags> <keyword/mask> <proc-name>");
+		return TCL_ERROR;
+	}
+
+	type    = Tcl_GetString(objv[1]);
+	flags   = Tcl_GetString(objv[2]);
+	mask    = Tcl_GetString(objv[3]);
+	command = Tcl_GetString(objv[4]);
+
+	egg_unbind(net, type, flags, mask, command);
+
+	return TCL_OK;
+}
+
 int tcl_die(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {
 	struct network *net = clientData;

@@ -27,6 +27,7 @@
 #include <main/php_ini.h>
 #include <zend_ini.h>
 
+#include "troll_lib.h"
 #include "php_lib.h"
 #include "t_timer.h"
 
@@ -105,7 +106,7 @@ void dcc_php(struct network *net, struct trigger *trig, struct irc_data *data, s
 
 	zend_try
 	{
-		if(zend_eval_string_ex(egg_makearg(dccbuf,trig->mask),&ret,"DCC Code",1 TSRMLS_CC) != SUCCESS)
+		if(zend_eval_string_ex(troll_makearg(dccbuf,trig->mask),&ret,"DCC Code",1 TSRMLS_CC) != SUCCESS)
 		{
 		}
 	}
@@ -167,7 +168,7 @@ void php_handler(struct network *net, struct trigger *trig, struct irc_data *dat
 
 			ZVAL_STRING(hand, "*", 1);
 			ZVAL_STRING(chan, data->c_params[0], 1);
-			ZVAL_STRING(arg, egg_makearg(data->rest_str,trig->mask), 1);
+			ZVAL_STRING(arg, troll_makearg(data->rest_str,trig->mask), 1);
 
 			php_args[0] = netw;
 			php_args[1] = nick;
@@ -249,7 +250,7 @@ void php_handler(struct network *net, struct trigger *trig, struct irc_data *dat
 			ZVAL_STRING(nick, data->prefix->nick, 1);
 			ZVAL_STRING(uhost, data->prefix->host, 1);
 			ZVAL_STRING(hand, "*", 1);
-			ZVAL_STRING(arg, egg_makearg(data->rest_str,trig->mask), 1);
+			ZVAL_STRING(arg, troll_makearg(data->rest_str,trig->mask), 1);
 
 			php_args[0] = netw;
 			php_args[1] = nick;
@@ -607,6 +608,7 @@ void t_timer_php_handler(struct network *net, struct t_timer *timer)
 
 static function_entry trollbot_functions[] = 
 {
+	PHP_FE(unbind, NULL)
 	PHP_FE(utimer, NULL)
 	PHP_FE(savechannels, NULL)
 	PHP_FE(validuser, NULL)

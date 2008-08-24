@@ -5,9 +5,9 @@
 
 #include "main.h"
 
-#include "ics-server.h"
-#include "ics-proto.h"
-#include "ics-trigger.h"
+#include "ics_server.h"
+#include "ics_proto.h"
+#include "ics_trigger.h"
 #include "log_entry.h"
 #include "egg_lib.h"
 
