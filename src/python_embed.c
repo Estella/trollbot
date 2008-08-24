@@ -29,6 +29,10 @@
 #define PY_STR(a) PyString_FromString(a)
 #define PY_DICT_ADD(a, b, c) PyDict_SetItemString(a, b, PyString_FromString(c))
 
+#ifndef HAVE_SIGHANDLER_T
+typedef void (*sighandler_t)(int);
+#endif /* HAVE_SIGHANDLER_T */
+
 /* Exported functions to Python */
 PyMethodDef PyTbMethods[] = {
 	{"unbind", py_unbind, METH_VARARGS,

@@ -85,7 +85,6 @@ void myphp_eval_file(char *filename)
 
 	zend_try 
 	{
-
 		if (zend_execute_scripts(ZEND_REQUIRE TSRMLS_CC, NULL, 1, &file_handle) != SUCCESS)
 			troll_debug(LOG_WARN,"PHP Script (%s) could not be run",filename);
 		else
