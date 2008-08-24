@@ -14,6 +14,7 @@
 #include "trigger.h"
 #include "t_crypto_module.h"
 #include "t_timer.h"
+#include "egg_match.h"
 
 #ifdef HAVE_TCL
 #include "tcl_embed.h"
@@ -79,68 +80,7 @@ BUG: ~, &, and % don't work
 /* This is not an eggdrop function, this should go in troll_lib */
 int egg_matchwilds(const char *haystack, const char *needle)
 {
-	if (needle == NULL || haystack == NULL)
-		return 1;
-
-	while (*needle)
-	{
-		if (*haystack == '\0'){
-			/* Hit end of haystack but not the ned of needle, so match fails. */
-			return 1;
-		}
-
-
-		if (*needle == '?'){
-			/* Any character matches, just move on. */
-			needle++;
-			haystack++;
-		}
-		else if (*needle == '*'){
-			/* Match characters til end of haystack, or until *(needle+1) */
-			while (*haystack != '\0' && *haystack != *(needle+1)){
-				haystack++;
-			}
-			needle++;
-		}
-		else if (*needle == '%'){
-			/* FIXME: Wildcard % needs implemented */
-			while (*haystack != '\0' && !isspace(*haystack) && *haystack != *(needle+1)){
-				haystack++;
-			}
-			needle++;
-		}
-		else if (*needle == '~'){
-			/* FIXME: Wildcard ~ needs implemented */
-			if (isspace(*haystack)){
-				haystack++;
-				while (*haystack != '\0' && isspace(*haystack)){
-					haystack++;
-				}
-				needle++;
-			}
-			else {
-				/* Must match at least one space. */
-				return 1;
-			}
-		}
-		else if (*needle != *haystack){
-			return 1;
-		}
-		else {
-			/* Two characters match.  Next */
-			needle++;
-			haystack++;
-		}
-	}
-
-	if (*haystack == '\0'){
-		/* Hit end of haystack and end of needle, so match succeeded */
-		return 0;
-	}
-	else {
-		/* Hit end of needled, but not end of haystack, match fails. */
-		return 1;
-	}
+	return (_wild_match(haystack, needle) == 0) ? 1 : 0;
 }
 
 /* These functions need queue support */
@@ -1119,7 +1059,7 @@ char **egg_chanbans(struct network *net, const char *channel)
 
 	cban = cban->banlist;
 	
-	for (count
+	for (count);
 	while (chan != NULL)
 	{
 		

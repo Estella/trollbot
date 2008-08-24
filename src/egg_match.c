@@ -23,16 +23,7 @@
  *
  */
 #include "main.h"
-
-#define QUOTE '\\' /* quoting character (overrides wildcards) */
-#define WILDS '*'  /* matches 0 or more characters (including spaces) */
-#define WILDP '%'  /* matches 0 or more non-space characters */
-#define WILDQ '?'  /* matches ecactly one character */
-#define WILDT '~'  /* matches 1 or more spaces */
-
-#define NOMATCH 0
-#define MATCH (match+sofar)
-#define PERMATCH (match+saved+sofar)
+#include "egg_match.h"
 
 int _wild_match_per(register unsigned char *m, register unsigned char *n)
 {
@@ -99,7 +90,7 @@ int _wild_match_per(register unsigned char *m, register unsigned char *n)
       case QUOTE:
         m++;                    /* Handle quoting */
       }
-      if (rfc_toupper(*m) == rfc_toupper(*n)) { /* If matching */
+      if (toupper(*m) == toupper(*n)) { /* If matching */
         m++;
         n++;
         sofar++;
@@ -176,7 +167,7 @@ int _wild_match(register unsigned char *m, register unsigned char *n)
       n--;
       continue;                 /* '?' always matches */
     }
-    if (rfc_toupper(*m) == rfc_toupper(*n)) {   /* If matching char */
+    if (toupper(*m) == toupper(*n)) {   /* If matching char */
       m--;
       n--;
       sofar++;                  /* Tally the match */

@@ -9,6 +9,7 @@
 #include "ics-proto.h"
 #include "ics-trigger.h"
 #include "log_entry.h"
+#include "egg_lib.h"
 
 #include "server.h"
 
@@ -94,9 +95,7 @@ struct ics_trigger *new_ics_trigger(void)
 int ics_trigger_match(struct ics_server *xs, struct ics_data *data)
 {
 	int trig_count = 0;
-	struct ics_trigger *trig;
-
-	trig = xs->ics_trigger_table->msg;
+	struct ics_trigger *trig = xs->ics_trigger_table->msg;
 
 	while (trig != NULL)
 	{

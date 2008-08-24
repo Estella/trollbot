@@ -15,6 +15,34 @@
 #include "irc.h"
 #include "user.h"
 
+#ifdef CLOWNS
+PyObject *py_countusers(PyObject *self, PyObject *args)
+{
+	struct network *net;
+	PyObject *network;
+
+	if (!PyArg_ParseTuple(args, "O", &network))
+	{
+		troll_debug(LOG_DEBUG, "[python-bindings] py_bind failed to parse arguments from script");
+		Py_RETURN_FALSE;
+	}
+
+	Py_XINCREF(network);
+
+	net = (struct network *) PyCObject_AsVoidPtr(network);
+
+	if (net == NULL)
+	{
+		troll_debug(LOG_DEBUG, "[python-bindings] py_bind failed to resolve network object reference");
+		Py_RETURN_FALSE;
+	}
+
+	egg_savechannels(net);
+
+	Py_RETURN_TRUE;
+}
+#endif /* CLOWNS */
+
 PyObject *py_savechannels(PyObject *self, PyObject *args)
 {
 	struct network *net;
