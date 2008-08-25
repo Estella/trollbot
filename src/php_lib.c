@@ -18,6 +18,180 @@
 #include "user.h"
 #include "t_timer.h"
 
+/* ispermban <ban> [channel] */
+/* Semantics: this will return TRUE or FALSE instead of 1 or 0 */
+PHP_FUNCTION(ispermban)
+{
+	struct network *net;
+	char *network;
+	int network_len;
+	char *ban;
+	int ban_len;
+	char *channel;
+	int channel_len;
+	int ret = 0;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss|s", &network, &network_len, &ban, &ban_len, &channel, &channel_len))
+	{
+		RETURN_FALSE;
+	}
+
+	net = g_cfg->networks;	
+
+	while (net != NULL)
+	{
+		if (!tstrcasecmp(net->label,network))
+			break;
+		
+		net = net->next;
+	}	
+
+	if (net == NULL)
+		RETURN_FALSE;
+
+	ret = egg_ispermban(net, ban, channel);
+
+	if (ret == 1)
+	{
+		RETURN_TRUE;
+	}
+	else
+	{
+		RETURN_FALSE;
+	}
+}
+
+/* matchattr <handle> <flags> [channel] */
+PHP_FUNCTION(matchattr)
+{
+	struct network *net;
+	char *network;
+	int network_len;
+	char *handle;
+	int handle_len;
+	char *flags;
+	int flags_len;
+	char *channel;
+	int channel_len;
+	int ret = 0;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sss|s", &network, &network_len, &handle, &handle_len, &flags, &flags_len, &channel, &channel_len))
+	{
+		RETURN_FALSE;
+	}
+
+	net = g_cfg->networks;	
+
+	while (net != NULL)
+	{
+		if (!tstrcasecmp(net->label,network))
+			break;
+		
+		net = net->next;
+	}	
+
+	if (net == NULL)
+		RETURN_FALSE;
+
+	ret = egg_matchattr(net, handle, flags, channel);
+
+	RETURN_LONG(ret);
+}
+
+/*
+ *   isbansticky <ban> [channel]
+ *   Returns: 1 if the specified ban is marked as sticky in the global ban
+ *   list; 0 otherwise. If a channel is specified, that channel's ban list
+ *   is checked as well.
+ *   Module: channels
+ */
+/* Semantics: This will return TRUE or FALSE rather than eggdrop's 1 or 0 */
+PHP_FUNCTION(isbansticky)
+{
+	struct network *net;
+	char *network;
+	int network_len;
+	char *ban;
+	int ban_len;
+	char *channel;
+	int channel_len;
+	int ret = 0;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss|s", &network, &network_len, &ban, &ban_len, &channel, &channel_len))
+	{
+		RETURN_FALSE;
+	}
+
+	net = g_cfg->networks;	
+
+	while (net != NULL)
+	{
+		if (!tstrcasecmp(net->label,network))
+			break;
+		
+		net = net->next;
+	}	
+
+	if (net == NULL)
+		RETURN_FALSE;
+
+	ret = egg_isbansticky(net, ban, channel);
+
+	if (ret == 1)
+	{
+		RETURN_TRUE;
+	}
+	else
+	{
+		RETURN_FALSE;
+	}
+}
+
+
+
+/* isban <ban> [channel] */
+/* Semantics: this will return TRUE or FALSE instead of 1 or 0 */
+PHP_FUNCTION(isban)
+{
+	struct network *net;
+	char *network;
+	int network_len;
+	char *ban;
+	int ban_len;
+	char *channel;
+	int channel_len;
+	int ret = 0;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss|s", &network, &network_len, &ban, &ban_len, &channel, &channel_len))
+	{
+		RETURN_FALSE;
+	}
+
+	net = g_cfg->networks;	
+
+	while (net != NULL)
+	{
+		if (!tstrcasecmp(net->label,network))
+			break;
+		
+		net = net->next;
+	}	
+
+	if (net == NULL)
+		RETURN_FALSE;
+
+	ret = egg_isban(net, ban, channel);
+
+	if (ret == 1)
+	{
+		RETURN_TRUE;
+	}
+	else
+	{
+		RETURN_FALSE;
+	}
+}
+
 PHP_FUNCTION(unbind)
 {
 	char *network;

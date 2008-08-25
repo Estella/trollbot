@@ -158,12 +158,16 @@
 	[IRC]
 	* Added JOIN, PART, DCC, SIGN, and CTCP bind types to Javascript.
 
-	* New function: egg_unbind   [egg_lib.c]
-	* New function: tcl_unbind   [tcl_lib.c]
-	* New function: php_unbind   [php_lib.c]
-	* New function: py_unbind    [python_lib.c]
-	* New function: js_unbind    [js_lib.c]
-	* New function: tcl_passwdok [tcl_lib.c]
+	* New function: egg_unbind      [egg_lib.c]
+	* New function: tcl_unbind      [tcl_lib.c]
+	* New function: php_unbind      [php_lib.c]
+	* New function: py_unbind       [python_lib.c]
+	* New function: js_unbind       [js_lib.c]
+	* New function: tcl_passwdok    [tcl_lib.c]
+	* New function: php_isban       [php_lib.c]
+	* New function: php_isbansticky [php_lib.c]
+	* New function: php_matchattr   [php_lib.c]
+	* New function: php_ispermban   [php_lib.c]
 
 	[ICS] (www.freechess.org only currently)
 	* Added crude support for FICS, added trollbot.conf parameters, crude

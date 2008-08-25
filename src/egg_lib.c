@@ -523,8 +523,8 @@ char *egg_chattr(struct network *net, const char *handle, const char *changes, c
 /* Should be part of chattr */
 
 /* matchattr <handle> <flags> [channel] */
-/* NEED_IMP: Perl, Python, PHP  */
-/* IMP_IN: TCL, Javascript */
+/* NEED_IMP: Perl, Python  */
+/* IMP_IN: TCL, Javascript, PHP */
 int egg_matchattr(struct network *net, const char *handle, const char *flags, const char *channel)
 {
 	struct user *user;
@@ -617,8 +617,8 @@ int egg_adduser(struct network *net, char *username, char *hostmask)
 /* ischanjuped <channel> */
 
 /* isban <ban> [channel] */
-/* NEED_IMP: TCL, PHP, Python */
-/* IMP_IN: Javascript */
+/* NEED_IMP: TCL, Python */
+/* IMP_IN: Javascript, PHP */
 int egg_isban(struct network *net, char *ban, char *channel)
 {
 	struct channel     *chan;
@@ -645,8 +645,8 @@ int egg_isban(struct network *net, char *ban, char *channel)
 }
 
 /* ispermban <ban> [channel] */
-/* NEED_IMP: TCL, PHP, Python */
-/* IMP_IN: Javascript */
+/* NEED_IMP: TCL, Python */
+/* IMP_IN: Javascript, PHP */
 int egg_ispermban(struct network *net, char *ban, char *channel)
 {
 	struct channel     *chan;
@@ -684,8 +684,8 @@ int egg_ispermban(struct network *net, char *ban, char *channel)
  *   is checked as well.
  *   Module: channels
  */
-/* NEED_IMP: TCL, PHP, Python */
-/* IMP_IN: Javascript */
+/* NEED_IMP: TCL, Python */
+/* IMP_IN: Javascript, PHP */
 int egg_isbansticky(struct network *net,  char *ban, char *channel)
 {
 	struct channel     *chan;

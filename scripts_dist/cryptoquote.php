@@ -53,19 +53,20 @@
     var $solved;
    
     // Boolean
-    var $running;
+    private $running;
     
     // ctor mofo
     function Cryptoquote($net, $chan)
     {
-      $this->running = false;
+      $this->running = FALSE;
+
       $this->net     = $net;
       $this->chan    = $chan
     }
 
     function start($net, $nick, $chan)
     {
-      if ($running == true)
+      if ($this->running == true)
       {
         putserv($net,"PRIVMSG $chan :A cryptoquote game is already in play.");
         return;
