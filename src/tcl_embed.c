@@ -58,6 +58,7 @@ void tcl_load_scripts_from_config(struct config *cfg)
 void net_init_tcl(struct network *net)
 {  
 	net->tclinterp = Tcl_CreateInterp();
+	Tcl_Init(net->tclinterp);
 	net_tcl_init_commands(net);
 }
 

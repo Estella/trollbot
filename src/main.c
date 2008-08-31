@@ -26,6 +26,10 @@
 #include "log_entry.h"
 #include "egg_lib.h"
 
+#ifdef HAVE_TCL
+#include "tcl_embed.h"
+#endif /* HAVE_TCL */
+
 struct config *g_cfg = NULL;
 
 int main(int argc, char *argv[])
@@ -44,6 +48,10 @@ int main(int argc, char *argv[])
 		printf("Trollbot could not initialize libltdl, initialization failed with %d errors\n",lt_errors);
 		return EXIT_FAILURE;
 	}
+
+#ifdef HAVE_TCL
+	Tcl_FindExecutable(argv[0]);
+#endif /* HAVE_TCL */
 
 	printf("#################################################\n");
 	printf("# Trollbot v1.0.0, written by                   #\n");
