@@ -264,6 +264,7 @@ void free_networks(struct network *net)
 		 * it's not set to NULL in the new_network() 	
 		 */
 		free(net->dcc_motd);
+		free(net->default_flags);
 
 		free_trigger_table(net->trigs);
 
@@ -330,6 +331,7 @@ struct network *new_network(char *label)
 	ret->botnick       = NULL;
 	ret->nick          = NULL;
 	ret->altnick       = NULL;
+	ret->default_flags = NULL;
 	ret->realname      = NULL;
 	ret->ident         = NULL;
 

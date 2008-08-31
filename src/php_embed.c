@@ -607,6 +607,7 @@ void t_timer_php_handler(struct network *net, struct t_timer *timer)
 
 static function_entry trollbot_functions[] = 
 {
+	PHP_FE(adduser, NULL)
 	PHP_FE(ispermban, NULL)
 	PHP_FE(matchattr, NULL)
 	PHP_FE(isbansticky, NULL)

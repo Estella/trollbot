@@ -18,6 +18,50 @@
 #include "user.h"
 #include "t_timer.h"
 
+PHP_FUNCTION(adduser)
+{
+	struct network *net;
+	char *network;
+	int network_len;
+	char *username;
+	int username_len;
+	char *hostmask;
+	int hostmask_len;
+	int ret = 0;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss|s", &network, &network_len, &username, &username_len, &hostmask, &hostmask_len))
+	{
+		RETURN_FALSE;
+	}
+
+	net = g_cfg->networks;	
+
+	while (net != NULL)
+	{
+		if (!tstrcasecmp(net->label,network))
+			break;
+		
+		net = net->next;
+	}	
+
+	if (net == NULL)
+	{
+		RETURN_FALSE;
+	}
+
+	ret = egg_ispermban(net, username, hostmask);
+
+	if (ret == 1)
+	{
+		RETURN_TRUE;
+	}
+	else
+	{
+		RETURN_FALSE;
+	}
+}
+
+
 /* ispermban <ban> [channel] */
 /* Semantics: this will return TRUE or FALSE instead of 1 or 0 */
 PHP_FUNCTION(ispermban)
@@ -47,7 +91,9 @@ PHP_FUNCTION(ispermban)
 	}	
 
 	if (net == NULL)
+	{
 		RETURN_FALSE;
+	}
 
 	ret = egg_ispermban(net, ban, channel);
 

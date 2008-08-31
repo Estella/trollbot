@@ -11,6 +11,59 @@
 #include "egg_lib.h"
 #include "user.h"
 
+int tcl_adduser(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	struct network *net = clientData;
+	char *username;
+	char *hostmask;
+	int ret;
+
+	if (objc < 2 || objc > 3)
+	{
+		Tcl_WrongNumArgs(interp, objc, objv, "adduser <username> [hostmask]");
+		return TCL_ERROR;
+	}
+
+	username = Tcl_GetString(objv[1]);
+	hostmask = (objc == 3) ? Tcl_GetString(objv[2]) : NULL;
+
+	ret = egg_adduser(net, username, hostmask);
+	
+	if (ret == 0)
+		Tcl_SetResult(interp, "0", NULL);
+	else
+		Tcl_SetResult(interp, "1", NULL);
+
+	return TCL_OK;
+}
+
+
+int tcl_isban(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	struct network *net = clientData;
+	char *ban;
+	char *channel;
+	int ret;
+
+	if (objc < 2 || objc > 3)
+	{
+		Tcl_WrongNumArgs(interp, objc, objv, "isban <ban> [channel]");
+		return TCL_ERROR;
+	}
+
+	ban     = Tcl_GetString(objv[1]);
+	channel = (objc == 3) ? Tcl_GetString(objv[2]) : NULL;
+
+	ret = egg_isban(net, ban, channel);
+	
+	if (ret == 0)
+		Tcl_SetResult(interp, "0", NULL);
+	else
+		Tcl_SetResult(interp, "1", NULL);
+
+	return TCL_OK;
+}
+	
 int tcl_passwdok(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {
 	struct network *net = clientData;

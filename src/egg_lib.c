@@ -14,7 +14,7 @@
 #include "trigger.h"
 #include "t_crypto_module.h"
 #include "t_timer.h"
-#include "egg_match.h"
+#include "util.h"
 
 #ifdef HAVE_TCL
 #include "tcl_embed.h"
@@ -571,12 +571,13 @@ int egg_matchattr(struct network *net, const char *handle, const char *flags, co
 
 }
 
-/* NOT DONE */
-#ifdef CLOWNS
 /* adduser <handle> [hostmask] */
+/* Need to check if eggdrop saves the userfile after this */
 int egg_adduser(struct network *net, char *username, char *hostmask)
 {
-	struct user *new_user = NULL;
+	struct channel *chan;
+	struct channel_user *cuser;
+	struct user *user = NULL;
 
 	if (username == NULL)
 		return 0;
@@ -585,11 +586,65 @@ int egg_adduser(struct network *net, char *username, char *hostmask)
 	if (network_user_find_by_username(net, username) != NULL)
 		return 0;
 	
+
+	/* Try to find out as much as you possibly can about the user */
+	/* Most likely by going through each channel finding a nick that
+	 * matches, and filling in the ident, and so on for the eggdrop
+	 * default mask.
+	 */
+	/* TODO: Test eggdrop behavior to verify it is the same */
+	chan = net->chans; /* wtf on naming */
+	
+	/* go through each channel */
+	while (chan != NULL)
+	{
+		cuser = chan->user_list;
+
+		/* go through each channel user */
+		while (cuser != NULL)
+		{
+			if (!tstrcasecmp(username, cuser->nick))
+			{
+				break;
+			}
+
+			cuser = cuser->next;
+		}
+
+		if (cuser != NULL)
+			break;
+
+		chan = chan->next;
+	}
+
+	/* Add user to users list */
+
+	if (cuser == NULL)
+	{
+		/* use defaults */
+		user = new_user(username, NULL, NULL, NULL, NULL, hostmask, net->default_flags);
+	}
+	else
+	{
+		/* use existing information */
+		user = new_user(username, cuser->nick, NULL, cuser->ident, cuser->realname, (hostmask == NULL) ? cuser->host : hostmask, net->default_flags);
+	}
+
+
+	if (user == NULL)
+		return 0;
+
+	
+	user_list_add(&net->users, user);
+
+	/* TODO: Find out whether to save, going to go ahead and save for now */
+	users_save(net);
+
 	return 1;
 }
-#endif /* CLOWNS */
 
-/* addbot <handle> <address> */
+/* addbot <handle> <address> -- This should wrap egg_adduser */
+
 /* deluser <handle> */
 /* delhost <handle> <hostmask> */
 /* addchanrec <handle> <channel> */
@@ -617,8 +672,8 @@ int egg_adduser(struct network *net, char *username, char *hostmask)
 /* ischanjuped <channel> */
 
 /* isban <ban> [channel] */
-/* NEED_IMP: TCL, Python */
-/* IMP_IN: Javascript, PHP */
+/* NEED_IMP: Python */
+/* IMP_IN: Javascript, PHP, TCL */
 int egg_isban(struct network *net, char *ban, char *channel)
 {
 	struct channel     *chan;
@@ -808,8 +863,9 @@ int egg_isbotnick(struct network *net, char *nick)
 }
 
 /* botisop [channel] */
-/* NEED_IMP: Javascript, TCL, PHP, Python */
-int egg_botisop(struct network *net, const char *nickname, const char *channel)
+/* NEED_IMP: TCL, PHP, Python */
+/* IMP_IN: Javascript */
+int egg_botisop(struct network *net, const char *channel)
 {
 	return egg_isop(net, egg_botnick(net), channel);
 }

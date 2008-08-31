@@ -33,7 +33,7 @@ global settings
   //   v - raw outgoing server traffic
   //   w - wallops (make sure the bot sets +w in init-server)
   //   x - file transfers and file-area commands
-	console_log_flags abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
+	//console_log_flags abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
 
 	/* Which hash type should users use by default
 	 * Existing users will be converted to this on
@@ -89,31 +89,34 @@ xmpp_server localhost
 
 network DALnet
 {
-		/* Nick to use when connecting to network */
+		// Nick to use when connecting to network
     nick Trollbot
-		/* Alternative nickname to use, can contain ? for random numbers */
+		// Alternative nickname to use, can contain ? for random numbers
     altnick Trollbot
 
-		/* Ident/Username to tell server */
+		// Ident/Username to tell server
     ident rawr
 
-		/* Realname/GECOS */
+		// Realname/GECOS
     realname "http://www.sourceforge.net/projects/trollbot"
 
-		/* This is the hostname Trollbot will try and connect from */
+		// This is the hostname Trollbot will try and connect from
 		vhost 192.168.2.6 
    
-		/* Static Channels (Cannot be removed via DCC) */
+		// Static Channels (Cannot be removed via DCC)
     channel #php
 
-		/* This is where network specific user/channel files are */
+		// This is where network specific user/channel files are
     userfile db/userdb.DALnet
     chanfile db/chandb.DALnet
 
-		/* Which port should Trollbot listen on for the console */
+		// Which port should Trollbot listen on for the console 
     userlisten 64121
 
-		/* Scripts to load */
+		// What flags to give to a user if not specified when adding
+		default-flags "hp"
+
+		// Scripts to load
 		tclscript scripts/test.tcl
     tclscript scripts/cryptoquote-1.02.tcl
     phpscript scripts/bmi.php
@@ -122,7 +125,7 @@ network DALnet
     phpscript scripts/dnd.php
 		javascript scripts/test.js
 
-		/* Servers:ports to try and connect to */
+		// Servers:ports to try and connect to
     server swiftco.dal.net:6668
 
 		// New feature, see log_filter.txt in doc/ (not there yet)

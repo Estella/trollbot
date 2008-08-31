@@ -15,6 +15,64 @@
 #include "network.h"
 #include "egg_lib.h"
 
+JSBool js_adduser(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+	struct network *net = JS_GetContextPrivate(cx);
+	char *username;
+	char *hostmask;
+
+	/* Not that this will be used */	
+	*rval = JSVAL_VOID;
+
+	/* channel */
+	if (argc < 1 || argc > 2)
+	{
+		/* Need to add error reporting */
+		return JS_FALSE;
+	}
+
+	username    = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+	hostmask    = (argc == 2) ? JS_GetStringBytes(JS_ValueToString(cx, argv[1])) : NULL;
+  
+	if (egg_adduser(net, username, hostmask) == 1)
+	{
+		return JS_TRUE;
+	}
+	else
+	{
+		return JS_FALSE;
+	}
+}
+
+JSBool js_botisop(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+	struct network *net = JS_GetContextPrivate(cx);
+	char *channel;
+
+	/* Not that this will be used */	
+	*rval = JSVAL_VOID;
+
+	/* channel */
+	if (argc != 1)
+	{
+		/* Need to add error reporting */
+		return JS_FALSE;
+	}
+
+	channel    = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+  
+	if (egg_botisop(net, channel) == 1)
+	{
+		return JS_TRUE;
+	}
+	else
+	{
+		return JS_FALSE;
+	}
+}
+
+
+
 JSBool js_unbind(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	struct network *net = JS_GetContextPrivate(cx);

@@ -28,12 +28,13 @@ struct trigger;
 struct dcc_session;
 struct t_timer;
 
+int egg_adduser(struct network *net, char *username, char *hostmask);
 void egg_die(struct network *net, const char *reason);
 
 char *egg_unbind(struct network *net, char *type, char *flags, char *mask, char *command);
 
 int egg_botisvoice(struct network *net, const char *nickname, const char *channel);
-int egg_botisop(struct network *net, const char *nickname, const char *channel);
+int egg_botisop(struct network *net, const char *channel);
 int egg_botonchan(struct network *net, const char *nickname, const char *channel);
 
 int egg_isban(struct network *net, char *ban, char *channel);

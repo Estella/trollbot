@@ -191,11 +191,13 @@ void net_init_js_global_object(struct network *net)
 	builtins = JS_InitStandardClasses(net->cx, net->global);
 
 	/* Initialize egg_lib functions */
+	JS_DefineFunction(net->cx, net->global, "adduser", js_adduser, 1, 0);
 	JS_DefineFunction(net->cx, net->global, "unbind", js_unbind, 4, 0);
 	JS_DefineFunction(net->cx, net->global, "die", js_die, 0, 0);
 	JS_DefineFunction(net->cx, net->global, "isban", js_isban, 1, 0);
 	JS_DefineFunction(net->cx, net->global, "ispermban", js_ispermban, 1, 0);
 	JS_DefineFunction(net->cx, net->global, "isbansticky", js_isbansticky, 1, 0);
+	JS_DefineFunction(net->cx, net->global, "botisop", js_botisop, 1, 0);
 	JS_DefineFunction(net->cx, net->global, "isop", js_isop, 1, 0);
 	JS_DefineFunction(net->cx, net->global, "isvoice", js_isvoice, 1, 0);
 	JS_DefineFunction(net->cx, net->global, "getchanmode", js_getchanmode, 1, 0);

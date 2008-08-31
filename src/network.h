@@ -97,6 +97,8 @@ struct network
 	/* Copy over on rehash */
   int status;
 
+	char *default_flags;
+
 	/* This settings makes the bot cycle forever through the server list until
  	 * it successfully connects to one.
  	 */ 

@@ -8,6 +8,8 @@ struct irc_data;
 struct network;
 struct dcc_session;
 
+JSBool js_adduser(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+
 JSBool js_unbind(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 JSBool js_die(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 
@@ -17,6 +19,7 @@ JSBool js_ispermban(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval
 
 
 
+JSBool js_botisop(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 JSBool js_isop(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 JSBool js_isvoice(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 

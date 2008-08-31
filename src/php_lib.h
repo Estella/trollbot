@@ -13,6 +13,7 @@
 #undef END_EXTERN_C
 #endif /* HAVE_PERL */
 
+PHP_FUNCTION(adduser);
 PHP_FUNCTION(ispermban);
 PHP_FUNCTION(matchattr);
 PHP_FUNCTION(isbansticky);

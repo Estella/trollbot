@@ -290,9 +290,14 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 					if (net->connect_delay == -1)
 						net->connect_delay = atoi(search->value);
 				}
+				else if (!strcmp(search->key,"default-flags"))
+				{
+					if (net->default_flags == NULL)
+						net->default_flags = tstrdup(search->value);
+				}		
 				else if (!strcmp(search->key,"dcc_motd"))
 				{
-					if (net->dcc_motd != NULL)
+					if (net->dcc_motd == NULL)
 						net->dcc_motd = tstrdup(search->value);
 				}		
 				else if (!strcmp(search->key,"altnick"))

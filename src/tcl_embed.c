@@ -63,6 +63,8 @@ void net_init_tcl(struct network *net)
 
 void net_tcl_init_commands(struct network *net)
 {
+	Tcl_CreateObjCommand(net->tclinterp, "adduser", tcl_adduser, net, NULL);
+	Tcl_CreateObjCommand(net->tclinterp, "isban", tcl_isban, net, NULL);
 	Tcl_CreateObjCommand(net->tclinterp, "passwdok", tcl_passwdok, net, NULL);
 	Tcl_CreateObjCommand(net->tclinterp, "unbind", tcl_unbind, net, NULL);
 	Tcl_CreateObjCommand(net->tclinterp, "die", tcl_die, net, NULL);
