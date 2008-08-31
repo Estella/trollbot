@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
 
 	printf("#################################################\n");
 	printf("# %-45s #\n","Channel databases loaded");
-	printf("# %-45s #\n","Entering IRC loop");
+	printf("# %-45s #\n","Entering Socket loop");
 	printf("#################################################\n");
 	printf("IRC Debug Output:\n");
 

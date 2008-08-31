@@ -299,6 +299,7 @@ trollbot_SOURCES = channel.c config_engine.c dcc.c debug.c \
 	$(am__append_1) $(am__append_2) $(am__append_5) \
 	$(am__append_8) $(am__append_11) $(am__append_14) \
 	$(am__append_17)
+trollbot_CXXFLAGS = -O0 -g
 trollbot_CFLAGS = -O0 -Wall -std=c99 -pedantic ${LTDLINCL} \
 	$(am__append_3) $(am__append_6) $(am__append_9) \
 	$(am__append_12) $(am__append_15) $(am__append_18)

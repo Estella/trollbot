@@ -11,6 +11,30 @@
 #include "egg_lib.h"
 #include "user.h"
 
+int tcl_isbotnick(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	struct network *net = clientData;
+	char *nick;
+	int ret;
+
+	if (objc != 2)
+	{
+		Tcl_WrongNumArgs(interp, objc, objv, "isbotnick <nickname>");
+		return TCL_ERROR;
+	}
+
+	nick = Tcl_GetString(objv[1]);
+
+	ret = egg_isbotnick(net, nick);
+	
+	if (ret == 0)
+		Tcl_SetResult(interp, "0", NULL);
+	else
+		Tcl_SetResult(interp, "1", NULL);
+
+	return TCL_OK;
+}
+
 int tcl_adduser(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {
 	struct network *net = clientData;

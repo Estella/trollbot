@@ -16,13 +16,14 @@ struct ics_trigger;
 /* Freechess */
 #define LOGIN_TRIGGER "*(If your return key does not work, use cntrl-J)*"
 #define PASS_TRIGGER "*If it is yours, type the password.*"
-#define ENTER_TRIGGER "*Press return to enter the server as \"Foajaa\":*"
+#define ENTER_TRIGGER "*Press return*"
 
 struct ics_data
 {
 	char *txt_packet;
 };
 
+void ics_internal_enter(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
 void init_ics_triggers(struct ics_server *ics);
 void ics_internal_login(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
 void ics_ball_start_rolling(struct ics_server *ics);

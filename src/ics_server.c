@@ -90,7 +90,16 @@ struct ics_server *ics_server_from_tconfig_block(struct tconfig_block *tcfg)
 				svr->prev    = NULL;
 				svr->next    = NULL;
 			}
+		} 
+		else if (!tstrcasecmp(tmp->key,"username"))
+		{
+			if (ics->username == NULL)
+			{
+				ics->username = tstrdup(tmp->value);
+			}
 		}
+		
+		
 
 		tmp = tmp->next;
 	}
@@ -288,6 +297,7 @@ void free_ics_server(struct ics_server *ics)
 	free(ics->label);
 	free(ics->vhost);
 	free(ics->shost); 
+	free(ics->username);
 
 	free_servers(ics->ics_servers);
 	t_timers_free(ics->timers);
@@ -350,6 +360,8 @@ struct ics_server *new_ics_server(char *label)
 	ret->last_try      = 0;
 
 	ret->tcfg          = NULL;
+
+	ret->username      = NULL;
 
 	ret->never_give_up = -1;
 	/* This is the queueing BS */

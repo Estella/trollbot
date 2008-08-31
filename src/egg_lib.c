@@ -69,6 +69,9 @@ int egg_matchwilds(const char *haystack, const char *needle)
 	while (*needle)
 	{
 		if (*haystack == '\0'){
+			/* If *needle is '*', and *(needle+1) = '\0', this should return 0 for success */
+			if ((*needle == '*') && *(needle+1) == '\0')
+				return 0;
 			/* Hit end of haystack but not the ned of needle, so match fails. */
 			return 1;
 		}
@@ -659,8 +662,72 @@ int egg_adduser(struct network *net, char *username, char *hostmask)
 /* newexempt <exempt> <creator> <comment> [lifetime] [options] */
 /* newchaninvite <channel> <invite> <creator> <comment> [lifetime] [options] */
 /* newinvite <invite> <creator> <comment> [lifetime] [options] */
+
+
 /* stick <banmask> [channel] */
+/* NEED_IMP: TCL, Javascript, Python, PHP */
+/* IMP_IN: None */
+/* Need to verify what this does */
+int egg_stick(struct network *net, char *ban, char *channel)
+{
+	struct channel     *chan;
+	struct channel_ban *cban;
+
+	if ((channel == NULL) || strlen(channel) == 0)
+	{
+		/* TODO: Check Global list, which doesn't exist yet */
+		return 0;
+	}
+
+	/* Find the channel */
+	chan = network_channel_find(net, channel);
+	
+	if (chan == NULL)
+		return 0;
+
+	cban = channel_channel_ban_find(chan, ban);
+
+	if (cban == NULL)
+		return 0;
+
+	cban->is_sticky = 1;
+
+	return 1;
+}
+
+
 /* unstick <banmask> [channel] */
+/* NEED_IMP: TCL, Javascript, Python, PHP */
+/* IMP_IN: None */
+/* Need to verify what this does */
+int egg_unstick(struct network *net, char *ban, char *channel)
+{
+	struct channel     *chan;
+	struct channel_ban *cban;
+
+	if ((channel == NULL) || strlen(channel) == 0)
+	{
+		/* TODO: Check Global list, which doesn't exist yet */
+		return 0;
+	}
+
+	/* Find the channel */
+	chan = network_channel_find(net, channel);
+	
+	if (chan == NULL)
+		return 0;
+
+	cban = channel_channel_ban_find(chan, ban);
+
+	if (cban == NULL)
+		return 0;
+
+	cban->is_sticky = 0;
+
+	return 1;
+}
+
+
 /* stickexempt <exemptmask> [channel] */
 /* unstickexempt <exemptmask> [channel] */
 /* stickinvite <invitemask> [channel] */
@@ -857,7 +924,7 @@ char *egg_channels(struct network *net)
 }
 
 /* isbotnick: Returns 1 if nick is bot's nick */
-/* NEED_IMP: TCL, PHP, Perl, Python  */
+/* NEED_IMP: PHP, Perl, Python  */
 /* IMP_IN: Javascript */
 int egg_isbotnick(struct network *net, char *nick)
 {

@@ -10,6 +10,7 @@ AM_INIT_AUTOMAKE(trollbot,snap20080823)
 AC_CONFIG_HEADER(config.h)
 
 AC_CONFIG_SUBDIRS(libltdl)
+dnl AC_CONFIG_SUBDIRS(thttpd)
 
 AC_LIBTOOL_DLOPEN
 AC_LIBLTDL_CONVENIENCE
@@ -160,6 +161,12 @@ if test "with_ics" = "yes"; then
 else
 	echo "  ICS        Support: No"
 fi
+
+dnl if test "with_httpd" = "yes"; then
+dnl 	echo "  HTTPD      Support: Yes"
+dnl else
+dnl		echo "  HTTPD      Support: No"
+dnl	fi
 
 
 echo ""

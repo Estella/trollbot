@@ -181,8 +181,11 @@
 
 	* Fixed 2 crash issues with .js DCC trigger (flag n needed)
 
-	* New function: js_botisop  [js_lib.c]
-	* New function: tcl_isban   [tcl_lib.c]
-	* New function: tcl_adduser [tcl_lib.c]
-	* New function: js_adduser  [js_lib.c]
-	* New function: php_adduser [php_lib.c]
+	* New function: js_botisop    [js_lib.c]
+	* New function: tcl_isban     [tcl_lib.c]
+	* New function: tcl_adduser   [tcl_lib.c]
+	* New function: js_adduser    [js_lib.c]
+	* New function: php_adduser   [php_lib.c]
+	* New function: tcl_isbotnick [tcl_lib.c]
+	* New function: egg_stick     [egg_lib.c]
+	* New function: egg_unstick   [egg_lib.c]

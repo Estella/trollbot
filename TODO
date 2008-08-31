@@ -1,53 +1,123 @@
-src/channel.c:221:      /* FIXME */
-src/channel.c-222-      /* g_cfg->tcfg = file_to_tconfig(net->chanfile); */
+Makefile:	TODO compile config.guess config.sub depcomp install-sh \
+Makefile-	ltmain.sh missing
+Makefile-ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
+Makefile-am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
 --
-src/channel.c:287:					/* FIXME: Just update modes if needed and continue */
-src/channel.c-288-					break;
+Makefile.in:	TODO compile config.guess config.sub depcomp install-sh \
+Makefile.in-	ltmain.sh missing
+Makefile.in-ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
+Makefile.in-am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
 --
-src/default_triggers.c:47:		/* FIXME: Shouldn't be here*/
-src/default_triggers.c-48-		trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,"rehash",NULL,&rehash_bot));
+src/modules/crypto/crypto.c:	/* TODO: There's probably a better way of doing this */
+src/modules/crypto/crypto.c-	for (i=0; i<hash_size; i++)
+src/modules/crypto/crypto.c-	{
+src/modules/crypto/crypto.c-		sprintf(&hash_string[strlen(hash_string)],"%0x",tmp[i]);
 --
-src/default_triggers.c:147:			/* FIXME: Need check for whether they're a recognized user in the bot */
-src/default_triggers.c:148:			/* FIXME: Check if nick is bot, if so do WHO, and MODE */
-src/default_triggers.c-149-				
 --
-src/default_triggers.c:159:	/* FIXME: If chan is NULL, might be a freenode-like redirection. Handle it. */
-src/default_triggers.c-160-	if (chan == NULL)
+src/dcc.c:/* TODO: Handle duplicates, I think */
+src/dcc.c-void dcc_log_filter_handler(struct network *net, struct log_filter *filter, struct log_entry *entry)
+src/dcc.c-{
+src/dcc.c-  time_t now;
 --
-src/default_triggers.c:193:  /* FIXME: If chan is NULL, might be a freenode-like redirection. Handle it. */
-src/default_triggers.c-194-  if (chan == NULL)
+src/egg_lib.c:	/* TODO: Test eggdrop behavior to verify it is the same */
+src/egg_lib.c-	chan = net->chans; /* wtf on naming */
+src/egg_lib.c-	
+src/egg_lib.c-	/* go through each channel */
 --
-src/egg_lib.c:538:   * FIXME
-src/egg_lib.c-539-   */
+src/egg_lib.c:	/* TODO: Find out whether to save, going to go ahead and save for now */
+src/egg_lib.c-	users_save(net);
+src/egg_lib.c-
+src/egg_lib.c-	return 1;
 --
-src/egg_lib.c:542:		troll_debug(LOG_ERROR, "FIXME: egg_matchattr() only works for global flags");
-src/egg_lib.c-543-  } 
+src/egg_lib.c:		/* TODO: Check Global list, which doesn't exist yet */
+src/egg_lib.c-		return 0;
+src/egg_lib.c-	}
+src/egg_lib.c-
 --
-src/egg_lib.c:942:    /* Needs to check stackable, and whether dupes exist FIXME */
-src/egg_lib.c-943-    if (!strcmp("pub",type))
+src/egg_lib.c:		/* TODO: Check Global list, which doesn't exist yet */
+src/egg_lib.c-		return 0;
+src/egg_lib.c-	}
+src/egg_lib.c-
 --
-src/egg_lib.c:1101:				/* Bug, cannot NULL out trigs here, they aren't being freed either FIXME */	
-src/egg_lib.c-1102-#ifdef HAVE_TCL
+src/egg_lib.c:		/* TODO: Check Global list, which doesn't exist yet */
+src/egg_lib.c-		return 0;
+src/egg_lib.c-	}
+src/egg_lib.c-
 --
-src/egg_lib.h:19:/* This is a band-aid function to make an arg to match against FIXME */
-src/egg_lib.h-20-char *egg_makearg(char *rest, char *mask);
+src/egg_lib.c:	/* TODO: Error handling */
+src/egg_lib.c-	if (chan == NULL)
+src/egg_lib.c-		return NULL;	
+src/egg_lib.c-
 --
-src/network.c:57:		/* FIXME: free fucking JS shit, PHP shit, etc */
-src/network.c-58-
+src/egg_lib.c:		/* Flush out the socket TODO: Make function for this */
+src/egg_lib.c-		shutdown(net->sock, SHUT_RDWR);
+src/egg_lib.c-		net->sock = -1;
+src/egg_lib.c-		
 --
-src/tcl_embed.c:108:/* needs fixed FIXME */
-src/tcl_embed.c-109-void tcl_handler(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
+src/egg_lib.c:	/* TODO: Get rid of this shit */
+src/egg_lib.c-	otmp = oldcfg->networks;
+src/egg_lib.c-	while (otmp->prev != NULL) otmp = otmp->prev;
+src/egg_lib.c-
 --
-src/tcl_lib.c:23:	/* FIXME: Memory Leak TCL_DYNAMIC for the free func causes crash */
-src/tcl_lib.c-24-	Tcl_SetResult(interp, ret, NULL);
+src/default_triggers.c:		/* TODO: It should already have the realname here, just need to find the user in a channel */
+src/default_triggers.c-		net->users = new_user(data->prefix->nick,  /* username */
+src/default_triggers.c-				data->prefix->nick,  /* nickname */
+src/default_triggers.c-				NULL,                /* passhash */
 --
-src/tcl_lib.c:175:  /* No channel flag support FIXME */
-src/tcl_lib.c-176-  ret = Tcl_NewIntObj(egg_matchattr(net,Tcl_GetString(objv[1]),Tcl_GetString(objv[2]),NULL));
+src/default_triggers.c:		/* TODO: It should already have the realname here, just need to find the user in a channel */
+src/default_triggers.c-		user->next       = new_user(data->prefix->nick,  /* username */
+src/default_triggers.c-				data->prefix->nick,  /* nickname */
+src/default_triggers.c-				NULL,                /* passhash */
 --
-src/user.c:150:					user = new_user(tmp->value,NULL,NULL,NULL,NULL,NULL,NULL); /* FIXME: That's retarded */
+src/config_engine.c:					/* TODO: Proper checking */
+src/config_engine.c-					net->handlen = atoi(search->value);
+src/config_engine.c-				}
+src/config_engine.c-#ifdef HAVE_JS
 --
-src/util.c:28:      /* Need better return values FIXME */
-src/util.c-29-      return 1;
+src/troll_lib.c:	/* TODO: Ensure not needed */
+src/troll_lib.c-	if (chan != NULL)
+src/troll_lib.c-		while (chan->prev != NULL)
+src/troll_lib.c-			chan = chan->prev;
 --
-src/util.c:52:      /* Need better return values FIXME */
-src/util.c-53-      return 1;
+src/js_lib.c:		/* TODO: Error handling */
+src/js_lib.c-		return JS_FALSE;
+src/js_lib.c-	}
+src/js_lib.c-
+--
+src/js_lib.c:		/* TODO: Error handling */
+src/js_lib.c-		return JS_FALSE;
+src/js_lib.c-	}
+src/js_lib.c-
+--
+src/js_lib.c:		/* TODO: Error handling */
+src/js_lib.c-		return JS_FALSE;
+src/js_lib.c-	}
+src/js_lib.c-
+--
+src/js_lib.c:		/* TODO: Error handling */
+src/js_lib.c-		return JS_FALSE;
+src/js_lib.c-	}
+src/js_lib.c-
+--
+src/js_lib.c:		/* TODO: Error Handling */
+src/js_lib.c-		return JS_FALSE;
+src/js_lib.c-	}
+src/js_lib.c-
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
