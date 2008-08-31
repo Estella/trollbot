@@ -573,6 +573,8 @@ int egg_matchattr(struct network *net, const char *handle, const char *flags, co
 
 /* adduser <handle> [hostmask] */
 /* Need to check if eggdrop saves the userfile after this */
+/* NEED_IMP: Python */
+/* IMP_IN: Javascript, PHP, TCL */
 int egg_adduser(struct network *net, char *username, char *hostmask)
 {
 	struct channel *chan;
@@ -622,7 +624,7 @@ int egg_adduser(struct network *net, char *username, char *hostmask)
 	if (cuser == NULL)
 	{
 		/* use defaults */
-		user = new_user(username, NULL, NULL, NULL, NULL, hostmask, net->default_flags);
+		user = new_user(username, username, NULL, NULL, NULL, hostmask, net->default_flags);
 	}
 	else
 	{
@@ -1264,7 +1266,6 @@ void egg_dccbroadcast(struct network *net, const char *message)
 		if (dtmp->status >= DCC_NOTREADY)
 		{
 			irc_printf(dtmp->sock,message);
-			return;
 		}
 
 		dtmp = dtmp->next;

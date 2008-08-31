@@ -116,6 +116,24 @@ network DALnet
 		// What flags to give to a user if not specified when adding
 		default-flags "hp"
 
+		// DCC console default flags:
+	  //   b - information about bot linking and userfile sharing
+	  //   c - commands
+	  //   d - misc debug information
+	  //   h - raw share traffic
+	  //   j - joins, parts, quits, and netsplits on the channel
+	  //   k - kicks, bans, and mode changes on the channel
+	  //   m - private msgs, notices and ctcps to the bot
+	  //   o - misc info, errors, etc (IMPORTANT STUFF)
+	  //   p - public text on the channel
+	  //   r - raw incoming server traffic
+	  //   s - server connects, disconnects, and notices
+	  //   t - raw botnet traffic
+	  //   v - raw outgoing server traffic
+	  //   w - wallops (make sure the bot sets +w in init-server)
+	  //   x - file transfers and file-area commands
+		console "mkcobxs"
+
 		// Scripts to load
 		tclscript scripts/test.tcl
     tclscript scripts/cryptoquote-1.02.tcl

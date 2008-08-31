@@ -26,6 +26,8 @@ struct user
   char *host;  /* regular hostname/ip */
   char *uhost; /* nick!ident@hostname/ip */
 
+	char *console; /* console flags */
+
   char *flags;
 
   struct channel_flags *chan_flags;

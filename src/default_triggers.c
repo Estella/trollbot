@@ -81,6 +81,7 @@ void add_default_triggers(void)
 		trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".saveall",NULL,&dcc_saveall));
 		trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".rehash",NULL,&rehash_bot));
 		trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".chattr",NULL,&dcc_chattr));
+		trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".console",NULL, &dcc_console));
 
 #ifdef HAVE_JS
 		trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".loadjavascript",NULL,&dcc_javascript_load));
@@ -320,7 +321,7 @@ void new_part(struct network *net, struct trigger *trig, struct irc_data *data, 
 
 	while (chan != NULL)
 	{
-		if (!tstrcasecmp(data->rest_str,chan->name))
+		if (!tstrcasecmp(data->c_params[0],chan->name))
 		{
 			if (chan->user_list == NULL)
 			{
@@ -342,7 +343,7 @@ void new_part(struct network *net, struct trigger *trig, struct irc_data *data, 
 	/* FIXME: If chan is NULL, might be a freenode-like redirection. Handle it. */
 	if (chan == NULL)
 	{
-		troll_debug(LOG_ERROR,"Yeah, that place in the code that was supposed to never be reached, umm we got here\n");
+		troll_debug(LOG_ERROR,"Channel user parted a channel the bot has no record of (User: %s) (Channel: %s)\n", data->prefix->nick, data->c_params[0]);
 		return;
 	}
 
@@ -393,6 +394,7 @@ void new_kick(struct network *net, struct trigger *trig, struct irc_data *data, 
 	log_entry_printf(net,"k","%s Got kicked from %s",data->prefix->nick, data->c_params[0]);
 }
 
+/* FIXME: This should go based on nick, it should go by hostmask, then nick */
 void new_user_pass(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
 	struct user *user;
@@ -405,8 +407,11 @@ void new_user_pass(struct network *net, struct trigger *trig, struct irc_data *d
 
 	while (user != NULL)
 	{
-		if (!strcmp(data->prefix->nick,user->nick))
-			break;
+		if (user->nick != NULL)
+		{
+			if (!strcmp(data->prefix->nick,user->nick))
+				break;
+		}
 
 		user = user->next;
 	}
@@ -421,6 +426,11 @@ void new_user_pass(struct network *net, struct trigger *trig, struct irc_data *d
 		return;
 
 	user->passhash = egg_makepasswd(data->rest[1],g_cfg->hash_type);
+
+	if (user->hash_type != NULL)
+		free(user->hash_type);
+
+	user->hash_type = tstrdup(g_cfg->hash_type);
 
 	irc_printf(net->sock,"PRIVMSG %s :Your password has been set as '%s'",data->prefix->nick,data->rest[1]);
 
@@ -446,14 +456,14 @@ void introduce_user(struct network *net, struct trigger *trig, struct irc_data *
 
 	if (net->users == NULL)
 	{
-		/* FIXME: Pull default flags from conf file */
+		/* TODO: It should already have the realname here, just need to find the user in a channel */
 		net->users = new_user(data->prefix->nick,  /* username */
 				data->prefix->nick,  /* nickname */
 				NULL,                /* passhash */
 				data->prefix->user,  /* ident    */
 				NULL,                /* realname */
 				data->prefix->host,  /* hostname */
-				"p");                /* flags    */
+				net->default_flags); /* flags    */
 
 		user       = net->users;
 
@@ -473,14 +483,14 @@ void introduce_user(struct network *net, struct trigger *trig, struct irc_data *
 			return;
 		}
 
-		/* FIXME: Pull default user flags from conf */
+		/* TODO: It should already have the realname here, just need to find the user in a channel */
 		user->next       = new_user(data->prefix->nick,  /* username */
 				data->prefix->nick,  /* nickname */
 				NULL,                /* passhash */
 				data->prefix->user,  /* ident    */
 				NULL,                /* realname */
 				data->prefix->host,  /* hostname */
-				"p");                /* flags    */
+				net->default_flags); /* flags    */
 
 		user->next->prev = user;
 		user             = user->next;

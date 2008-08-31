@@ -72,6 +72,16 @@ struct tconfig_block *users_to_tconfig(struct user *users)
 			tcfg             = tcfg->next;
 		}
 
+		if (tmp->console != NULL)
+		{
+			/* console */
+			tcfg->key        = tstrdup("console");
+			tcfg->value      = tstrdup(tmp->console);
+			tcfg->next       = tconfig_block_new();
+			tcfg->next->prev = tcfg;
+			tcfg             = tcfg->next;
+		}
+
 		if (tmp->uhost != NULL)
 		{
 			/* UHost */
@@ -166,6 +176,7 @@ void free_users(struct user *users)
 		free(users->nick);
 		free(users->ident);
 		free(users->host);
+		free(users->console);
 		free(users->uhost);
 		free(users->realname);
 		free(users->passhash);
@@ -214,6 +225,7 @@ struct user *new_user(char *username, char *nick, char *passhash, char *ident, c
 
 	ret->hash_type = NULL;
 	ret->uhost     = NULL;
+	ret->console   = NULL;
 
 	ret->chan_flags = NULL;
 
@@ -342,6 +354,11 @@ struct user *new_user_from_tconfig_block(struct tconfig_block *tcfg)
 			{
 				if (user->ident == NULL)
 					user->ident = tstrdup(child->value);
+			}
+			else if (!strcmp(child->key,"console"))
+			{
+				if (user->console == NULL)
+					user->console = tstrdup(child->value);
 			}
 			else if (!strcmp(child->key,"realname"))
 			{

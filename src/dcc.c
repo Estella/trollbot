@@ -21,16 +21,75 @@
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <time.h>
 
 #include "main.h"
 #include "irc.h"
 #include "dcc.h"
 #include "user.h"
 #include "network.h"
+#include "troll_lib.h"
 #include "egg_lib.h"
 #include "trigger.h"
 #include "sockets.h"
 #include "log_entry.h"
+#include "log_filter.h"
+
+/* TODO: Handle duplicates, I think */
+void dcc_log_filter_handler(struct network *net, struct log_filter *filter, struct log_entry *entry)
+{
+  time_t now;
+  struct tm *hehe = NULL;
+  char  buf[8]; /* "[dd:dd]" + \0 */
+	char *chk;
+
+  now  = time(NULL);
+  hehe = localtime(&now);
+
+  memset(buf,0,sizeof(buf));
+
+  strftime(&buf,sizeof(buf),"[%H:%M]",hehe);
+
+  struct dcc_session *dtmp;
+
+  dtmp = net->dccs;
+
+  while (dtmp != NULL)
+  {
+    if (dtmp->status >= DCC_NOTREADY)
+    {
+			if (egg_matchattr(dtmp->net, dtmp->user->username, "n", NULL))
+			{
+#ifdef CLOWNS
+				/* Check each entry against the user's console flags, if one matches
+ 				 * display the message
+ 				 */
+				chk = entry->flags;
+				
+				if (chk != NULL)
+				{
+					while (*chk != '\0')
+					{
+						printf("%c is not in %s\n", *chk, dtmp->user->console);
+						if (strchr(dtmp->user->console, *chk) != NULL)
+							break;
+						chk++;
+					}
+				
+					if (*chk != '\0')
+#endif /* CLOWNS */
+					  irc_printf(dtmp->sock, "%s %s\n",buf,entry->log_text);
+#ifdef CLOWNS
+				}
+#endif /* CLOWNS */
+			}
+    }
+
+    dtmp = dtmp->next;
+  }
+
+	return;
+}
 
 struct dcc_session *dcc_list_del(struct dcc_session *dccs, struct dcc_session *del)
 {
@@ -380,7 +439,8 @@ void dcc_help_menu(struct network *net, struct trigger *trig, struct irc_data *d
 			" tbinds: Shows current binds and usage counts\n"
 			" who: Displays a list of users connected to the partyline\n"
 			" dump: Sends raw text to the server\n"
-			" msg: Messages the specified target with a string\n");
+			" msg: Messages the specified target with a string\n"
+			" console: Shows or changes your current console flags\n");
 
 	return;
 
@@ -706,6 +766,11 @@ void dcc_chattr(struct network *net, struct trigger *trig, struct irc_data *data
 	 if (args[2] != NULL)	
 	 egg_chattr(net,args[0],args[1],args[2]);
 	 */
+}
+
+void dcc_console(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
+{
+	irc_printf(dcc->sock, "%s", (dcc->user->console == NULL) ? "NULL" : dcc->user->console);
 }
 
 void dcc_tbinds(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)

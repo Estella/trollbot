@@ -9,6 +9,7 @@
 
 #include "network.h"
 #include "server.h"
+#include "dcc.h"
 #include "channel.h"
 #include "user.h"
 #include "trigger.h"
@@ -122,6 +123,7 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 	struct network *net;
 	struct server *svr;
 	struct channel *chan;
+	struct log_filter *filter;
 
 	int i;
 #ifdef HAVE_PYTHON
@@ -195,6 +197,16 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 						cfg->filters->flags   = tstrdup(search->value);
 						cfg->filters->net     = NULL;
 						cfg->filters->handler = console_log_filter_handler;
+					}
+					else
+					{
+						filter = log_filter_new();
+
+						filter->flags   = tstrdup(search->value);
+						filter->net     = NULL;
+						filter->handler = console_log_filter_handler;
+
+						cfg->filters = log_filter_add(cfg->filters, filter);
 					}
 				}
 				else if (!strcmp(search->key,"debuglevel"))
@@ -295,6 +307,28 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 					if (net->default_flags == NULL)
 						net->default_flags = tstrdup(search->value);
 				}		
+				else if (!strcmp(search->key,"console"))
+				{
+					if (cfg->filters == NULL)
+					{
+						cfg->filters = log_filter_new();
+
+						cfg->filters->flags   = tstrdup(search->value);
+						cfg->filters->net     = net;
+						cfg->filters->handler = dcc_log_filter_handler;
+					}
+					else
+					{
+						filter = log_filter_new();
+
+						filter->flags   = tstrdup(search->value);
+						filter->net     = net;
+						filter->handler = dcc_log_filter_handler;
+
+						cfg->filters = log_filter_add(cfg->filters, filter);
+					}
+
+				}
 				else if (!strcmp(search->key,"dcc_motd"))
 				{
 					if (net->dcc_motd == NULL)

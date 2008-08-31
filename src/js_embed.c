@@ -31,6 +31,13 @@ void dcc_javascript(struct network *net, struct trigger *trig, struct irc_data *
 {
 	jsval rval;
 
+	/* segfault if empty and not checked here */
+	if (strlen(troll_makearg(dccbuf, trig->mask)) == 0)
+		return;
+
+	if (net->cx == NULL) /* Should do proper state checking */
+		net_init_js(net);
+
 	if (JS_EvaluateScript(dcc->net->cx, 
 				dcc->net->global, 
 				troll_makearg(dccbuf,trig->mask), 

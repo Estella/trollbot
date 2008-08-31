@@ -12,6 +12,9 @@
 #include "util.h"
 
 
+/* This goes through all setup log filters, and sends the log output to the handler
+ * of the matching filter
+ */
 void log_filters_check(struct log_filter *filters, struct log_entry *entry)
 {
 	struct log_filter *tmp = NULL;

@@ -15,6 +15,8 @@ struct user;
 struct irc_data;
 struct trigger;
 struct network;
+struct log_filter;
+struct log_entry;
 
 #define DCC_MAX 512 /* DCC max connections */
 
@@ -44,6 +46,7 @@ struct dcc_session
   struct dcc_session *next;
 };
 
+void dcc_log_filter_handler(struct network *net, struct log_filter *filter, struct log_entry *entry);
 void dcc_print_motd(struct dcc_session *dcc);
 struct dcc_session *dcc_list_del(struct dcc_session *dccs, struct dcc_session *del);
 struct dcc_session *dcc_list_add(struct dcc_session *dccs, struct dcc_session *add) ;
@@ -62,6 +65,7 @@ void dcc_partyline_handler(struct dcc_session *dcc, const char *message);
 int dcc_in(struct dcc_session *dcc);
 void parse_dcc_line(struct dcc_session *dcc, const char *buffer);
 void dcc_who(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
+void dcc_console(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
 void dcc_tbinds(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
 void dcc_chattr(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
 

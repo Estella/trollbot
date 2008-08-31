@@ -179,6 +179,8 @@
 12. /2008-08-29/!\acidtoken\
 	[IRC]
 
+	* Fixed 2 crash issues with .js DCC trigger (flag n needed)
+
 	* New function: js_botisop  [js_lib.c]
 	* New function: tcl_isban   [tcl_lib.c]
 	* New function: tcl_adduser [tcl_lib.c]
