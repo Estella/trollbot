@@ -7,6 +7,7 @@ struct ics_data;
 enum ics_trigger_types
 {
 	ICS_TRIG_MSG,
+	ICS_TRIG_NOTIFY,
 	ICS_TRIG_ERROR
 };
 
@@ -14,6 +15,7 @@ struct ics_trigger_table
 {
   /* All point to head */
 	struct ics_trigger *msg;
+	struct ics_trigger *notify;
 	struct ics_trigger *error;
 };
 

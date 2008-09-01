@@ -97,6 +97,7 @@ struct ics_data *ics_data_new(void)
 void ics_data_free(struct ics_data *data)
 {
 	free(data->txt_packet);
+	tstrfreev(data->tokens);
 
 	free(data);
 }
@@ -109,6 +110,8 @@ void parse_ics_line(struct ics_server *ics, const char *buffer)
 	data = ics_data_new();
 
 	data->txt_packet = tstrdup(buffer);
+	data->tokens     = tssv_split(buffer);
+
 	printf("%s\n",data->txt_packet);
 
 	ics_trigger_match(ics, data);

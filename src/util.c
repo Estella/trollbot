@@ -376,28 +376,49 @@ char **tssv_split(char *ptr)
 	/* greedy count */
 	sch = ptr;
 
+	/* skip all leading whitespace */
+	while ((*sch != '\0') && (*sch == ' ' || *sch == '\t'))
+		sch++;
+
+	/* return null if it was all whitespace */
+	if (*sch == '\0')
+		return (char **)NULL;
+
 	/* Count the number of list entries */
 	while (*sch)
 	{
+		/* We found whitespace, since the above block succeeded to get here
+		 * we clearly have at least 1 as chunk_size and list_size
+		 */
 		if (*sch == ' ' || *sch == '\t')
 		{
 			list_size++;
 			whole_size += chunk_size;
 			chunk_size = 0;
-		}
 
-		chunk_size++;
-		sch++;
+			/* Skip over all whitespace in between */
+			while ((*sch != '\0') && (*sch == ' ' || *sch == '\t'))
+				sch++;
+		}
+		else
+		{
+			chunk_size++;
+			sch++;
+		}
 	}
 
 	/* Count the last one until NULL */
 	list_size++;
 	whole_size += chunk_size;
 
-	/* bad */
+	/* bad -- why? */
 	ret = (char **)tmalloc0((sizeof(char *) * list_size) + 1);
 
 	sch = ptr;
+
+	/* This will never hit NULL, since the first one didn't */
+	while ((*sch != '\0') && (*sch == ' ' || *sch == '\t'))
+		sch++;
 
 	for(i=0;i<list_size;i++)
 	{
@@ -414,9 +435,10 @@ char **tssv_split(char *ptr)
 
 		strncpy(ret[i],old,chunk_size);
 
-		/* skip over space/tab */
-		if (*sch != '\0')
+		while ((*sch != '\0') && (*sch == ' ' || *sch == '\t'))
+		{
 			sch++;
+		}
 	}
 
 	ret[i] = NULL;

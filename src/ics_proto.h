@@ -21,6 +21,7 @@ struct ics_trigger;
 struct ics_data
 {
 	char *txt_packet;
+	char **tokens;
 };
 
 void ics_internal_enter(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);

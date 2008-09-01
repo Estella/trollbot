@@ -99,6 +99,7 @@ int ics_trigger_match(struct ics_server *xs, struct ics_data *data)
 
 	while (trig != NULL)
 	{
+		/* MSG Bind handler */
 		if (!egg_matchwilds(data->txt_packet, trig->mask))
 		{
 			if (trig->handler != NULL)
@@ -106,6 +107,11 @@ int ics_trigger_match(struct ics_server *xs, struct ics_data *data)
 				trig->handler(xs, trig, data);
 				trig_count++;
 			}
+		}
+
+		if (!egg_matchwilds(data->txt_packet, "Notification:*has arrived."))
+		{
+			/* Check notifications for whatever is in the * */	
 		}
 
 		trig = trig->next;
@@ -121,6 +127,7 @@ struct ics_trigger_table *new_ics_trigger_table(void)
 	ret = tmalloc(sizeof(struct ics_trigger_table));
 
 	ret->msg      = NULL;
+	ret->notify   = NULL;
 	ret->error    = NULL;
 
 	return ret;
@@ -164,6 +171,7 @@ void free_ics_trigger(struct ics_trigger *ics_trigger)
 void free_ics_trigger_table(struct ics_trigger_table *xtt)
 {
 	free_ics_triggers(xtt->error);
+	free_ics_triggers(xtt->notify);
 	free_ics_triggers(xtt->msg);
 	free(xtt);
 }
