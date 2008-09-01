@@ -198,6 +198,7 @@ void net_init_js_global_object(struct network *net)
 	builtins = JS_InitStandardClasses(net->cx, net->global);
 
 	/* Initialize egg_lib functions */
+	JS_DefineFunction(net->cx, net->global, "putlog", js_putlog, 1, 0);
 	JS_DefineFunction(net->cx, net->global, "adduser", js_adduser, 1, 0);
 	JS_DefineFunction(net->cx, net->global, "unbind", js_unbind, 4, 0);
 	JS_DefineFunction(net->cx, net->global, "die", js_die, 0, 0);

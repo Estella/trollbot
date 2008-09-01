@@ -8,6 +8,7 @@ struct irc_data;
 struct network;
 struct dcc_session;
 
+JSBool js_putlog(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 JSBool js_adduser(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 
 JSBool js_unbind(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);

@@ -17,6 +17,7 @@ struct ics_trigger;
 #define LOGIN_TRIGGER "*(If your return key does not work, use cntrl-J)*"
 #define PASS_TRIGGER "*If it is yours, type the password.*"
 #define ENTER_TRIGGER "*Press return*"
+#define CONNECT_TRIGGER "fics*"
 
 struct ics_data
 {
@@ -24,6 +25,9 @@ struct ics_data
 	char **tokens;
 };
 
+void ics_internal_notify(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
+void ics_internal_fuck_with_sal(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
+void ics_internal_connect(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
 void ics_internal_enter(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
 void init_ics_triggers(struct ics_server *ics);
 void ics_internal_login(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);

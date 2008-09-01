@@ -7,6 +7,8 @@
 #undef END_EXTERN_C
 
 /* Function prototypes */
+int tcl_putlog(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]);
+int tcl_putdcc(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]);
 int tcl_isbotnick(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]);
 int tcl_adduser(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]);
 int tcl_isban(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]);

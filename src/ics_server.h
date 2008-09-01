@@ -76,6 +76,9 @@ struct ics_server
  	 */ 
 	int never_give_up;
 
+	/* Stupid thing I use for the on connect trigger */
+	int connected;
+
   /* Time in seconds to wait before trying to reconnect */
   int connect_delay;
 

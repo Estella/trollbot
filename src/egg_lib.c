@@ -91,6 +91,7 @@ int egg_matchwilds(const char *haystack, const char *needle)
 		}
 		else if (*needle == '%'){
 			/* FIXME: Wildcard % needs implemented */
+			/* WTF, looks like it's implemented to me, what am I missing? */
 			while (*haystack != '\0' && !isspace(*haystack) && *haystack != *(needle+1)){
 				haystack++;
 			}
@@ -165,32 +166,32 @@ void egg_putkick(struct network *net, const char *chan, const char *nick_list, c
 }
 
 /* Fully compatible */
-/* NEED_IMP: ??? */
-/* IMP_IN: ??? */
+/* NEED_IMP: Python, PHP */
+/* IMP_IN: TCL, Javascript */
 void egg_putlog(struct network *net, const char *text)
 {
 	troll_debug(LOG_DEBUG,text);
 }
 
 /* Not compatible */
-/* NEED_IMP: ??? */
-/* IMP_IN: ??? */
+/* NEED_IMP: TCL, Python, PHP, Javascript */
+/* IMP_IN: None */
 void egg_putcmdlog(struct network *net, const char *text)
 {
 	troll_debug(LOG_DEBUG,text);
 }
 
 /* Not compatible */
-/* NEED_IMP: ??? */
-/* IMP_IN: ??? */
+/* NEED_IMP: TCL, Python, PHP, Javascript */
+/* IMP_IN: None */
 void egg_putxferlog(struct network *net, const char *text)
 {
 	troll_debug(LOG_DEBUG,text);
 }
 
 /* Not compatible */
-/* NEED_IMP: ??? */
-/* IMP_IN: ??? */
+/* NEED_IMP: TCL, PHP, Javascript, Python */
+/* IMP_IN: None */
 void egg_putloglev(struct network *net, const char *levels, const char *chan, const char *text)
 {
 	troll_debug(LOG_DEBUG,text);
@@ -1296,8 +1297,8 @@ char *egg_topic(struct network *net, char *chan)
 /* validchan <channel> PROBLEM: trollbot doesn't track chans like required for this */
 /* isdynamic <channel> */
 
-/* NEED_IMP: TCL, PHP, Perl, Python */
-/* IMP_IN: Javascript */
+/* NEED_IMP: PHP, Perl, Python */
+/* IMP_IN: Javascript, TCL */
 void egg_putdcc(struct network *net, int idx, const char *text)
 {
 	struct dcc_session *dtmp;

@@ -11,6 +11,49 @@
 #include "egg_lib.h"
 #include "user.h"
 
+/*   putlog <text>
+ *   Description: sends text to the bot's logfile, marked as 'misc' (o)
+ *   Returns: nothing
+ *   Module: core
+ */
+int tcl_putlog(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	struct network *net = clientData;
+	char *text;
+
+	if (objc != 2)
+	{
+		Tcl_WrongNumArgs(interp, objc, objv, "putdcc <text>");
+		return TCL_ERROR;
+	}
+
+	text = Tcl_GetString(objv[1]);
+
+	egg_putlog(net, text);
+	
+	return TCL_OK;
+}
+
+int tcl_putdcc(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	struct network *net = clientData;
+	char *text;
+	int idx;
+
+	if (objc != 3)
+	{
+		Tcl_WrongNumArgs(interp, objc, objv, "putdcc <idx> <text>");
+		return TCL_ERROR;
+	}
+
+	Tcl_GetIntFromObj(interp,objv[1],&idx);
+	text = Tcl_GetString(objv[2]);
+
+	egg_putdcc(net, idx, text);
+	
+	return TCL_OK;
+}
+
 int tcl_isbotnick(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {
 	struct network *net = clientData;

@@ -15,6 +15,27 @@
 #include "network.h"
 #include "egg_lib.h"
 
+JSBool js_putlog(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+	struct network *net = JS_GetContextPrivate(cx);
+	char *text;
+
+	/* Not that this will be used */	
+	*rval = JSVAL_VOID;
+
+	if (argc != 2)
+	{
+		/* Need to add error reporting */
+		return JS_FALSE;
+	}
+
+	text = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+  
+	egg_putlog(net, text);
+
+	return JS_TRUE;
+}
+
 JSBool js_adduser(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	struct network *net = JS_GetContextPrivate(cx);

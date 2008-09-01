@@ -28,6 +28,7 @@ struct trigger;
 struct dcc_session;
 struct t_timer;
 
+void egg_putlog(struct network *net, const char *text);
 int egg_unstick(struct network *net, char *ban, char *channel);
 int egg_stick(struct network *net, char *ban, char *channel);
 int egg_adduser(struct network *net, char *username, char *hostmask);

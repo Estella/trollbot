@@ -205,6 +205,10 @@ void irc_loop(void)
 					if (ics->status == ICS_NOTREADY)
 					{
 						ics_ball_start_rolling(ics);
+
+						/* We want to call all connect triggers here */
+						ics->connected = 0;
+
 						ics->status = ICS_CONNECTED;
 					}
 

@@ -13,6 +13,7 @@
 
 #include "server.h"
 
+/* Adds an ICS trigger to the trigger list */
 struct ics_trigger *ics_trigger_add(struct ics_trigger *ics_triggers, struct ics_trigger *add)
 {
 	struct ics_trigger *tmp = NULL;
@@ -28,6 +29,7 @@ struct ics_trigger *ics_trigger_add(struct ics_trigger *ics_triggers, struct ics
 	return ics_triggers;
 }
 
+/* Removes an ICS trigger from the trigger list */
 struct ics_trigger *ics_trigger_del(struct ics_trigger *ics_triggers, struct ics_trigger *del)
 {
 	struct ics_trigger *tmp = NULL;
@@ -69,6 +71,7 @@ struct ics_trigger *ics_trigger_del(struct ics_trigger *ics_triggers, struct ics
 	return ics_triggers;
 }
 
+/* constructor */
 struct ics_trigger *new_ics_trigger(void)
 {
 	struct ics_trigger *ret;
@@ -129,6 +132,7 @@ struct ics_trigger_table *new_ics_trigger_table(void)
 	ret->msg      = NULL;
 	ret->notify   = NULL;
 	ret->error    = NULL;
+	ret->connect  = NULL;
 
 	return ret;
 }
@@ -173,6 +177,7 @@ void free_ics_trigger_table(struct ics_trigger_table *xtt)
 	free_ics_triggers(xtt->error);
 	free_ics_triggers(xtt->notify);
 	free_ics_triggers(xtt->msg);
+	free_ics_triggers(xtt->connect);
 	free(xtt);
 }
 

@@ -17,6 +17,25 @@
 #include "ics_trigger.h"
 #include "log_entry.h"
 
+
+#include "egg_lib.h"
+#include "network.h"
+#include "server.h"
+#include "channel.h"
+#include "user.h"
+#include "irc.h"
+#include "dcc.h"
+#include "trigger.h"
+#include "t_crypto_module.h"
+#include "t_timer.h"
+#include "util.h"
+
+
+/* These are builtin triggers for ICS,
+ * They can be overriden in languages
+ * but I'm not sure if I've worked that
+ * out or not.
+ */
 void init_ics_triggers(struct ics_server *ics)
 {
 	struct ics_trigger *trig;
@@ -38,28 +57,132 @@ void init_ics_triggers(struct ics_server *ics)
 	trig->command = NULL;
 
 	ics->ics_trigger_table->msg = ics_trigger_add(ics->ics_trigger_table->msg, trig);
+
+
+	/* For the on connect event */
+	trig          = new_ics_trigger();
+	trig->type    = ICS_TRIG_MSG;
+	/* I know this is stupid */
+	trig->mask    = tstrdup(CONNECT_TRIGGER);
+	trig->handler = ics_internal_connect;
+	trig->command = NULL;
+
+	ics->ics_trigger_table->msg = ics_trigger_add(ics->ics_trigger_table->msg, trig);
+
+	/* For the on connect event */
+	trig          = new_ics_trigger();
+	trig->type    = ICS_TRIG_CONNECT;
+	/* I know this is stupid */
+	trig->mask    = tstrdup(CONNECT_TRIGGER);
+	trig->handler = ics_internal_fuck_with_sal;
+	trig->command = NULL;
+
+	ics->ics_trigger_table->connect = ics_trigger_add(ics->ics_trigger_table->connect, trig);
+
+	trig          = new_ics_trigger();
+	trig->type    = ICS_TRIG_MSG;
+	/* I know this is stupid */
+	trig->mask    = tstrdup("Notification:*");
+	trig->handler = ics_internal_notify;
+	trig->command = NULL;
+
+	ics->ics_trigger_table->msg = ics_trigger_add(ics->ics_trigger_table->msg, trig);
+
 }
 
+void ics_internal_notify(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data)
+{
+	struct ics_trigger *trig;
+	struct network *net;
+	struct channel *chan;
+
+	if (!tstrcasecmp(data->tokens[1], "tehcheckersking"))
+	{
+		net = g_cfg->networks;
+
+		while (net != NULL)
+		{
+			chan = net->chans;
+
+			while (chan != NULL)
+			{
+				if (!tstrcasecmp(chan->name, "#christian_debate"))
+				{
+					irc_printf(net->sock, "tehcheckersking has signed on to freechess");
+					break;
+				}
+
+				chan = chan->next;
+			}
+
+			if (chan != NULL)
+				break;
+
+			net = net->next;
+		}
+	}
+
+	printf("NOTIFY FOUND SUCESSFULLY FOR %s\n",data->tokens[1]);
+
+	return;
+}
+
+void ics_internal_fuck_with_sal(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data)
+{
+	struct ics_trigger *trig;
+
+	ics_printf(ics, "+notify tehcheckersking");
+	ics_printf(ics, "+notify saldeeznuts");
+	printf("Added sal to notify\n");
+
+	return;
+}
+
+void ics_internal_connect(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data)
+{
+	struct ics_trigger *trig;
+
+	if (ics->connected != 0)
+		return;
+
+	trig = ics->ics_trigger_table->connect;
+
+	while (trig != NULL)
+	{
+		if (trig->handler != NULL)
+		{
+			trig->handler(ics, ics_trig, data);
+		}
+
+		trig = trig->next;
+	}
+
+	ics->connected = 1;
+
+	return;
+}
+
+/* This sents a carriage return and newline when the server prompts you to hit enter */
 void ics_internal_enter(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data)
 {
 	ics_printf(ics, "\r\n");
 }
 
+/* This simply sends the username in the conf file when prompted for it */
 void ics_internal_login(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data)
 {
 	ics_printf(ics, ics->username);
 }
 
+/* This is called on connect? */
 void ics_ball_start_rolling(struct ics_server *ics)
 {
 	init_ics_triggers(ics);
 }
 
-/* This is different from ics_printf() (should be sock_printf())
- * in the way that it has an extra level of abstraction in the
- * case of SSL sockets.
+/* This is like irc_printf but it takes an ics_server and not a socket,
+ * so this can be abstracted later.
  */
-/* lol no it doesn't */
 void ics_printf(struct ics_server *ics, const char *fmt, ...)
 {
 	va_list va;
@@ -77,7 +200,7 @@ void ics_printf(struct ics_server *ics, const char *fmt, ...)
 
 	snprintf(buf2,sizeof(buf2),"%s\n",buf);
 
-	printf("Sent: %s\n",buf2);
+/*	printf("Sent: %s\n",buf2);*/
 	send(ics->sock,buf2,strlen(buf2),0);
 }
 
@@ -112,6 +235,7 @@ void parse_ics_line(struct ics_server *ics, const char *buffer)
 	data->txt_packet = tstrdup(buffer);
 	data->tokens     = tssv_split(buffer);
 
+	/* Should be log_entry with letter 'I' like 'X' for XMPP */
 	printf("%s\n",data->txt_packet);
 
 	ics_trigger_match(ics, data);
@@ -130,12 +254,16 @@ int ics_in(struct ics_server *ics)
 	char                *bufcopy = NULL;
 
 
+	/* The previous line never existed, or it was completed and
+	 * set to NULL upon completion.
+	 */
 	if (buffer == NULL)
 	{
+		/* Start with a new zeroed buffer */
 		buffer = tmalloc0(BUFFER_SIZE + 1);
 		recved = recv(ics->sock,buffer,BUFFER_SIZE-1,0);
 	} else {
-		/* There was a fragment left over */
+		/* There was a fragment left over, create a larger buffer */
 		buffer = tcrealloc0(buffer,
 				strlen(buffer) + BUFFER_SIZE + 1,
 				&size);
@@ -144,7 +272,7 @@ int ics_in(struct ics_server *ics)
 
 	}
 
-
+	/* On Errors, or socket close */
 	switch (recved)
 	{
 		case -1:
@@ -159,7 +287,7 @@ int ics_in(struct ics_server *ics)
 	}
 
 	while (strchr(buffer,'\n') != NULL)
-	{ /* Complete IRC line */
+	{ /* Complete ICS line */
 		line = tmalloc0(strlen(buffer)+1);
 
 		optr = line;
@@ -174,6 +302,7 @@ int ics_in(struct ics_server *ics)
 		while (*ptr == '\r' || *ptr == '\n')
 			ptr++;
 
+		/* Pass the single line for more processing */
 		parse_ics_line(ics,line);
 
 		free(line);

@@ -189,3 +189,10 @@
 	* New function: tcl_isbotnick [tcl_lib.c]
 	* New function: egg_stick     [egg_lib.c]
 	* New function: egg_unstick   [egg_lib.c]
+
+13. /2008-09-01/!\acidtoken\
+	[IRC]
+
+	* New function: tcl_putdcc [tcl_lib.c]
+	* New function: tcl_putlog [tcl_lib.c]
+	* New function: js_putlog  [js_lib.c]

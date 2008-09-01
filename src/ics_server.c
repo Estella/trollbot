@@ -258,6 +258,7 @@ void ics_server_connect(struct ics_server *ics)
 		troll_debug(LOG_DEBUG,"Connected instantly to server %s at %d",svr->host,svr->port);
 		/* Connected right away */
 		ics->status     = ICS_NOTREADY;
+		ics->connected  = 0;
 		return;
 	}
 
@@ -356,6 +357,8 @@ struct ics_server *new_ics_server(char *label)
 
 	ret->never_give_up = -1;
 	ret->connect_delay = -1;
+
+	ret->connected     = 0;
 
 	ret->last_try      = 0;
 
