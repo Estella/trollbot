@@ -106,23 +106,54 @@ void ics_internal_notify(struct ics_server *ics, struct ics_trigger *ics_trig, s
 
 			while (chan != NULL)
 			{
-				if (!tstrcasecmp(chan->name, "#christian_debate"))
+				if (!tstrcasecmp(chan->name, "#php"))
 				{
-					irc_printf(net->sock, "tehcheckersking has signed on to freechess");
+					if (!tstrcasecmp(data->tokens[3], "arrived."))
+					{
+						irc_printf(net->sock, "PRIVMSG %s :tehcheckersking (poutine) has signed on to freechess.", chan->name);
+					}
+					else
+					{
+						irc_printf(net->sock, "PRIVMSG %s :tehcheckersking (poutine) has departed freechess.", chan->name);
+					}
 					break;
 				}
 
 				chan = chan->next;
 			}
 
-			if (chan != NULL)
-				break;
+			net = net->next;
+		}
+	} 
+	else if (!tstrcasecmp(data->tokens[1], "saldeeznuts"))
+	{
+		net = g_cfg->networks;
+
+		while (net != NULL)
+		{
+			chan = net->chans;
+
+			while (chan != NULL)
+			{
+				if (!tstrcasecmp(chan->name, "#php"))
+				{
+					if (!tstrcasecmp(data->tokens[3], "arrived."))
+					{
+						irc_printf(net->sock, "PRIVMSG %s :Saldeeznuts (sal_dz) has signed on to freechess.", chan->name);
+					}
+					else
+					{
+						irc_printf(net->sock, "PRIVMSG %s :Saldeeznuts (sal_dz) has departed freechess.", chan->name);
+					}
+					break;
+				}
+
+				chan = chan->next;
+			}
 
 			net = net->next;
 		}
 	}
-
-	printf("NOTIFY FOUND SUCESSFULLY FOR %s\n",data->tokens[1]);
 
 	return;
 }
