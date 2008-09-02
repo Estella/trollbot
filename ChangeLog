@@ -194,5 +194,6 @@
 	[IRC]
 
 	* New function: tcl_putdcc [tcl_lib.c]
-	* New function: tcl_putlog [tcl_lib.c]
-	* New function: js_putlog  [js_lib.c]
+	* New function: tcl_putlog  [tcl_lib.c]
+	* New function: js_putlog   [js_lib.c]
+	* New function: egg_deluser [egg_lib.c]

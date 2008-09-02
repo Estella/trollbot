@@ -4,6 +4,58 @@
 #include "user.h"
 #include "log_entry.h"
 
+struct user *user_list_add(struct user *users, struct user *add)
+{
+	struct user *tmp = NULL;
+
+	if ((tmp = users) == NULL)
+		return add;
+
+	while (tmp->next != NULL) tmp = tmp->next;
+
+	tmp->next = add;
+	add->prev = tmp;
+
+	return users;
+}
+
+struct user *user_list_del(struct user *users, struct user *del)
+{
+	struct user *tmp = NULL;
+
+	if ((tmp = users) == NULL)
+		return NULL;
+
+	while (tmp != NULL)
+	{
+		if (tmp == del)
+		{
+			if (tmp->prev != NULL)
+				tmp->prev->next = tmp->next;
+
+			if (tmp->next != NULL)
+				tmp->next->prev = tmp->prev;
+
+			while (tmp == del && tmp->prev != NULL)
+				tmp = tmp->prev;
+
+			while (tmp == del && tmp->next != NULL)
+				tmp = tmp->next;
+
+			if (tmp == del)
+				return NULL;
+			else
+				return tmp;
+
+		}
+
+		tmp = tmp->next;
+	}
+
+	return users;
+}
+
+
 struct tconfig_block *users_to_tconfig(struct user *users)
 {
 	struct user          *tmp  = NULL;
@@ -131,32 +183,6 @@ struct tconfig_block *users_to_tconfig(struct user *users)
 
 	/* To be returned by caller */
 	return tcfg;
-}
-
-
-
-
-void user_list_add(struct user **orig, struct user *new)
-{
-	struct user *tmp;
-
-	if (*orig == NULL)
-	{
-		*orig = new;
-		new->prev = NULL;
-		new->next = NULL;
-	}
-	else
-	{
-		tmp = *orig;
-
-		while (tmp->next != NULL)
-			tmp = tmp->next;
-
-		tmp->next       = new;
-		tmp->next->prev = tmp;
-		tmp->next->next = NULL;
-	}
 }
 
 void free_users(struct user *users)

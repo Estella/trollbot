@@ -41,7 +41,8 @@ struct user
 
 
 struct tconfig_block *users_to_tconfig(struct user *users);
-void user_list_add(struct user **orig, struct user *new);
+struct user *user_list_add(struct user *users, struct user *add);
+struct user *user_list_del(struct user *users, struct user *del);
 void free_users(struct user *users);
 struct user *new_user(char *username, char *nick, char *passhash, char *ident, char *realname, char *host, char *flags);
 struct channel_flags *new_channel_flags(char *chan, char *flags);

@@ -641,7 +641,7 @@ int egg_adduser(struct network *net, char *username, char *hostmask)
 		return 0;
 
 	
-	user_list_add(&net->users, user);
+	net->users = user_list_add(net->users, user);
 
 	/* TODO: Find out whether to save, going to go ahead and save for now */
 	users_save(net);
@@ -652,6 +652,30 @@ int egg_adduser(struct network *net, char *username, char *hostmask)
 /* addbot <handle> <address> -- This should wrap egg_adduser */
 
 /* deluser <handle> */
+/* NEED_IMP: Javascript, TCL, Python, PHP */
+/* IMP_IN: None */
+/*
+  deluser <handle>
+    Description: attempts to erase the user record for a handle
+    Returns: 1 if successful, 0 if no such user exists
+    Module: core
+*/
+int egg_deluser(struct network *net, char *username)
+{
+		struct user *user = NULL;
+
+		if (username == NULL)
+			return 0;
+
+		/* Doesn't exist exists */
+		if ((user = network_user_find_by_username(net, username)) == NULL)
+			return 0;
+
+		net->users = user_list_del(net->users, user);
+
+		return 1;
+}
+
 /* delhost <handle> <hostmask> */
 /* addchanrec <handle> <channel> */
 /* delchanrec <handle> <channel> */
