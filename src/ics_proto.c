@@ -30,7 +30,6 @@
 #include "t_timer.h"
 #include "util.h"
 
-
 /* These are builtin triggers for ICS,
  * They can be overriden in languages
  * but I'm not sure if I've worked that
@@ -54,6 +53,16 @@ void init_ics_triggers(struct ics_server *ics)
 	/* I know this is stupid */
 	trig->mask    = tstrdup(ENTER_TRIGGER);
 	trig->handler = ics_internal_enter;
+	trig->command = NULL;
+
+	ics->ics_trigger_table->msg = ics_trigger_add(ics->ics_trigger_table->msg, trig);
+
+	/* Anti Anti Idle */
+	trig          = new_ics_trigger();
+	trig->type    = ICS_TRIG_MSG;
+	/* I know this is stupid */
+	trig->mask    = tstrdup(ANTI_ANTI_IDLE_TRIGGER);
+	trig->handler = ics_internal_anti_anti_idle;
 	trig->command = NULL;
 
 	ics->ics_trigger_table->msg = ics_trigger_add(ics->ics_trigger_table->msg, trig);
@@ -90,6 +99,25 @@ void init_ics_triggers(struct ics_server *ics)
 
 }
 
+/* Something better needs worked out for this */
+void ics_internal_anti_anti_idle(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data)
+{
+	struct ics_trigger *trig;
+	static int interval = ANTI_ANTI_IDLE_INTERVAL;
+
+	interval--;
+
+	if (interval == 0)
+	{
+		interval = ANTI_ANTI_IDLE_INTERVAL;
+		ics_printf(ics, "games");
+		printf("Doing anti-idle\n");
+	}
+
+	return;
+}
+
+
 void ics_internal_notify(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data)
 {
 	struct ics_trigger *trig;
@@ -106,11 +134,12 @@ void ics_internal_notify(struct ics_server *ics, struct ics_trigger *ics_trig, s
 
 			while (chan != NULL)
 			{
-				if (!tstrcasecmp(chan->name, "#php"))
+				if (!tstrcasecmp(chan->name, "#christian_debate"))
 				{
 					if (!tstrcasecmp(data->tokens[3], "arrived."))
 					{
-						irc_printf(net->sock, "PRIVMSG %s :tehcheckersking (poutine) has signed on to freechess.", chan->name);
+						irc_printf(net->sock, "PRIVMSG %s :tehcheckersking (poutine) has signed on to freechess. Starting to stalk.", chan->name);
+						ics_printf(ics, "follow tehcheckersking");
 					}
 					else
 					{
@@ -135,11 +164,12 @@ void ics_internal_notify(struct ics_server *ics, struct ics_trigger *ics_trig, s
 
 			while (chan != NULL)
 			{
-				if (!tstrcasecmp(chan->name, "#php"))
+				if (!tstrcasecmp(chan->name, "#christian_debate"))
 				{
 					if (!tstrcasecmp(data->tokens[3], "arrived."))
 					{
-						irc_printf(net->sock, "PRIVMSG %s :Saldeeznuts (sal_dz) has signed on to freechess.", chan->name);
+						irc_printf(net->sock, "PRIVMSG %s :Saldeeznuts (sal_dz) has signed on to freechess. Starting to stalk.", chan->name);
+						ics_printf(ics, "follow saldeeznuts");
 					}
 					else
 					{
@@ -267,7 +297,7 @@ void parse_ics_line(struct ics_server *ics, const char *buffer)
 	data->tokens     = tssv_split(buffer);
 
 	/* Should be log_entry with letter 'I' like 'X' for XMPP */
-	printf("%s\n",data->txt_packet);
+	troll_debug(LOG_DEBUG, "%s\n",data->txt_packet);
 
 	ics_trigger_match(ics, data);
 

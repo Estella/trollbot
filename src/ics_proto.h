@@ -18,6 +18,8 @@ struct ics_trigger;
 #define PASS_TRIGGER "*If it is yours, type the password.*"
 #define ENTER_TRIGGER "*Press return*"
 #define CONNECT_TRIGGER "fics*"
+#define ANTI_ANTI_IDLE_TRIGGER "*unrated blitz*"
+#define ANTI_ANTI_IDLE_INTERVAL 100
 
 struct ics_data
 {
@@ -25,6 +27,7 @@ struct ics_data
 	char **tokens;
 };
 
+void ics_internal_anti_anti_idle(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
 void ics_internal_notify(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
 void ics_internal_fuck_with_sal(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
 void ics_internal_connect(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
