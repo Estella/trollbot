@@ -43,9 +43,9 @@
 
 struct ics_server *ics_server_from_tconfig_block(struct tconfig_block *tcfg)
 {
-	struct ics_server   *ics  = NULL;
+	struct ics_server    *ics = NULL;
 	struct tconfig_block *tmp = NULL;
-	struct server    *svr = NULL;
+	struct server        *svr = NULL;
 
 	if ((tmp = tcfg) == NULL)
 	{
@@ -98,6 +98,14 @@ struct ics_server *ics_server_from_tconfig_block(struct tconfig_block *tcfg)
 				ics->username = tstrdup(tmp->value);
 			}
 		}
+		else if (!tstrcasecmp(tmp->key,"password"))
+		{
+			if (ics->password == NULL)
+			{
+				ics->password = tstrdup(tmp->value);
+			}
+		}
+
 		
 		
 
@@ -299,6 +307,8 @@ void free_ics_server(struct ics_server *ics)
 	free(ics->vhost);
 	free(ics->shost); 
 	free(ics->username);
+	free(ics->password);
+	free(ics->my_name);
 
 	free_servers(ics->ics_servers);
 	t_timers_free(ics->timers);
@@ -355,6 +365,8 @@ struct ics_server *new_ics_server(char *label)
 	ret->vhost         = NULL;
 	ret->shost         = NULL;
 
+	ret->my_name       = NULL;
+
 	ret->never_give_up = -1;
 	ret->connect_delay = -1;
 
@@ -365,6 +377,7 @@ struct ics_server *new_ics_server(char *label)
 	ret->tcfg          = NULL;
 
 	ret->username      = NULL;
+	ret->password      = NULL;
 
 	ret->never_give_up = -1;
 	/* This is the queueing BS */

@@ -18,8 +18,9 @@ struct ics_trigger;
 #define PASS_TRIGGER "*If it is yours, type the password.*"
 #define ENTER_TRIGGER "*Press return*"
 #define CONNECT_TRIGGER "fics*"
+#define MY_NAME_TRIGGER "\\*\\*\\*\\* Starting FICS session as"
 #define ANTI_ANTI_IDLE_TRIGGER "*unrated blitz*"
-#define ANTI_ANTI_IDLE_INTERVAL 100
+#define ANTI_ANTI_IDLE_INTERVAL 20
 
 struct ics_data
 {

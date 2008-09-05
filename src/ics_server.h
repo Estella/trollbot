@@ -57,8 +57,7 @@ struct ics_server
   struct server *ics_servers;
 
 	char *username;
-	char *password_plain;
-	char *password_md5;
+	char *password;
 
 	/* Copy over on rehash */
   int sock;
@@ -70,6 +69,9 @@ struct ics_server
 
 	/* Copy over on rehash */
   int status;
+
+	/* This is what FICS recognizes me as */
+	char *my_name; 
 
 	/* This settings makes the bot cycle forever through the server list until
  	 * it successfully connects to one.
