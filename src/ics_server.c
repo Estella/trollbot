@@ -21,6 +21,7 @@
 #include "ics_server.h"
 #include "ics_proto.h"
 #include "ics_trigger.h"
+#include "ics_game.h"
 #include "server.h"
 #include "t_timer.h"
 #include "sockets.h"
@@ -40,6 +41,7 @@
 #ifdef HAVE_JS
 #include "js_embed.h"
 #endif /* HAVE_JS */
+
 
 struct ics_server *ics_server_from_tconfig_block(struct tconfig_block *tcfg)
 {
@@ -105,6 +107,14 @@ struct ics_server *ics_server_from_tconfig_block(struct tconfig_block *tcfg)
 				ics->password = tstrdup(tmp->value);
 			}
 		}
+		else if (!tstrcasecmp(tmp->key,"vhost"))
+		{
+			if (ics->vhost == NULL)
+			{
+				ics->vhost = tstrdup(tmp->value);
+			}
+		}
+
 
 		
 		
@@ -310,6 +320,8 @@ void free_ics_server(struct ics_server *ics)
 	free(ics->password);
 	free(ics->my_name);
 
+	ics_game_free(ics->game);
+
 	free_servers(ics->ics_servers);
 	t_timers_free(ics->timers);
 	free_ics_trigger_table(ics->ics_trigger_table);
@@ -365,6 +377,7 @@ struct ics_server *new_ics_server(char *label)
 	ret->vhost         = NULL;
 	ret->shost         = NULL;
 
+	ret->game          = NULL;
 	ret->my_name       = NULL;
 
 	ret->never_give_up = -1;

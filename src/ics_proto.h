@@ -18,16 +18,31 @@ struct ics_trigger;
 #define PASS_TRIGGER "*If it is yours, type the password.*"
 #define ENTER_TRIGGER "*Press return*"
 #define CONNECT_TRIGGER "fics*"
-#define MY_NAME_TRIGGER "\\*\\*\\*\\* Starting FICS session as"
+#define MY_NAME_TRIGGER "\\*\\*\\*\\* Starting FICS session as*"
+#define TELL_TRIGGER "% tells you:"
+#define STYLE_TWELVE_TRIGGER "<12>*"
+#define SET_GAME_TRIGGER "Game % (% vs. %)"
 #define ANTI_ANTI_IDLE_TRIGGER "*unrated blitz*"
 #define ANTI_ANTI_IDLE_INTERVAL 20
 
+/*
+ * SEEK is
+ * GuestZWCN (++++) seeking 3 0 unrated blitz ("play 50" to respond)
+ *
+ * Tell is : FrankyDChicken(U) tells you: hi
+ * Confirmation of tell is: (told FrankyDChicken)
+ * Signin nickname assignment is: **** Starting FICS session as FrankyDChicken(U) ****
+ * Successful custom guest is: "FrankyDChicken" is not a registered name.  You may use this name to play unrated games.
+ */
 struct ics_data
 {
 	char *txt_packet;
 	char **tokens;
 };
 
+void ics_internal_board_get_info(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
+void ics_internal_set_game(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
+void ics_internal_my_name(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
 void ics_internal_anti_anti_idle(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
 void ics_internal_notify(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
 void ics_internal_fuck_with_sal(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);

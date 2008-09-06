@@ -103,7 +103,7 @@ int ics_trigger_match(struct ics_server *xs, struct ics_data *data)
 	while (trig != NULL)
 	{
 		/* MSG Bind handler */
-		if (!egg_matchwilds(data->txt_packet, trig->mask))
+		if (!troll_matchwilds(data->txt_packet, trig->mask))
 		{
 			if (trig->handler != NULL)
 			{
@@ -112,7 +112,7 @@ int ics_trigger_match(struct ics_server *xs, struct ics_data *data)
 			}
 		}
 
-		if (!egg_matchwilds(data->txt_packet, "Notification:*has arrived."))
+		if (!troll_matchwilds(data->txt_packet, "Notification:*has arrived."))
 		{
 			/* Check notifications for whatever is in the * */	
 		}

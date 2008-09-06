@@ -6,6 +6,7 @@
 struct server;
 struct tconfig_block;
 struct log_filter;
+struct ics_game;
 
 #include <time.h>
 
@@ -94,6 +95,8 @@ struct ics_server
 
   /* Unhandled blocks go here */
   struct tconfig_block *tcfg;
+
+	struct ics_game *game;
 
   struct ics_server *prev;
   struct ics_server *next;

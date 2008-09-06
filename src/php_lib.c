@@ -618,7 +618,7 @@ PHP_FUNCTION(matchwild)
 		RETURN_TRUE;
 	}
 
-	ret = egg_matchwilds(haystack,needle);
+	ret = troll_matchwilds(haystack,needle);
 
 	if (ret)
 	{

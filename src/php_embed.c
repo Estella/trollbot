@@ -69,6 +69,16 @@ void myphp_eval_file(char *filename)
 {
 	zend_file_handle  file_handle;
 	static int has_started = 0;
+	FILE *fp;
+
+	/* For some reason PHP is segfaulting because a PHP file
+	 * does not exist. Here's a cheap check
+	 */
+	if ((fp = fopen(filename, "r")) == NULL)
+	{
+		troll_log(LOG_WARN, "Could not open (%s) for PHP evaluation.", filename);
+		return;
+	}
 
 	TSRMLS_FETCH();
 

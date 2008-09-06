@@ -489,7 +489,7 @@ int tcl_matchwild(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *
 		return TCL_ERROR;
 	}
 
-	ret = egg_matchwilds(Tcl_GetString(objv[1]),Tcl_GetString(objv[2]));
+	ret = troll_matchwilds(Tcl_GetString(objv[1]),Tcl_GetString(objv[2]));
 
 	if (ret == 0)
 		Tcl_SetResult(interp,"0",NULL);

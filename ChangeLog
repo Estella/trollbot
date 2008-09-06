@@ -193,6 +193,9 @@
 13. /2008-09-01/!\acidtoken\
 	[IRC]
 
+	* Added escaping to eggdrop-clone matching thingy.
+	* Fixed error when PHP tried opening non-existent files
+
 	* New function: tcl_putdcc [tcl_lib.c]
 	* New function: tcl_putlog  [tcl_lib.c]
 	* New function: js_putlog   [js_lib.c]

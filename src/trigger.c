@@ -182,7 +182,7 @@ void trigger_match(struct network *net, struct irc_data *data)
 				{
 					if (data->rest[0] != NULL)
 					{
-						if (!egg_matchwilds(data->rest_str,trig->mask))
+						if (!troll_matchwilds(data->rest_str,trig->mask))
 						{
 							if (trig->handler != NULL)
 							{
@@ -228,7 +228,7 @@ void trigger_match(struct network *net, struct irc_data *data)
 				{
 					if (data->rest[0] != NULL)
 					{
-						if (!egg_matchwilds(data->rest_str,trig->mask))
+						if (!troll_matchwilds(data->rest_str,trig->mask))
 						{
 							if (trig->handler != NULL)
 							{
@@ -257,7 +257,7 @@ void trigger_match(struct network *net, struct irc_data *data)
 					data->prefix->user,
 					data->prefix->host);
 
-			if (!egg_matchwilds(newmask,trig->mask))
+			if (!troll_matchwilds(newmask,trig->mask))
 			{
 				if (trig->handler != NULL)
 				{
@@ -282,7 +282,7 @@ void trigger_match(struct network *net, struct irc_data *data)
 						data->prefix->user,
 						data->prefix->host);
 
-				if (!egg_matchwilds(newmask,trig->mask))
+				if (!troll_matchwilds(newmask,trig->mask))
 				{
 					if (trig->handler != NULL)
 					{
@@ -311,7 +311,7 @@ void trigger_match(struct network *net, struct irc_data *data)
 			{
 				snprintf(newmask,sizeof(newmask),"%s %s",data->c_params[0],data->rest_str);
 
-				if (!egg_matchwilds(newmask,trig->mask))
+				if (!troll_matchwilds(newmask,trig->mask))
 				{
 					if (trig->handler != NULL)
 					{
@@ -336,7 +336,7 @@ void trigger_match(struct network *net, struct irc_data *data)
 			{
 				snprintf(newmask,sizeof(newmask),"%s %s %s",data->c_params[0],data->c_params[1],data->rest_str);
 
-				if (!egg_matchwilds(newmask,trig->mask))
+				if (!troll_matchwilds(newmask,trig->mask))
 				{
 					if (trig->handler != NULL)
 					{
@@ -360,7 +360,7 @@ void trigger_match(struct network *net, struct irc_data *data)
 		{
 			if (data->rest[0] != NULL)
 			{
-				if (!egg_matchwilds(data->rest_str,trig->mask))
+				if (!troll_matchwilds(data->rest_str,trig->mask))
 				{
 					if (trig->handler != NULL)
 					{

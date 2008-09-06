@@ -48,112 +48,6 @@
  */
 
 
-/* 
-	 ?  matches any single character
-   *  matches 0 or more characters of any type
-   %  matches 0 or more non-space characters (can be used to match a single
-      word)
-   ~  matches 1 or more space characters (can be used for whitespace between
-      words)
-	 \  makes the next character literal
-
-   returns 1 if no match, 0 if matched
-
-BUG: ~, &, and % don't work
-*/
-/* This is not an eggdrop function, this should go in troll_lib */
-int egg_matchwilds(const char *haystack, const char *needle)
-{
-	int escaped = 0;
-
-	if (needle == NULL || haystack == NULL)
-		return 1;
-
-	while (*needle)
-	{
-		if (*haystack == '\0')
-		{
-			/* If *needle is '*', and *(needle+1) = '\0', this should return 0 for success */
-			if ((*needle == '*') && *(needle+1) == '\0' && escaped == 0)
-				return 0;
-			/* Hit end of haystack but not the ned of needle, so match fails. */
-			return 1;
-		}
-
-		if (*needle == '\\')
-		{
-			escaped = 1;
-			needle++;
-		}
-
-		if (*needle == '?' && escaped == 0)
-		{
-			/* Any character matches, just move on. */
-			needle++;
-			haystack++;
-		}
-		else if (*needle == '*' && escaped == 0)
-		{
-			/* Match characters til end of haystack, or until *(needle+1) */
-			while (*haystack != '\0' && *haystack != *(needle+1))
-			{
-				haystack++;
-			}
-			needle++;
-		}
-		else if (*needle == '%' && escaped == 0)
-		{
-			/* FIXME: Wildcard % needs implemented */
-			/* WTF, looks like it's implemented to me, what am I missing? */
-			while (*haystack != '\0' && !isspace(*haystack) && *haystack != *(needle+1))
-			{
-				haystack++;
-			}
-			needle++;
-		}
-		else if (*needle == '~' && escaped == 0)
-		{
-			/* FIXME: Wildcard ~ needs implemented */
-			if (isspace(*haystack))
-			{
-				haystack++;
-				while (*haystack != '\0' && isspace(*haystack))
-				{
-					haystack++;
-				}
-				needle++;
-			}
-			else 
-			{
-				/* Must match at least one space. */
-				return 1;
-			}
-		}
-		else if (*needle != *haystack)
-		{
-			return 1;
-		}
-		else 
-		{
-			/* Two characters match.  Next */
-			needle++;
-			haystack++;
-	
-			escaped = 0;
-		}
-	}
-
-	if (*haystack == '\0')
-	{
-		/* Hit end of haystack and end of needle, so match succeeded */
-		return 0;
-	}
-	else 
-	{
-		/* Hit end of needled, but not end of haystack, match fails. */
-		return 1;
-	}
-}
 
 /* These functions need queue support */
 /* NEED_IMP: None */
@@ -295,7 +189,7 @@ struct user *egg_finduser(struct network *net, const char *mask)
 
 	while (user != NULL)
 	{
-		if (!egg_matchwilds(user->uhost,mask))
+		if (!troll_matchwilds(user->uhost,mask))
 			return user;
 
 		user = user->next;

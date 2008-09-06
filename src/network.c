@@ -50,7 +50,7 @@ struct user *network_user_find_by_hostmask(struct network *net, const char *host
 
 	while (tmpusr != NULL)
 	{
-		if (!egg_matchwilds(tmpusr->uhost, hostmask))
+		if (!troll_matchwilds(tmpusr->uhost, hostmask))
 			return tmpusr;
 
 		tmpusr = tmpusr->next;

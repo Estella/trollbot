@@ -56,8 +56,6 @@ int egg_isvoice(struct network *net, const char *nickname, const char *channel);
 
 char *egg_getchanmode(struct network *net, const char *channel);
 
-/* This is an eggdrop compliant pattern matching recursive function */
-int egg_matchwilds(const char *haystack, const char *needle);
 
 /* These put data to the server */
 void egg_putserv(struct network *net, const char *text, int option_next);
