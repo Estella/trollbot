@@ -315,22 +315,23 @@ int egg_chhandle(struct network *net, const char *old, const char *new)
 	return 1;
 }
 
+
 #ifdef CLOWNS
 /* chattr <handle> [changes [channel]] */
+/* NEED_IMP: Tcl, Python, PHP, Javascript */
+/* IMP_IN: None */
 char *egg_chattr(struct network *net, const char *handle, const char *changes, const char *channel)
 {
 	struct user *user;
 	struct channel_flags *cflags;
-	char *glob_changes;
-	char *chan_changes;
-	char *new_chan_flags;
-	char *new_glob_flags;
-	char *tmp;
-	int op=-1; /* opinvalid = -1, op- = 0, op+ = 1 */
+	char *minus_set;
+	char *plus_set;
+	char **cur_set;
+	char *new_buffer;
 	int i;
 
 	/* I know it's cheesy to dynamically allocate a constant, but output is freed by user */
-	if (changes == NULL)
+	if (handle == NULL)
 		return tstrdup("*");
 
 	/* Find the user */
@@ -339,7 +340,54 @@ char *egg_chattr(struct network *net, const char *handle, const char *changes, c
 	if (user == NULL)
 		return tstrdup("*");
 
-	/* If flags are channel flags */
+	if (changes == NULL)
+		return tstrdup(user->flags);
+
+	if (channel == NULL)
+	{
+		tmp = changes;
+		
+		cut_set = NULL;
+		minus_set = tmalloc0(strlen(changes) + 1);
+		plus_set  = tmalloc0(strlen(changes) + 1);
+
+		i = 0;
+
+		while (*tmp != '\0')
+		{
+			switch (*tmp)
+			{
+				case '+':
+					cur_set = &plus_set;
+					break;
+				case '-':
+					cur_set = &minus_set;
+					break;
+			}
+
+			if (cur_set == NULL)
+			{
+				troll_debug(LOG_WARN, "the changes argument to chattr did not contain a leading + or -");
+				return tstrdup("*");
+			}
+
+			*(cur_set+i) = *tmp;
+			
+			
+			i++;
+			tmp++;
+		}
+
+		free(minus_set);
+		free(plus_set);
+		
+		/* Just changing user flags */
+		return tstrdup(user->flags);
+	}
+
+	return tstrdup("*");
+
+	/* If flags are channel flags, or channel flags are part of the change */
 	if (channel != NULL)
 	{
 		if (user->chan_flags == NULL)
@@ -438,6 +486,7 @@ char *egg_chattr(struct network *net, const char *handle, const char *changes, c
 	}
 
 	return NULL;
+
 }    
 #endif /* CLOWNS */
 

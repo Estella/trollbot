@@ -11,6 +11,55 @@
 #include "egg_lib.h"
 #include "user.h"
 
+#ifdef HAVE_ICS
+#include "ics_server.h"
+#include "ics_proto.h"
+#include "ics_game.h"
+#include "ics_trigger.h"
+#endif /* HAVE_ICS */
+
+
+/* ICS specific eggdrop IRC commands */
+#ifdef HAVE_ICS
+int tcl_putics(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	struct network    *net = clientData;
+	struct ics_server *ics = NULL;
+	char *label;
+	char *message;
+
+	if (objc != 3)
+	{
+		Tcl_WrongNumArgs(interp, objc, objv, "<label> <message>");
+		return TCL_ERROR;
+	}
+
+	label   = Tcl_GetString(objv[1]);
+	message = Tcl_GetString(objv[2]);
+
+	ics = g_cfg->ics_servers;
+
+	while (ics != NULL)
+	{
+		if (!tstrcasecmp(ics->label, label))
+			break;
+
+		ics = ics->next;
+	}
+
+	if (ics == NULL)
+	{
+		return TCL_ERROR;
+	}
+
+	ics_printf(ics, message);
+	
+	return TCL_OK;
+}
+
+
+#endif /* HAVE_ICS */
+
 /*   putlog <text>
  *   Description: sends text to the bot's logfile, marked as 'misc' (o)
  *   Returns: nothing
@@ -23,7 +72,7 @@ int tcl_putlog(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *con
 
 	if (objc != 2)
 	{
-		Tcl_WrongNumArgs(interp, objc, objv, "putdcc <text>");
+		Tcl_WrongNumArgs(interp, objc, objv, "<text>");
 		return TCL_ERROR;
 	}
 
@@ -42,7 +91,7 @@ int tcl_putdcc(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *con
 
 	if (objc != 3)
 	{
-		Tcl_WrongNumArgs(interp, objc, objv, "putdcc <idx> <text>");
+		Tcl_WrongNumArgs(interp, objc, objv, "<idx> <text>");
 		return TCL_ERROR;
 	}
 
@@ -62,7 +111,7 @@ int tcl_isbotnick(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *
 
 	if (objc != 2)
 	{
-		Tcl_WrongNumArgs(interp, objc, objv, "isbotnick <nickname>");
+		Tcl_WrongNumArgs(interp, objc, objv, "<nickname>");
 		return TCL_ERROR;
 	}
 
@@ -87,7 +136,7 @@ int tcl_adduser(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *co
 
 	if (objc < 2 || objc > 3)
 	{
-		Tcl_WrongNumArgs(interp, objc, objv, "adduser <username> [hostmask]");
+		Tcl_WrongNumArgs(interp, objc, objv, "<username> [hostmask]");
 		return TCL_ERROR;
 	}
 
@@ -114,7 +163,7 @@ int tcl_isban(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *cons
 
 	if (objc < 2 || objc > 3)
 	{
-		Tcl_WrongNumArgs(interp, objc, objv, "isban <ban> [channel]");
+		Tcl_WrongNumArgs(interp, objc, objv, "<ban> [channel]");
 		return TCL_ERROR;
 	}
 
@@ -140,7 +189,7 @@ int tcl_passwdok(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *c
 
 	if (objc != 3)
 	{
-		Tcl_WrongNumArgs(interp, objc, objv, "passwdok <handle> <password>");
+		Tcl_WrongNumArgs(interp, objc, objv, "<handle> <password>");
 		return TCL_ERROR;
 	}
 
@@ -167,7 +216,7 @@ int tcl_unbind(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *con
 
 	if (objc != 5)
 	{
-		Tcl_WrongNumArgs(interp, objc, objv, "unbind <type> <flags> <keyword/mask> <proc-name>");
+		Tcl_WrongNumArgs(interp, objc, objv, "<type> <flags> <keyword/mask> <proc-name>");
 		return TCL_ERROR;
 	}
 
@@ -220,7 +269,7 @@ int tcl_isvoice(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *co
 	}
 	else
 	{
-		Tcl_WrongNumArgs(interp, objc, objv, "isop <nickname> [channel]");
+		Tcl_WrongNumArgs(interp, objc, objv, "<nickname> [channel]");
 		return TCL_ERROR;
 	}
 
@@ -251,7 +300,7 @@ int tcl_isop(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const
 	}
 	else
 	{
-		Tcl_WrongNumArgs(interp, objc, objv, "isop <nickname> [channel]");
+		Tcl_WrongNumArgs(interp, objc, objv, "<nickname> [channel]");
 		return TCL_ERROR;
 	}
 
@@ -271,7 +320,7 @@ int tcl_getchanmode(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj
 
 	if (objc != 2)
 	{
-		Tcl_WrongNumArgs(interp, objc, objv, "getchanmode <channel>");
+		Tcl_WrongNumArgs(interp, objc, objv, "<channel>");
 		return TCL_ERROR;
 	}
 
@@ -293,7 +342,7 @@ int tcl_encpass(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *co
 	
 	if (objc != 2)
 	{
-		Tcl_WrongNumArgs(interp, objc, objv, "encpass <password>");
+		Tcl_WrongNumArgs(interp, objc, objv, "<password>");
 		return TCL_ERROR;
 	}
 
@@ -312,7 +361,7 @@ int tcl_topic(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *cons
 	
 	if (objc != 2)
 	{
-		Tcl_WrongNumArgs(interp, objc, objv, "topic <channel>");
+		Tcl_WrongNumArgs(interp, objc, objv, "<channel>");
 		return TCL_ERROR;
 	}
 
@@ -330,7 +379,7 @@ int tcl_validuser(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *
 
 	if (objc != 2)
 	{
-		Tcl_WrongNumArgs(interp, objc, objv,"validuser <handle>");
+		Tcl_WrongNumArgs(interp, objc, objv,"<handle>");
 		return TCL_ERROR;
 	}
 
@@ -351,7 +400,7 @@ int tcl_utimer(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *con
 
 	if (objc != 3)
 	{
-		Tcl_WrongNumArgs(interp, objc, objv,"utimer <seconds> <command>");
+		Tcl_WrongNumArgs(interp, objc, objv,"<seconds> <command>");
 		return TCL_ERROR;
 	}
 
@@ -383,7 +432,7 @@ int tcl_finduser(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *c
 
 	if (objc != 2)
 	{
-		Tcl_WrongNumArgs(interp, objc, objv,"finduser <mask>");
+		Tcl_WrongNumArgs(interp, objc, objv,"<mask>");
 		return TCL_ERROR;
 	}
 
@@ -461,7 +510,7 @@ int tcl_onchan(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *con
 
 	if (objc != 2 && objc != 3)
 	{
-		Tcl_WrongNumArgs(interp, objc, objv,"onchan <nick> [channel]");
+		Tcl_WrongNumArgs(interp, objc, objv,"<nick> [channel]");
 		return TCL_ERROR;
 	}
 
@@ -485,7 +534,7 @@ int tcl_matchwild(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *
 
 	if (objc != 3)
 	{
-		Tcl_WrongNumArgs(interp,objc,objv,"matchwild haystack needle");
+		Tcl_WrongNumArgs(interp,objc,objv,"<haystack> <needle>");
 		return TCL_ERROR;
 	}
 
@@ -507,7 +556,7 @@ int tcl_rand(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const
 
 	if (objc != 2)
 	{
-		Tcl_WrongNumArgs(interp,objc,objv,"rand limit");
+		Tcl_WrongNumArgs(interp,objc,objv,"<limit>");
 		return TCL_ERROR;
 	}
 
@@ -537,7 +586,7 @@ int tcl_puthelp(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *co
 
 	if (objc != 2)
 	{
-		Tcl_WrongNumArgs(interp,objc,objv,"puthelp message");
+		Tcl_WrongNumArgs(interp,objc,objv,"<message>");
 		return TCL_ERROR;
 	}
 
@@ -556,7 +605,7 @@ int tcl_putserv(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *co
 
 	if (objc != 2)
 	{
-		Tcl_WrongNumArgs(interp,objc,objv,"putserv message");
+		Tcl_WrongNumArgs(interp,objc,objv,"<message>");
 		return TCL_ERROR;
 	}
 
@@ -572,7 +621,7 @@ int tcl_bind(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const
 
 	if (objc != 5) 
 	{
-		Tcl_WrongNumArgs(interp,objc,objv,"bind type flags keyword proc");
+		Tcl_WrongNumArgs(interp,objc,objv,"<type> <flags> <keyword> <proc>");
 		return TCL_ERROR;
 	}
 
@@ -592,7 +641,7 @@ int tcl_matchattr(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *
 
 	if (objc != 3 && objc != 4)
 	{
-		Tcl_WrongNumArgs(interp,objc,objv,"matchattr <handle> <flags> [channel]");
+		Tcl_WrongNumArgs(interp,objc,objv,"<handle> <flags> [channel]");
 		return TCL_ERROR;
 	}
 

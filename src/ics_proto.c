@@ -102,15 +102,86 @@ void init_ics_triggers(struct ics_server *ics)
 	trig->handler = ics_internal_board_get_info;
 	trig->command = NULL;
 	ics->ics_trigger_table->msg = ics_trigger_add(ics->ics_trigger_table->msg, trig);
+
+	/* Announcing game on IRC */
+	trig          = new_ics_trigger();
+	trig->type    = ICS_TRIG_GAME;
+	trig->mask    = NULL;
+	trig->handler = ics_internal_announce_new_game;
+	trig->command = NULL;
+	ics->ics_trigger_table->game = ics_trigger_add(ics->ics_trigger_table->game, trig);
+
+	/* Handling updates of the board */
+	trig          = new_ics_trigger();
+	trig->type    = ICS_TRIG_MSG;
+	trig->mask    = tstrdup(ENDGAME_TRIGGER);
+	trig->handler = ics_internal_endgame;
+	trig->command = NULL;
+	ics->ics_trigger_table->msg = ics_trigger_add(ics->ics_trigger_table->msg, trig);
+
+}
+
+void ics_internal_endgame(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data)
+{
+	struct network *net;
+	struct channel *chan;
+
+	net = g_cfg->networks;
+
+	while (net != NULL)
+	{
+		chan = net->chans;
+
+		while (chan != NULL)
+		{
+			if (!tstrcasecmp(chan->name, "#christian_debate"))
+			{
+				irc_printf(net->sock, "PRIVMSG %s :The chess battle has finished. %s", chan->name, data->txt_packet);
+			}
+
+			chan = chan->next;
+		}
+
+		net = net->next;
+	}
+
+	return;
+}
+
+void ics_internal_announce_new_game(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data)
+{
+	struct network *net;
+	struct channel *chan;
+
+	net = g_cfg->networks;
+
+	while (net != NULL)
+	{
+		chan = net->chans;
+
+		while (chan != NULL)
+		{
+			if (!tstrcasecmp(chan->name, "#christian_debate"))
+			{
+				irc_printf(net->sock, "PRIVMSG %s :A new chess battle has been started with %s facing %s. There is a time limit on this match. Each player starts with %d minutes and gets %d seconds upon the completion of each move.", chan->name, ics->game->white_name, ics->game->black_name, ics->game->initial_time, ics->game->increment_time);
+			}
+
+			chan = chan->next;
+		}
+
+		net = net->next;
+	}
+
+	return;
+
 }
 
 void ics_internal_board_get_info(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data)
 {
 	int i;
-	if (ics->game == NULL)
-	{
-		ics->game = new_ics_game();
-	}
+	struct ics_game *game = NULL;
+
+	game      = new_ics_game();
 
 	/* Style 12 makes this VERY simple, thanks to siggemannen for the recommendation */
 	/* Token 0 : <12> is the very beginning
@@ -159,47 +230,69 @@ void ics_internal_board_get_info(struct ics_server *ics, struct ics_trigger *ics
 	 */
 	for (i = 0; i < 8; i++)
 	{
-		strncpy(ics->game->board[i], data->tokens[i+1], 8);
+		strncpy(game->board[i], data->tokens[i+1], 8);
 	}
 
-	ics->game->turn = data->tokens[9][0];
+	game->turn = data->tokens[9][0];
 
 	/* These need updated, perhaps event types for handlers */
-	ics->game->pawn_double_push_file = atoi(data->tokens[10]);
-	ics->game->white_can_castle_short = atoi(data->tokens[11]);
-	ics->game->white_can_castle_long = atoi(data->tokens[12]);
-	ics->game->black_can_castle_short = atoi(data->tokens[13]);
-	ics->game->black_can_castle_long = atoi(data->tokens[14]);
-	ics->game->last_irreversible_move = atoi(data->tokens[15]);
-	ics->game->game_number = atoi(data->tokens[16]);
+	game->pawn_double_push_file = atoi(data->tokens[10]);
+	game->white_can_castle_short = atoi(data->tokens[11]);
+	game->white_can_castle_long = atoi(data->tokens[12]);
+	game->black_can_castle_short = atoi(data->tokens[13]);
+	game->black_can_castle_long = atoi(data->tokens[14]);
+	game->last_irreversible_move = atoi(data->tokens[15]);
+	game->game_number = atoi(data->tokens[16]);
 
-	/* These should only be filled in if NULL, or the game is not loaded */
-	if (ics->game->white_name == NULL)
-		ics->game->white_name = tstrdup(data->tokens[17]);
+	game->white_name = tstrdup(data->tokens[17]);
+	game->black_name = tstrdup(data->tokens[18]);
 
-	if (ics->game->black_name == NULL)
-		ics->game->black_name = tstrdup(data->tokens[18]);
-
-	ics->game->my_relation = atoi(data->tokens[19]);
-	ics->game->initial_time = atoi(data->tokens[20]);
-	ics->game->increment_time = atoi(data->tokens[21]);
-	ics->game->white_strength = atoi(data->tokens[22]);
-	ics->game->black_strength = atoi(data->tokens[23]);
-	ics->game->white_time_remaining = atoi(data->tokens[24]);
-	ics->game->black_time_remaining = atoi(data->tokens[25]);
-	ics->game->next_move_number = atoi(data->tokens[26]);
+	game->my_relation = atoi(data->tokens[19]);
+	game->initial_time = atoi(data->tokens[20]);
+	game->increment_time = atoi(data->tokens[21]);
+	game->white_strength = atoi(data->tokens[22]);
+	game->black_strength = atoi(data->tokens[23]);
+	game->white_time_remaining = atoi(data->tokens[24]);
+	game->black_time_remaining = atoi(data->tokens[25]);
+	game->next_move_number = atoi(data->tokens[26]);
 
 	/* These all need updated, and the event handlers called, I should use static memory */
-	/* Yes, I can free these, they're guaranteed to be NULL or have valid dynamic memory */
-	free(ics->game->verbose_notation);
-	free(ics->game->last_move_time);
-	free(ics->game->pretty_notation);
-	
-	ics->game->verbose_notation = tstrdup(data->tokens[27]);
-	ics->game->last_move_time   = tstrdup(data->tokens[28]);
-	ics->game->pretty_notation  = tstrdup(data->tokens[29]);
+	game->verbose_notation = tstrdup(data->tokens[27]);
+	game->last_move_time   = tstrdup(data->tokens[28]);
+	game->pretty_notation  = tstrdup(data->tokens[29]);
 
-	ics->game->flip_field_orientation = atoi(data->tokens[30]);
+	game->flip_field_orientation = atoi(data->tokens[30]);
+
+	if (ics->game == NULL)
+	{
+		ics->game = ics_game_add(ics->game, game);
+
+		/* Start of a new game, or just joining into view it */
+		ics_internal_call_game_triggers(ics, data);
+	}
+	else
+		ics->game = ics_game_add(ics->game, game);		
+
+
+	return;
+}
+
+void ics_internal_call_game_triggers(struct ics_server *ics, struct ics_data *data)
+{
+	struct ics_trigger *trig;
+	
+	trig = ics->ics_trigger_table->game;
+
+	while (trig != NULL)
+	{
+		if (trig->handler != NULL)
+		{
+			trig->handler(ics, trig, data);
+			trig->usecount++;
+		}
+			
+		trig = trig->next;
+	}
 
 	return;
 }
@@ -271,7 +364,6 @@ void ics_internal_notify(struct ics_server *ics, struct ics_trigger *ics_trig, s
 					{
 						irc_printf(net->sock, "PRIVMSG %s :tehcheckersking (poutine) has departed freechess.", chan->name);
 					}
-					break;
 				}
 
 				chan = chan->next;

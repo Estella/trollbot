@@ -432,5 +432,3 @@ struct ics_server *new_ics_server(char *label)
 
 	return ret;
 }
-
-

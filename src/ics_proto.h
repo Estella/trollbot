@@ -24,6 +24,7 @@ struct ics_trigger;
 #define SET_GAME_TRIGGER "Game % (% vs. %)"
 #define ANTI_ANTI_IDLE_TRIGGER "*unrated blitz*"
 #define ANTI_ANTI_IDLE_INTERVAL 20
+#define ENDGAME_TRIGGER "{Game % (% vs. %) *}*"
 
 /*
  * SEEK is
@@ -40,6 +41,9 @@ struct ics_data
 	char **tokens;
 };
 
+void ics_internal_endgame(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
+void ics_internal_announce_new_game(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
+void ics_internal_call_game_triggers(struct ics_server *ics, struct ics_data *data);
 void ics_internal_board_get_info(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
 void ics_internal_set_game(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
 void ics_internal_my_name(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);

@@ -6,6 +6,11 @@
 #undef JOIN
 #undef END_EXTERN_C
 
+#ifdef HAVE_ICS
+int tcl_putics(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]);
+#endif /* HAVE_ICS */
+
+
 /* Function prototypes */
 int tcl_putlog(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]);
 int tcl_putdcc(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]);
