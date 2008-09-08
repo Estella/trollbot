@@ -145,6 +145,9 @@ void ics_internal_endgame(struct ics_server *ics, struct ics_trigger *ics_trig, 
 		net = net->next;
 	}
 
+	free_ics_games(ics->game);
+	ics->game = NULL;
+
 	return;
 }
 
