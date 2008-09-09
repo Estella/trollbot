@@ -58,6 +58,9 @@ void dcc_log_filter_handler(struct network *net, struct log_filter *filter, stru
   {
     if (dtmp->status >= DCC_NOTREADY)
     {
+			if (dtmp->user == NULL)
+				return;
+
 			if (egg_matchattr(dtmp->net, dtmp->user->username, "n", NULL))
 			{
 #ifdef CLOWNS

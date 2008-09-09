@@ -126,91 +126,302 @@ void t_timer_tcl_handler(struct network *net, struct t_timer *timer)
 void tcl_handler(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
 	int ret;
+	char *my_arg;
+	Tcl_Obj *command;
+	Tcl_Obj *nick;
+	Tcl_Obj *uhost;
+	Tcl_Obj *hand;
+	Tcl_Obj *chan;
+	Tcl_Obj *arg;
+	Tcl_Obj *from;
+	Tcl_Obj *keyword;
+	Tcl_Obj *text;
+	Tcl_Obj **objv;
 
 	switch (trig->type)
 	{
-		case TRIG_PUB:      
-			/* nick uhost hand chan arg */
-			ret = Tcl_VarEval(net->tclinterp,
-					trig->command,
-					" {",
-					data->prefix->nick,
-					"} {",
-					data->prefix->host,
-					"} {} {", /* hand */
-					data->c_params[0], /* chan */
-					"} {", 
-					troll_makearg(data->rest_str,trig->mask),
-					"}",
-					NULL);
+		case TRIG_PUB: 
+			/* The proper way of doing things, according to #tcl on freenode (they'd know) */
+			command = Tcl_NewStringObj(trig->command,      strlen(trig->command));
+			nick    = Tcl_NewStringObj(data->prefix->nick, strlen(data->prefix->nick));
+			uhost   = Tcl_NewStringObj(data->prefix->host, strlen(data->prefix->host));
+			hand    = Tcl_NewStringObj(data->prefix->nick, strlen(data->prefix->nick));
+			chan    = Tcl_NewStringObj(data->c_params[0],  strlen(data->c_params[0]));
 
+			/* We do this because I'm retarded and have no way of figuring out what should happen after the mask */
+			my_arg = tstrdup(troll_makearg(data->rest_str,trig->mask));
+			arg     = Tcl_NewStringObj(my_arg, strlen(my_arg));
+
+			/* We need to increase the reference count, because if TCL suddenly gets some
+			 * time for GC, it will notice a zero reference count
+			 */
+			Tcl_IncrRefCount(command);
+			Tcl_IncrRefCount(nick);
+			Tcl_IncrRefCount(uhost);
+			Tcl_IncrRefCount(hand);
+			Tcl_IncrRefCount(chan);
+			Tcl_IncrRefCount(arg);
+
+			/* I don't need a NULL last array element */
+			objv = tmalloc(sizeof(Tcl_Obj *) * 6);
+
+			objv[0] = command;
+			objv[1] = nick;
+			objv[2] = uhost;
+			objv[3] = hand;
+			objv[4] = chan;
+			objv[5] = arg;
+	
+			/* Call <command> <nick> <uhost> <hand> <chan> <arg> */
+			ret = Tcl_EvalObjv(net->tclinterp, 6, objv, TCL_EVAL_GLOBAL);
+
+			/* Decrement the reference count so the GC will catch it */
+			Tcl_DecrRefCount(command);
+			Tcl_DecrRefCount(nick);
+			Tcl_DecrRefCount(uhost);
+			Tcl_DecrRefCount(hand);
+			Tcl_DecrRefCount(chan);
+			Tcl_DecrRefCount(arg);
+
+			/* If we returned an error, send it to trollbot's warning channel */
 			if (ret == TCL_ERROR)
 			{
-				troll_debug(LOG_WARN,"TCL Error: %s\n",net->tclinterp->result);
+				troll_debug(LOG_WARN,"TCL Error: %s\n",Tcl_GetStringResult(net->tclinterp));
 			}
+
+			free(my_arg);
+			free(objv);
 
 			break;
 		case TRIG_PUBM:
-			/* nick uhost hand chan arg */
-			ret = Tcl_VarEval(net->tclinterp,
-					trig->command,
-					" {",
-					data->prefix->nick,
-					"} {",
-					data->prefix->host,
-					"} {} {", /* hand */
-					data->c_params[0], /* chan */
-					"} {",
-					data->rest_str,
-					"}",
-					NULL);
+			/* The proper way of doing things, according to #tcl on freenode (they'd know) */
+			command = Tcl_NewStringObj(trig->command,      strlen(trig->command));
+			nick    = Tcl_NewStringObj(data->prefix->nick, strlen(data->prefix->nick));
+			uhost   = Tcl_NewStringObj(data->prefix->host, strlen(data->prefix->host));
+			hand    = Tcl_NewStringObj(data->prefix->nick, strlen(data->prefix->nick));
+			chan    = Tcl_NewStringObj(data->c_params[0],  strlen(data->c_params[0]));
+			text    = Tcl_NewStringObj(data->rest_str,     strlen(data->rest_str));
 
+			/* We need to increase the reference count, because if TCL suddenly gets some
+			 * time for GC, it will notice a zero reference count
+			 */
+			Tcl_IncrRefCount(command);
+			Tcl_IncrRefCount(nick);
+			Tcl_IncrRefCount(uhost);
+			Tcl_IncrRefCount(hand);
+			Tcl_IncrRefCount(chan);
+			Tcl_IncrRefCount(text);
+
+			/* I don't need a NULL last array element */
+			objv = tmalloc(sizeof(Tcl_Obj *) * 6);
+
+			objv[0] = command;
+			objv[1] = nick;
+			objv[2] = uhost;
+			objv[3] = hand;
+			objv[4] = chan;
+			objv[5] = text;
+	
+			/* Call <command> <nick> <uhost> <hand> <chan> <arg> */
+			ret = Tcl_EvalObjv(net->tclinterp, 6, objv, TCL_EVAL_GLOBAL);
+
+			/* Decrement the reference count so the GC will catch it */
+			Tcl_DecrRefCount(command);
+			Tcl_DecrRefCount(nick);
+			Tcl_DecrRefCount(uhost);
+			Tcl_DecrRefCount(hand);
+			Tcl_DecrRefCount(chan);
+			Tcl_DecrRefCount(text);
+
+			/* If we returned an error, send it to trollbot's warning channel */
 			if (ret == TCL_ERROR)
 			{
-				troll_debug(LOG_WARN,"TCL Error: %s\n",net->tclinterp->result);
+				troll_debug(LOG_WARN,"TCL Error: %s\n",Tcl_GetStringResult(net->tclinterp));
 			}
+
+			free(objv);
 
 			break;
 		case TRIG_MSG:
-			ret = Tcl_VarEval(net->tclinterp,
-					trig->command,
-					" {",
-					data->prefix->nick,
-					"} {",
-					data->prefix->host,
-					"} {} {", /* hand */
-					((&data->rest_str[strlen(trig->mask)] == NULL) || &data->rest_str[strlen(trig->mask)+1] == NULL) ? "" : &data->rest_str[strlen(trig->mask)+1],
-					"}",
-					NULL);
+			/* The proper way of doing things, according to #tcl on freenode (they'd know) */
+			command = Tcl_NewStringObj(trig->command,      strlen(trig->command));
+			nick    = Tcl_NewStringObj(data->prefix->nick, strlen(data->prefix->nick));
+			uhost   = Tcl_NewStringObj(data->prefix->host, strlen(data->prefix->host));
+			hand    = Tcl_NewStringObj(data->prefix->nick, strlen(data->prefix->nick));
 
+			/* This is stupid, I don't even remember why the hell I did this */
+			my_arg  = ((&data->rest_str[strlen(trig->mask)] == NULL) || &data->rest_str[strlen(trig->mask)+1] == NULL) ? "" : &data->rest_str[strlen(trig->mask)+1];
+			text    = Tcl_NewStringObj(my_arg,     strlen(my_arg));
+
+			/* We need to increase the reference count, because if TCL suddenly gets some
+			 * time for GC, it will notice a zero reference count
+			 */
+			Tcl_IncrRefCount(command);
+			Tcl_IncrRefCount(nick);
+			Tcl_IncrRefCount(uhost);
+			Tcl_IncrRefCount(hand);
+			Tcl_IncrRefCount(text);
+
+			/* I don't need a NULL last array element */
+			objv = tmalloc(sizeof(Tcl_Obj *) * 5);
+
+			objv[0] = command;
+			objv[1] = nick;
+			objv[2] = uhost;
+			objv[3] = hand;
+			objv[4] = text;
+	
+			/* Call <command> <nick> <uhost> <hand> <chan> <arg> */
+			ret = Tcl_EvalObjv(net->tclinterp, 5, objv, TCL_EVAL_GLOBAL);
+
+			/* Decrement the reference count so the GC will catch it */
+			Tcl_DecrRefCount(command);
+			Tcl_DecrRefCount(nick);
+			Tcl_DecrRefCount(uhost);
+			Tcl_DecrRefCount(hand);
+			Tcl_DecrRefCount(text);
+
+			/* If we returned an error, send it to trollbot's warning channel */
 			if (ret == TCL_ERROR)
 			{
-				troll_debug(LOG_WARN,"TCL Error: %s\n",net->tclinterp->result);
+				troll_debug(LOG_WARN,"TCL Error: %s\n",Tcl_GetStringResult(net->tclinterp));
 			}
 
-			break;
-		case TRIG_TOPC:
-			/* nick uhost hand chan arg */
-			ret = Tcl_VarEval(net->tclinterp,
-					trig->command,
-					" {",
-					data->prefix->nick,
-					"} {",
-					data->prefix->host,
-					"} {} {", /* hand */
-					data->c_params[0], /* chan */
-					"} {",
-					data->rest_str,
-					"}",
-					NULL);
-
-			if (ret == TCL_ERROR)
-			{
-				troll_debug(LOG_WARN,"TCL Error: %s\n",net->tclinterp->result);
-			}
-
+			free(objv);
 			break;
 		case TRIG_MSGM:
+			/* The proper way of doing things, according to #tcl on freenode (they'd know) */
+			command = Tcl_NewStringObj(trig->command,      strlen(trig->command));
+			nick    = Tcl_NewStringObj(data->prefix->nick, strlen(data->prefix->nick));
+			uhost   = Tcl_NewStringObj(data->prefix->host, strlen(data->prefix->host));
+			hand    = Tcl_NewStringObj(data->prefix->nick, strlen(data->prefix->nick));
+
+			/* This is stupid, I don't even remember why the hell I did this */
+			text    = Tcl_NewStringObj(data->rest_str,     strlen(data->rest_str));
+
+			/* We need to increase the reference count, because if TCL suddenly gets some
+			 * time for GC, it will notice a zero reference count
+			 */
+			Tcl_IncrRefCount(command);
+			Tcl_IncrRefCount(nick);
+			Tcl_IncrRefCount(uhost);
+			Tcl_IncrRefCount(hand);
+			Tcl_IncrRefCount(text);
+
+			/* I don't need a NULL last array element */
+			objv = tmalloc(sizeof(Tcl_Obj *) * 5);
+
+			objv[0] = command;
+			objv[1] = nick;
+			objv[2] = uhost;
+			objv[3] = hand;
+			objv[4] = text;
+	
+			/* Call <command> <nick> <uhost> <hand> <chan> <arg> */
+			ret = Tcl_EvalObjv(net->tclinterp, 5, objv, TCL_EVAL_GLOBAL);
+
+			/* Decrement the reference count so the GC will catch it */
+			Tcl_DecrRefCount(command);
+			Tcl_DecrRefCount(nick);
+			Tcl_DecrRefCount(uhost);
+			Tcl_DecrRefCount(hand);
+			Tcl_DecrRefCount(text);
+
+			/* If we returned an error, send it to trollbot's warning channel */
+			if (ret == TCL_ERROR)
+			{
+				troll_debug(LOG_WARN,"TCL Error: %s\n",Tcl_GetStringResult(net->tclinterp));
+			}
+
+			free(objv);
+			break;
+		case TRIG_TOPC:
+			/* The proper way of doing things, according to #tcl on freenode (they'd know) */
+			command = Tcl_NewStringObj(trig->command,      strlen(trig->command));
+			nick    = Tcl_NewStringObj(data->prefix->nick, strlen(data->prefix->nick));
+			uhost   = Tcl_NewStringObj(data->prefix->host, strlen(data->prefix->host));
+			hand    = Tcl_NewStringObj(data->prefix->nick, strlen(data->prefix->nick));
+			chan    = Tcl_NewStringObj(data->c_params[0],  strlen(data->c_params[0]));
+			text    = Tcl_NewStringObj(data->rest_str,     strlen(data->rest_str));
+
+			/* We need to increase the reference count, because if TCL suddenly gets some
+			 * time for GC, it will notice a zero reference count
+			 */
+			Tcl_IncrRefCount(command);
+			Tcl_IncrRefCount(nick);
+			Tcl_IncrRefCount(uhost);
+			Tcl_IncrRefCount(hand);
+			Tcl_IncrRefCount(chan);
+			Tcl_IncrRefCount(text);
+
+			/* I don't need a NULL last array element */
+			objv = tmalloc(sizeof(Tcl_Obj *) * 6);
+
+			objv[0] = command;
+			objv[1] = nick;
+			objv[2] = uhost;
+			objv[3] = hand;
+			objv[4] = chan;
+			objv[5] = text;
+	
+			/* Call <command> <nick> <uhost> <hand> <chan> <arg> */
+			ret = Tcl_EvalObjv(net->tclinterp, 6, objv, TCL_EVAL_GLOBAL);
+
+			/* Decrement the reference count so the GC will catch it */
+			Tcl_DecrRefCount(command);
+			Tcl_DecrRefCount(nick);
+			Tcl_DecrRefCount(uhost);
+			Tcl_DecrRefCount(hand);
+			Tcl_DecrRefCount(chan);
+			Tcl_DecrRefCount(text);
+
+			/* If we returned an error, send it to trollbot's warning channel */
+			if (ret == TCL_ERROR)
+			{
+				troll_debug(LOG_WARN,"TCL Error: %s\n",Tcl_GetStringResult(net->tclinterp));
+			}
+
+			free(objv);
+			break;
+		case TRIG_RAW:
+			/* The proper way of doing things, according to #tcl on freenode (they'd know) */
+			command = Tcl_NewStringObj(trig->command,      strlen(trig->command));
+			from    = Tcl_NewStringObj(data->c_params[0],  strlen(data->c_params[0]));
+			keyword = Tcl_NewStringObj(trig->command,      strlen(trig->command));
+			text    = Tcl_NewStringObj(data->rest_str,     strlen(data->rest_str));
+
+			/* We need to increase the reference count, because if TCL suddenly gets some
+			 * time for GC, it will notice a zero reference count
+			 */
+			Tcl_IncrRefCount(command);
+			Tcl_IncrRefCount(from);
+			Tcl_IncrRefCount(keyword);
+			Tcl_IncrRefCount(text);
+
+			/* I don't need a NULL last array element */
+			objv = tmalloc(sizeof(Tcl_Obj *) * 4);
+
+			objv[0] = command;
+			objv[1] = from;
+			objv[2] = keyword;
+			objv[3] = text;
+	
+			/* Call <command> <nick> <uhost> <hand> <chan> <arg> */
+			ret = Tcl_EvalObjv(net->tclinterp, 4, objv, TCL_EVAL_GLOBAL);
+
+			/* Decrement the reference count so the GC will catch it */
+			Tcl_DecrRefCount(command);
+			Tcl_DecrRefCount(from);
+			Tcl_DecrRefCount(keyword);
+			Tcl_DecrRefCount(text);
+
+			/* If we returned an error, send it to trollbot's warning channel */
+			if (ret == TCL_ERROR)
+			{
+				troll_debug(LOG_WARN,"TCL Error: %s\n",Tcl_GetStringResult(net->tclinterp));
+			}
+
+			free(objv);
 			break;
 		case TRIG_JOIN:
 			break;

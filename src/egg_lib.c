@@ -15,6 +15,7 @@
 #include "t_crypto_module.h"
 #include "t_timer.h"
 #include "util.h"
+#include "troll_lib.h"
 
 #ifdef HAVE_TCL
 #include "tcl_embed.h"
@@ -1469,29 +1470,44 @@ int egg_valididx(struct network *net, int idx)
 char **egg_bind(struct network *net, char *type, char *flags, char *mask, char *cmd, void (*handler)(struct network *, struct trigger *, struct irc_data *, struct dcc_session *, const char *))
 {
 	char **returnValue=NULL;
-	if (handler == NULL){
-		struct trigger *trigger = NULL;
-		struct trigger *triggerListHead = NULL;
-		int numMatches=0;
+	struct trigger *trigger = NULL;
+	struct trigger *triggerListHead = NULL;
+	int numMatches=0;
 
+	if (handler == NULL)
+	{
 		/* Get a list of binds matching mask and return that list. */
-		if (!strcmp("pub",type)){ triggerListHead = net->trigs->pub;  }
-		else if (!strcmp("pubm",type)){ triggerListHead = net->trigs->pubm; }
-		else if (!strcmp("msg",type)){  triggerListHead = net->trigs->msg; }
-		else if (!strcmp("msgm",type)){  triggerListHead = net->trigs->msgm; }
-		else if (!strcmp("notc",type)){  triggerListHead = net->trigs->notc; }
-		else if (!strcmp("join",type)){  triggerListHead = net->trigs->join; }
-		else if (!strcmp("part",type)){  triggerListHead = net->trigs->part; }
-		else if (!strcmp("dcc",type)){  triggerListHead = net->trigs->dcc; }
-		else if (!strcmp("raw",type)){  triggerListHead = net->trigs->raw; }
-		else if (!strcmp("ctcp",type)){  triggerListHead = net->trigs->ctcp; }
-		else if (!strcmp("topc",type)){	triggerListHead = net->trigs->topc; }
+		if (!tstrcasecmp("pub",type)) 
+			triggerListHead = net->trigs->pub;
+		else if (!tstrcasecmp("pubm",type)) 
+			triggerListHead = net->trigs->pubm;
+		else if (!tstrcasecmp("msg",type))  
+			triggerListHead = net->trigs->msg; 
+		else if (!tstrcasecmp("msgm",type))  
+			triggerListHead = net->trigs->msgm; 
+		else if (!tstrcasecmp("notc",type))  
+			triggerListHead = net->trigs->notc; 
+		else if (!tstrcasecmp("join",type))  
+			triggerListHead = net->trigs->join; 
+		else if (!tstrcasecmp("part",type))  
+			triggerListHead = net->trigs->part; 
+		else if (!tstrcasecmp("dcc",type))  
+			triggerListHead = net->trigs->dcc; 
+		else if (!tstrcasecmp("raw",type))  
+			triggerListHead = net->trigs->raw; 
+		else if (!tstrcasecmp("ctcp",type))  
+			triggerListHead = net->trigs->ctcp; 
+		else if (!tstrcasecmp("topc",type))
+			triggerListHead = net->trigs->topc; 
 
 		trigger = triggerListHead;
-		while (trigger != NULL){
-			if (!strcmp(trigger->mask, mask)){
+		while (trigger != NULL)
+		{
+			if (!strcmp(trigger->mask, mask))
+			{
 				numMatches=0;
 			}
+
 			trigger = trigger->next;
 		}
 
@@ -1500,70 +1516,114 @@ char **egg_bind(struct network *net, char *type, char *flags, char *mask, char *
 		numMatches=0;
 		while (trigger != NULL){
 			if (!strcmp(trigger->mask, mask)){
+				/* ok wtf */
 				returnValue[numMatches++]=tstrdup(trigger->command);
 			}
 			trigger = trigger->next;
 		}
 	}
-	else {
+	else 
+	{
 		returnValue = tmalloc0(sizeof(*returnValue));
-		/* Needs to check stackable, and whether dupes exist FIXME */
-		if (!strcmp("pub",type))
+		/* pub is unstackable */
+		if (!tstrcasecmp("pub",type))
 		{
+			trigger = net->trigs->pub;
+
+			while (trigger != NULL)
+			{
+				if (!tstrcasecmp(trigger->mask, mask))
+				{
+					/* Remove the old one */
+					trigger_list_del(&net->trigs->pub, trigger);
+					break;
+				}
+
+				trigger = trigger->next;
+			}
+
 			trigger_list_add(&net->trigs->pub,new_trigger(NULL,TRIG_PUB,mask,cmd,handler));
 			*returnValue=tstrdup(cmd);
 		}
-		else if (!strcmp("pubm",type))
+		/* Stackable, must match command and mask to get ignored */
+		else if (!tstrcasecmp("pubm",type))
 		{
+			trigger = net->trigs->pubm;
+
+			while (trigger != NULL)
+			{
+				if (!tstrcasecmp(trigger->mask, mask) && !tstrcasecmp(trigger->command, cmd))
+				{
+					return NULL;
+				}
+
+				trigger = trigger->next;
+			}
+
 			trigger_list_add(&net->trigs->pubm,new_trigger(NULL,TRIG_PUBM,mask,cmd,handler));
 			*returnValue=tstrdup(cmd);
 		}
-		else if (!strcmp("msg",type))
+		/* Unstackable */
+		else if (!tstrcasecmp("msg",type))
 		{
+			trigger = net->trigs->msg;
+
+			while (trigger != NULL)
+			{
+				if (!tstrcasecmp(trigger->mask, mask))
+				{
+					/* Remove the old one */
+					trigger_list_del(&net->trigs->pub, trigger);
+					break;
+				}
+
+				trigger = trigger->next;
+			}
+
 			trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,mask,cmd,handler));
 			*returnValue=tstrdup(cmd);
 		}
-		else if (!strcmp("msgm",type))
+		else if (!tstrcasecmp("msgm",type))
 		{
 			trigger_list_add(&net->trigs->msgm,new_trigger(NULL,TRIG_MSGM,mask,cmd,handler));
 			*returnValue=tstrdup(cmd);
 		}
-		else if (!strcmp("notc",type))
+		else if (!tstrcasecmp("notc",type))
 		{
 			trigger_list_add(&net->trigs->notc,new_trigger(NULL,TRIG_NOTC,mask,cmd,handler));
 			*returnValue=tstrdup(cmd);
 		}  
-		else if (!strcmp("join",type))
+		else if (!tstrcasecmp("join",type))
 		{
 			trigger_list_add(&net->trigs->join,new_trigger(NULL,TRIG_JOIN,mask,cmd,handler));
 			*returnValue=tstrdup(cmd);
 		}
-		else if (!strcmp("part",type))
+		else if (!tstrcasecmp("part",type))
 		{ 
 			trigger_list_add(&net->trigs->part,new_trigger(NULL,TRIG_PART,mask,cmd,handler));
 			*returnValue=tstrdup(cmd);
 		}
-		else if (!strcmp("sign",type))
+		else if (!tstrcasecmp("sign",type))
 		{ 
 			trigger_list_add(&net->trigs->sign,new_trigger(NULL,TRIG_SIGN,mask,cmd,handler));
 			*returnValue=tstrdup(cmd);
 		}
-		else if (!strcmp("ctcp",type))
+		else if (!tstrcasecmp("ctcp",type))
 		{ 
 			trigger_list_add(&net->trigs->ctcp,new_trigger(NULL,TRIG_CTCP,mask,cmd,handler));
 			*returnValue=tstrdup(cmd);
 		}
-		else if (!strcmp("dcc",type))
+		else if (!tstrcasecmp("dcc",type))
 		{
 			trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,mask,cmd,handler));
 			*returnValue=tstrdup(cmd);
 		}
-		else if (!strcmp("topc",type))
+		else if (!tstrcasecmp("topc",type))
 		{
 			trigger_list_add(&net->trigs->topc,new_trigger(NULL,TRIG_TOPC,mask,cmd,handler));
 			*returnValue=tstrdup(cmd);
 		}
-		else if (!strcmp("raw",type))
+		else if (!tstrcasecmp("raw",type))
 		{
 			trigger_list_add(&net->trigs->raw,new_trigger(NULL,TRIG_RAW,mask,cmd,handler));    
 			*returnValue=tstrdup(cmd);
