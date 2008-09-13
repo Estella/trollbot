@@ -200,3 +200,9 @@
 	* New function: tcl_putlog  [tcl_lib.c]
 	* New function: js_putlog   [js_lib.c]
 	* New function: egg_deluser [egg_lib.c]
+
+14. /2008-09-11/!\acidtoken\
+	[IRC]
+
+	* New function: egg_newchanban [egg_lib.c]
+	* New function: tcl_newchanban [tcl_lib.c]

@@ -19,6 +19,8 @@ struct t_timer
 
 	char *command;
 
+	void *extra;
+
 	struct network *net;
 
 	void (*handler)(struct network *, struct t_timer *);

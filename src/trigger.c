@@ -9,6 +9,7 @@
 #include "log_entry.h"
 
 #include "egg_lib.h"
+#include "troll_lib.h"
 
 struct trigger *trigger_list_del(struct trigger *triggers, struct trigger *del)
 {

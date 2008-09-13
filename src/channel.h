@@ -35,6 +35,8 @@ struct channel_ban
 
 	char *mask;
 
+	char *comment;
+
 	char *who;
 	
 	time_t time;
@@ -44,6 +46,8 @@ struct channel_ban
 
 	int is_sticky;
 	int is_perm;
+
+	int lifetime;
 	
 	time_t expire_time;
 
@@ -103,7 +107,7 @@ struct channel_ban *channel_ban_add(struct channel_ban *bans, struct channel_ban
 void channel_ban_free(struct channel_ban *ban);
 struct channel_ban *channel_ban_new(void);
 void channel_bans_free(struct channel_ban *bans);
-struct channel_ban *channel_channel_ban_find(struct channel *, char *);
+struct channel_ban *channel_channel_ban_find(struct channel *, const char *);
 
 
 struct tconfig_block *chans_to_tconfig(struct channel *chans);
@@ -119,7 +123,7 @@ struct channel_user *channel_user_add(struct channel_user *cusers, struct channe
 struct channel_user *channel_user_del(struct channel_user *cusers, struct channel_user *del);
 void channel_users_free(struct channel_user *cusers);
 void channel_user_free(struct channel_user *cuser);
-struct channel_user *channel_channel_user_find(struct channel *chan, char *find);
+struct channel_user *channel_channel_user_find(struct channel *chan, const char *find);
 
 
 void free_channels(struct channel *chans);

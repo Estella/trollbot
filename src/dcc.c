@@ -41,16 +41,14 @@ void dcc_log_filter_handler(struct network *net, struct log_filter *filter, stru
   time_t now;
   struct tm *hehe = NULL;
   char  buf[8]; /* "[dd:dd]" + \0 */
-	char *chk;
+  struct dcc_session *dtmp;
 
   now  = time(NULL);
   hehe = localtime(&now);
 
   memset(buf,0,sizeof(buf));
 
-  strftime(&buf,sizeof(buf),"[%H:%M]",hehe);
-
-  struct dcc_session *dtmp;
+  strftime(buf,sizeof(buf),"[%H:%M]",hehe);
 
   dtmp = net->dccs;
 

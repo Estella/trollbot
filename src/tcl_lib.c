@@ -60,6 +60,70 @@ int tcl_putics(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *con
 
 #endif /* HAVE_ICS */
 
+
+/*
+  newchanban <channel> <ban> <creator> <comment> [lifetime] [options]
+    Description: adds a ban to the ban list of a channel; creator is given
+      credit for the ban in the ban list. lifetime is specified in
+      minutes. If lifetime is not specified, ban-time (usually 60) is
+      used. Setting the lifetime to 0 makes it a permanent ban.
+*/
+int tcl_newchanban(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	struct network *net = clientData;
+	char *channel = NULL;
+	char *ban     = NULL;
+	char *creator = NULL;
+	char *comment = NULL;
+	int lifetime  = -1;
+	char *options = NULL;
+
+	if (objc < 5 || objc > 7)
+	{
+		Tcl_WrongNumArgs(interp, objc, objv, "<channel> <ban> <creator> <comment> [lifetime] [options]");
+		return TCL_ERROR;
+	}
+
+	channel = Tcl_GetString(objv[1]);
+	ban     = Tcl_GetString(objv[2]);
+	creator = Tcl_GetString(objv[3]);
+	comment = Tcl_GetString(objv[4]);
+
+	switch (objc)
+	{
+		case 6:
+			Tcl_GetIntFromObj(interp,objv[5],&lifetime);
+		case 7:
+			options = Tcl_GetString(objv[6]);
+		break;
+	}
+
+	egg_newchanban(net, channel, ban, creator, comment, lifetime, options);
+	
+	return TCL_OK;
+}
+
+int tcl_binds(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	struct network *net = clientData;
+	char **binds = NULL;
+	char *mask   = NULL;
+	char *ret    = NULL;
+
+	if (objc > 2)
+	{
+		Tcl_WrongNumArgs(interp, objc, objv, "[type/mask]");
+		return TCL_ERROR;
+	}
+
+	if (objc == 2)
+		mask = Tcl_GetString(objv[1]);
+
+	binds = egg_binds(net, mask);
+	
+	return TCL_OK;
+}
+
 /*   putlog <text>
  *   Description: sends text to the bot's logfile, marked as 'misc' (o)
  *   Returns: nothing

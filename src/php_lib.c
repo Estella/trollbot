@@ -14,6 +14,7 @@
 #include "trigger.h"
 #include "network.h"
 #include "egg_lib.h"
+#include "troll_lib.h"
 #include "irc.h"
 #include "user.h"
 #include "t_timer.h"
@@ -242,7 +243,7 @@ PHP_FUNCTION(unbind)
 {
 	char *network;
 	int network_len;
-	char type;
+	char *type;
 	int type_len;
 	char *flags;
 	int flags_len;

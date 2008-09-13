@@ -121,7 +121,6 @@ int troll_matchwilds(const char *haystack, const char *needle)
 	}
 }
 
-
 char *troll_makearg(const char *rest, const char *mask)
 {
 	char *ret;

@@ -245,6 +245,7 @@ PyObject * call_python_method(char * module, char * method, PyObject ** args, in
 /**
  * Execute a python callback on the given network
  */
+/* FIXME: Treating troll_makearg's output as non-static memory */
 void py_handler(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf) {
 	PyObject *args[3];
 	PyObject *rval;

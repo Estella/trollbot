@@ -4,12 +4,22 @@
 struct network;
 struct irc_data;
 
+/* HANDLER IMP IN TCL:
+                case TRIG_PUB:
+                case TRIG_PUBM:
+                case TRIG_MSG:
+                case TRIG_MSGM:
+                case TRIG_TOPC:
+                case TRIG_RAW:
+                case TRIG_JOIN:
+                case TRIG_PART:
+*/
 enum
 {
 	TRIG_PUB,
-	TRIG_PUBM,
-	TRIG_MSG,
-	TRIG_MSGM,
+	TRIG_PUBM, 
+	TRIG_MSG,  
+	TRIG_MSGM, 
 	TRIG_PART,
 	TRIG_NOTC,
 	TRIG_JOIN,

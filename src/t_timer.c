@@ -114,6 +114,8 @@ struct t_timer *t_timer_new(void)
 	ret->time_set  = 0;
 	ret->time_trig = 0;
 
+	ret->extra     = NULL; /* Transport only, do not attempt to free */
+
 	ret->command   = NULL;
 	ret->handler   = NULL;
 	ret->net       = NULL;

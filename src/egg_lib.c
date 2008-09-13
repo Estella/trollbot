@@ -212,10 +212,13 @@ void egg_save(struct network *net)
 /* NON-EGGDROP COMMAND, CONSIDER MOVING */
 char *egg_makepasswd(const char *pass, const char *hash_type)
 {
+	char *ret;
 	if ((g_cfg->crypto == NULL) || g_cfg->crypto->create_hash == NULL)
 		return NULL;
 
-	return g_cfg->crypto->create_hash(pass, hash_type);
+	ret = g_cfg->crypto->create_hash(pass, hash_type);
+
+	return ret;
 }
 
 /* Fully Compatible */
@@ -650,6 +653,70 @@ int egg_deluser(struct network *net, char *username)
 /* getchaninfo <handle> <channel> */
 /* setchaninfo <handle> <channel> <info> */
 /* newchanban <channel> <ban> <creator> <comment> [lifetime] [options] */
+/* 
+  newchanban <channel> <ban> <creator> <comment> [lifetime] [options]
+    Description: adds a ban to the ban list of a channel; creator is given
+      credit for the ban in the ban list. lifetime is specified in
+      minutes. If lifetime is not specified, ban-time (usually 60) is
+      used. Setting the lifetime to 0 makes it a permanent ban.
+*/
+/* Trollbot Specific: Calling this with -1 as lifetime will cause it to use the value in ban-time */
+void egg_newchanban(struct network *net, const char *channel, const char *ban, const char *who, const char *comment, int lifetime, char *options)
+{
+	struct channel     *chan;
+	struct channel_ban *cban;
+
+	/* Why the retardation? I don't know how I'm getting these strings from the interpreters */
+	if ((channel == NULL) || strlen(channel) == 0 ||
+			(ban     == NULL) || strlen(ban)     == 0 ||
+			(who     == NULL) || strlen(who)     == 0 ||
+			(comment == NULL) || strlen(comment) == 0)
+	{
+		troll_debug(LOG_WARN, "egg_newchanban called with null or empty channel, mask, who, or comment. (real helpful eh?)");
+		return;
+	}
+
+	/* Find the channel */
+	chan = network_channel_find(net, channel);
+	
+	if (chan == NULL)
+		return;
+
+	/* Find the channel's banlist */
+	/* Check for existing (dupes) TODO: Verify Eggdrop behavior */	
+	cban = channel_channel_ban_find(chan, ban);
+
+	if (cban != NULL)
+		return;
+
+	/* Populate the ban data */
+	cban = channel_ban_new();
+
+	cban->chan     = tstrdup(channel);
+	cban->mask     = tstrdup(ban);
+	cban->who      = tstrdup(who);
+	cban->comment  = tstrdup(comment);
+
+	if (cban->lifetime != -1)
+	{
+		cban->lifetime = lifetime;
+	}
+	else
+	{
+		/* FIXME: Get ban-time */
+		cban->lifetime = 60;
+	}
+
+	cban->expire_time = time(NULL) + cban->lifetime;
+
+	chan->banlist = channel_ban_add(chan->banlist, cban);
+
+	irc_printf(net->sock, "MODE %s +b %s", cban->chan, cban->mask);
+/*	log_entry_sprintf(net, "b", "Added ban for %s", cban->mask);*/
+
+	return;
+}
+
 /* newban <ban> <creator> <comment> [lifetime] [options] */
 /* newchanexempt <channel> <exempt> <creator> <comment> [lifetime] [options] */
 /* newexempt <exempt> <creator> <comment> [lifetime] [options] */
@@ -834,6 +901,30 @@ int egg_isbansticky(struct network *net,  char *ban, char *channel)
 /* matchexempt <nick!user@host> [channel] */
 /* matchinvite <nick!user@host> [channel] */
 /* banlist [channel] */
+#ifdef CLOWNS
+char **egg_banlist(struct network *net, const char *channel)
+{
+	int count;
+	struct channel     *chan;
+	struct channel_ban *cban;
+
+	if ((channel == NULL) || strlen(channel) == 0)
+	{
+		/* TODO: Check Global list, which doesn't exist yet */
+		return (char **)NULL;
+	}
+
+	/* Find the channel */
+	chan = network_channel_find(net, channel);
+	
+	if (chan == NULL)
+		return (char **)NULL;
+
+	
+
+}
+#endif /* CLOWNS */
+
 /* exemptlist [channel] */
 /* invitelist [channel] */
 /* newignore <hostmask> <creator> <comment> [lifetime] */
@@ -946,8 +1037,10 @@ int egg_botisvoice(struct network *net, const char *nickname, const char *channe
 /* NEED_IMP: Javascript, TCL, PHP, Python */
 int egg_botonchan(struct network *net, const char *nickname, const char *channel)
 {
+	int ret = egg_onchan(net, egg_botnick(net), channel);
+	
 	/* This function is stupid, but part of eggdrop */
-	return egg_onchan(net, egg_botnick(net), channel);
+	return ret;
 }
 
 /* isop <nickname> [channel]
@@ -1075,7 +1168,7 @@ int egg_isvoice(struct network *net, const char *nickname, const char *channel)
  */
 /* NEED_IMP: Python, Perl, PHP */
 /* IMP_IN: TCL, Javascript */
-int egg_onchan(struct network *net, char *nickname, char *channel)
+int egg_onchan(struct network *net, const char *nickname, const char *channel)
 {
 	struct channel      *chan  = NULL;
 	struct channel_user *cuser = NULL;
@@ -1504,7 +1597,7 @@ char **egg_bind(struct network *net, char *type, char *flags, char *mask, char *
 		while (trigger != NULL)
 		{
 			if (!strcmp(trigger->mask, mask))
-			{
+			{	
 				numMatches=0;
 			}
 
@@ -1514,8 +1607,10 @@ char **egg_bind(struct network *net, char *type, char *flags, char *mask, char *
 		returnValue = tmalloc0(sizeof(*returnValue)*(numMatches+1));
 
 		numMatches=0;
-		while (trigger != NULL){
-			if (!strcmp(trigger->mask, mask)){
+		while (trigger != NULL)
+		{
+			if (!strcmp(trigger->mask, mask))
+			{
 				/* ok wtf */
 				returnValue[numMatches++]=tstrdup(trigger->command);
 			}
@@ -1535,7 +1630,7 @@ char **egg_bind(struct network *net, char *type, char *flags, char *mask, char *
 				if (!tstrcasecmp(trigger->mask, mask))
 				{
 					/* Remove the old one */
-					trigger_list_del(&net->trigs->pub, trigger);
+					net->trigs->pub = trigger_list_del(net->trigs->pub, trigger);
 					break;
 				}
 
@@ -1573,7 +1668,7 @@ char **egg_bind(struct network *net, char *type, char *flags, char *mask, char *
 				if (!tstrcasecmp(trigger->mask, mask))
 				{
 					/* Remove the old one */
-					trigger_list_del(&net->trigs->pub, trigger);
+					net->trigs->msg = trigger_list_del(net->trigs->msg, trigger);
 					break;
 				}
 
@@ -1702,6 +1797,315 @@ char *egg_unbind(struct network *net, char *type, char *flags, char *mask, char 
 
 
 /* binds ?type/mask? */
+/* FIXME: Decide how to deal with the lists returned */
+char **egg_binds(struct network *net, char *mask)
+{
+	struct trigger *trig;
+	int count = 0;
+	/*int index = 0;
+	char **ret = NULL;*/
+	
+	trig = net->trigs->pub;
+	
+	while (trig != NULL)
+	{
+		if ((mask == NULL) || !troll_matchwilds(trig->mask, mask) || !troll_matchwilds("pub", mask))
+			count++;
+
+		trig = trig->next;
+	}
+
+  trig = net->trigs->pubm;
+
+	while (trig != NULL)
+	{
+		if ((mask == NULL) || !troll_matchwilds(trig->mask, mask) || !troll_matchwilds("pubm", mask))
+			count++;
+
+		trig = trig->next;
+	}
+
+  trig = net->trigs->msg;
+
+	while (trig != NULL)
+	{
+		if ((mask == NULL) || !troll_matchwilds(trig->mask, mask) || !troll_matchwilds("msg", mask))
+			count++;
+
+		trig = trig->next;
+	}
+
+
+  trig = net->trigs->msgm;
+
+	while (trig != NULL)
+	{
+		if ((mask == NULL) || !troll_matchwilds(trig->mask, mask) || !troll_matchwilds("msgm", mask))
+			count++;
+
+		trig = trig->next;
+	}
+
+  trig = net->trigs->part;
+
+	while (trig != NULL)
+	{
+		if ((mask == NULL) || !troll_matchwilds(trig->mask, mask) || !troll_matchwilds("part", mask))
+			count++;
+
+		trig = trig->next;
+	}
+
+  trig = net->trigs->join;
+
+	while (trig != NULL)
+	{
+		if ((mask == NULL) || !troll_matchwilds(trig->mask, mask) || !troll_matchwilds("join", mask))
+			count++;
+
+		trig = trig->next;
+	}
+
+  trig = net->trigs->sign;
+
+	while (trig != NULL)
+	{
+		if ((mask == NULL) || !troll_matchwilds(trig->mask, mask) || !troll_matchwilds("sign", mask))
+			count++;
+
+		trig = trig->next;
+	}
+
+  trig = net->trigs->ctcp;
+
+	while (trig != NULL)
+	{
+		if ((mask == NULL) || !troll_matchwilds(trig->mask, mask) || !troll_matchwilds("ctcp", mask))
+			count++;
+
+		trig = trig->next;
+	}
+
+  trig = net->trigs->kick;
+
+	while (trig != NULL)
+	{
+		if ((mask == NULL) || !troll_matchwilds(trig->mask, mask) || !troll_matchwilds("kick", mask))
+			count++;
+
+		trig = trig->next;
+	}
+
+  trig = net->trigs->notc;
+
+	while (trig != NULL)
+	{
+		if ((mask == NULL) || !troll_matchwilds(trig->mask, mask) || !troll_matchwilds("notc", mask))
+			count++;
+
+		trig = trig->next;
+	}
+
+  trig = net->trigs->dcc;
+
+	while (trig != NULL)
+	{
+		if ((mask == NULL) || !troll_matchwilds(trig->mask, mask) || !troll_matchwilds("dcc", mask))
+			count++;
+
+		trig = trig->next;
+	}
+
+  trig = net->trigs->raw;
+
+	while (trig != NULL)
+	{
+		if ((mask == NULL) || !troll_matchwilds(trig->mask, mask) || !troll_matchwilds("raw", mask))
+			count++;
+
+		trig = trig->next;
+	}
+
+  trig = net->trigs->topc;
+
+	while (trig != NULL)
+	{
+		if ((mask == NULL) || !troll_matchwilds(trig->mask, mask) || !troll_matchwilds("topc", mask))
+			count++;
+
+		trig = trig->next;
+	}
+
+	if (count == 0)
+		return (char **)NULL;
+
+
+#ifdef CLOWNS
+	trig = net->trigs->pub;
+	
+	while (trig != NULL)
+	{
+		if ((mask == NULL) || !troll_matchwilds(trig->mask, mask) || !troll_matchwilds("pub", mask))
+		{
+			
+		}
+
+		trig = trig->next;
+	}
+
+  trig = net->trigs->pubm;
+
+	while (trig != NULL)
+	{
+		if ((mask == NULL) || !troll_matchwilds(trig->mask, mask) || !troll_matchwilds("pubm", mask))
+		{
+			
+		}
+
+		trig = trig->next;
+	}
+
+  trig = net->trigs->msg;
+
+	while (trig != NULL)
+	{
+		if ((mask == NULL) || !troll_matchwilds(trig->mask, mask) || !troll_matchwilds("msg", mask))
+		{
+			
+		}
+
+		trig = trig->next;
+	}
+
+
+  trig = net->trigs->msgm;
+
+	while (trig != NULL)
+	{
+		if ((mask == NULL) || !troll_matchwilds(trig->mask, mask) || !troll_matchwilds("msgm", mask))
+		{
+			
+		}
+
+		trig = trig->next;
+	}
+
+  trig = net->trigs->part;
+
+	while (trig != NULL)
+	{
+		if ((mask == NULL) || !troll_matchwilds(trig->mask, mask) || !troll_matchwilds("part", mask))
+		{
+			
+		}
+
+		trig = trig->next;
+	}
+
+  trig = net->trigs->join;
+
+	while (trig != NULL)
+	{
+		if ((mask == NULL) || !troll_matchwilds(trig->mask, mask) || !troll_matchwilds("join", mask))
+		{
+			
+		}
+
+		trig = trig->next;
+	}
+
+  trig = net->trigs->sign;
+
+	while (trig != NULL)
+	{
+		if ((mask == NULL) || !troll_matchwilds(trig->mask, mask) || !troll_matchwilds("sign", mask))
+		{
+			
+		}
+
+		trig = trig->next;
+	}
+
+  trig = net->trigs->ctcp;
+
+	while (trig != NULL)
+	{
+		if ((mask == NULL) || !troll_matchwilds(trig->mask, mask) || !troll_matchwilds("ctcp", mask))
+		{
+			
+		}
+
+		trig = trig->next;
+	}
+
+  trig = net->trigs->kick;
+
+	while (trig != NULL)
+	{
+		if ((mask == NULL) || !troll_matchwilds(trig->mask, mask) || !troll_matchwilds("kick", mask))
+		{
+			
+		}
+
+		trig = trig->next;
+	}
+
+  trig = net->trigs->notc;
+
+	while (trig != NULL)
+	{
+		if ((mask == NULL) || !troll_matchwilds(trig->mask, mask) || !troll_matchwilds("notc", mask))
+		{
+			
+		}
+
+		trig = trig->next;
+	}
+
+  trig = net->trigs->dcc;
+
+	while (trig != NULL)
+	{
+		if ((mask == NULL) || !troll_matchwilds(trig->mask, mask) || !troll_matchwilds("dcc", mask))
+		{
+			
+		}
+
+		trig = trig->next;
+	}
+
+  trig = net->trigs->raw;
+
+	while (trig != NULL)
+	{
+		if ((mask == NULL) || !troll_matchwilds(trig->mask, mask) || !troll_matchwilds("raw", mask))
+		{
+			
+		}
+
+		trig = trig->next;
+	}
+
+  trig = net->trigs->topc;
+
+	while (trig != NULL)
+	{
+		if ((mask == NULL) || !troll_matchwilds(trig->mask, mask) || !troll_matchwilds("topc", mask))
+		{
+			
+		}
+
+		trig = trig->next;
+	}
+#endif /* CLOWNS */
+/*	ret = tmalloc0(sizeof(char *) * count + 1); */
+
+	printf("Found %d triggers\n", count);
+
+	return NULL;
+	/* We're going to do two passes, re-evaluate later */
+}
+
 /* logfile [<modes> <channel> <filename>] */
 /* maskhost <nick!user@host> */
 
@@ -1793,13 +2197,13 @@ void egg_die(struct network *net, const char *reason)
 	while (tmp != NULL)
 	{
 		if (reason == NULL)
-			irc_printf(tmp, "QUIT");
+			irc_printf(tmp->sock, "QUIT");
 		else
-			irc_printf(tmp, "QUIT :%s",reason);
+			irc_printf(tmp->sock, "QUIT :%s",reason);
 
 		/* Flush out the socket TODO: Make function for this */
-		shutdown(net->sock, SHUT_RDWR);
-		net->sock = -1;
+		shutdown(tmp->sock, SHUT_RDWR);
+		tmp->sock = -1;
 		
 		tmp = tmp->next;
 	}

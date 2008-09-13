@@ -33,7 +33,7 @@ void console_log_filter_handler(struct network *net, struct log_filter *filter, 
 
 	memset(buf,0,sizeof(buf));
 
-	strftime(&buf,sizeof(buf),"[%H:%M]",hehe);
+	strftime(buf,sizeof(buf),"[%H:%M]",hehe);
 
 	printf("%s %s\n",buf,entry->log_text);
 }

@@ -9,7 +9,7 @@ struct t_crypto_module
 
 	/* Basic API so far */
 	int   (*hash_algorithm_exists)(char *);
-	char *(*create_hash)(char *, char *);
+	char *(*create_hash)(const char *, const char *);
 };
 
 struct t_crypto_module *t_crypto_module_load(char *);

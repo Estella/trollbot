@@ -199,6 +199,7 @@ void channel_ban_free(struct channel_ban *ban)
 	free(ban->chan);
 	free(ban->mask);
 	free(ban->who);
+	free(ban->comment);
 	free(ban);
 }
 
@@ -210,8 +211,11 @@ struct channel_ban *channel_ban_new(void)
 	ret->mask = NULL;
 	ret->who  = NULL;
 
+	ret->comment = NULL;
+
 	ret->time        = 0;
 	ret->expire_time = 0;
+	ret->lifetime    = 0;
 
 	ret->type        = CHANNEL_BAN_UNKNOWN;
 	ret->is_sticky   = 0;
@@ -223,7 +227,7 @@ struct channel_ban *channel_ban_new(void)
 	return ret;
 }
 
-struct channel_ban *channel_channel_ban_find(struct channel *chan, char *find)
+struct channel_ban *channel_channel_ban_find(struct channel *chan, const char *find)
 {
 	struct channel_ban *cban;
 
@@ -390,7 +394,7 @@ void free_channel_user(void *ptr)
 }
 
 
-struct channel_user *channel_channel_user_find(struct channel *chan, char *find)
+struct channel_user *channel_channel_user_find(struct channel *chan, const char *find)
 {
 	struct channel_user *cuser;
 

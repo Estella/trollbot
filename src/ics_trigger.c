@@ -10,6 +10,7 @@
 #include "ics_trigger.h"
 #include "log_entry.h"
 #include "egg_lib.h"
+#include "troll_lib.h"
 
 #include "server.h"
 

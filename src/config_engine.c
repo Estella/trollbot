@@ -126,9 +126,6 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 	struct log_filter *filter;
 
 	int i;
-#ifdef HAVE_PYTHON
-	FILE *fp;
-#endif /* HAVE_PYTHON */
 
 	cfg = tmalloc(sizeof(struct config));
 

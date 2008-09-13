@@ -320,7 +320,7 @@ void free_ics_server(struct ics_server *ics)
 	free(ics->password);
 	free(ics->my_name);
 
-	ics_game_free(ics->game);
+	free_ics_game(ics->game);
 
 	free_servers(ics->ics_servers);
 	t_timers_free(ics->timers);
