@@ -229,7 +229,7 @@ void troll_undernet_hack(struct network *net, struct trigger *trig, struct irc_d
 
 		irc_printf(net->sock, "%s %s", data->rest[i+1], data->rest[i+2]);
 		
-		troll_log(LOG_DEBUG, "Undernet countermeasure sent.");
+		troll_debug(LOG_DEBUG, "Undernet countermeasure sent.");
 	}
 }
 
