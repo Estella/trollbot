@@ -30,6 +30,7 @@
 #include "user.h"
 #include "t_timer.h"
 
+#include "httpd_server.h"
 
 #ifdef HAVE_ICS
 #include "ics_server.h"
@@ -101,6 +102,7 @@ void irc_loop(void)
 	struct xmpp_server *xs;
 #endif /* HAVE_XMPP */
 	struct dcc_session *dcc;
+	struct httpd_server *httpd;
 	int numsocks = 0;
 	socklen_t lon      = 0;
 	int valopt   = 0;
@@ -139,6 +141,16 @@ void irc_loop(void)
 		xs = xs->next;
 	}
 #endif /* HAVE_XMPP */
+	httpd = g_cfg->httpd_servers;
+
+	/* Connect to one server for each network, or mark network unconnectable */
+	while (httpd != NULL)
+	{
+		httpd->status = HTTPD_UNINITIALIZED;
+		httpd_server_listen(httpd);
+
+		httpd = httpd->next;
+	}
 
 	net = g_cfg->networks;
 
@@ -473,6 +485,17 @@ void irc_loop(void)
 #endif /* HAVE_XMPP */
 
 		net = g_cfg->networks;
+
+		while (httpd != NULL)
+		{
+			if (httpd->sock > 0)
+			{
+				if (FD_ISSET(httpd->sock, &socks))
+				{
+					new_httpd_request(httpd);
+				}
+			}
+		}
 
 		while (net != NULL)
 		{

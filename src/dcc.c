@@ -178,7 +178,7 @@ void dcc_init_listener(struct network *net)
 	dcchostip = tmalloc0(3*4+3+1);
 	sprintf(dcchostip,"%s",inet_ntoa(*((struct in_addr *)he->h_addr)));
 
-	if ((net->dcc_listener = socket(PF_INET, SOCK_STREAM, 0)) == -1) 
+	if ((net->dcc_listener = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
 	{
 		troll_debug(LOG_ERROR,"Could not create socket for DCC listener");
 		return;

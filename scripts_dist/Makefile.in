@@ -91,6 +91,9 @@ INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 JS_CFLAGS = @JS_CFLAGS@
 JS_LIBS = @JS_LIBS@
 LDFLAGS = @LDFLAGS@
+LIBCSOAP_CFLAGS = @LIBCSOAP_CFLAGS@
+LIBCSOAP_LDFLAGS = @LIBCSOAP_LDFLAGS@
+LIBCSOAP_LIBS = @LIBCSOAP_LIBS@
 LIBLTDL = @LIBLTDL@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
@@ -192,8 +195,8 @@ target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 trollbotscriptsdir = ${prefix}/scripts
-EXTRA_DIST = cryptoquote-1.02.tcl test.tcl test.php bmi.php test.py test.js
-trollbotscripts_DATA = cryptoquote-1.02.tcl test.tcl test.php bmi.php test.py test.js
+EXTRA_DIST = cryptoquote-1.02.tcl test.tcl test.php bmi.php test.py test.js ics_test.tcl
+trollbotscripts_DATA = cryptoquote-1.02.tcl test.tcl test.php bmi.php test.py test.js ics_test.tcl
 all: all-am
 
 .SUFFIXES:

@@ -47,6 +47,14 @@ void init_ics_triggers(struct ics_server *ics)
 	trig->command = NULL;
 	ics->ics_trigger_table->msg = ics_trigger_add(ics->ics_trigger_table->msg, trig);
 
+	/* Generic MSG handler 
+	trig          = new_ics_trigger();
+	trig->type    = ICS_TRIG_MSG;
+	trig->mask    = tstrdup("*");
+	trig->handler = ics_internal_msg_handler;
+	trig->command = NULL;
+	ics->ics_trigger_table->msg = ics_trigger_add(ics->ics_trigger_table->msg, trig);
+*/
 	/* Hits return when ICS asks it to do so */
 	trig          = new_ics_trigger();
 	trig->type    = ICS_TRIG_MSG;
@@ -75,7 +83,7 @@ void init_ics_triggers(struct ics_server *ics)
 	trig          = new_ics_trigger();
 	trig->type    = ICS_TRIG_CONNECT;
 	trig->mask    = tstrdup(CONNECT_TRIGGER);
-	trig->handler = ics_internal_fuck_with_sal;
+	trig->handler = ics_internal_style_twelve_init;
 	trig->command = NULL;
 	ics->ics_trigger_table->connect = ics_trigger_add(ics->ics_trigger_table->connect, trig);
 
@@ -147,6 +155,29 @@ void ics_internal_endgame(struct ics_server *ics, struct ics_trigger *ics_trig, 
 
 	free_ics_games(ics->game);
 	ics->game = NULL;
+
+	return;
+}
+
+void ics_internal_msg_handler(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data)
+{
+	struct ics_trigger *trig;
+	
+	trig = ics->ics_trigger_table->msg;
+
+	while (trig != NULL)
+	{
+		if (troll_matchwilds(data->txt_packet, trig->mask))
+		{
+			if (trig->handler != NULL)
+			{
+				trig->handler(ics, trig, data);
+				trig->usecount++;
+			}
+		}
+			
+		trig = trig->next;
+	}
 
 	return;
 }
@@ -346,77 +377,36 @@ void ics_internal_notify(struct ics_server *ics, struct ics_trigger *ics_trig, s
 	struct network *net;
 	struct channel *chan;
 
-	if (!tstrcasecmp(data->tokens[1], "tehcheckersking"))
+	trig = ics->ics_trigger_table->notify;
+
+	/* Call all triggers that match the username of whoever was on your notify list */
+	while (trig != NULL)
 	{
-		net = g_cfg->networks;
-
-		while (net != NULL)
+		if (!troll_matchwilds(data->tokens[1],trig->mask))
 		{
-			chan = net->chans;
-
-			while (chan != NULL)
+			if (trig->handler != NULL)
 			{
-				if (!tstrcasecmp(chan->name, "#christian_debate"))
-				{
-					if (!tstrcasecmp(data->tokens[3], "arrived."))
-					{
-						irc_printf(net->sock, "PRIVMSG %s :tehcheckersking (poutine) has signed on to freechess. Starting to stalk.", chan->name);
-						ics_printf(ics, "follow tehcheckersking");
-					}
-					else
-					{
-						irc_printf(net->sock, "PRIVMSG %s :tehcheckersking (poutine) has departed freechess.", chan->name);
-					}
-				}
-
-				chan = chan->next;
+				trig->handler(ics, trig, data);
 			}
-
-			net = net->next;
 		}
-	} 
-	else if (!tstrcasecmp(data->tokens[1], "saldeeznuts"))
-	{
-		net = g_cfg->networks;
 
-		while (net != NULL)
-		{
-			chan = net->chans;
-
-			while (chan != NULL)
-			{
-				if (!tstrcasecmp(chan->name, "#christian_debate"))
-				{
-					if (!tstrcasecmp(data->tokens[3], "arrived."))
-					{
-						irc_printf(net->sock, "PRIVMSG %s :Saldeeznuts (sal_dz) has signed on to freechess. Starting to stalk.", chan->name);
-						ics_printf(ics, "follow saldeeznuts");
-					}
-					else
-					{
-						irc_printf(net->sock, "PRIVMSG %s :Saldeeznuts (sal_dz) has departed freechess.", chan->name);
-					}
-					break;
-				}
-
-				chan = chan->next;
-			}
-
-			net = net->next;
-		}
+		trig = trig->next;
 	}
-
+	
 	return;
 }
 
-void ics_internal_fuck_with_sal(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data)
+void ics_internal_style_twelve_init(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data)
 {
 	struct ics_trigger *trig;
 
 	ics_printf(ics, "style 12");
-	ics_printf(ics, "+notify tehcheckersking");
-	ics_printf(ics, "+notify saldeeznuts");
-	ics_printf(ics, "follow tehcheckersking");
+	ics_printf(ics, "set shout 0");
+	ics_printf(ics, "set cshout 0");
+	ics_printf(ics, "set open 1");
+	ics_printf(ics, "set highlight 0");
+	ics_printf(ics, "set bell 0");
+	ics_printf(ics, "set interface Trollbot, by poutine/DALnet");
 
 	return;
 }
@@ -434,7 +424,7 @@ void ics_internal_connect(struct ics_server *ics, struct ics_trigger *ics_trig, 
 	{
 		if (trig->handler != NULL)
 		{
-			trig->handler(ics, ics_trig, data);
+			trig->handler(ics, trig, data);
 		}
 
 		trig = trig->next;

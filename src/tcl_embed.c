@@ -20,6 +20,7 @@
 #include "ics_proto.h"
 #include "ics_game.h"
 #include "ics_trigger.h"
+#include "ics_lib.h"
 #endif /* HAVE_ICS */
 
 
@@ -533,3 +534,234 @@ void tcl_handler(struct network *net, struct trigger *trig, struct irc_data *dat
 			break;
 	}  
 }
+
+#ifdef HAVE_ICS
+
+void ics_tcl_load_scripts_from_config(struct config *cfg)
+{
+	int i;
+	struct ics_server *ics = cfg->ics_servers;
+
+	while (ics != NULL)
+	{
+		if (ics->tcl_scripts != NULL)
+		{
+			if (ics->tclinterp == NULL)
+				ics_init_tcl(ics);
+			else
+				ics_tcl_init_commands(ics);
+
+			for (i=0;ics->tcl_scripts[i] != NULL;i++)
+			{
+				if (Tcl_EvalFile(ics->tclinterp, ics->tcl_scripts[i]) == TCL_ERROR)
+				{
+					troll_debug(LOG_WARN,"TCL Error: %s\n",Tcl_GetStringResult(ics->tclinterp));
+				}
+			}
+		}
+
+		ics = ics->next;
+	}
+}
+
+void ics_init_tcl(struct ics_server *ics)
+{
+	ics->tclinterp = Tcl_CreateInterp();
+	Tcl_Init(ics->tclinterp);
+	ics_tcl_init_commands(ics);
+}
+
+void ics_tcl_init_commands(struct ics_server *ics)
+{
+	Tcl_CreateObjCommand(ics->tclinterp, "ics_bind", tcl_ics_bind, ics, NULL);
+	Tcl_CreateObjCommand(ics->tclinterp, "irc_interp", tcl_irc_interp, ics, NULL);
+/*	Tcl_CreateObjCommand(ics->tclinterp, "get_board" tcl_get_board, ics, NULL);*/
+	Tcl_CreateObjCommand(ics->tclinterp, "putics", tcl_putics, ics, NULL);
+}
+
+void ics_tcl_handler(struct ics_server *ics, struct ics_trigger *trig, struct ics_data *data)
+{
+	int ret;
+	Tcl_Obj *command;
+	Tcl_Obj *ics_label;
+	Tcl_Obj *who;
+	Tcl_Obj *action;
+	Tcl_Obj *message;
+	Tcl_Obj *game_id;
+	Tcl_Obj *white;
+	Tcl_Obj *black;
+	Tcl_Obj *initial_time;
+	Tcl_Obj *time_increment;
+	Tcl_Obj **objv;
+
+	switch (trig->type)
+	{
+		/* <ICS Label> <game id> <white> <black> <initial time> <time increment> */
+		case ICS_TRIG_GAME: 
+			/* The proper way of doing things, according to #tcl on freenode (they'd know) */
+			command        = Tcl_NewStringObj(trig->command,    strlen(trig->command));
+			ics_label      = Tcl_NewStringObj(ics->label,       strlen(ics->label));
+			game_id        = Tcl_NewIntObj(ics->game->game_number);
+			white          = Tcl_NewStringObj(ics->game->white_name, strlen(ics->game->white_name));
+			black          = Tcl_NewStringObj(ics->game->black_name, strlen(ics->game->black_name));
+			initial_time   = Tcl_NewIntObj(ics->game->initial_time);
+			time_increment = Tcl_NewIntObj(ics->game->increment_time);
+
+			Tcl_IncrRefCount(command);
+			Tcl_IncrRefCount(ics_label);
+			Tcl_IncrRefCount(game_id);
+			Tcl_IncrRefCount(white);
+			Tcl_IncrRefCount(black);
+			Tcl_IncrRefCount(initial_time);
+			Tcl_IncrRefCount(time_increment);
+
+			objv = tmalloc(sizeof(Tcl_Obj *) * 7);
+
+			objv[0] = command;
+			objv[1] = ics_label;
+			objv[2] = game_id;
+			objv[3] = white;
+			objv[4] = black;
+			objv[5] = initial_time;
+			objv[6] = time_increment;
+
+			/* Call <command> <nick> <uhost> <hand> <chan> <arg> */
+			ret = Tcl_EvalObjv(ics->tclinterp, 7, objv, TCL_EVAL_GLOBAL);
+
+			/* Decrement the reference count so the GC will catch it */
+			Tcl_DecrRefCount(command);
+			Tcl_DecrRefCount(ics_label);
+			Tcl_DecrRefCount(game_id);
+			Tcl_DecrRefCount(white);
+			Tcl_DecrRefCount(black);
+			Tcl_DecrRefCount(initial_time);
+			Tcl_DecrRefCount(time_increment);
+
+			/* If we returned an error, send it to trollbot's warning channel */
+			if (ret == TCL_ERROR)
+			{
+				troll_debug(LOG_WARN,"TCL Error: %s\n",Tcl_GetStringResult(ics->tclinterp));
+			}
+
+			free(objv);
+
+			break;
+
+		/* <ICS Label> <Message> */
+		case ICS_TRIG_MSG: 
+			/* The proper way of doing things, according to #tcl on freenode (they'd know) */
+			command   = Tcl_NewStringObj(trig->command,    strlen(trig->command));
+			ics_label = Tcl_NewStringObj(ics->label,       strlen(ics->label));
+			message   = Tcl_NewStringObj(data->txt_packet, strlen(data->txt_packet));
+
+			Tcl_IncrRefCount(command);
+			Tcl_IncrRefCount(ics_label);
+			Tcl_IncrRefCount(message);
+
+			objv = tmalloc(sizeof(Tcl_Obj *) * 3);
+
+			objv[0] = command;
+			objv[1] = ics_label;
+			objv[2] = message;
+
+			/* Call <command> <nick> <uhost> <hand> <chan> <arg> */
+			ret = Tcl_EvalObjv(ics->tclinterp, 3, objv, TCL_EVAL_GLOBAL);
+
+			/* Decrement the reference count so the GC will catch it */
+			Tcl_DecrRefCount(command);
+			Tcl_DecrRefCount(ics_label);
+			Tcl_DecrRefCount(message);
+
+			/* If we returned an error, send it to trollbot's warning channel */
+			if (ret == TCL_ERROR)
+			{
+				troll_debug(LOG_WARN,"TCL Error: %s\n",Tcl_GetStringResult(ics->tclinterp));
+			}
+
+			free(objv);
+
+			break;
+
+		case ICS_TRIG_CONNECT: 
+			/* The proper way of doing things, according to #tcl on freenode (they'd know) */
+			command   = Tcl_NewStringObj(trig->command,   strlen(trig->command));
+			ics_label = Tcl_NewStringObj(ics->label,      strlen(ics->label));
+			who       = Tcl_NewStringObj(data->tokens[1], strlen(data->tokens[1]));
+
+			Tcl_IncrRefCount(command);
+			Tcl_IncrRefCount(ics_label);
+			Tcl_IncrRefCount(who);
+
+			objv = tmalloc(sizeof(Tcl_Obj *) * 3);
+
+			objv[0] = command;
+			objv[1] = ics_label;
+			objv[2] = who;
+
+			/* Call <command> <nick> <uhost> <hand> <chan> <arg> */
+			ret = Tcl_EvalObjv(ics->tclinterp, 3, objv, TCL_EVAL_GLOBAL);
+
+			/* Decrement the reference count so the GC will catch it */
+			Tcl_DecrRefCount(command);
+			Tcl_DecrRefCount(ics_label);
+			Tcl_DecrRefCount(who);
+
+			/* If we returned an error, send it to trollbot's warning channel */
+			if (ret == TCL_ERROR)
+			{
+				troll_debug(LOG_WARN,"TCL Error: %s\n",Tcl_GetStringResult(ics->tclinterp));
+			}
+
+			free(objv);
+
+			break;
+		case ICS_TRIG_NOTIFY: 
+			/* The proper way of doing things, according to #tcl on freenode (they'd know) */
+			command   = Tcl_NewStringObj(trig->command,   strlen(trig->command));
+			ics_label = Tcl_NewStringObj(ics->label,      strlen(ics->label));
+			who       = Tcl_NewStringObj(data->tokens[1], strlen(data->tokens[1]));
+			action    = Tcl_NewStringObj(data->tokens[3], strlen(data->tokens[3]));
+
+			/* We need to increase the reference count, because if TCL suddenly gets some
+			 * time for GC, it will notice a zero reference count
+			 */
+			Tcl_IncrRefCount(command);
+			Tcl_IncrRefCount(ics_label);
+			Tcl_IncrRefCount(who);
+			Tcl_IncrRefCount(action);
+
+			/* I don't need a NULL last array element */
+			objv = tmalloc(sizeof(Tcl_Obj *) * 4);
+
+			objv[0] = command;
+			objv[1] = ics_label;
+			objv[2] = who;
+			objv[3] = action;
+	
+			/* Call <command> <nick> <uhost> <hand> <chan> <arg> */
+			ret = Tcl_EvalObjv(ics->tclinterp, 4, objv, TCL_EVAL_GLOBAL);
+
+			/* Decrement the reference count so the GC will catch it */
+			Tcl_DecrRefCount(command);
+			Tcl_DecrRefCount(ics_label);
+			Tcl_DecrRefCount(who);
+			Tcl_DecrRefCount(action);
+
+			/* If we returned an error, send it to trollbot's warning channel */
+			if (ret == TCL_ERROR)
+			{
+				troll_debug(LOG_WARN,"TCL Error: %s\n",Tcl_GetStringResult(ics->tclinterp));
+			}
+
+			free(objv);
+			break;
+	}
+
+	return;
+}
+
+#endif /* HAVE_ICS */
+
+
+
+

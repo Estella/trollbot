@@ -109,6 +109,9 @@ INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 JS_CFLAGS = @JS_CFLAGS@
 JS_LIBS = @JS_LIBS@
 LDFLAGS = @LDFLAGS@
+LIBCSOAP_CFLAGS = @LIBCSOAP_CFLAGS@
+LIBCSOAP_LDFLAGS = @LIBCSOAP_LDFLAGS@
+LIBCSOAP_LIBS = @LIBCSOAP_LIBS@
 LIBLTDL = @LIBLTDL@
 LIBOBJS = @LIBOBJS@
 LIBS = @LIBS@
@@ -209,7 +212,7 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-SUBDIRS = libltdl src scripts_dist doc_dist conf_dist db_dist text_dist log_dist modules_dist
+SUBDIRS = libltdl src scripts_dist doc_dist conf_dist db_dist text_dist log_dist modules_dist webroot_dist
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
 

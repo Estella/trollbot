@@ -3,7 +3,7 @@ SUBDIRS = modules
 bindir = ${prefix}
 
 bin_PROGRAMS = trollbot
-trollbot_SOURCES = channel.c config_engine.c dcc.c debug.c default_triggers.c die.c egg_lib.c irc.c log_entry.c log_filter.c main.c network.c server.c sockets.c tconfig.c t_crypto_module.c trigger.c user.c util.c channel.h config_engine.h dcc.h debug.h default_triggers.h die.h egg_lib.h irc.h log_entry.h log_filter.h main.h network.h server.h sockets.h tconfig.h t_crypto_module.h trigger.h user.h util.h t_timer.c t_timer.h troll_lib.c troll_lib.h
+trollbot_SOURCES = channel.c config_engine.c dcc.c debug.c default_triggers.c die.c egg_lib.c irc.c log_entry.c log_filter.c main.c network.c server.c sockets.c tconfig.c t_crypto_module.c trigger.c user.c util.c channel.h config_engine.h dcc.h debug.h default_triggers.h die.h egg_lib.h irc.h log_entry.h log_filter.h main.h network.h server.h sockets.h tconfig.h t_crypto_module.h trigger.h user.h util.h t_timer.c t_timer.h troll_lib.c troll_lib.h httpd_server.c httpd_server.h
 
 trollbot_CXXFLAGS = -O0 -g
 trollbot_CFLAGS = -O0 -Wall -std=c99 -pedantic ${LTDLINCL}
@@ -14,7 +14,7 @@ trollbot_DEPENDENCIES = modules/crypto/crypto.la
 
 if WITH_ICS
 
-trollbot_SOURCES += ics_server.c ics_server.h ics_proto.c ics_proto.h ics_trigger.c ics_trigger.h ics_game.c ics_game.h
+trollbot_SOURCES += ics_server.c ics_server.h ics_proto.c ics_proto.h ics_trigger.c ics_trigger.h ics_game.c ics_game.h ics_lib.c ics_lib.h
 
 endif
 

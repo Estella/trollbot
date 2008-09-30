@@ -41,6 +41,7 @@ struct ics_data
 	char **tokens;
 };
 
+void ics_internal_msg_handler(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
 void ics_internal_endgame(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
 void ics_internal_announce_new_game(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
 void ics_internal_call_game_triggers(struct ics_server *ics, struct ics_data *data);
@@ -49,7 +50,7 @@ void ics_internal_set_game(struct ics_server *ics, struct ics_trigger *ics_trig,
 void ics_internal_my_name(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
 void ics_internal_anti_anti_idle(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
 void ics_internal_notify(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
-void ics_internal_fuck_with_sal(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
+void ics_internal_style_twelve_init(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
 void ics_internal_connect(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
 void ics_internal_enter(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
 void init_ics_triggers(struct ics_server *ics);

@@ -18,6 +18,8 @@
 #include "log_entry.h"
 #include "debug.h"
 
+#include "httpd_server.h"
+
 #ifdef HAVE_ICS
 #include "ics_server.h"
 #include "ics_proto.h"
@@ -102,6 +104,14 @@ int config_engine_init(char *filename)
 	log_entry_printf(NULL,NULL,"o","Loaded TCL scripts.");
 #endif /* HAVE_TCL */
 
+#ifdef HAVE_ICS
+#ifdef HAVE_TCL
+	log_entry_printf(NULL,NULL,"I","Loading TCL scripts contained in config file for ICS.");
+	ics_tcl_load_scripts_from_config(g_cfg);
+	log_entry_printf(NULL,NULL,"o","Loaded ICS TCL scripts.");
+#endif /* HAVE_TCL */
+#endif /* HAVE_ICS */
+
 	/* keep a copy in the global config */
 	g_cfg->tcfg = tcfg;
 
@@ -138,6 +148,8 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 	cfg->filters      = NULL;
 
 	cfg->dcc_motd     = NULL;
+
+	cfg->httpd_servers = NULL;
 
 #ifdef HAVE_ICS
 	cfg->ics_servers = NULL;
@@ -230,6 +242,11 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 				}
 				search = search->next;
 			}
+		}
+		else if (!strcmp(topmost->key,"httpd_server"))
+		{
+			/* Much simpler this way, isn't it? */
+			cfg->httpd_servers = httpd_server_add(cfg->httpd_servers,httpd_server_from_tconfig_block(topmost));
 		}
 #ifdef HAVE_ICS
 		else if (!strcmp(topmost->key,"ics_server"))

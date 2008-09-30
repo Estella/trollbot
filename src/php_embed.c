@@ -572,7 +572,7 @@ int php_embed_init(int argc, char **argv PTSRMLS_DC)
 	zend_llist_init(&global_vars, sizeof(char *), NULL, 0);  
 
 	/* Set some Embedded PHP defaults */
-	SG(options) |= SAPI_OPTION_NO_CHDIR;
+/*SG(options) |= SAPI_OPTION_NO_CHDIR; */
 	zend_alter_ini_entry("log_errors",sizeof("log_errors"),"1", 1,PHP_INI_SYSTEM, PHP_INI_STAGE_RUNTIME);
 	zend_alter_ini_entry("display_errors", 15, "1", 1, PHP_INI_SYSTEM, PHP_INI_STAGE_ACTIVATE);
 	zend_alter_ini_entry("error_reporting", 16, "6143", 4, PHP_INI_SYSTEM, PHP_INI_STAGE_ACTIVATE); 
@@ -581,8 +581,8 @@ int php_embed_init(int argc, char **argv PTSRMLS_DC)
 	zend_alter_ini_entry("implicit_flush", 15, "1", 1, PHP_INI_SYSTEM, PHP_INI_STAGE_ACTIVATE);
 	zend_alter_ini_entry("max_execution_time", 19, "0", 1, PHP_INI_SYSTEM, PHP_INI_STAGE_RUNTIME);
 
-	SG(request_info).argc=argc;
-	SG(request_info).argv=argv;
+/*SG(request_info).argc=argc;
+	SG(request_info).argv=argv;*/
 
 	if (php_request_startup(TSRMLS_C) == FAILURE) 
 	{
@@ -590,8 +590,8 @@ int php_embed_init(int argc, char **argv PTSRMLS_DC)
 		return FAILURE;
 	}
 
-	SG(headers_sent) = 1;
-	SG(request_info).no_headers = 1;
+/*	SG(headers_sent) = 1;
+	SG(request_info).no_headers = 1;*/
 	php_register_variable("PHP_SELF", "-", NULL TSRMLS_CC);
 
 	return SUCCESS;

@@ -874,6 +874,9 @@ ac_ct_F77
 LIBTOOL
 LTDLINCL
 LIBLTDL
+LIBCSOAP_LDFLAGS
+LIBCSOAP_CFLAGS
+LIBCSOAP_LIBS
 MAINTAINER_MODE_TRUE
 MAINTAINER_MODE_FALSE
 MAINT
@@ -898,6 +901,8 @@ WITH_JS_TRUE
 WITH_JS_FALSE
 WITH_ICS_TRUE
 WITH_ICS_FALSE
+WITH_HTTPD_TRUE
+WITH_HTTPD_FALSE
 TCLSH
 TCL_DEFS
 TCL_LIBS
@@ -1535,6 +1540,7 @@ Optional Packages:
   --with-pic              try to use only PIC/non-PIC objects [default=use
                           both]
   --with-tags[=TAGS]      include additional configurations [automatic]
+  --with-httpd=yes/no  Whether to include webserver support
   --with-ics=yes/no  Whether to include ICS support
   --with-xmpp=yes/no  Whether to include XMPP support
   --with-xml-prefix=PFX   Prefix where libxml is installed (optional)
@@ -4398,7 +4404,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 4401 "configure"' > conftest.$ac_ext
+  echo '#line 4407 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -7450,11 +7456,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7453: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7459: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7457: \$? = $ac_status" >&5
+   echo "$as_me:7463: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -7740,11 +7746,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7743: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7749: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7747: \$? = $ac_status" >&5
+   echo "$as_me:7753: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -7844,11 +7850,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7847: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7853: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:7851: \$? = $ac_status" >&5
+   echo "$as_me:7857: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -10221,7 +10227,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 10224 "configure"
+#line 10230 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -10321,7 +10327,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 10324 "configure"
+#line 10330 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -12722,11 +12728,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:12725: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:12731: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:12729: \$? = $ac_status" >&5
+   echo "$as_me:12735: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -12826,11 +12832,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:12829: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:12835: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:12833: \$? = $ac_status" >&5
+   echo "$as_me:12839: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -14424,11 +14430,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:14427: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:14433: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:14431: \$? = $ac_status" >&5
+   echo "$as_me:14437: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -14528,11 +14534,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:14531: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:14537: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:14535: \$? = $ac_status" >&5
+   echo "$as_me:14541: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -16748,11 +16754,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16751: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16757: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:16755: \$? = $ac_status" >&5
+   echo "$as_me:16761: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -17038,11 +17044,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:17041: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:17047: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:17045: \$? = $ac_status" >&5
+   echo "$as_me:17051: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -17142,11 +17148,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:17145: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:17151: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:17149: \$? = $ac_status" >&5
+   echo "$as_me:17155: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -19836,6 +19842,10 @@ LIBTOOL='$(SHELL) $(top_builddir)/libtool'
 
 
 
+
+
+
+
 { echo "$as_me:$LINENO: checking whether to enable maintainer-specific portions of Makefiles" >&5
 echo $ECHO_N "checking whether to enable maintainer-specific portions of Makefiles... $ECHO_C" >&6; }
     # Check whether --enable-maintainer-mode was given.
@@ -21843,6 +21853,19 @@ fi
 
 
 
+# Check whether --with-httpd was given.
+if test "${with_httpd+set}" = set; then
+  withval=$with_httpd;
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_HTTPD 1
+_ACEOF
+
+		with_httpd="yes"
+fi
+
+
+
+
 # Check whether --with-ics was given.
 if test "${with_ics+set}" = set; then
   withval=$with_ics;
@@ -21850,7 +21873,7 @@ cat >>confdefs.h <<\_ACEOF
 #define HAVE_ICS 1
 _ACEOF
 
-		with_ics="yesy"
+		with_ics="yes"
 fi
 
 
@@ -22803,6 +22826,15 @@ fi
 else
   WITH_ICS_TRUE='#'
   WITH_ICS_FALSE=
+fi
+
+
+ if test "x${with_httpd}" != "x"; then
+  WITH_HTTPD_TRUE=
+  WITH_HTTPD_FALSE='#'
+else
+  WITH_HTTPD_TRUE='#'
+  WITH_HTTPD_FALSE=
 fi
 
 
@@ -23879,7 +23911,7 @@ if test $prefix = NONE; then
     prefix=${HOME}/trollbot
 fi
 
-ac_config_files="$ac_config_files Makefile src/Makefile src/modules/Makefile src/modules/crypto/Makefile doc_dist/Makefile scripts_dist/Makefile log_dist/Makefile modules_dist/Makefile text_dist/Makefile conf_dist/Makefile db_dist/Makefile"
+ac_config_files="$ac_config_files Makefile src/Makefile src/modules/Makefile src/modules/crypto/Makefile doc_dist/Makefile scripts_dist/Makefile log_dist/Makefile modules_dist/Makefile text_dist/Makefile conf_dist/Makefile db_dist/Makefile webroot_dist/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -24030,6 +24062,13 @@ if test -z "${WITH_ICS_TRUE}" && test -z "${WITH_ICS_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"WITH_ICS\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 echo "$as_me: error: conditional \"WITH_ICS\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${WITH_HTTPD_TRUE}" && test -z "${WITH_HTTPD_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"WITH_HTTPD\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"WITH_HTTPD\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -24548,6 +24587,7 @@ do
     "text_dist/Makefile") CONFIG_FILES="$CONFIG_FILES text_dist/Makefile" ;;
     "conf_dist/Makefile") CONFIG_FILES="$CONFIG_FILES conf_dist/Makefile" ;;
     "db_dist/Makefile") CONFIG_FILES="$CONFIG_FILES db_dist/Makefile" ;;
+    "webroot_dist/Makefile") CONFIG_FILES="$CONFIG_FILES webroot_dist/Makefile" ;;
 
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
@@ -24758,6 +24798,9 @@ ac_ct_F77!$ac_ct_F77$ac_delim
 LIBTOOL!$LIBTOOL$ac_delim
 LTDLINCL!$LTDLINCL$ac_delim
 LIBLTDL!$LIBLTDL$ac_delim
+LIBCSOAP_LDFLAGS!$LIBCSOAP_LDFLAGS$ac_delim
+LIBCSOAP_CFLAGS!$LIBCSOAP_CFLAGS$ac_delim
+LIBCSOAP_LIBS!$LIBCSOAP_LIBS$ac_delim
 MAINTAINER_MODE_TRUE!$MAINTAINER_MODE_TRUE$ac_delim
 MAINTAINER_MODE_FALSE!$MAINTAINER_MODE_FALSE$ac_delim
 MAINT!$MAINT$ac_delim
@@ -24782,6 +24825,8 @@ WITH_JS_TRUE!$WITH_JS_TRUE$ac_delim
 WITH_JS_FALSE!$WITH_JS_FALSE$ac_delim
 WITH_ICS_TRUE!$WITH_ICS_TRUE$ac_delim
 WITH_ICS_FALSE!$WITH_ICS_FALSE$ac_delim
+WITH_HTTPD_TRUE!$WITH_HTTPD_TRUE$ac_delim
+WITH_HTTPD_FALSE!$WITH_HTTPD_FALSE$ac_delim
 TCLSH!$TCLSH$ac_delim
 TCL_DEFS!$TCL_DEFS$ac_delim
 TCL_LIBS!$TCL_LIBS$ac_delim
@@ -24806,7 +24851,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 56; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 61; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
@@ -25599,18 +25644,23 @@ echo ""
 
 echo "  IRC        Support: Yes"
 
-if test "with_xmpp" = "yes"; then
+if test "${with_xmpp}" = "yes"; then
 	echo "  XMPP       Support: Yes"
 else
 	echo "  XMPP       Support: No"
 fi
 
-if test "with_ics" = "yes"; then
+if test "${with_ics}" = "yes"; then
 	echo "  ICS        Support: Yes"
 else
 	echo "  ICS        Support: No"
 fi
 
+if test "${with_httpd}" = "yes"; then
+ 	echo "  HTTPD      Support: Yes"
+ else
+		echo "  HTTPD      Support: No"
+fi
 
 
 echo ""

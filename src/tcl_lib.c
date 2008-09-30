@@ -8,6 +8,7 @@
 #include "network.h"
 #include "trigger.h"
 #include "irc.h"
+#include "troll_lib.h"
 #include "egg_lib.h"
 #include "user.h"
 
@@ -16,6 +17,7 @@
 #include "ics_proto.h"
 #include "ics_game.h"
 #include "ics_trigger.h"
+#include "ics_lib.h"
 #endif /* HAVE_ICS */
 
 
@@ -23,7 +25,6 @@
 #ifdef HAVE_ICS
 int tcl_putics(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {
-	struct network    *net = clientData;
 	struct ics_server *ics = NULL;
 	char *label;
 	char *message;
@@ -41,19 +42,88 @@ int tcl_putics(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *con
 
 	while (ics != NULL)
 	{
-		if (!tstrcasecmp(ics->label, label))
-			break;
+		if (!troll_matchwilds(ics->label, label))
+		{
+			ics_printf(ics, message);
+		}
 
 		ics = ics->next;
 	}
+	
+	return TCL_OK;
+}
 
-	if (ics == NULL)
+/* ICS commands only */
+int tcl_ics_bind(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	struct ics_server *ics = clientData;
+
+	if (objc != 5) 
 	{
+		Tcl_WrongNumArgs(interp,objc,objv,"<type> <flags> <keyword> <proc>");
 		return TCL_ERROR;
 	}
 
-	ics_printf(ics, message);
-	
+	/* Pass it to egg_lib */
+	if (!ics_bind(ics,Tcl_GetString(objv[1]),Tcl_GetString(objv[2]),Tcl_GetString(objv[3]),Tcl_GetString(objv[4]),ics_tcl_handler))
+		return TCL_ERROR;
+
+	return TCL_OK; 
+}
+
+int tcl_get_board(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+/*	char **board;
+
+	if (objc != 2 || objc != 3)
+	{
+		Tcl_WrongNumArgs(interp, objc, objv, "<ics server> [game_id]");
+		return TCL_ERROR;
+	}
+
+
+	ics_get_board(ics, -1);
+*/
+return TCL_OK;
+}
+
+
+int tcl_irc_interp(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	struct network *net;
+	char *net_name;
+	Tcl_Interp *alt_interp;
+	int ret;
+	Tcl_Obj *nobjv[1];
+
+	if (objc != 3)
+	{
+		Tcl_WrongNumArgs(interp, objc, objv, "<network name> <code to send>");
+		return TCL_ERROR;
+	}
+
+	net_name = Tcl_GetString(objv[1]);
+
+	net = g_cfg->networks;
+
+	while (net != NULL)
+	{
+		if (!troll_matchwilds(net->label, net_name))
+		{
+			alt_interp = net->tclinterp;
+		
+			ret = Tcl_GlobalEvalObj(alt_interp, objv[2]);
+
+			/* If we returned an error, send it to trollbot's warning channel */
+			if (ret == TCL_ERROR)
+			{
+				troll_debug(LOG_WARN,"TCL Error: %s\n",Tcl_GetStringResult(alt_interp));
+			}
+		}
+
+		net = net->next;
+	}
+
 	return TCL_OK;
 }
 

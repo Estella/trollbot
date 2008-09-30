@@ -10,7 +10,6 @@ AM_INIT_AUTOMAKE(trollbot,snap20080823)
 AC_CONFIG_HEADER(config.h)
 
 AC_CONFIG_SUBDIRS(libltdl)
-dnl AC_CONFIG_SUBDIRS(thttpd)
 
 AC_LIBTOOL_DLOPEN
 AC_LIBLTDL_CONVENIENCE
@@ -19,6 +18,10 @@ AC_PROG_LIBTOOL
 dnl wtf is up with that naming
 AC_SUBST(LTDLINCL)
 AC_SUBST(LIBLTDL)
+
+AC_SUBST(LIBCSOAP_LDFLAGS)
+AC_SUBST(LIBCSOAP_CFLAGS)
+AC_SUBST(LIBCSOAP_LIBS)
 
 AM_MAINTAINER_MODE
 
@@ -43,9 +46,14 @@ AC_TYPE_PID_T
 dnl check if libxml2 exists
 dnl needed for jabber/xmpp
 
+AC_ARG_WITH(httpd, [  --with-httpd=[yes/no]  Whether to include webserver support],
+	[ AC_DEFINE([HAVE_HTTPD],1,[Whether to use httpd support])
+		with_httpd="yes"])
+
+
 AC_ARG_WITH(ics, [  --with-ics=[yes/no]  Whether to include ICS support],
 	[ AC_DEFINE([HAVE_ICS],1,[Whether to use ICS support])
-		with_ics="yesy" ])
+		with_ics="yes" ])
 
 
 AC_ARG_WITH(xmpp, [  --with-xmpp=[yes/no]  Whether to include XMPP support],
@@ -97,6 +105,8 @@ AM_CONDITIONAL(WITH_JS, test "x${JS_LIBS}" != "x")
 
 AM_CONDITIONAL(WITH_ICS, test "x${with_ics}" != "x")
 
+AM_CONDITIONAL(WITH_HTTPD, test "x${with_httpd}" != "x")
+
 dnl test if TCL exists
 AX_PROG_TCL
 
@@ -135,7 +145,8 @@ AC_OUTPUT(Makefile
 					modules_dist/Makefile
 					text_dist/Makefile
           conf_dist/Makefile
-					db_dist/Makefile)
+					db_dist/Makefile
+					webroot_dist/Makefile)
 
 
 
@@ -150,23 +161,23 @@ echo ""
 
 echo "  IRC        Support: Yes"
 
-if test "with_xmpp" = "yes"; then
+if test "${with_xmpp}" = "yes"; then
 	echo "  XMPP       Support: Yes"
 else
 	echo "  XMPP       Support: No"
 fi
 
-if test "with_ics" = "yes"; then
+if test "${with_ics}" = "yes"; then
 	echo "  ICS        Support: Yes"
 else
 	echo "  ICS        Support: No"
 fi
 
-dnl if test "with_httpd" = "yes"; then
-dnl 	echo "  HTTPD      Support: Yes"
-dnl else
-dnl		echo "  HTTPD      Support: No"
-dnl	fi
+if test "${with_httpd}" = "yes"; then
+ 	echo "  HTTPD      Support: Yes"
+ else
+		echo "  HTTPD      Support: No"
+fi
 
 
 echo ""

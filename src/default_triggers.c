@@ -110,6 +110,10 @@ void add_default_triggers(void)
 		trigger_list_add(&net->trigs->raw,new_trigger(NULL,TRIG_RAW,"433",NULL,&troll_nick_in_use_handler));
 		trigger_list_add(&net->trigs->raw,new_trigger(NULL,TRIG_RAW,"376",NULL,&troll_user_host_handler));
 
+		/* Freenode channel redirect */
+		trigger_list_add(&net->trigs->raw,new_trigger(NULL,TRIG_RAW,"470",NULL,&troll_trig_channel_redirect));
+	
+
 
 
 		net = net->next;

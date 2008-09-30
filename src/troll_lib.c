@@ -156,6 +156,8 @@ void troll_nick_in_use_handler(struct network *net, struct trigger *trig, struct
 	 */
 	net->botnick = tstrdup(net->altnick);
 
+	irc_printf(net->sock, "NICK %s", net->botnick);
+
 	return;
 }
 
@@ -407,6 +409,27 @@ void troll_trig_update_nick(struct network *net, struct trigger *trig, struct ir
 
 		chan = chan->next;
 	}
+
+	return;
+}
+
+/* Channel redirection a la freenode */
+void troll_trig_channel_redirect(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
+{
+	struct channel *chan;
+
+	/*       servername         cmd cparam1 cparam2      cparam3        rest_str                      */
+	/* >> :kubrick.freenode.net 470 poutine #electronics ##electronics :Forwarding to another channel */
+
+	/* Change all internal references to the new channel */
+	chan = network_channel_find(net, data->c_params[2]);
+
+	if (chan == NULL)
+		return;
+
+	free(chan->name);
+
+	chan->name = tstrdup(data->c_params[3]);
 
 	return;
 }

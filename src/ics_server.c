@@ -48,6 +48,7 @@ struct ics_server *ics_server_from_tconfig_block(struct tconfig_block *tcfg)
 	struct ics_server    *ics = NULL;
 	struct tconfig_block *tmp = NULL;
 	struct server        *svr = NULL;
+	int i;
 
 	if ((tmp = tcfg) == NULL)
 	{
@@ -114,9 +115,36 @@ struct ics_server *ics_server_from_tconfig_block(struct tconfig_block *tcfg)
 				ics->vhost = tstrdup(tmp->value);
 			}
 		}
+#ifdef HAVE_TCL
+		else if (!strcmp(tmp->key,"tclscript"))
+		{
+			if (ics->tcl_scripts_size == 0)
+			{
+				/* Allocate 10 slots (9 usable, 1 NULL) */
+				ics->tcl_scripts = tmalloc0(sizeof(char *) * 10);
 
 
-		
+				ics->tcl_scripts_size = 10;
+			}
+
+			for (i=0;i<(ics->tcl_scripts_size-1);i++)
+			{
+				if (ics->tcl_scripts[i] == NULL)
+				{
+					ics->tcl_scripts[i] = tstrdup(tmp->value);
+					break;
+				}
+			}
+
+			if (ics->tcl_scripts[i] == NULL)
+			{
+				/* Need more slots */
+				ics->tcl_scripts = tsrealloc0(ics->tcl_scripts,ics->tcl_scripts_size+10,&ics->tcl_scripts_size);
+
+				ics->tcl_scripts[i] = tstrdup(tmp->value);
+			}
+		}
+#endif /* HAVE_TCL */
 		
 
 		tmp = tmp->next;
@@ -406,7 +434,7 @@ struct ics_server *new_ics_server(char *label)
 #ifdef HAVE_TCL
 	ret->tcl_scripts      = NULL;
 	ret->tcl_scripts_size = 0;
-	/* net_init_tcl(ret); Need Jabber func */
+	ics_init_tcl(ret);
 #endif /* HAVE_TCL */
 
 #ifdef HAVE_PERL
