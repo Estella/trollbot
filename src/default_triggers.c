@@ -97,8 +97,14 @@ void add_default_triggers(void)
 		/* OWNER only 
 			 trigger_list_add(&net->trigs->dcc,new_trigger("n",TRIG_DCC,".php",NULL,&dcc_php));*/
 #endif /* HAVE_PHP */
-
-
+		trigger_list_add(&net->trigs->notc, new_trigger(NULL, TRIG_NOTC, "*QUOTE PASS*", NULL, &troll_undernet_hack));
+/*
+[00:14] Command: NOTICE
+[00:14] Command Parameters: AUTH
+[00:14] Rest: *** Ident is broken or disabled, to continue to connect you must type /QUOTE PASS 11022	
+*/
+/* [00:14] Rest: *** Ident is broken or disabled, to continue to connect you must type /QUOTE PASS 11022 */
+	
 		/* BIND RAW */
 		trigger_list_add(&net->trigs->raw,new_trigger(NULL,TRIG_RAW,"352",NULL,&troll_parse_who));
 		trigger_list_add(&net->trigs->raw,new_trigger(NULL,TRIG_RAW,"353",NULL,&channel_list_populate));

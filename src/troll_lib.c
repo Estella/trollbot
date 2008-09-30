@@ -199,6 +199,40 @@ void troll_parse_who(struct network *net, struct trigger *trig, struct irc_data 
 	chan->user_list = channel_user_add(chan->user_list, cuser);
 }
 
+/* [00:14] Command: NOTICE
+ * [00:14] Command Parameters: AUTH
+ * [00:14] Rest: *** Ident is broken or disabled, to continue to connect you must type /QUOTE PASS 11022
+ */
+void troll_undernet_hack(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
+{
+	int i;
+
+	if (data->c_params == NULL)
+		return;
+	
+	if (!tstrcasecmp(data->c_params[0], "AUTH"))
+	{
+		for (i=0; data->rest[i] != NULL; i++)
+		{
+			if (!tstrcasecmp(data->rest[i], "/QUOTE"))
+				break;
+		}
+
+		if (data->rest[i] == NULL)
+			return;
+
+		if (data->rest[i+1] == NULL)
+			return;
+
+		if (data->rest[i+2] == NULL)
+			return;
+
+		irc_printf(net->sock, "%s %s", data->rest[i+1], data->rest[i+2]);
+		
+		troll_log(LOG_DEBUG, "Undernet countermeasure sent.");
+	}
+}
+
 /*
  * [20:41] Nick: poutine
  * [20:41] User: poutine
