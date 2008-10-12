@@ -1,59 +1,208 @@
-**********************
-* Trollbot ChangeLog *
-**********************
+  .-------------------------.
+--| Trollbot -/\- ChangeLog |-----------------------------------------
+  `-------------------------'
+----------------------------------------------------------------------
+| 0.0.1 - RELEASE DATE: ??/??/2008                                   |
+----------------------------------------------------------------------
 
-2006-06-21: * Moved everything over to a module based system using libltdl
-            * Updated design docs
-            * Added libtomcrypt to replace old non-portable broken sha1 implementation
+1. /2008-03-06/!\acidtoken\
+	[IRC]
+	* Added onjoin population of chanmode.
+	* Added egg_vars to channel instead of the huge amount of ints.
+	* New function: new_chan_egg_var  [channel.c]
+	* New function: free_chan_egg_var [channel.c]
+	* New function: free_channel      [channel.c]
+	* New struct  : chan_egg_var      [channel.h]
 
-2007-05-09: * Fixed memory leak in new_user_pass()
-            * Adjusted CTCP version to use the one defined by autoconf
+	[COMMON]
+	* Added new slist, free_structureS() is deprecated, list adds
+		should all be done through this from now on. Old code needs 
+		ported.
+	* Fixed formatting tabs vs. spaces issue on most c files. it is
+		recommended if you use vim to set tabstop=2, shiftwidth=2. and
+		to hit gg=G before you save (auto-indents).
+  * New function: tstrcount         [util.c][broken]
+  * New function: slist_init        [util.c]
+  * New function: slist_destroy     [util.c]
+  * New function: slist_insert_next [util.c]
+  * New function: slist_remove_next [util.c]
 
-2007-05-08: * Added network queueing support to the conf file and parser
-            * Added network_connect() for non-blocking reconnects
-            * Added network connect queue code to network_connect()
-            
-2007-05-07: * added nonblocking connect() for dcc sessions so badly formatted requests 
-              don't cause the bot to hang.
-            * Added tstrcasecmp and tstrncasecmp in util.c because most IRCDs send nicks
-              chans, etc exacly as typed, ie /dcc chat trollbot != /dcc chat TrollBot.
-            * Modified the MSG/MSGM triggers to use new case insensitive strcasecmp fixing
-              numerous problems with case sensitivity.
-            * Added egg_hand2idx and egg_idx2hand to egg_lib.c
-            * Added .who for DCC to show who is on the partyline
-            * Added utility funcs for each LL to properly add (and some del) elements to
-              a list.
-            * Fixed putdcc to use a network specific IDX instead of a global DCC system
-            * Added function descriptions to prototypes in egg_lib.h         
+	* New struct  : slist_node        [util.h]
+	* New struct  : slist             [util.h]
 
-2007-05-01: * tconfigs merge properly now, also did some fixup on dcc in the select() loop
-            * Added .tbinds command to list all bot binds, their command, and use count
-            * Added uhost parameter to user struct, for easy matching with egg_finduser
-            * Added egg_finduser()
+	[XMPP]
+	* New function: xmpp_server_from_tconfig_block [xmpp_server.h]
 
-2007-04-30: * Documentation fixups
-            * eliminated some bloat by getting rid of trigger head/tails
-              the lists should always be aligned at head
-           
-2007-04-26: * Fixed autoconf stuff so make install now works as expected :)
-            * added egg_chattr()
-            * added crude python support
-            * Started implementing a rehashing routine
-            * fixed crash in trigger.c checking if foo->rest[0] was null instead of foo->rest
-            * Reverse DCC now works
-            * bind DCC now works
-            * made changes so pub/msg binds are no longer stackable as per eggdrop specs
-            * tconfig algo changes, added tconfig_merge for stacking config files instead
-              of running them all through the file_to_tconfig()
-           
+2. /2008-03-07/!\acidtoken\
+	[IRC]
+	* Added new troll_lib, troll_lib will be like egg_lib, except
+		egg_lib will return strict eggdrop stuff and wrap troll_lib.
+		troll_lib will be trollbot specific data structure handling
+		and such.
+	* Added bind type TOPC to all languages and core!
+	* New file    : troll_lib.c
+	* New file    : troll_lib.h
+	* New function: troll_trig_update_topic [troll_lib.c]
 
-2007-04-13: * Removed head/tail/generic pointers from network, decided to
-              just have a single list, default at head for servers, channels,
-              and users.
-            * matchattr now works with the exception of channel flags, added
-              TCL matchattr, PHP soon to follow.
-2007-04-12: * Started ChangeLog again.
-            * Added free_ functions for channel and user, they both take 
-              care of children structs.
-            * Added egg_matchattr for use with DCC partyline code.
-            * More connections added with user system
+	[MISC]
+	* Fixed some compiler warnings, still a lot more to go through
+
+3. /2008-03-08/!\acidtoken\
+	[IRC]
+	* Fixed the way channels are loaded and saved to give defaults.
+
+	* New file    : db_dist/chandb.defaults
+	* New function: network_channel_find       [network.c]
+	* New function: void troll_trig_update_ban [troll_lib.c] [STUB]
+
+4. /2008-04-28/!\acidtoken\
+	[IRC]
+	
+	* New function: tcl_validuser           [tcl_lib.c]
+	* New function: PHP_FUNCTION(validuser) [php_lib.c]
+	* New function: Py_validuser            [python_lib.c]
+	* New function: js_validuser            [js_lib.c]
+
+5. /2008-05-03/!\acidtoken\
+	[IRC]
+		
+	* New function: py_savechannels            [python_lib.c]
+	* New function: PHP_FUNCTION(savechannels) [php_lib.c]
+	* New function: tcl_topic                  [tcl_lib.c]
+	* New function: js_topic                   [js_lib.c]
+	* New function: js_encpass                 [js_lib.c]
+	* New function: tcl_encpass                [tcl_lib.c]
+	* New function: js_putdcc                  [js_lib.c]
+	* New function: js_dccbroadcast            [js_lib.c]
+	* New function: js_isbotnick               [js_lib.c]
+
+6. /2008-05-04/!\acidtoken\
+	[IRC]
+	* Fixed it so people already existing in a channel are recognized
+	  by the bot.
+	* Fixed it so nick changes are now tracked by trollbot.
+	* Trollbot now tracks channel banlist changes.
+	* Trollbot now tracks op changes.
+	* Trollbot now tracks voice changes.
+	* Trollbot now populates on join with proper op and voice data
+
+	* New function: egg_valididx           [egg_lib.c]
+	* New function: egg_getchanmode        [egg_lib.c] 
+	* New function: js_getchanmode         [js_lib.c]
+	* New function: tcl_getchanmode        [tcl_lib.c]
+	* New function: egg_isop               [egg_lib.c]
+	* New function: egg_isvoice            [egg_lib.c]
+	* New function: js_isop                [js_lib.c]
+	* New function: js_isvoice             [js_lib.c]
+	* New function: tcl_isop               [tcl_lib.c]
+	* New function: tcl_isvoice            [tcl_lib.c]
+	* New function: troll_trig_update_nick [troll_lib.c]
+	* New function: troll_trig_update_mode [troll_lib.c]
+	*          Old: troll_trig_update_ban  [troll_lib.c]
+
+7. /2008-05-07/!\acidtoken\
+	[IRC]
+
+	* New function: egg_ischanban            [egg_lib.c]
+	* New function: PHP_FUNCTION(chhandle)   [php_lib.c]
+	* New function: PHP_FUNCTION(passwdok)   [php_lib.c]
+	* New function: PHP_FUNCTION(save)       [php_lib.c]
+	* New function: PHP_FUNCTION(finduser)   [php_lib.c]
+	* New function: PHP_FUNCTION(countusers) [php_lib.c]
+
+8. /2008-05-26/!\acidtoken\
+	[IRC]
+		
+	* Merged horrid timer scheme I had patched and left in a branch
+	* JS now supports JOIN, PART, and DCC bind types.
+
+	* New function: PHP_FUNCTION(utimer)      [php_lib.c]
+	* New function: troll_nick_in_use_handler [troll_lib.c]
+	* New function: tcl_utimer                [tcl_lib.c]
+	* New function: PHP_FUNCTION(botnick)     [php_lib.c]
+	* New function: egg_utimer                [egg_lib.c]
+	* New function: egg_timer                 [egg_lib.c]
+
+8. /2008-06-06/!\acidtoken\
+	[IRC]
+
+	* Added more JS documentation:  [javascript.txt]
+	* New function: egg_isban       [egg_lib.c]
+	* New function: egg_ispermban   [egg_lib.c]
+	* New function: egg_isbansticky [egg_lib.c]
+	* New function: egg_botonchan   [egg_lib.c]
+	* New function: egg_botisop     [egg_lib.c]
+	* New function: egg_botisvoice  [egg_lib.c]
+	* New function: js_isban        [js_lib.c]
+	* New function: js_ispermban    [js_lib.c]
+	* New function: js_isbansticky  [js_lib.c]
+
+9. /2008-06-08/!\acidtoken\
+	[IRC]
+
+	* Added ctcp trigger list to triggers [trigger.c]
+	* Added SIGN bind type to Javascript  [js_lib.c]
+	* Added CTCP bind type to Javascript  [js_lib.c]
+	* Added eggdrop's match.c, since it's public domain
+		and the current implementation is lacking some details
+		(Not implemented in code yet)
+
+	* New function: egg_unbind            [egg_lib.c]
+
+10. /2008-06-12/!\acidtoken\
+	[IRC]	
+	* channel users now properly removed from lists on kick [default_triggers.c]
+
+
+11. /2008-08-23/!\acidtoken\
+	[IRC]
+	* Added JOIN, PART, DCC, SIGN, and CTCP bind types to Javascript.
+
+	* New function: egg_unbind      [egg_lib.c]
+	* New function: tcl_unbind      [tcl_lib.c]
+	* New function: php_unbind      [php_lib.c]
+	* New function: py_unbind       [python_lib.c]
+	* New function: js_unbind       [js_lib.c]
+	* New function: tcl_passwdok    [tcl_lib.c]
+	* New function: php_isban       [php_lib.c]
+	* New function: php_isbansticky [php_lib.c]
+	* New function: php_matchattr   [php_lib.c]
+	* New function: php_ispermban   [php_lib.c]
+
+	[ICS] (www.freechess.org only currently)
+	* Added crude support for FICS, added trollbot.conf parameters, crude
+  	triggers, etc.
+		
+	[Global]
+	* Added eggdrop compatible wildcard matching.
+
+12. /2008-08-29/!\acidtoken\
+	[IRC]
+
+	* Fixed 2 crash issues with .js DCC trigger (flag n needed)
+
+	* New function: js_botisop    [js_lib.c]
+	* New function: tcl_isban     [tcl_lib.c]
+	* New function: tcl_adduser   [tcl_lib.c]
+	* New function: js_adduser    [js_lib.c]
+	* New function: php_adduser   [php_lib.c]
+	* New function: tcl_isbotnick [tcl_lib.c]
+	* New function: egg_stick     [egg_lib.c]
+	* New function: egg_unstick   [egg_lib.c]
+
+13. /2008-09-01/!\acidtoken\
+	[IRC]
+
+	* Added escaping to eggdrop-clone matching thingy.
+	* Fixed error when PHP tried opening non-existent files
+
+	* New function: tcl_putdcc [tcl_lib.c]
+	* New function: tcl_putlog  [tcl_lib.c]
+	* New function: js_putlog   [js_lib.c]
+	* New function: egg_deluser [egg_lib.c]
+
+14. /2008-09-11/!\acidtoken\
+	[IRC]
+
+	* New function: egg_newchanban [egg_lib.c]
+	* New function: tcl_newchanban [tcl_lib.c]

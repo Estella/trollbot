@@ -1,1 +1,0 @@
-sha384.lo .libs/sha384.o: sha384.c

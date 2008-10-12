@@ -1,3 +1,0 @@
-crypto_la-sha224.lo .libs/crypto_la-sha224.o: sha224.c tomcrypt_hash.h
-
-tomcrypt_hash.h:
