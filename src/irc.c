@@ -21,7 +21,7 @@
 
 /* Simple printf like function that outputs to a socket, buffer work needs to be more dynamic */
 /* Should be sock_printf() */
-void irc_printf(int sock, const char *fmt, ...)
+ssize_t irc_printf(int sock, const char *fmt, ...)
 {
 	va_list va;
 	char buf[2048];
@@ -38,7 +38,7 @@ void irc_printf(int sock, const char *fmt, ...)
 
 	snprintf(buf2,sizeof(buf2),"%s\n",buf);
 
-	send(sock,buf2,strlen(buf2),0);
+	return send(sock,buf2,strlen(buf2),0);
 }
 
 /* Constructor */

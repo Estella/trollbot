@@ -325,6 +325,10 @@ void reverse_dcc_chat(struct network *net, struct trigger *trig, struct irc_data
 	sprintf(dcchostip,"%s",inet_ntoa(*((struct in_addr *)he->h_addr)));
 
 	irc_printf(net->sock,"PRIVMSG %s :\001DCC CHAT chat %d %d\001",data->prefix->nick,htonl(inet_addr(dcchostip)),net->dcc_port);
+
+	troll_debug(LOG_DEBUG, "Attempting DCC CHAT to %s", dcchostip);
+
+	return;
 }
 
 void initiate_dcc_chat(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)

@@ -24,11 +24,17 @@ void die_nicely(int ret)
 	{
 		free_networks(g_cfg->networks);
 
-		if (g_cfg->tcfg != NULL)
-			free_tconfig(g_cfg->tcfg);
+#ifdef HAVE_ICS
+		free_ics_servers(g_cfg->ics_servers);
+#endif /* HAVE_ICS */
 
-		if (g_cfg->dccs != NULL)
-			free_dcc_sessions(g_cfg->dccs);
+#ifdef HAVE_XMPP
+		free_xmpp_servers(g_cfg->xmpp_servers);
+#endif /* HAVE_XMPP */
+
+		free_tconfig(g_cfg->tcfg);
+
+		free_dcc_sessions(g_cfg->dccs);
 
 #ifdef HAVE_JS
 		if (g_cfg->js_rt != NULL)

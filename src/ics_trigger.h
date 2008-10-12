@@ -11,6 +11,7 @@ enum ics_trigger_types
 	ICS_TRIG_CONNECT,
 	ICS_TRIG_GAME,
 	ICS_TRIG_MOVE,
+	ICS_TRIG_TELL,
 	ICS_TRIG_ENDGAME,
 	ICS_TRIG_ERROR
 };
@@ -25,6 +26,7 @@ struct ics_trigger_table
 	struct ics_trigger *game;
 	struct ics_trigger *move;
 	struct ics_trigger *endgame;
+	struct ics_trigger *tell;
 };
 
 struct ics_trigger

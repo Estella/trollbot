@@ -65,10 +65,10 @@ PyMethodDef PyTbMethods[] = {
 		sighandler_t t_sig;
 		t_sig = signal(SIGINT, SIG_IGN);
 
-		//initialize the python interpreter
+		/* initialize the python interpreter */
 		Py_Initialize();
 		troll_debug(LOG_DEBUG, "[python] Initialized interpreter");
-		//restore the signal handler
+		/* restore the signal handler */
 		signal(SIGINT, t_sig);
 		troll_debug(LOG_DEBUG, "[python] Restored signal handler");
 		bootstrap_binding_module();
@@ -90,9 +90,10 @@ PyMethodDef PyTbMethods[] = {
 void bootstrap_binding_module() {
 	PyObject * module;
 
-	//initialize the module which exposes to python
-	//our wrappers for the bots functionality we want to expose
-	//NOTE: all exposable methods are defined in the PyTbMethods
+	/* initialize the module which exposes to python
+	 * our wrappers for the bots functionality we want to expose
+	 * NOTE: all exposable methods are defined in the PyTbMethods
+	 */
 
 	module = Py_InitModule(TROLLBOT_BINDING_MODULE, PyTbMethods);
 
@@ -112,7 +113,7 @@ void bootstrap_binding_module() {
 	PyModule_AddStringConstant(module, "TRIG_PART", "part");
 	PyModule_AddStringConstant(module, "TRIG_JOIN", "join");
 	PyModule_AddStringConstant(module, "TRIG_NOTC", "notc");
-	//PyModule_AddStringConstant(module, "TRIG_FIL", "fil");
+	/* PyModule_AddStringConstant(module, "TRIG_FIL", "fil"); */
 	PyModule_AddStringConstant(module, "TRIG_DCC", "dcc");
 	PyModule_AddStringConstant(module, "TRIG_RAW", "raw");
 	PyModule_AddStringConstant(module, "TRIG_KICK", "kick");
@@ -178,7 +179,7 @@ void load_python_module(char *filename) {
 	pyModule = PyImport_Import(pyModuleName);
 	if (pyModule != NULL) {
 		troll_debug(LOG_DEBUG, "[python] Core Module (%s) loaded", filename);
-		//Py_DECREF(pyModule); 
+		/* Py_DECREF(pyModule); */
 	} else {
 		if (PyErr_Occurred()) 
 			PyErr_Print();
@@ -223,7 +224,7 @@ PyObject * call_python_method(char * module, char * method, PyObject ** args, in
 
 		Py_DECREF(args_py);
 		Py_DECREF(method_py);
-		//Py_DECREF(module_py);
+		/* Py_DECREF(module_py); */
 
 		if (rval_py == NULL) {
 			troll_debug(LOG_DEBUG, "[python] an error occurred calling %s.%s()", module, method);

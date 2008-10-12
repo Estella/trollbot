@@ -249,16 +249,16 @@ void free_networks(struct network *net)
 
 	while (net != NULL)
 	{
-		if (net->label){  free(net->label); }
-		if (net->botnick){  free(net->botnick); }
-		if (net->nick){  free(net->nick); }
-		if (net->altnick){  free(net->altnick); }
-		if (net->ident){  free(net->ident); }
-		if (net->realname){  free(net->realname); }
-		if (net->vhost){  free(net->vhost); }
-		if (net->shost){  free(net->shost); }
-		if (net->userfile){ free(net->userfile);  }
-		if (net->chanfile){ free(net->chanfile);  }
+		free(net->label);
+		free(net->botnick);
+		free(net->nick);
+		free(net->altnick);
+		free(net->ident);
+		free(net->realname);
+		free(net->vhost);
+		free(net->shost);
+		free(net->userfile);
+		free(net->chanfile);
 
 		/* hey kicken, free(NULL) is defined and perfectly fine behavior 
 		 * No need to check pointers beforehand. If it crashes, it's because

@@ -91,11 +91,18 @@ void free_servers(struct server *servers)
 	{
 		tmp = servers->next;
 
-		free(servers->host);
-		free(servers);
+		free_server(servers);
 
 		servers = tmp;
 	}
 
+	return;
+}
+
+void free_server(struct server *server)
+{
+	free(server->host);
+	free(server);
+	
 	return;
 }

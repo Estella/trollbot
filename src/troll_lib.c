@@ -24,10 +24,7 @@
 	 \  makes the next character literal
 
    returns 1 if no match, 0 if matched
-
-BUG: ~, &, and % don't work
 */
-/* This is not an eggdrop function, this should go in troll_lib */
 int troll_matchwilds(const char *haystack, const char *needle)
 {
 	int escaped = 0;
@@ -69,8 +66,6 @@ int troll_matchwilds(const char *haystack, const char *needle)
 		}
 		else if (*needle == '%' && escaped == 0)
 		{
-			/* FIXME: Wildcard % needs implemented */
-			/* WTF, looks like it's implemented to me, what am I missing? */
 			while (*haystack != '\0' && !isspace(*haystack) && *haystack != *(needle+1))
 			{
 				haystack++;
@@ -79,7 +74,6 @@ int troll_matchwilds(const char *haystack, const char *needle)
 		}
 		else if (*needle == '~' && escaped == 0)
 		{
-			/* FIXME: Wildcard ~ needs implemented */
 			if (isspace(*haystack))
 			{
 				haystack++;

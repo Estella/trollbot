@@ -137,6 +137,7 @@ struct ics_trigger_table *new_ics_trigger_table(void)
 	ret->game     = NULL;
 	ret->move     = NULL;
 	ret->endgame  = NULL;
+	ret->tell     = NULL;
 
 	return ret;
 }
@@ -181,6 +182,7 @@ void free_ics_trigger_table(struct ics_trigger_table *xtt)
 	free_ics_triggers(xtt->error);
 	free_ics_triggers(xtt->notify);
 	free_ics_triggers(xtt->msg);
+	free_ics_triggers(xtt->tell);
 	free_ics_triggers(xtt->connect);
 	free_ics_triggers(xtt->move);
 	free_ics_triggers(xtt->game);

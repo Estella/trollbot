@@ -387,18 +387,6 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 
 						net->js_scripts[i] = tstrdup(search->value);
 					}
-
-					/*
-						 if (net->cx == NULL)
-						 {
-						 net_init_js(net);
-						 }
-
-					 * This shouldn't actually be loaded here, load from
-					 * filename after this occurs, as to not require any
-					 * gcfg stuff right now
-					 *
-					 js_eval_file(net, search->value); */
 				}
 #endif /* HAVE_JS */
 #ifdef HAVE_TCL
@@ -429,14 +417,6 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 
 						net->tcl_scripts[i] = tstrdup(search->value);
 					}
-
-					/*if (net->tclinterp == NULL)
-						continue;
-
-						if (Tcl_EvalFile(net->tclinterp, search->value) == TCL_ERROR)
-						{
-						troll_debug(LOG_WARN,"TCL Error: %s\n",Tcl_GetStringResult(net->tclinterp));
-						}*/
 				}
 #endif /* HAVE_TCL */
 #ifdef HAVE_PHP
@@ -501,15 +481,6 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 					cfg_init_python(cfg);
 
 					net_init_python(cfg,net);
-
-					/*
-						 if ((fp = fopen(search->value,"r")) == NULL)
-						 {
-						 troll_debug(LOG_WARN,"Could not open file %s\n",search->value);
-						 continue;
-						 }
-
-						 PyRun_File(fp, search->value, Py_file_input, net->pydict, net->pydict);*/
 				}
 #endif /* HAVE_PYTHON */
 				else if (!strcmp(search->key,"userfile"))

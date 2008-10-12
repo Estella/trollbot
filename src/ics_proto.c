@@ -79,6 +79,14 @@ void init_ics_triggers(struct ics_server *ics)
 	trig->command = NULL;
 	ics->ics_trigger_table->msg = ics_trigger_add(ics->ics_trigger_table->msg, trig);
 
+	/* for calling on tell events */
+	trig          = new_ics_trigger();
+	trig->type    = ICS_TRIG_MSG;
+	trig->mask    = tstrdup(TELL_TRIGGER);
+	trig->handler = ics_internal_tell;
+	trig->command = NULL;
+	ics->ics_trigger_table->msg = ics_trigger_add(ics->ics_trigger_table->msg, trig);
+
 	/* For the on connect event trigger handling, call all ON CONNECT triggers */
 	trig          = new_ics_trigger();
 	trig->type    = ICS_TRIG_CONNECT;
@@ -126,7 +134,30 @@ void init_ics_triggers(struct ics_server *ics)
 	trig->handler = ics_internal_endgame;
 	trig->command = NULL;
 	ics->ics_trigger_table->msg = ics_trigger_add(ics->ics_trigger_table->msg, trig);
+}
 
+void ics_internal_tell(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data)
+{
+	struct ics_trigger *trig;
+	char *mask;
+	
+	trig = ics->ics_trigger_table->tell;
+
+	while (trig != NULL)
+	{
+		if (troll_matchwilds(data->txt_packet, trig->mask))
+		{
+			if (trig->handler != NULL)
+			{
+				trig->handler(ics, trig, data);
+				trig->usecount++;
+			}
+		}
+			
+		trig = trig->next;
+	}
+
+	return;
 }
 
 void ics_internal_endgame(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data)

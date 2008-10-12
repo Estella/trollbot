@@ -15,10 +15,10 @@ struct server
   struct server *next;
 };
 
-
-
 void server_list_add(struct server **orig, struct server *new);
 void free_servers(struct server *servers);
 struct server *new_server(char *hostport);
+void free_server(struct server *server);
+
 #endif /* __SERVER_H__ */
 

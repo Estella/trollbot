@@ -442,7 +442,8 @@ struct trig_table *new_trig_table(void)
 	 struct trigger *next;  
 	 };*/
 
-void free_trigger(struct trigger *trig){
+void free_trigger(struct trigger *trig)
+{
 	free(trig->glob_flags);
 	free(trig->chan_flags);
 	free(trig->mask);
@@ -468,10 +469,12 @@ void free_trigger_table(struct trig_table *table){
 	free(table);
 }
 
-void free_trigger_list(struct trigger *list){
+void free_trigger_list(struct trigger *list)
+{
 	struct trigger *next=NULL;
 
-	while (list != NULL){
+	while (list != NULL)
+	{
 		next = list->next;
 		free_trigger(list);
 		list = next;

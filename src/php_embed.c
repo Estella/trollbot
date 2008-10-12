@@ -79,6 +79,10 @@ void myphp_eval_file(char *filename)
 		troll_log(LOG_WARN, "Could not open (%s) for PHP evaluation.", filename);
 		return;
 	}
+	
+	printf("%s\n",filename);
+	
+	fclose(fp);
 
 	TSRMLS_FETCH();
 
@@ -93,14 +97,13 @@ void myphp_eval_file(char *filename)
 	file_handle.free_filename = 0;
 	file_handle.opened_path   = NULL;
 
-	zend_try 
+	zend_try
 	{
 		if (zend_execute_scripts(ZEND_REQUIRE TSRMLS_CC, NULL, 1, &file_handle) != SUCCESS)
 			troll_debug(LOG_WARN,"PHP Script (%s) could not be run",filename);
 		else
 			troll_debug(LOG_DEBUG,"PHP Script (%s) successfully loaded",filename);
 	} zend_end_try();
-
 	return;
 }
 

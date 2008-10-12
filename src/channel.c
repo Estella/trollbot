@@ -8,6 +8,7 @@
 #include "network.h"
 #include "user.h"
 
+/* Adds a channel's user (not trollbot user) to the channel's user list */
 struct channel_user *channel_user_add(struct channel_user *cusers, struct channel_user *add)
 {
 	struct channel_user *tmp = NULL;
@@ -23,6 +24,7 @@ struct channel_user *channel_user_add(struct channel_user *cusers, struct channe
 	return cusers;
 }
 
+/* Removes a channel's user (not trollbot user) from the channel's user list */
 struct channel_user *channel_user_del(struct channel_user *cusers, struct channel_user *del)
 {
 	struct channel_user *tmp = NULL;
@@ -64,6 +66,7 @@ struct channel_user *channel_user_del(struct channel_user *cusers, struct channe
 	return cusers;
 }
 
+/* Frees the entire user list */
 void channel_users_free(struct channel_user *cusers)
 {
 	struct channel_user *walk;
@@ -79,6 +82,7 @@ void channel_users_free(struct channel_user *cusers)
 	}
 }
 
+/* Frees a single channel user */
 void channel_user_free(struct channel_user *cuser)
 {
 	free(cuser->nick);
@@ -92,7 +96,7 @@ void channel_user_free(struct channel_user *cuser)
 	free(cuser);
 }
 
-
+/* These are generic key/values for eggdrop compatibility and script extension */
 struct chan_egg_var *new_chan_egg_var(void)
 {
 	struct chan_egg_var *ret = tmalloc(sizeof(struct chan_egg_var));
@@ -525,7 +529,7 @@ void join_channels(struct network *net)
 	/* Get rid of the trailing space */
 	joinstr[strlen(joinstr)-1] = '\0';
 
-	/* Hopefully all IRCDs support #chan1,#chan2,#chan3, verify with RFC */
+	/* Hopefully all IRCDs support #chan1,#chan2,#chan3, TODO: verify with RFC */
 	irc_printf(net->sock,"JOIN %s\n",joinstr);
 
 	/* Toss it like a used condom */

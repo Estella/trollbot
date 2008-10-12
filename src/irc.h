@@ -11,6 +11,8 @@
 #ifndef __IRC_H__
 #define __IRC_H__
 
+#include <sys/types.h>
+
 struct network;
 
 /* <servername> | <nick> [ '!' <user> ] [ '@' <host> ] */
@@ -36,7 +38,7 @@ struct irc_data {
   char *rest_str;
 };
 
-void irc_printf(int sock, const char *fmt, ...);
+ssize_t irc_printf(int sock, const char *fmt, ...);
 void irc_data_free(struct irc_data *data);
 void parse_irc_line(struct network *net, const char *buffer);
 struct irc_data *irc_data_new(void);
