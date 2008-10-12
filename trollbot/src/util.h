@@ -1,24 +1,20 @@
 #ifndef __UTIL_H__
 #define __UTIL_H__
 
-enum tsocket_status
-{
-  STATUS_NOTINLOOP = 1,
-  STATUS_RSOCK     = 2,
-  STATUS_WSOCK     = 4,
-  STATUS_WCONNECT  = 8,
-  STATUS_WACCEPT   = 16,
-  STATUS_IGNORE    = 32
-};
-
-struct tsocket
-{
-  int sock;
-
-  int status;
-
-  void *data;
-};
+/* Utility Macros */
+#define LIST_ATTACH(x,y) if (x == NULL) \
+                         {\
+                           x = y; \
+                           x->prev = NULL; \
+                           x->next = NULL;  \
+                         }\
+                         else \
+                           while (x->next != NULL) x = x->next; \
+                           x->next = y; \
+                           x->next->prev = x; \
+                           x->next->next = NULL; \
+                           while (x->prev != NULL) x = x->prev; \
+                         }
 
 struct slist_node
 {
@@ -38,29 +34,12 @@ struct slist
   struct slist_node *tail;
 };
 
-struct dlist_node
-{
-  void *data;
-
-  struct dlist_node *prev;
-  struct dlist_node *next;
-};
-
-struct dlist
-{
-  int size;
-
-  int (*match)(const void *key1, const void *key2);
-  void (*destroy)(void *data);
-
-  struct dlist_node *head;
-  struct dlist_node *tail;
-};
-
+/* single linked list interface */
 void slist_init(struct slist **list, void (*destroy)(void *));
 void slist_destroy(struct slist *list);
 int slist_insert_next(struct slist *list, struct slist_node *node, void *data);
 int slist_remove_next(struct slist *list, struct slist_node *node, void **data);
+int slist_remove(struct slist *list, struct slist_node *node, void **data);
 
 
 char *tstr_replace(char *subject, char *needle, char *replace);
@@ -71,7 +50,10 @@ void tstrfreev(char *ptr[]);
 char *tstrtrim(char *data);
 void *tmalloc(size_t size);
 void *tmalloc0(size_t size);
+char *tstrarrayserialize(char **ptr);
 char *tcrealloc0(char *ptr, size_t size, unsigned int *bufsize);
 char **tsrealloc0(char **ptr, size_t size, unsigned int *bufsize);
+int tstrcount(char **ptr);
+char **tssv_split(char *ptr);
 
 #endif /* __UTIL_H__ */

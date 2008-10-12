@@ -1,1 +1,1 @@
-SUBDIRS = foo irc
+SUBDIRS = foo
