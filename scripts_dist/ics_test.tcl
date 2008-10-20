@@ -19,7 +19,17 @@ ics_bind endgame - "*"                 announce_endgame
 # [lindex $board 0] = 1st rank
 
 proc announce_endgame { ics game_id white black winner loser result end_message } {
-	irc_interp "DALnet" "puthelp \"PRIVMSG #php :(Game:$game_id) has ended. $winner delivered an ass kicking to $loser.\""
+	if {$result == "checkmate"} {
+		irc_interp "DALnet" "puthelp \"PRIVMSG #php :(Game:$game_id) has ended. $winner delivered an ass kicking to $loser.\""
+	}
+
+	if {$result == "stalemate"} {
+		irc_interp "DALnet" "puthelp \"PRIVMSG #php :(Game:$game_id) has ended in stalemate.\""
+	}
+
+	if {$result == "draw"} {
+		irc_interp "DALnet" "puthelp \"PRIVMSG #php :(Game:$game_id) has ended. Both sides thought they sucked, so they called a draw.\""
+	}
 }
 
 proc announce_move { ics game_id move_id } {

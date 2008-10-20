@@ -172,10 +172,20 @@ void ics_internal_endgame(struct ics_server *ics, struct ics_trigger *ics_trig, 
 	if (!strcmp(data->tokens[argc-1], "*"))
 	{
 		/* This means it's an abortion, adjournment, TODO: verify what else */
+
+		ics->game->winner_name = tstrdup(ics->game->white_name);
+		ics->game->loser_name  = tstrdup(ics->game->black_name);
 	} 
 	else if (!strcmp(data->tokens[argc-1], "1/2-1/2")) 
 	{
 		/* This means it's a stalemate, draw */
+		if (!strncmp(data->tokens[argc-2], "stalemate", 9))
+			ics->game->end_result = tstrdup("stalemate");
+		else
+			ics->game->end_result = tstrdup("draw");
+
+		ics->game->winner_name = tstrdup(ics->game->white_name);
+		ics->game->loser_name  = tstrdup(ics->game->black_name);
 	}
 	else if (!strcmp(data->tokens[argc-1], "1-0"))
 	{
