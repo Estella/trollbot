@@ -3,7 +3,7 @@
 #include "tcl_embed.h"
 #include "tcl_lib.h"
 
-#include "trigger.h"
+#include "irc_trigger.h"
 #include "irc.h"
 #include "network.h"
 #include "server.h"
@@ -75,6 +75,7 @@ void net_init_tcl(struct network *net)
 void net_tcl_init_commands(struct network *net)
 {
 #ifdef HAVE_ICS
+	Tcl_CreateObjCommand(net->tclinterp, "ics_get_score", tcl_ics_get_score, net, NULL);
 	Tcl_CreateObjCommand(net->tclinterp, "putics", tcl_putics, net, NULL);
 #endif /* HAVE_ICS */
 
@@ -590,12 +591,71 @@ void ics_tcl_handler(struct ics_server *ics, struct ics_trigger *trig, struct ic
 	Tcl_Obj *game_id;
 	Tcl_Obj *white;
 	Tcl_Obj *black;
+	Tcl_Obj *winner;
+	Tcl_Obj *loser;
+	Tcl_Obj *result;
 	Tcl_Obj *initial_time;
 	Tcl_Obj *time_increment;
 	Tcl_Obj **objv;
 
 	switch (trig->type)
 	{
+		/* <ICS Label> <game id> <white> <black> <winner> <loser> <result> <message> */
+		case ICS_TRIG_ENDGAME:
+			command        = Tcl_NewStringObj(trig->command,    strlen(trig->command));
+			ics_label      = Tcl_NewStringObj(ics->label,       strlen(ics->label));
+			game_id        = Tcl_NewIntObj(ics->game->game_number);
+			white          = Tcl_NewStringObj(ics->game->white_name,    strlen(ics->game->white_name));
+			black          = Tcl_NewStringObj(ics->game->black_name,    strlen(ics->game->black_name));
+			winner         = Tcl_NewStringObj(ics->game->winner_name,   strlen(ics->game->winner_name));
+			loser          = Tcl_NewStringObj(ics->game->loser_name,    strlen(ics->game->loser_name));
+			result         = Tcl_NewStringObj(ics->game->end_result,    strlen(ics->game->end_result));
+			message        = Tcl_NewStringObj(ics->game->end_message,   strlen(ics->game->end_message));
+
+			Tcl_IncrRefCount(command);
+			Tcl_IncrRefCount(ics_label);
+			Tcl_IncrRefCount(game_id);
+			Tcl_IncrRefCount(white);
+			Tcl_IncrRefCount(black);
+			Tcl_IncrRefCount(winner);
+			Tcl_IncrRefCount(loser);
+			Tcl_IncrRefCount(result);
+			Tcl_IncrRefCount(message);
+
+			objv = tmalloc(sizeof(Tcl_Obj *) * 9);
+
+			objv[0] = command;
+			objv[1] = ics_label;
+			objv[2] = game_id;
+			objv[3] = white;
+			objv[4] = black;
+			objv[5] = winner;
+			objv[6] = loser;
+			objv[7] = result;
+			objv[8] = message;
+
+			ret = Tcl_EvalObjv(ics->tclinterp, 9, objv, TCL_EVAL_GLOBAL);
+
+			/* Decrement the reference count so the GC will catch it */
+			Tcl_DecrRefCount(command);
+			Tcl_DecrRefCount(ics_label);
+			Tcl_DecrRefCount(game_id);
+			Tcl_DecrRefCount(white);
+			Tcl_DecrRefCount(black);
+			Tcl_DecrRefCount(winner);
+			Tcl_DecrRefCount(loser);
+			Tcl_DecrRefCount(result);
+			Tcl_DecrRefCount(message);
+
+			/* If we returned an error, send it to trollbot's warning channel */
+			if (ret == TCL_ERROR)
+			{
+				troll_debug(LOG_WARN,"TCL Error: %s\n",Tcl_GetStringResult(ics->tclinterp));
+			}
+
+			free(objv);
+
+			break;
 		/* <ICS Label> <game id> <white> <black> <initial time> <time increment> */
 		case ICS_TRIG_GAME: 
 			/* The proper way of doing things, according to #tcl on freenode (they'd know) */

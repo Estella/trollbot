@@ -30,7 +30,7 @@
 #include "network.h"
 #include "troll_lib.h"
 #include "egg_lib.h"
-#include "trigger.h"
+#include "irc_trigger.h"
 #include "sockets.h"
 #include "log_entry.h"
 #include "log_filter.h"

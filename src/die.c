@@ -17,6 +17,14 @@
 #include "server.h"
 #include "irc.h"
 
+#ifdef HAVE_ICS
+#include "ics_server.h"
+#endif /* HAVE_ICS */
+
+#ifdef HAVE_XMPP
+#include "xmpp_server.h"
+#endif /* HAVE_XMPP */
+
 /* Needs more cowbell */
 void die_nicely(int ret)
 {

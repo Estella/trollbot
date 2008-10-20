@@ -500,7 +500,7 @@ void troll_trig_update_topic(struct network *net, struct trigger *trig, struct i
 	free(chan->topic);
 
 	chan->topic = tstrdup(data->rest_str);
-	log_entry_printf(net,chan,"T","Topic changed for channel %s to :%s",data->c_params[0],data->rest_str);
+	log_entry_printf(net,chan->name,"T","Topic changed for channel %s to :%s",data->c_params[0],data->rest_str);
 
 	return;
 }

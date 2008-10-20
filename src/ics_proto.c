@@ -18,6 +18,7 @@
 #include "log_entry.h"
 #include "ics_game.h"
 
+#include "troll_lib.h"
 #include "egg_lib.h"
 #include "network.h"
 #include "server.h"
@@ -25,7 +26,7 @@
 #include "user.h"
 #include "irc.h"
 #include "dcc.h"
-#include "trigger.h"
+#include "irc_trigger.h"
 #include "t_crypto_module.h"
 #include "t_timer.h"
 #include "util.h"
@@ -139,7 +140,7 @@ void init_ics_triggers(struct ics_server *ics)
 void ics_internal_tell(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data)
 {
 	struct ics_trigger *trig;
-	char *mask;
+	/* char *mask; */
 	
 	trig = ics->ics_trigger_table->tell;
 
@@ -162,26 +163,55 @@ void ics_internal_tell(struct ics_server *ics, struct ics_trigger *ics_trig, str
 
 void ics_internal_endgame(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data)
 {
-	struct network *net;
-	struct channel *chan;
+	struct ics_trigger *trig;
+	int argc = tstrcount(data->tokens);
 
-	net = g_cfg->networks;
-
-	while (net != NULL)
+	/* We've received a sign of the end */
+	/* fill in information required by scripting */
+	
+	if (!strcmp(data->tokens[argc-1], "*"))
 	{
-		chan = net->chans;
+		/* This means it's an abortion, adjournment, TODO: verify what else */
+	} 
+	else if (!strcmp(data->tokens[argc-1], "1/2-1/2")) 
+	{
+		/* This means it's a stalemate, draw */
+	}
+	else if (!strcmp(data->tokens[argc-1], "1-0"))
+	{
+		/* White won */
+		if (!strncmp(data->tokens[argc-2], "checkmated", 10))
+			ics->game->end_result = tstrdup("checkmate");
 
-		while (chan != NULL)
+		ics->game->winner_name = tstrdup(ics->game->white_name);
+		ics->game->loser_name  = tstrdup(ics->game->black_name);
+	}
+	else if (!strcmp(data->tokens[argc-1], "0-1"))
+	{
+		/* Black won */
+		if (!strncmp(data->tokens[argc-2], "checkmated", 10))
+			ics->game->end_result = tstrdup("checkmate");
+
+		ics->game->winner_name = tstrdup(ics->game->black_name);
+		ics->game->loser_name  = tstrdup(ics->game->white_name);
+	}
+
+	if (ics->game->end_result == NULL)
+		ics->game->end_result  = tstrdup("WIN");
+
+	ics->game->end_message = tstrdup(data->txt_packet);
+
+	trig = ics->ics_trigger_table->endgame;
+
+	while (trig != NULL)
+	{
+		if (trig->handler != NULL)
 		{
-			if (!tstrcasecmp(chan->name, "#christian_debate"))
-			{
-				irc_printf(net->sock, "PRIVMSG %s :The chess battle has finished. %s", chan->name, data->txt_packet);
-			}
-
-			chan = chan->next;
+			trig->handler(ics, trig, data);
+			trig->usecount++;
 		}
-
-		net = net->next;
+			
+		trig = trig->next;
 	}
 
 	free_ics_games(ics->game);
@@ -386,7 +416,7 @@ void ics_internal_my_name(struct ics_server *ics, struct ics_trigger *ics_trig, 
 /* Something better needs worked out for this */
 void ics_internal_anti_anti_idle(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data)
 {
-	struct ics_trigger *trig;
+	/* struct ics_trigger *trig; */
 	static int interval = ANTI_ANTI_IDLE_INTERVAL;
 
 	interval--;
@@ -405,8 +435,6 @@ void ics_internal_anti_anti_idle(struct ics_server *ics, struct ics_trigger *ics
 void ics_internal_notify(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data)
 {
 	struct ics_trigger *trig;
-	struct network *net;
-	struct channel *chan;
 
 	trig = ics->ics_trigger_table->notify;
 
@@ -429,7 +457,7 @@ void ics_internal_notify(struct ics_server *ics, struct ics_trigger *ics_trig, s
 
 void ics_internal_style_twelve_init(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data)
 {
-	struct ics_trigger *trig;
+	/* struct ics_trigger *trig; */
 
 	ics_printf(ics, "style 12");
 	ics_printf(ics, "set shout 0");
@@ -530,7 +558,7 @@ void ics_data_free(struct ics_data *data)
 }
 
 /* This function gets an unparsed line from ICS, and makes it into the ics_data struct */
-void parse_ics_line(struct ics_server *ics, const char *buffer)
+void parse_ics_line(struct ics_server *ics, char *buffer)
 {
 	struct ics_data *data    = NULL;
 

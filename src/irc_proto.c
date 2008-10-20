@@ -3,13 +3,13 @@
 #include "config.h"
 
 #include "main.h"
-#include "default_triggers.h"
+#include "irc_proto.h"
 
 #include "dcc.h"
 #include "irc.h"
 #include "network.h"
 #include "channel.h"
-#include "trigger.h"
+#include "irc_trigger.h"
 #include "user.h"
 #include "util.h"
 #include "egg_lib.h"

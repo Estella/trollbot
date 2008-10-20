@@ -106,6 +106,10 @@ struct ics_game *new_ics_game(void)
 	ret->next_move_number = -1;
 	ret->flip_field_orientation = -1;
 
+	ret->winner_name = NULL;
+	ret->loser_name  = NULL;
+	ret->end_result  = NULL;
+	ret->end_message = NULL;
 
 	for (i=0; i < 8; i++)
 		for (j = 0; j < 8; j++)
@@ -150,6 +154,11 @@ void free_ics_game(struct ics_game *ics_game)
   free(ics_game->verbose_notation);
   free(ics_game->last_move_time); 
   free(ics_game->pretty_notation); 
+
+	free(ics_game->winner_name);
+	free(ics_game->loser_name);
+	free(ics_game->end_message);
+	free(ics_game->end_result);
 
 	free(ics_game);
 }

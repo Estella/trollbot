@@ -44,6 +44,10 @@
 #include "xmpp_trigger.h"
 #endif /* HAVE_XMPP */
 
+#ifdef HAVE_HTTPD
+#include "httpd_request.h"
+#endif /* HAVE_HTTPD */
+
 void socket_set_blocking(int sock)
 {
 	int opts;
@@ -492,7 +496,7 @@ void irc_loop(void)
 			{
 				if (FD_ISSET(httpd->sock, &socks))
 				{
-					new_httpd_request(httpd);
+					/* new_httpd_request(httpd); */
 				}
 			}
 		}

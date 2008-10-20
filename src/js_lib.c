@@ -6,12 +6,11 @@
 
 #include "js_lib.h"
 #include "js_embed.h"
-#include "trigger.h"	
+#include "irc_trigger.h"	
 #include "util.h"
 #include "user.h"
 #include "dcc.h"
 #include "irc.h"
-#include "trigger.h"
 #include "network.h"
 #include "egg_lib.h"
 

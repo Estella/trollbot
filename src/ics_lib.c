@@ -7,6 +7,7 @@
 #include "ics_proto.h"
 #include "ics_game.h"
 #include "ics_trigger.h"
+#include "debug.h"
 
 #include "ics_lib.h"
 
@@ -28,6 +29,31 @@ char **ics_getboard(struct ics_server *ics, int game_id)
 	/* We should retrieve the board in this case */
 
 	return NULL;
+}
+
+int ics_get_score(struct ics_server *ics, char *whom)
+{
+	struct ics_game *bs = ics->game;
+
+	if (ics->game == NULL)
+	{
+		troll_debug(LOG_WARN,"ics_get_score() called with no active game");
+		return 0;
+	}
+
+	while (bs->next != NULL)
+		bs = bs->next;
+
+	if (tstrcasecmp(whom,"white") && tstrcasecmp(whom,"black") && tstrcasecmp(whom, ics->game->white_name) && tstrcasecmp(whom, ics->game->black_name))
+	{
+		troll_debug(LOG_WARN,"ics_get_score() called with non white/black or player argument");
+		return 0;
+	}
+	
+	if (!tstrcasecmp(whom,"white") || !tstrcasecmp(whom, ics->game->white_name))
+		return bs->white_strength;
+	else
+		return bs->black_strength;
 }
 
 /*
@@ -164,6 +190,18 @@ char **ics_bind(struct ics_server *ics, char *type, char *flags, char *mask, cha
 
       *returnValue=tstrdup(cmd);
 		}
+		else if (!tstrcasecmp("endgame",type))
+		{ 
+      trigger          = new_ics_trigger();
+      trigger->type    = ICS_TRIG_ENDGAME;
+      trigger->mask    = tstrdup(mask);
+      trigger->handler = handler;
+      trigger->command = tstrdup(cmd);
+      ics->ics_trigger_table->endgame = ics_trigger_add(ics->ics_trigger_table->endgame, trigger);
+
+      *returnValue=tstrdup(cmd);
+		}
+
 	}
 
 	return returnValue;

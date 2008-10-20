@@ -3,7 +3,8 @@ SUBDIRS = modules
 bindir = ${prefix}
 
 bin_PROGRAMS = trollbot
-trollbot_SOURCES = channel.c config_engine.c dcc.c debug.c default_triggers.c die.c egg_lib.c irc.c log_entry.c log_filter.c main.c network.c server.c sockets.c tconfig.c t_crypto_module.c trigger.c user.c util.c channel.h config_engine.h dcc.h debug.h default_triggers.h die.h egg_lib.h irc.h log_entry.h log_filter.h main.h network.h server.h sockets.h tconfig.h t_crypto_module.h trigger.h user.h util.h t_timer.c t_timer.h troll_lib.c troll_lib.h httpd_server.c httpd_server.h
+
+trollbot_SOURCES = channel.c config_engine.c dcc.c debug.c irc_proto.c die.c egg_lib.c irc.c log_entry.c log_filter.c main.c network.c server.c sockets.c tconfig.c t_crypto_module.c irc_trigger.c user.c util.c channel.h config_engine.h dcc.h debug.h irc_proto.h die.h egg_lib.h irc.h log_entry.h log_filter.h main.h network.h server.h sockets.h tconfig.h t_crypto_module.h irc_trigger.h user.h util.h t_timer.c t_timer.h troll_lib.c troll_lib.h httpd_server.c httpd_server.h
 
 trollbot_CXXFLAGS = -O0 -g
 trollbot_CFLAGS = -O0 -Wall -std=c99 -pedantic ${LTDLINCL}

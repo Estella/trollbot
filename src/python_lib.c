@@ -9,7 +9,7 @@
 
 #include "config_engine.h"
 #include "python_embed.h"
-#include "trigger.h"
+#include "irc_trigger.h"
 #include "network.h"
 #include "egg_lib.h"
 #include "irc.h"

@@ -1,5 +1,5 @@
-#ifndef __DEFAULT_TRIGGERS_H__
-#define __DEFAULT_TRIGGERS_H__
+#ifndef __IRC_PROTO_H__
+#define __IRC_PROTO_H__
 
 struct network;
 struct trigger;
@@ -20,4 +20,4 @@ void return_ctcp_time(struct network *net, struct trigger *trig, struct irc_data
 void return_ctcp_version(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
 void disconnect_bot(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
 
-#endif /* __DEFAULT_TRIGGERS_H__ */
+#endif /* __IRC_PROTO_H__ */

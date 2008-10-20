@@ -6,7 +6,7 @@
 #include "tcl_embed.h"
 
 #include "network.h"
-#include "trigger.h"
+#include "irc_trigger.h"
 #include "irc.h"
 #include "troll_lib.h"
 #include "egg_lib.h"
@@ -23,6 +23,44 @@
 
 /* ICS specific eggdrop IRC commands */
 #ifdef HAVE_ICS
+int tcl_ics_get_score(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	struct ics_server *ics = NULL;
+	char *label;
+	char *whom;
+	int score;
+	Tcl_Obj *t_score;
+
+	if (objc != 3)
+	{
+		Tcl_WrongNumArgs(interp, objc, objv, "<label> <whom>");
+		return TCL_ERROR;
+	}
+
+	label   = Tcl_GetString(objv[1]);
+	whom    = Tcl_GetString(objv[2]);
+
+	ics = g_cfg->ics_servers;
+
+	while (ics != NULL)
+	{
+		if (!troll_matchwilds(ics->label, label))
+		{
+			score = ics_get_score(ics, whom);
+
+			t_score = Tcl_NewIntObj(score);
+
+			Tcl_SetObjResult(interp, t_score);
+
+			break;
+		}
+
+		ics = ics->next;
+	}
+	
+	return TCL_OK;
+}
+
 int tcl_putics(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {
 	struct ics_server *ics = NULL;

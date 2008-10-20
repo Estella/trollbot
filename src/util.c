@@ -82,7 +82,7 @@ int slist_remove(struct slist *list, struct slist_node *node, void **data)
 {
 	struct slist_node *nodesearch = NULL;
 	struct slist_node *oldnode    = NULL;
-	struct slist_node *find       = NULL;
+	/* struct slist_node *find       = NULL; */
 	int i = 0;
 
 	if (list->size == 0)

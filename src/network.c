@@ -22,7 +22,7 @@
 #include "server.h"
 #include "channel.h"
 #include "user.h"
-#include "trigger.h"
+#include "irc_trigger.h"
 #include "dcc.h"
 #include "t_timer.h"
 #include "sockets.h"

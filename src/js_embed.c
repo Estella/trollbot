@@ -5,7 +5,7 @@
 #include "js_lib.h"
 
 #include "network.h"
-#include "trigger.h"
+#include "irc_trigger.h"
 #include "irc.h"
 #include "dcc.h"
 #include "egg_lib.h"

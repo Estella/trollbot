@@ -66,13 +66,13 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
 am__trollbot_SOURCES_DIST = channel.c config_engine.c dcc.c debug.c \
-	default_triggers.c die.c egg_lib.c irc.c log_entry.c \
-	log_filter.c main.c network.c server.c sockets.c tconfig.c \
-	t_crypto_module.c trigger.c user.c util.c channel.h \
-	config_engine.h dcc.h debug.h default_triggers.h die.h \
-	egg_lib.h irc.h log_entry.h log_filter.h main.h network.h \
-	server.h sockets.h tconfig.h t_crypto_module.h trigger.h \
-	user.h util.h t_timer.c t_timer.h troll_lib.c troll_lib.h \
+	irc_proto.c die.c egg_lib.c irc.c log_entry.c log_filter.c \
+	main.c network.c server.c sockets.c tconfig.c \
+	t_crypto_module.c irc_trigger.c user.c util.c channel.h \
+	config_engine.h dcc.h debug.h irc_proto.h die.h egg_lib.h \
+	irc.h log_entry.h log_filter.h main.h network.h server.h \
+	sockets.h tconfig.h t_crypto_module.h irc_trigger.h user.h \
+	util.h t_timer.c t_timer.h troll_lib.c troll_lib.h \
 	httpd_server.c httpd_server.h ics_server.c ics_server.h \
 	ics_proto.c ics_proto.h ics_trigger.c ics_trigger.h ics_game.c \
 	ics_game.h ics_lib.c ics_lib.h xmpp_server.c xmpp_server.h \
@@ -103,18 +103,19 @@ am__trollbot_SOURCES_DIST = channel.c config_engine.c dcc.c debug.c \
 @WITH_PYTHON_TRUE@	trollbot-python_lib.$(OBJEXT)
 am_trollbot_OBJECTS = trollbot-channel.$(OBJEXT) \
 	trollbot-config_engine.$(OBJEXT) trollbot-dcc.$(OBJEXT) \
-	trollbot-debug.$(OBJEXT) trollbot-default_triggers.$(OBJEXT) \
+	trollbot-debug.$(OBJEXT) trollbot-irc_proto.$(OBJEXT) \
 	trollbot-die.$(OBJEXT) trollbot-egg_lib.$(OBJEXT) \
 	trollbot-irc.$(OBJEXT) trollbot-log_entry.$(OBJEXT) \
 	trollbot-log_filter.$(OBJEXT) trollbot-main.$(OBJEXT) \
 	trollbot-network.$(OBJEXT) trollbot-server.$(OBJEXT) \
 	trollbot-sockets.$(OBJEXT) trollbot-tconfig.$(OBJEXT) \
-	trollbot-t_crypto_module.$(OBJEXT) trollbot-trigger.$(OBJEXT) \
-	trollbot-user.$(OBJEXT) trollbot-util.$(OBJEXT) \
-	trollbot-t_timer.$(OBJEXT) trollbot-troll_lib.$(OBJEXT) \
-	trollbot-httpd_server.$(OBJEXT) $(am__objects_1) \
-	$(am__objects_2) $(am__objects_3) $(am__objects_4) \
-	$(am__objects_5) $(am__objects_6) $(am__objects_7)
+	trollbot-t_crypto_module.$(OBJEXT) \
+	trollbot-irc_trigger.$(OBJEXT) trollbot-user.$(OBJEXT) \
+	trollbot-util.$(OBJEXT) trollbot-t_timer.$(OBJEXT) \
+	trollbot-troll_lib.$(OBJEXT) trollbot-httpd_server.$(OBJEXT) \
+	$(am__objects_1) $(am__objects_2) $(am__objects_3) \
+	$(am__objects_4) $(am__objects_5) $(am__objects_6) \
+	$(am__objects_7)
 trollbot_OBJECTS = $(am_trollbot_OBJECTS)
 am__DEPENDENCIES_1 =
 @WITH_XMPP_TRUE@am__DEPENDENCIES_2 = $(am__DEPENDENCIES_1)
@@ -294,17 +295,17 @@ target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = modules
-trollbot_SOURCES = channel.c config_engine.c dcc.c debug.c \
-	default_triggers.c die.c egg_lib.c irc.c log_entry.c \
-	log_filter.c main.c network.c server.c sockets.c tconfig.c \
-	t_crypto_module.c trigger.c user.c util.c channel.h \
-	config_engine.h dcc.h debug.h default_triggers.h die.h \
-	egg_lib.h irc.h log_entry.h log_filter.h main.h network.h \
-	server.h sockets.h tconfig.h t_crypto_module.h trigger.h \
-	user.h util.h t_timer.c t_timer.h troll_lib.c troll_lib.h \
-	httpd_server.c httpd_server.h $(am__append_1) $(am__append_2) \
-	$(am__append_5) $(am__append_8) $(am__append_11) \
-	$(am__append_14) $(am__append_17)
+trollbot_SOURCES = channel.c config_engine.c dcc.c debug.c irc_proto.c \
+	die.c egg_lib.c irc.c log_entry.c log_filter.c main.c \
+	network.c server.c sockets.c tconfig.c t_crypto_module.c \
+	irc_trigger.c user.c util.c channel.h config_engine.h dcc.h \
+	debug.h irc_proto.h die.h egg_lib.h irc.h log_entry.h \
+	log_filter.h main.h network.h server.h sockets.h tconfig.h \
+	t_crypto_module.h irc_trigger.h user.h util.h t_timer.c \
+	t_timer.h troll_lib.c troll_lib.h httpd_server.c \
+	httpd_server.h $(am__append_1) $(am__append_2) $(am__append_5) \
+	$(am__append_8) $(am__append_11) $(am__append_14) \
+	$(am__append_17)
 trollbot_CXXFLAGS = -O0 -g
 trollbot_CFLAGS = -O0 -Wall -std=c99 -pedantic ${LTDLINCL} \
 	$(am__append_3) $(am__append_6) $(am__append_9) \
@@ -389,7 +390,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-config_engine.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-dcc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-debug.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-default_triggers.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-die.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-egg_lib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-httpd_server.Po@am__quote@
@@ -399,6 +399,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-ics_server.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-ics_trigger.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-irc.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-irc_proto.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-irc_trigger.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-js_embed.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-js_lib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-log_entry.Po@am__quote@
@@ -418,7 +420,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-tcl_embed.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-tcl_lib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-tconfig.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-trigger.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-troll_lib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-user.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-util.Po@am__quote@
@@ -503,19 +504,19 @@ trollbot-debug.obj: debug.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-debug.obj `if test -f 'debug.c'; then $(CYGPATH_W) 'debug.c'; else $(CYGPATH_W) '$(srcdir)/debug.c'; fi`
 
-trollbot-default_triggers.o: default_triggers.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-default_triggers.o -MD -MP -MF $(DEPDIR)/trollbot-default_triggers.Tpo -c -o trollbot-default_triggers.o `test -f 'default_triggers.c' || echo '$(srcdir)/'`default_triggers.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-default_triggers.Tpo $(DEPDIR)/trollbot-default_triggers.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='default_triggers.c' object='trollbot-default_triggers.o' libtool=no @AMDEPBACKSLASH@
+trollbot-irc_proto.o: irc_proto.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-irc_proto.o -MD -MP -MF $(DEPDIR)/trollbot-irc_proto.Tpo -c -o trollbot-irc_proto.o `test -f 'irc_proto.c' || echo '$(srcdir)/'`irc_proto.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-irc_proto.Tpo $(DEPDIR)/trollbot-irc_proto.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='irc_proto.c' object='trollbot-irc_proto.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-default_triggers.o `test -f 'default_triggers.c' || echo '$(srcdir)/'`default_triggers.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-irc_proto.o `test -f 'irc_proto.c' || echo '$(srcdir)/'`irc_proto.c
 
-trollbot-default_triggers.obj: default_triggers.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-default_triggers.obj -MD -MP -MF $(DEPDIR)/trollbot-default_triggers.Tpo -c -o trollbot-default_triggers.obj `if test -f 'default_triggers.c'; then $(CYGPATH_W) 'default_triggers.c'; else $(CYGPATH_W) '$(srcdir)/default_triggers.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-default_triggers.Tpo $(DEPDIR)/trollbot-default_triggers.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='default_triggers.c' object='trollbot-default_triggers.obj' libtool=no @AMDEPBACKSLASH@
+trollbot-irc_proto.obj: irc_proto.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-irc_proto.obj -MD -MP -MF $(DEPDIR)/trollbot-irc_proto.Tpo -c -o trollbot-irc_proto.obj `if test -f 'irc_proto.c'; then $(CYGPATH_W) 'irc_proto.c'; else $(CYGPATH_W) '$(srcdir)/irc_proto.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-irc_proto.Tpo $(DEPDIR)/trollbot-irc_proto.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='irc_proto.c' object='trollbot-irc_proto.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-default_triggers.obj `if test -f 'default_triggers.c'; then $(CYGPATH_W) 'default_triggers.c'; else $(CYGPATH_W) '$(srcdir)/default_triggers.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-irc_proto.obj `if test -f 'irc_proto.c'; then $(CYGPATH_W) 'irc_proto.c'; else $(CYGPATH_W) '$(srcdir)/irc_proto.c'; fi`
 
 trollbot-die.o: die.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-die.o -MD -MP -MF $(DEPDIR)/trollbot-die.Tpo -c -o trollbot-die.o `test -f 'die.c' || echo '$(srcdir)/'`die.c
@@ -671,19 +672,19 @@ trollbot-t_crypto_module.obj: t_crypto_module.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-t_crypto_module.obj `if test -f 't_crypto_module.c'; then $(CYGPATH_W) 't_crypto_module.c'; else $(CYGPATH_W) '$(srcdir)/t_crypto_module.c'; fi`
 
-trollbot-trigger.o: trigger.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-trigger.o -MD -MP -MF $(DEPDIR)/trollbot-trigger.Tpo -c -o trollbot-trigger.o `test -f 'trigger.c' || echo '$(srcdir)/'`trigger.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-trigger.Tpo $(DEPDIR)/trollbot-trigger.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='trigger.c' object='trollbot-trigger.o' libtool=no @AMDEPBACKSLASH@
+trollbot-irc_trigger.o: irc_trigger.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-irc_trigger.o -MD -MP -MF $(DEPDIR)/trollbot-irc_trigger.Tpo -c -o trollbot-irc_trigger.o `test -f 'irc_trigger.c' || echo '$(srcdir)/'`irc_trigger.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-irc_trigger.Tpo $(DEPDIR)/trollbot-irc_trigger.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='irc_trigger.c' object='trollbot-irc_trigger.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-trigger.o `test -f 'trigger.c' || echo '$(srcdir)/'`trigger.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-irc_trigger.o `test -f 'irc_trigger.c' || echo '$(srcdir)/'`irc_trigger.c
 
-trollbot-trigger.obj: trigger.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-trigger.obj -MD -MP -MF $(DEPDIR)/trollbot-trigger.Tpo -c -o trollbot-trigger.obj `if test -f 'trigger.c'; then $(CYGPATH_W) 'trigger.c'; else $(CYGPATH_W) '$(srcdir)/trigger.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-trigger.Tpo $(DEPDIR)/trollbot-trigger.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='trigger.c' object='trollbot-trigger.obj' libtool=no @AMDEPBACKSLASH@
+trollbot-irc_trigger.obj: irc_trigger.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-irc_trigger.obj -MD -MP -MF $(DEPDIR)/trollbot-irc_trigger.Tpo -c -o trollbot-irc_trigger.obj `if test -f 'irc_trigger.c'; then $(CYGPATH_W) 'irc_trigger.c'; else $(CYGPATH_W) '$(srcdir)/irc_trigger.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-irc_trigger.Tpo $(DEPDIR)/trollbot-irc_trigger.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='irc_trigger.c' object='trollbot-irc_trigger.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-trigger.obj `if test -f 'trigger.c'; then $(CYGPATH_W) 'trigger.c'; else $(CYGPATH_W) '$(srcdir)/trigger.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-irc_trigger.obj `if test -f 'irc_trigger.c'; then $(CYGPATH_W) 'irc_trigger.c'; else $(CYGPATH_W) '$(srcdir)/irc_trigger.c'; fi`
 
 trollbot-user.o: user.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-user.o -MD -MP -MF $(DEPDIR)/trollbot-user.Tpo -c -o trollbot-user.o `test -f 'user.c' || echo '$(srcdir)/'`user.c

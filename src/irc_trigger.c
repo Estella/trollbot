@@ -1,5 +1,5 @@
 #include "main.h"
-#include "trigger.h"
+#include "irc_trigger.h"
 #include "strings.h"
 #include "irc.h"
 #include "network.h"

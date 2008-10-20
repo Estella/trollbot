@@ -2,7 +2,7 @@
 #include "main.h"
 #include "python_embed.h"
 
-#include "trigger.h"
+#include "irc_trigger.h"
 #include "irc.h"
 #include "network.h"
 #include "server.h"

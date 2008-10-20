@@ -15,7 +15,7 @@
 #include "irc.h"
 #include "network.h"
 #include "channel.h"
-#include "trigger.h"
+#include "irc_trigger.h"
 #include "dcc.h"
 #include "log_entry.h"
 

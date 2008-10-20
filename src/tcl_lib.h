@@ -7,6 +7,7 @@
 #undef END_EXTERN_C
 
 #ifdef HAVE_ICS
+int tcl_ics_get_score(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const obvv[]);
 int tcl_putics(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]);
 int tcl_ics_bind(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]);
 int tcl_irc_interp(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]);

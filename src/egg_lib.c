@@ -11,7 +11,7 @@
 #include "user.h"
 #include "irc.h"
 #include "dcc.h"
-#include "trigger.h"
+#include "irc_trigger.h"
 #include "t_crypto_module.h"
 #include "t_timer.h"
 #include "util.h"
@@ -964,7 +964,7 @@ void egg_savechannels(struct network *net)
 /* IMP_IN: TCL, Javascript[kicken]				 */
 /* Note: This appears to have a bug with   
  * Dynamically loaded channels. this is not
- * the issue here, it's in default_triggers.c
+ * the issue here, it's in irc_proto.c
  */
 /* FIXME: Should this return an array of strings instead of one string? */
 char *egg_channels(struct network *net)

@@ -11,7 +11,7 @@
 
 #include "config_engine.h"
 #include "php_embed.h"
-#include "trigger.h"
+#include "irc_trigger.h"
 #include "network.h"
 #include "egg_lib.h"
 #include "troll_lib.h"

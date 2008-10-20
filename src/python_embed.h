@@ -4,8 +4,8 @@
 #include <Python.h>
 #include <config_engine.h>
 #include "irc.h"
-#include "trigger.h"
 
+struct trigger;
 struct network;
 struct config_engine;
 

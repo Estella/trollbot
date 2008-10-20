@@ -12,7 +12,7 @@
 #include "dcc.h"
 #include "channel.h"
 #include "user.h"
-#include "trigger.h"
+#include "irc_trigger.h"
 #include "t_crypto_module.h"
 #include "log_filter.h"
 #include "log_entry.h"

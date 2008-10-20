@@ -47,6 +47,12 @@ struct ics_game
 	char *pretty_notation;      /* The "pretty notation of the previous move ("none if there were none) */
 	int flip_field_orientation; /* 1 = black at the bottom, 0 = White at the bottom */
 
+	char *winner_name;
+	char *loser_name;
+
+	char *end_result; /* Can be checkmate, stalemate, adjourn, draw, abortion, forfeiture */
+	char *end_message; /* Full end message, non-null on end game */
+
   struct ics_game *prev;
   struct ics_game *next;  
 };

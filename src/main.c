@@ -22,7 +22,7 @@
 #include "user.h"
 #include "sockets.h"
 #include "dcc.h"
-#include "default_triggers.h"
+#include "irc_proto.h"
 #include "log_entry.h"
 #include "egg_lib.h"
 
