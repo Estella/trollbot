@@ -33,7 +33,7 @@ void die_nicely(int ret)
 		free_networks(g_cfg->networks);
 
 #ifdef HAVE_ICS
-		free_ics_servers(g_cfg->ics_servers);
+		/* free_ics_servers(g_cfg->ics_servers); */
 #endif /* HAVE_ICS */
 
 #ifdef HAVE_XMPP
