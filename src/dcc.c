@@ -176,7 +176,7 @@ void dcc_init_listener(struct network *net)
 	}
 
 	dcchostip = tmalloc0(3*4+3+1);
-	sprintf(dcchostip,"%s",inet_ntoa(*((struct in_addr *)he->h_addr)));
+	sprintf(dcchostip,"%s",inet_ntoa(*((struct in_addr *)he->h_addr_list[0])));
 
 	if ((net->dcc_listener = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
 	{
@@ -322,7 +322,7 @@ void reverse_dcc_chat(struct network *net, struct trigger *trig, struct irc_data
 	}
 
 	dcchostip = tmalloc0(3*4+3+1);
-	sprintf(dcchostip,"%s",inet_ntoa(*((struct in_addr *)he->h_addr)));
+	sprintf(dcchostip,"%s",inet_ntoa(*((struct in_addr *)he->h_addr_list[0])));
 
 	irc_printf(net->sock,"PRIVMSG %s :\001DCC CHAT chat %d %d\001",data->prefix->nick,htonl(inet_addr(dcchostip)),net->dcc_port);
 

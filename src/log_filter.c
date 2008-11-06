@@ -26,10 +26,6 @@ void log_filters_check(struct log_filter *filters, struct log_entry *entry)
 	{
 		if (tmp->flags == NULL || entry->flags == NULL)
 		{
-			troll_debug(LOG_WARN,"It's funny I should use this deprecated method inside the "
-					"new logging system, but I thought I should let the developer "
-					"who fixes this to know that the the entry's or log_filter's "
-					"flags were NULL");
 			tmp = tmp->next;
 			continue;
 		}

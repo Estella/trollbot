@@ -314,7 +314,7 @@ void ics_server_connect(struct ics_server *ics)
 	return;
 }
 
-void free_ics_ics_server(struct ics_server *ics_server)
+void free_ics_servers(struct ics_server *ics_server)
 {
 	struct ics_server *xtmp=NULL;
 	struct ics_server *xold=NULL;

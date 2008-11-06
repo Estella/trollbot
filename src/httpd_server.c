@@ -202,7 +202,7 @@ void httpd_server_listen(struct httpd_server *httpd)
 	else
 	{
 		hostip = tmalloc0(3*4+3+1);
-		sprintf(hostip,"%s",inet_ntoa(*((struct in_addr *)he->h_addr)));
+		sprintf(hostip,"%s",inet_ntoa(*((struct in_addr *)he->h_addr_list[0])));
 	}
 
   my_addr.sin_family = AF_INET;

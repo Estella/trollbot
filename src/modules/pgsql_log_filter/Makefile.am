@@ -5,6 +5,8 @@ INCLUDES        = -I$(top_builddir) -I$(top_srcdir)         \
 
 lib_LTLIBRARIES = pgsql_log_filter.la
 
+pgsql_log_filter_la_CXXFLAGS = ${PQINC}
+
 pgsql_log_filter_la_SOURCES = pgsql_log_filter.c pgsql_log_filter.h
 
-pgsql_log_filter_la_LDFLAGS = -module -no-undefined -avoid-version
+pgsql_log_filter_la_LDFLAGS = -module -no-undefined -avoid-version ${PQLIB}

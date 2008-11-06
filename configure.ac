@@ -9,7 +9,10 @@ AM_INIT_AUTOMAKE(trollbot,snap20080930)
 
 AC_CONFIG_HEADER(config.h)
 
-AC_CONFIG_SUBDIRS(libltdl)
+LT_CONFIG_LTDL_DIR([libltdl])
+
+LT_INIT
+LTDL_INIT
 
 AC_LIBTOOL_DLOPEN
 AC_LIBLTDL_CONVENIENCE
@@ -43,6 +46,7 @@ AC_FUNC_FORK
 
 AC_TYPE_PID_T
 
+
 dnl check if libxml2 exists
 dnl needed for jabber/xmpp
 
@@ -50,6 +54,9 @@ AC_ARG_WITH(httpd, [  --with-httpd=[yes/no]  Whether to include webserver suppor
 	[ AC_DEFINE([HAVE_HTTPD],1,[Whether to use httpd support])
 		with_httpd="yes"])
 
+AC_ARG_WITH(pgsql, [  --with-pgsql=[yes/no]  Whether to include PostgreSQL support],
+	[ AC_DEFINE([HAVE_PGSQL],1,[Whether to use PostgreSQL support])
+		with_pgsql="yes"])
 
 AC_ARG_WITH(ics, [  --with-ics=[yes/no]  Whether to include ICS support],
 	[ AC_DEFINE([HAVE_ICS],1,[Whether to use ICS support])
@@ -58,6 +65,14 @@ AC_ARG_WITH(ics, [  --with-ics=[yes/no]  Whether to include ICS support],
 
 AC_ARG_WITH(xmpp, [  --with-xmpp=[yes/no]  Whether to include XMPP support],
 	[ with_xmpp="$withval" ])
+
+if test "${with_pgsql}" = "yes"; then
+	dnl check if postgresql exists
+	POSTGRESQL_CHECKS
+
+	AC_SUBST(PQINCPATH)
+	AC_SUBST(PQLIB)
+fi
 
 if test "${with_xmpp}" = "yes"; then
 	AM_PATH_XML2(2.6.13)
@@ -99,7 +114,7 @@ if test "x${JS_LIBS}" != "x"; then
 	AC_DEFINE([HAVE_JS],1,[Ability to use Javascript scripting])
 fi
 
-AM_CONDITIONAL(WITH_PGSQL, test "x${PG_LIBS}" != "x")
+AM_CONDITIONAL(WITH_PGSQL, test "x${PQLIB}" != "x")
 
 AM_CONDITIONAL(WITH_JS, test "x${JS_LIBS}" != "x")
 
@@ -139,6 +154,7 @@ AC_OUTPUT(Makefile
           src/Makefile
 					src/modules/Makefile
 					src/modules/crypto/Makefile
+					src/modules/pgsql_log_filter/Makefile
           doc_dist/Makefile
           scripts_dist/Makefile
 					log_dist/Makefile
@@ -218,6 +234,11 @@ else
   echo "  Perl   Support: No"
 fi
 
+if test "x${PQLIB}" != "x"; then
+  echo "  Pgsql  Support: Yes"
+else
+  echo "  Pgsql  Support: No"
+fi
 
 
 echo ""

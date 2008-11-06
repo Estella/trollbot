@@ -158,7 +158,7 @@ void network_connect(struct network *net)
 		else
 		{
 			vhostip = tmalloc0(3*4+3+1);
-			sprintf(vhostip,"%s",inet_ntoa(*((struct in_addr *)he->h_addr)));
+			sprintf(vhostip,"%s",inet_ntoa(*((struct in_addr *)he->h_addr_list[0])));
 		}
 	}
 
@@ -194,7 +194,7 @@ void network_connect(struct network *net)
 
 	serv_addr.sin_family = AF_INET;
 	serv_addr.sin_port   = htons(svr->port);
-	serv_addr.sin_addr   = *((struct in_addr *)he->h_addr);
+	serv_addr.sin_addr   = *((struct in_addr *)he->h_addr_list[0]);
 	memset(&(serv_addr.sin_zero), '\0', 8);
 
 	if (vhostip != NULL)

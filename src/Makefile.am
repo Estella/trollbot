@@ -13,6 +13,12 @@ trollbot_LDADD  = ${LIBLTDL} "-dlopen" modules/crypto/crypto.la
 
 trollbot_DEPENDENCIES = modules/crypto/crypto.la
 
+if WITH_PGSQL
+trollbot_LDADD += "-dlopen" modules/pgsql_log_filter/pgsql_log_filter.la
+trollbot_DEPENDENCIES += modules/pgsql_log_filter/pgsql_log_filter.la
+endif
+
+
 if WITH_ICS
 
 trollbot_SOURCES += ics_server.c ics_server.h ics_proto.c ics_proto.h ics_trigger.c ics_trigger.h ics_game.c ics_game.h ics_lib.c ics_lib.h
