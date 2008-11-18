@@ -31,16 +31,18 @@ struct trigger *trigger_list_del(struct trigger *triggers, struct trigger *del)
 			if (tmp->next != NULL)
 				tmp->next->prev = tmp->prev;
 
-			while (tmp == del && tmp->prev != NULL)
+			if (tmp->prev == NULL && tmp->next == NULL)
+				return NULL;
+
+			if (tmp->prev != NULL)
+				tmp = tmp->prev;
+			else if (tmp->next != NULL)
+				tmp = tmp->next;
+			
+			while (tmp->prev != NULL)
 				tmp = tmp->prev;
 
-			while (tmp == del && tmp->next != NULL)
-				tmp = tmp->next;
-
-			if (tmp == del)
-				return NULL;
-			else
-				return tmp;
+			return tmp;
 
 		}
 
