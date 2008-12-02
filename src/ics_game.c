@@ -111,6 +111,8 @@ struct ics_game *new_ics_game(void)
 	ret->end_result  = NULL;
 	ret->end_message = NULL;
 
+	ret->style_twelve = NULL;
+
 	for (i=0; i < 8; i++)
 		for (j = 0; j < 8; j++)
 			ret->board[i][j] = '-';
@@ -159,6 +161,7 @@ void free_ics_game(struct ics_game *ics_game)
 	free(ics_game->loser_name);
 	free(ics_game->end_message);
 	free(ics_game->end_result);
+	free(ics_game->style_twelve);
 
 	free(ics_game);
 }

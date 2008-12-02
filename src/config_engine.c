@@ -18,7 +18,11 @@
 #include "log_entry.h"
 #include "debug.h"
 
-#include "httpd_server.h"
+#ifdef HAVE_HTTP
+#include "http_server.h"
+#include "http_proto.h"
+#include "http_request.h"
+#endif /* HAVE_HTTP */
 
 #ifdef HAVE_ICS
 #include "ics_server.h"
@@ -149,7 +153,9 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 
 	cfg->dcc_motd     = NULL;
 
-	cfg->httpd_servers = NULL;
+#ifdef HAVE_HTTP
+	cfg->http_servers = NULL;
+#endif /* HAVE_HTTP */
 
 #ifdef HAVE_ICS
 	cfg->ics_servers = NULL;
@@ -243,11 +249,13 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 				search = search->next;
 			}
 		}
-		else if (!strcmp(topmost->key,"httpd_server"))
+#ifdef HAVE_HTTP
+		else if (!strcmp(topmost->key,"http_server"))
 		{
 			/* Much simpler this way, isn't it? */
-			cfg->httpd_servers = httpd_server_add(cfg->httpd_servers,httpd_server_from_tconfig_block(topmost));
+			cfg->http_servers = http_server_add(cfg->http_servers,http_server_from_tconfig_block(topmost));
 		}
+#endif /* HAVE_HTTP */
 #ifdef HAVE_ICS
 		else if (!strcmp(topmost->key,"ics_server"))
 		{

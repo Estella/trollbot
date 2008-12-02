@@ -47,6 +47,8 @@ struct ics_game
 	char *pretty_notation;      /* The "pretty notation of the previous move ("none if there were none) */
 	int flip_field_orientation; /* 1 = black at the bottom, 0 = White at the bottom */
 
+	char *style_twelve; /* Style 12, for script handling */
+
 	char *winner_name;
 	char *loser_name;
 

@@ -19,7 +19,10 @@ struct ics_server;
 struct xmpp_server;
 #endif /* HAVE_XMPP */
 
-struct httpd_server;
+#ifdef HAVE_HTTP
+struct http_server;
+#endif /* HAVE_HTTP */
+
 struct dcc_session;
 struct network;
 struct user;
@@ -37,7 +40,9 @@ struct config
   struct dcc_session *dccs;
   struct user        *g_users;
 
-	struct httpd_server *httpd_servers;
+#ifdef HAVE_HTTP
+	struct http_server *http_servers;
+#endif /* HAVE_HTTP */
 #ifdef HAVE_ICS
 	struct ics_server *ics_servers;
 #endif /* HAVE_ICS */

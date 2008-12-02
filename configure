@@ -916,8 +916,8 @@ WITH_JS_TRUE
 WITH_JS_FALSE
 WITH_ICS_TRUE
 WITH_ICS_FALSE
-WITH_HTTPD_TRUE
-WITH_HTTPD_FALSE
+WITH_HTTP_TRUE
+WITH_HTTP_FALSE
 TCLSH
 TCL_DEFS
 TCL_LIBS
@@ -1554,7 +1554,7 @@ Optional Packages:
   --with-included-ltdl    use the GNU ltdl sources included here
   --with-ltdl-include=DIR use the ltdl headers installed in DIR
   --with-ltdl-lib=DIR     use the libltdl.la installed in DIR
-  --with-httpd=yes/no  Whether to include webserver support
+  --with-http=yes/no  Whether to include webserver support
   --with-pgsql=yes/no  Whether to include PostgreSQL support
   --with-ics=yes/no  Whether to include ICS support
   --with-xmpp=yes/no  Whether to include XMPP support
@@ -15004,14 +15004,14 @@ fi
 
 
 
-# Check whether --with-httpd was given.
-if test "${with_httpd+set}" = set; then
-  withval=$with_httpd;
+# Check whether --with-http was given.
+if test "${with_http+set}" = set; then
+  withval=$with_http;
 cat >>confdefs.h <<\_ACEOF
-#define HAVE_HTTPD 1
+#define HAVE_HTTP 1
 _ACEOF
 
-		with_httpd="yes"
+		with_http="yes"
 fi
 
 
@@ -16239,12 +16239,12 @@ else
 fi
 
 
- if test "x${with_httpd}" != "x"; then
-  WITH_HTTPD_TRUE=
-  WITH_HTTPD_FALSE='#'
+ if test "x${with_http}" != "x"; then
+  WITH_HTTP_TRUE=
+  WITH_HTTP_FALSE='#'
 else
-  WITH_HTTPD_TRUE='#'
-  WITH_HTTPD_FALSE=
+  WITH_HTTP_TRUE='#'
+  WITH_HTTP_FALSE=
 fi
 
 
@@ -17499,10 +17499,10 @@ echo "$as_me: error: conditional \"WITH_ICS\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
-if test -z "${WITH_HTTPD_TRUE}" && test -z "${WITH_HTTPD_FALSE}"; then
-  { { echo "$as_me:$LINENO: error: conditional \"WITH_HTTPD\" was never defined.
+if test -z "${WITH_HTTP_TRUE}" && test -z "${WITH_HTTP_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"WITH_HTTP\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
-echo "$as_me: error: conditional \"WITH_HTTPD\" was never defined.
+echo "$as_me: error: conditional \"WITH_HTTP\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -18530,8 +18530,8 @@ WITH_JS_TRUE!$WITH_JS_TRUE$ac_delim
 WITH_JS_FALSE!$WITH_JS_FALSE$ac_delim
 WITH_ICS_TRUE!$WITH_ICS_TRUE$ac_delim
 WITH_ICS_FALSE!$WITH_ICS_FALSE$ac_delim
-WITH_HTTPD_TRUE!$WITH_HTTPD_TRUE$ac_delim
-WITH_HTTPD_FALSE!$WITH_HTTPD_FALSE$ac_delim
+WITH_HTTP_TRUE!$WITH_HTTP_TRUE$ac_delim
+WITH_HTTP_FALSE!$WITH_HTTP_FALSE$ac_delim
 TCLSH!$TCLSH$ac_delim
 TCL_DEFS!$TCL_DEFS$ac_delim
 TCL_LIBS!$TCL_LIBS$ac_delim
@@ -19995,10 +19995,10 @@ else
 	echo "  ICS        Support: No"
 fi
 
-if test "${with_httpd}" = "yes"; then
- 	echo "  HTTPD      Support: Yes"
+if test "${with_http}" = "yes"; then
+ 	echo "  HTTP       Support: Yes"
  else
-		echo "  HTTPD      Support: No"
+		echo "  HTTP       Support: No"
 fi
 
 

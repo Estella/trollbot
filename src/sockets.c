@@ -30,7 +30,11 @@
 #include "user.h"
 #include "t_timer.h"
 
-#include "httpd_server.h"
+#ifdef HAVE_HTTP
+#include "http_server.h"
+#include "http_proto.h"
+#include "http_request.h"
+#endif /* HAVE_HTTP */
 
 #ifdef HAVE_ICS
 #include "ics_server.h"
@@ -43,10 +47,6 @@
 #include "xmpp_proto.h"
 #include "xmpp_trigger.h"
 #endif /* HAVE_XMPP */
-
-#ifdef HAVE_HTTPD
-#include "httpd_request.h"
-#endif /* HAVE_HTTPD */
 
 void socket_set_blocking(int sock)
 {
@@ -106,7 +106,11 @@ void irc_loop(void)
 	struct xmpp_server *xs;
 #endif /* HAVE_XMPP */
 	struct dcc_session *dcc;
-	struct httpd_server *httpd;
+
+#ifdef HAVE_HTTP
+	struct http_server *http;
+#endif /* HAVE_HTTP */
+
 	int numsocks = 0;
 	socklen_t lon      = 0;
 	int valopt   = 0;
@@ -145,16 +149,18 @@ void irc_loop(void)
 		xs = xs->next;
 	}
 #endif /* HAVE_XMPP */
-	httpd = g_cfg->httpd_servers;
+#ifdef HAVE_HTTP
+	http = g_cfg->http_servers;
 
 	/* Connect to one server for each network, or mark network unconnectable */
-	while (httpd != NULL)
+	while (http != NULL)
 	{
-		httpd->status = HTTPD_UNINITIALIZED;
-		httpd_server_listen(httpd);
+		http->status = HTTP_UNINITIALIZED;
+		http_server_listen(http);
 
-		httpd = httpd->next;
+		http = http->next;
 	}
+#endif /* HAVE_HTTP */
 
 	net = g_cfg->networks;
 
@@ -371,6 +377,26 @@ void irc_loop(void)
 			net = net->next;
 		}
 
+#ifdef HAVE_HTTP
+		http = g_cfg->http_servers;
+		
+		while (http != NULL)
+		{
+			if (http->sock == -2)
+				continue;
+
+      if (http->sock == -1)
+      {
+				http_init_listener(http);	
+			}
+
+			FD_SET(http->sock,&socks);
+			numsocks = (http->sock > numsocks) ? http->sock : numsocks;
+			
+			http = http->next;
+		}
+#endif /* HAVE_HTTP */
+
 		select(numsocks+1, &socks, &writefds, NULL, NULL);
 
 #ifdef HAVE_ICS
@@ -490,16 +516,27 @@ void irc_loop(void)
 
 		net = g_cfg->networks;
 
-		while (httpd != NULL)
+#ifdef HAVE_HTTP
+
+		http = g_cfg->http_servers;
+		
+		while (http != NULL)
 		{
-			if (httpd->sock > 0)
-			{
-				if (FD_ISSET(httpd->sock, &socks))
+      /* If a DCC listener exists, add it to the fd set */
+      if (http->sock > 0)
+      {
+        if (FD_ISSET(http->sock,&socks))
 				{
-					/* new_httpd_request(httpd); */
+					new_http_connection(http);
 				}
-			}
+      }
+			
+			http = http->next;
 		}
+
+
+#endif /* HAVE_HTTP */
+
 
 		while (net != NULL)
 		{

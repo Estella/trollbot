@@ -23,6 +23,7 @@
 
 /* ICS specific eggdrop IRC commands */
 #ifdef HAVE_ICS
+
 int tcl_ics_get_score(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {
 	struct ics_server *ics = NULL;

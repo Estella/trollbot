@@ -50,9 +50,9 @@ AC_TYPE_PID_T
 dnl check if libxml2 exists
 dnl needed for jabber/xmpp
 
-AC_ARG_WITH(httpd, [  --with-httpd=[yes/no]  Whether to include webserver support],
-	[ AC_DEFINE([HAVE_HTTPD],1,[Whether to use httpd support])
-		with_httpd="yes"])
+AC_ARG_WITH(http, [  --with-http=[yes/no]  Whether to include webserver support],
+	[ AC_DEFINE([HAVE_HTTP],1,[Whether to use http support])
+		with_http="yes"])
 
 AC_ARG_WITH(pgsql, [  --with-pgsql=[yes/no]  Whether to include PostgreSQL support],
 	[ AC_DEFINE([HAVE_PGSQL],1,[Whether to use PostgreSQL support])
@@ -120,7 +120,7 @@ AM_CONDITIONAL(WITH_JS, test "x${JS_LIBS}" != "x")
 
 AM_CONDITIONAL(WITH_ICS, test "x${with_ics}" != "x")
 
-AM_CONDITIONAL(WITH_HTTPD, test "x${with_httpd}" != "x")
+AM_CONDITIONAL(WITH_HTTP, test "x${with_http}" != "x")
 
 dnl test if TCL exists
 AX_PROG_TCL
@@ -189,10 +189,10 @@ else
 	echo "  ICS        Support: No"
 fi
 
-if test "${with_httpd}" = "yes"; then
- 	echo "  HTTPD      Support: Yes"
+if test "${with_http}" = "yes"; then
+ 	echo "  HTTP       Support: Yes"
  else
-		echo "  HTTPD      Support: No"
+		echo "  HTTP       Support: No"
 fi
 
 

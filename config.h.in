@@ -58,8 +58,8 @@
 /* Define to 1 if you have the `fork' function. */
 #undef HAVE_FORK
 
-/* Whether to use httpd support */
-#undef HAVE_HTTPD
+/* Whether to use http support */
+#undef HAVE_HTTP
 
 /* Whether to use ICS support */
 #undef HAVE_ICS

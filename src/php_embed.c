@@ -80,7 +80,6 @@ void myphp_eval_file(char *filename)
 		return;
 	}
 	
-	printf("%s\n",filename);
 	
 	fclose(fp);
 

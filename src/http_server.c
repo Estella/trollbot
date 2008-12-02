@@ -18,7 +18,12 @@
 #include <errno.h>
 
 #include "main.h"
-#include "httpd_server.h"
+
+#include "http_server.h"
+#include "http_request.h"
+#include "http_proto.h"
+
+
 #include "server.h"
 #include "t_timer.h"
 #include "sockets.h"
@@ -40,67 +45,67 @@
 #endif /* HAVE_JS */
 
 
-struct httpd_server *httpd_server_from_tconfig_block(struct tconfig_block *tcfg)
+struct http_server *http_server_from_tconfig_block(struct tconfig_block *tcfg)
 {
-	struct httpd_server    *httpd = NULL;
+	struct http_server    *http = NULL;
 	struct tconfig_block   *tmp = NULL;
 
 	if ((tmp = tcfg) == NULL)
 	{
-		log_entry_printf(NULL,NULL,"X","httpd_server_from_tconfig_block() called with NULL tconfig block");
+		log_entry_printf(NULL,NULL,"X","http_server_from_tconfig_block() called with NULL tconfig block");
 		return NULL;
 	}
 
-	if (tstrcasecmp(tmp->key,"httpd_server"))
+	if (tstrcasecmp(tmp->key,"http_server"))
 	{
-		log_entry_printf(NULL,NULL,"X","httpd_server_from_tconfig_block() called with invalid block type");
+		log_entry_printf(NULL,NULL,"X","http_server_from_tconfig_block() called with invalid block type");
 		return NULL;
 	}
 
 	if (tmp->child == NULL)
 	{
-		log_entry_printf(NULL,NULL,"X","httpd_server_from_tconfig_block() called with a httpd_server with no fucking child");
+		log_entry_printf(NULL,NULL,"X","http_server_from_tconfig_block() called with a http_server with no fucking child");
 		return NULL;
 	}
 
-	httpd  = new_httpd_server(tmp->value);
+	http  = new_http_server(tmp->value);
 	tmp = tmp->child;
 
 	while (tmp != NULL)
 	{
 		if (!tstrcasecmp(tmp->key,"username"))
 		{
-			if (httpd->username == NULL)
+			if (http->username == NULL)
 			{
-				httpd->username = tstrdup(tmp->value);
+				http->username = tstrdup(tmp->value);
 			}
 		}
 		else if (!tstrcasecmp(tmp->key,"password"))
 		{
-			if (httpd->password == NULL)
+			if (http->password == NULL)
 			{
-				httpd->password = tstrdup(tmp->value);
+				http->password = tstrdup(tmp->value);
 			}
 		}
 		else if (!tstrcasecmp(tmp->key,"web_root"))
 		{
-			if (httpd->web_root == NULL)
+			if (http->web_root == NULL)
 			{
-				httpd->web_root = tstrdup(tmp->value);
+				http->web_root = tstrdup(tmp->value);
 			}
 		}
 		else if (!tstrcasecmp(tmp->key,"host"))
 		{
-			if (httpd->host == NULL)
+			if (http->host == NULL)
 			{
-				httpd->host = tstrdup(tmp->value);
+				http->host = tstrdup(tmp->value);
 			}
 		}
 		else if (!tstrcasecmp(tmp->key,"port"))
 		{
-			if (httpd->port == -1)
+			if (http->port == -1)
 			{
-				httpd->port = atoi(tmp->value);
+				http->port = atoi(tmp->value);
 			}
 		}
 
@@ -109,14 +114,14 @@ struct httpd_server *httpd_server_from_tconfig_block(struct tconfig_block *tcfg)
 		tmp = tmp->next;
 	}
 
-	return httpd;
+	return http;
 }
 
-struct httpd_server *httpd_server_add(struct httpd_server *httpd_server, struct httpd_server *add)
+struct http_server *http_server_add(struct http_server *http_server, struct http_server *add)
 {
-	struct httpd_server *tmp = NULL;
+	struct http_server *tmp = NULL;
 
-	if ((tmp = httpd_server) == NULL)
+	if ((tmp = http_server) == NULL)
 		return add;
 
 	while (tmp->next != NULL) tmp = tmp->next;
@@ -124,16 +129,16 @@ struct httpd_server *httpd_server_add(struct httpd_server *httpd_server, struct 
 	tmp->next = add;
 	add->prev = tmp;
 
-	return httpd_server;
+	return http_server;
 }
 
-struct httpd_server *httpd_server_del(struct httpd_server *httpd_server, struct httpd_server *del)
+struct http_server *http_server_del(struct http_server *http_server, struct http_server *del)
 {
-	struct httpd_server *tmp = NULL;
+	struct http_server *tmp = NULL;
 
-	if ((tmp = httpd_server) == NULL)
+	if ((tmp = http_server) == NULL)
 	{
-		log_entry_printf(NULL,NULL,"X","httpd_server_del() called with NULL server list");
+		log_entry_printf(NULL,NULL,"X","http_server_del() called with NULL server list");
 		return NULL;
 	}
 
@@ -163,13 +168,13 @@ struct httpd_server *httpd_server_del(struct httpd_server *httpd_server, struct 
 		tmp = tmp->next;
 	}
 
-	log_entry_printf(NULL,NULL,"X","httpd_server_del() called with a server deletion that no entry existed for");
+	log_entry_printf(NULL,NULL,"X","http_server_del() called with a server deletion that no entry existed for");
 
-	return httpd_server;
+	return http_server;
 
 }
 
-void httpd_server_listen(struct httpd_server *httpd)
+void http_server_listen(struct http_server *http)
 {
 	struct sockaddr_in my_addr;
 	struct hostent *he;
@@ -177,28 +182,28 @@ void httpd_server_listen(struct httpd_server *httpd)
 
 	char *hostip       = NULL;
 
-	if ((httpd == NULL) || httpd->host == NULL)
+	if ((http == NULL) || http->host == NULL)
 	{
-		troll_debug(LOG_ERROR, "httpd_server_listen() called with NULL httpd or NULL host.");
+		troll_debug(LOG_ERROR, "http_server_listen() called with NULL http or NULL host.");
 		return;
 	}
 
-	if ((httpd->sock = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+	if ((http->sock = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 	{
-		troll_debug(LOG_WARN,"Could not create socket to server for HTTPD server %s",httpd->label);
+		troll_debug(LOG_WARN,"Could not create socket to server for HTTP server %s",http->label);
 		return;
 	}
 
-	socket_set_nonblocking(httpd->sock);
+	socket_set_nonblocking(http->sock);
 
-	if (setsockopt(httpd->sock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
+	if (setsockopt(http->sock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
 	{
-		troll_debug(LOG_ERROR,"Could not set socket options for HTTPD server %s",httpd->label);
+		troll_debug(LOG_ERROR,"Could not set socket options for HTTP server %s",http->label);
 		return;
 	}
 
-	if ((he = gethostbyname(httpd->host)) == NULL)
-		troll_debug(LOG_WARN,"Could not resolve HTTPD host (%s) using default",httpd->host);
+	if ((he = gethostbyname(http->host)) == NULL)
+		troll_debug(LOG_WARN,"Could not resolve HTTP host (%s) using default",http->host);
 	else
 	{
 		hostip = tmalloc0(3*4+3+1);
@@ -209,46 +214,46 @@ void httpd_server_listen(struct httpd_server *httpd)
 
   my_addr.sin_addr.s_addr = inet_addr(hostip);
 
-  if (httpd->port == -1)
+  if (http->port == -1)
   {
-    httpd->port = 4964;
+    http->port = 4964;
   }
 
-  my_addr.sin_port = htons(httpd->port);
+  my_addr.sin_port = htons(http->port);
 
   memset(&(my_addr.sin_zero), '\0', 8);
 
-  if (bind(httpd->sock, (struct sockaddr *)&my_addr, sizeof(my_addr)) == -1)
+  if (bind(http->sock, (struct sockaddr *)&my_addr, sizeof(my_addr)) == -1)
   {
-    troll_debug(LOG_ERROR,"Could not bind to HTTPD socket");
+    troll_debug(LOG_ERROR,"Could not bind to HTTP socket");
     free(hostip);
     return;
   }
 
-  if (listen(httpd->sock, HTTPD_MAX) == -1)
+  if (listen(http->sock, HTTP_MAX) == -1)
   {
-    troll_debug(LOG_ERROR,"Could not listen on HTTPD socket");
+    troll_debug(LOG_ERROR,"Could not listen on HTTP socket");
     free(hostip);
     return;
   }
 
-  troll_debug(LOG_DEBUG,"Listening on %s port %d\n",hostip,httpd->port);
+  troll_debug(LOG_DEBUG,"Listening on %s port %d\n",hostip,http->port);
   free(hostip);
 
-	httpd->status = HTTPD_LISTENING;
+	http->status = HTTP_LISTENING;
 
 	return;
 }
 
-void free_httpd_httpd_server(struct httpd_server *httpd_server)
+void free_http_http_server(struct http_server *http_server)
 {
-	struct httpd_server *xtmp=NULL;
-	struct httpd_server *xold=NULL;
+	struct http_server *xtmp=NULL;
+	struct http_server *xold=NULL;
 
-	if (httpd_server == NULL)
+	if (http_server == NULL)
 		return;
 
-	xtmp = httpd_server;
+	xtmp = http_server;
 
 	while (xtmp->prev != NULL)
 		xtmp = xtmp->prev;
@@ -257,7 +262,7 @@ void free_httpd_httpd_server(struct httpd_server *httpd_server)
 	{
 		xold = xtmp->next;
 
-		free_httpd_server(xtmp);
+		free_http_server(xtmp);
 
 		xtmp = xold;
 	}
@@ -265,47 +270,48 @@ void free_httpd_httpd_server(struct httpd_server *httpd_server)
 	return;
 }
 
-void free_httpd_server(struct httpd_server *httpd)
+void free_http_server(struct http_server *http)
 {
-	free(httpd->label);
-	free(httpd->host);
-	free(httpd->web_root);
-	free(httpd->username);
-	free(httpd->password);
+	free(http->label);
+	free(http->host);
+	free(http->web_root);
+	free(http->username);
+	free(http->password);
 
-	t_timers_free(httpd->timers);
-/*	free_httpd_trigger_table(httpd->httpd_trigger_table); */
+	free_http_requests(http->requests);
+	t_timers_free(http->timers);
+/*	free_http_trigger_table(http->http_trigger_table); */
 
 	/* FIXME: free fucking JS shit, PHP shit, etc */
 
 #ifdef HAVE_TCL
-	tstrfreev(httpd->tcl_scripts);
+	tstrfreev(http->tcl_scripts);
 #endif /* HAVE_TCL */
 
 #ifdef HAVE_JS
-	tstrfreev(httpd->js_scripts);
+	tstrfreev(http->js_scripts);
 	/* Cleanup Spidermonkey */
-	if (httpd->cx != NULL)
+	if (http->cx != NULL)
 	{
-		JS_DestroyContext(httpd->cx);
+		JS_DestroyContext(http->cx);
 	}
 #endif /* HAVE_JS */
 
 #ifdef HAVE_PYTHON
-	tstrfreev(httpd->py_scripts);
+	tstrfreev(http->py_scripts);
 #endif /* HAVE_PYTHON*/
 
-	free(httpd);
+	free(http);
 
 	return;
 }
 
 
-struct httpd_server *new_httpd_server(char *label)
+struct http_server *new_http_server(char *label)
 {
-	struct httpd_server *ret;
+	struct http_server *ret;
 
-	ret = tmalloc(sizeof(struct httpd_server));
+	ret = tmalloc(sizeof(struct http_server));
 
 	if (label != NULL)
 		ret->label = tstrdup(label);
@@ -316,7 +322,7 @@ struct httpd_server *new_httpd_server(char *label)
 	ret->next          = NULL;
 
 	ret->sock          = -1;
-	ret->status        = HTTPD_UNINITIALIZED;
+	ret->status        = HTTP_UNINITIALIZED;
 
 	ret->timers        = NULL;
 
@@ -332,8 +338,10 @@ struct httpd_server *new_httpd_server(char *label)
 
 	ret->filters       = NULL;
 
+	ret->requests      = NULL;
+
 	/* Ridiculously long */
-/*	ret->httpd_trigger_table = new_httpd_trigger_table(); */
+/*	ret->http_trigger_table = new_http_trigger_table(); */
 
 
 #ifdef HAVE_TCL

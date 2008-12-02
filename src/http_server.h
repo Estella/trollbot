@@ -1,8 +1,9 @@
-#ifndef __HTTPD_SERVER_H__
-#define __HTTPD_SERVER_H__
+#ifndef __HTTP_SERVER_H__
+#define __HTTP_SERVER_H__
 
 #include "config.h"
 
+struct http_request;
 struct tconfig_block;
 struct log_filter;
 
@@ -28,15 +29,15 @@ struct interpreter;
 #include <jsapi.h>
 #endif /* HAVE_JS */
 
-#define HTTPD_MAX 100
+#define HTTP_MAX 100
 
-enum httpd_status {
-	HTTPD_UNINITIALIZED = 0,
-	HTTPD_LISTENING
+enum http_status {
+	HTTP_UNINITIALIZED = 0,
+	HTTP_LISTENING
 };
 
 /* All lists are at head */
-struct httpd_server
+struct http_server
 {
   char *label;
 
@@ -46,7 +47,7 @@ struct httpd_server
 	/* Copy over on rehash */
   int sock;
 
-/* struct httpd_trigger_table *httpd_trigger_table; */
+/* struct http_trigger_table *http_trigger_table; */
 
   char *host;
 	int port;
@@ -64,8 +65,10 @@ struct httpd_server
   /* Unhandled blocks go here */
   struct tconfig_block *tcfg;
 
-  struct httpd_server *prev;
-  struct httpd_server *next;
+	struct http_request *requests;
+
+  struct http_server *prev;
+  struct http_server *next;
 
 #ifdef HAVE_TCL
   /* Network TCL Interpreter */
@@ -105,15 +108,15 @@ struct httpd_server
 };
 
 
-struct httpd_server *httpd_server_from_tconfig_block(struct tconfig_block *tcfg);
+struct http_server *http_server_from_tconfig_block(struct tconfig_block *tcfg);
 
-struct httpd_server *httpd_server_add(struct httpd_server *servers, struct httpd_server *add);
-struct httpd_server *httpd_server_del(struct httpd_server *servers, struct httpd_server *del);
+struct http_server *http_server_add(struct http_server *servers, struct http_server *add);
+struct http_server *http_server_del(struct http_server *servers, struct http_server *del);
 
-void httpd_server_listen(struct httpd_server *httpd);
-void free_httpd_servers(struct httpd_server *httpd_servers);
-void free_httpd_server(struct httpd_server *httpd);
+void http_server_listen(struct http_server *http);
+void free_http_servers(struct http_server *http_servers);
+void free_http_server(struct http_server *http);
 
-struct httpd_server *new_httpd_server(char *label);
+struct http_server *new_http_server(char *label);
 
-#endif /* __HTTPD_SERVER_H__ */
+#endif /* __HTTP_SERVER_H__ */

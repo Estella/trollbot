@@ -368,6 +368,8 @@ void ics_internal_board_get_info(struct ics_server *ics, struct ics_trigger *ics
 
 	game->flip_field_orientation = atoi(data->tokens[30]);
 
+	game->style_twelve = tstrdup(data->txt_packet);
+
 	if (ics->game == NULL)
 	{
 		ics->game = ics_game_add(ics->game, game);
@@ -435,7 +437,6 @@ void ics_internal_anti_anti_idle(struct ics_server *ics, struct ics_trigger *ics
 	{
 		interval = ANTI_ANTI_IDLE_INTERVAL;
 		ics_printf(ics, "games");
-		printf("Doing anti-idle\n");
 	}
 
 	return;

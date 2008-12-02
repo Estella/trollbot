@@ -30,8 +30,8 @@
 #include "tcl_embed.h"
 #endif /* HAVE_TCL */
 
-#ifdef HAVE_HTTPD
-#endif /* HAVE_HTTPD */
+#ifdef HAVE_HTTP
+#endif /* HAVE_HTTP */
 
 struct config *g_cfg = NULL;
 
@@ -39,8 +39,8 @@ int main(int argc, char *argv[])
 {
 	pid_t pid;
 	int lt_errors;
-#ifdef HAVE_HTTPD
-#endif /* HAVE_HTTPD */
+#ifdef HAVE_HTTP
+#endif /* HAVE_HTTP */
 
 	/* This macro let's libltdl know what preloaded symbols exist if
 	 * modules are statically linked
@@ -101,14 +101,14 @@ int main(int argc, char *argv[])
 	printf("#################################################\n");
 	printf("# %-45s #\n","Channel databases loaded");
 
-#ifdef HAVE_HTTPD
+#ifdef HAVE_HTTP
 	printf("#################################################\n");
 	printf("# %-45s #\n","Starting webserver");
 	printf("#################################################\n");
-	printf("httpd Parser Output:\n");
+	printf("http Parser Output:\n");
 
 	printf("#################################################\n");
-#endif /* HAVE_HTTPD */
+#endif /* HAVE_HTTP */
 	printf("# %-45s #\n","Entering Socket loop");
 	printf("#################################################\n");
 	printf("IRC Debug Output:\n");
