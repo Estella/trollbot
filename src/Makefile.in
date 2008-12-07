@@ -36,25 +36,26 @@ bin_PROGRAMS = trollbot$(EXEEXT)
 @WITH_PGSQL_TRUE@am__append_1 = "-dlopen" modules/pgsql_log_filter/pgsql_log_filter.la
 @WITH_PGSQL_TRUE@am__append_2 = modules/pgsql_log_filter/pgsql_log_filter.la
 @WITH_HTTP_TRUE@am__append_3 = http_server.c http_server.h http_proto.c http_proto.h http_request.c http_request.h
-@WITH_ICS_TRUE@am__append_4 = ics_server.c ics_server.h ics_proto.c ics_proto.h ics_trigger.c ics_trigger.h ics_game.c ics_game.h ics_lib.c ics_lib.h
-@WITH_XMPP_TRUE@am__append_5 = xmpp_server.c xmpp_server.h xmpp_proto.c xmpp_proto.h xmpp_trigger.c xmpp_trigger.h
-@WITH_XMPP_TRUE@am__append_6 = ${XML_CPPFLAGS}
-@WITH_XMPP_TRUE@am__append_7 = ${XML_LIBS}
-@WITH_JS_TRUE@am__append_8 = js_embed.c js_embed.h js_lib.c js_lib.h
-@WITH_JS_TRUE@am__append_9 = ${JS_CFLAGS}
-@WITH_JS_TRUE@am__append_10 = ${JS_LIBS}
-@WITH_TCL_TRUE@am__append_11 = tcl_embed.c tcl_embed.h tcl_lib.c tcl_lib.h
-@WITH_TCL_TRUE@am__append_12 = ${TCL_CPPFLAGS}
-@WITH_TCL_TRUE@am__append_13 = ${TCL_LIBS}
-@WITH_PHP_TRUE@am__append_14 = apachecompat.c apachecompat.h php_embed.c php_embed.h php_lib.c php_lib.h
-@WITH_PHP_TRUE@am__append_15 = ${PHP_CFLAGS}
-@WITH_PHP_TRUE@am__append_16 = ${PHP_LDADD}
-@WITH_PERL_TRUE@am__append_17 = perl_embed.c perl_embed.h perl_lib.c perl_lib.h
-@WITH_PERL_TRUE@am__append_18 = ${PERL_CFLAGS}
-@WITH_PERL_TRUE@am__append_19 = ${PERL_LDADD}
-@WITH_PYTHON_TRUE@am__append_20 = python_embed.c python_embed.h python_lib.c python_lib.h
-@WITH_PYTHON_TRUE@am__append_21 = ${PYTHON_CFLAGS}
-@WITH_PYTHON_TRUE@am__append_22 = ${PYTHON_LDADD}
+@WITH_ICS_TRUE@am__append_4 = "-dlopen" modules/tmod_ics/tmod_ics.la
+@WITH_ICS_TRUE@am__append_5 = modules/tmod_ics/tmod_ics.la
+@WITH_XMPP_TRUE@am__append_6 = xmpp_server.c xmpp_server.h xmpp_proto.c xmpp_proto.h xmpp_trigger.c xmpp_trigger.h
+@WITH_XMPP_TRUE@am__append_7 = ${XML_CPPFLAGS}
+@WITH_XMPP_TRUE@am__append_8 = ${XML_LIBS}
+@WITH_JS_TRUE@am__append_9 = js_embed.c js_embed.h js_lib.c js_lib.h
+@WITH_JS_TRUE@am__append_10 = ${JS_CFLAGS}
+@WITH_JS_TRUE@am__append_11 = ${JS_LIBS}
+@WITH_TCL_TRUE@am__append_12 = tcl_embed.c tcl_embed.h tcl_lib.c tcl_lib.h
+@WITH_TCL_TRUE@am__append_13 = ${TCL_CPPFLAGS}
+@WITH_TCL_TRUE@am__append_14 = ${TCL_LIBS}
+@WITH_PHP_TRUE@am__append_15 = apachecompat.c apachecompat.h php_embed.c php_embed.h php_lib.c php_lib.h
+@WITH_PHP_TRUE@am__append_16 = ${PHP_CFLAGS}
+@WITH_PHP_TRUE@am__append_17 = ${PHP_LDADD}
+@WITH_PERL_TRUE@am__append_18 = perl_embed.c perl_embed.h perl_lib.c perl_lib.h
+@WITH_PERL_TRUE@am__append_19 = ${PERL_CFLAGS}
+@WITH_PERL_TRUE@am__append_20 = ${PERL_LDADD}
+@WITH_PYTHON_TRUE@am__append_21 = python_embed.c python_embed.h python_lib.c python_lib.h
+@WITH_PYTHON_TRUE@am__append_22 = ${PYTHON_CFLAGS}
+@WITH_PYTHON_TRUE@am__append_23 = ${PYTHON_LDADD}
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -86,9 +87,7 @@ am__trollbot_SOURCES_DIST = channel.c config_engine.c dcc.c debug.c \
 	sockets.h tconfig.h t_crypto_module.h irc_trigger.h user.h \
 	util.h t_timer.c t_timer.h troll_lib.c troll_lib.h \
 	http_server.c http_server.h http_proto.c http_proto.h \
-	http_request.c http_request.h ics_server.c ics_server.h \
-	ics_proto.c ics_proto.h ics_trigger.c ics_trigger.h ics_game.c \
-	ics_game.h ics_lib.c ics_lib.h xmpp_server.c xmpp_server.h \
+	http_request.c http_request.h xmpp_server.c xmpp_server.h \
 	xmpp_proto.c xmpp_proto.h xmpp_trigger.c xmpp_trigger.h \
 	js_embed.c js_embed.h js_lib.c js_lib.h tcl_embed.c \
 	tcl_embed.h tcl_lib.c tcl_lib.h apachecompat.c apachecompat.h \
@@ -98,24 +97,19 @@ am__trollbot_SOURCES_DIST = channel.c config_engine.c dcc.c debug.c \
 @WITH_HTTP_TRUE@am__objects_1 = trollbot-http_server.$(OBJEXT) \
 @WITH_HTTP_TRUE@	trollbot-http_proto.$(OBJEXT) \
 @WITH_HTTP_TRUE@	trollbot-http_request.$(OBJEXT)
-@WITH_ICS_TRUE@am__objects_2 = trollbot-ics_server.$(OBJEXT) \
-@WITH_ICS_TRUE@	trollbot-ics_proto.$(OBJEXT) \
-@WITH_ICS_TRUE@	trollbot-ics_trigger.$(OBJEXT) \
-@WITH_ICS_TRUE@	trollbot-ics_game.$(OBJEXT) \
-@WITH_ICS_TRUE@	trollbot-ics_lib.$(OBJEXT)
-@WITH_XMPP_TRUE@am__objects_3 = trollbot-xmpp_server.$(OBJEXT) \
+@WITH_XMPP_TRUE@am__objects_2 = trollbot-xmpp_server.$(OBJEXT) \
 @WITH_XMPP_TRUE@	trollbot-xmpp_proto.$(OBJEXT) \
 @WITH_XMPP_TRUE@	trollbot-xmpp_trigger.$(OBJEXT)
-@WITH_JS_TRUE@am__objects_4 = trollbot-js_embed.$(OBJEXT) \
+@WITH_JS_TRUE@am__objects_3 = trollbot-js_embed.$(OBJEXT) \
 @WITH_JS_TRUE@	trollbot-js_lib.$(OBJEXT)
-@WITH_TCL_TRUE@am__objects_5 = trollbot-tcl_embed.$(OBJEXT) \
+@WITH_TCL_TRUE@am__objects_4 = trollbot-tcl_embed.$(OBJEXT) \
 @WITH_TCL_TRUE@	trollbot-tcl_lib.$(OBJEXT)
-@WITH_PHP_TRUE@am__objects_6 = trollbot-apachecompat.$(OBJEXT) \
+@WITH_PHP_TRUE@am__objects_5 = trollbot-apachecompat.$(OBJEXT) \
 @WITH_PHP_TRUE@	trollbot-php_embed.$(OBJEXT) \
 @WITH_PHP_TRUE@	trollbot-php_lib.$(OBJEXT)
-@WITH_PERL_TRUE@am__objects_7 = trollbot-perl_embed.$(OBJEXT) \
+@WITH_PERL_TRUE@am__objects_6 = trollbot-perl_embed.$(OBJEXT) \
 @WITH_PERL_TRUE@	trollbot-perl_lib.$(OBJEXT)
-@WITH_PYTHON_TRUE@am__objects_8 = trollbot-python_embed.$(OBJEXT) \
+@WITH_PYTHON_TRUE@am__objects_7 = trollbot-python_embed.$(OBJEXT) \
 @WITH_PYTHON_TRUE@	trollbot-python_lib.$(OBJEXT)
 am_trollbot_OBJECTS = trollbot-channel.$(OBJEXT) \
 	trollbot-config_engine.$(OBJEXT) trollbot-dcc.$(OBJEXT) \
@@ -130,7 +124,7 @@ am_trollbot_OBJECTS = trollbot-channel.$(OBJEXT) \
 	trollbot-util.$(OBJEXT) trollbot-t_timer.$(OBJEXT) \
 	trollbot-troll_lib.$(OBJEXT) $(am__objects_1) $(am__objects_2) \
 	$(am__objects_3) $(am__objects_4) $(am__objects_5) \
-	$(am__objects_6) $(am__objects_7) $(am__objects_8)
+	$(am__objects_6) $(am__objects_7)
 trollbot_OBJECTS = $(am_trollbot_OBJECTS)
 am__DEPENDENCIES_1 =
 @WITH_XMPP_TRUE@am__DEPENDENCIES_2 = $(am__DEPENDENCIES_1)
@@ -334,18 +328,19 @@ trollbot_SOURCES = channel.c config_engine.c dcc.c debug.c irc_proto.c \
 	log_filter.h main.h network.h server.h sockets.h tconfig.h \
 	t_crypto_module.h irc_trigger.h user.h util.h t_timer.c \
 	t_timer.h troll_lib.c troll_lib.h $(am__append_3) \
-	$(am__append_4) $(am__append_5) $(am__append_8) \
-	$(am__append_11) $(am__append_14) $(am__append_17) \
-	$(am__append_20)
-trollbot_CXXFLAGS = -O0 -g
-trollbot_CFLAGS = -O0 -Wall -std=c99 -pedantic ${LTDLINCL} \
 	$(am__append_6) $(am__append_9) $(am__append_12) \
 	$(am__append_15) $(am__append_18) $(am__append_21)
+trollbot_CXXFLAGS = -O0 -g
+trollbot_CFLAGS = -O0 -Wall -std=c99 -pedantic ${LTDLINCL} \
+	$(am__append_7) $(am__append_10) $(am__append_13) \
+	$(am__append_16) $(am__append_19) $(am__append_22)
 trollbot_LDADD = ${LIBLTDL} "-dlopen" modules/crypto/crypto.la \
-	$(am__append_1) $(am__append_7) $(am__append_10) \
-	$(am__append_13) $(am__append_16) $(am__append_19) \
-	$(am__append_22)
-trollbot_DEPENDENCIES = modules/crypto/crypto.la $(am__append_2)
+	"-dlopen" modules/tmod_ics/tmod_ics.la $(am__append_1) \
+	$(am__append_4) $(am__append_8) $(am__append_11) \
+	$(am__append_14) $(am__append_17) $(am__append_20) \
+	$(am__append_23)
+trollbot_DEPENDENCIES = modules/crypto/crypto.la \
+	modules/tmod_ics/tmod_ics.la $(am__append_2) $(am__append_5)
 all: all-recursive
 
 .SUFFIXES:
@@ -427,11 +422,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-http_proto.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-http_request.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-http_server.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-ics_game.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-ics_lib.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-ics_proto.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-ics_server.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-ics_trigger.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-irc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-irc_proto.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-irc_trigger.Po@am__quote@
@@ -817,76 +807,6 @@ trollbot-http_request.obj: http_request.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='http_request.c' object='trollbot-http_request.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-http_request.obj `if test -f 'http_request.c'; then $(CYGPATH_W) 'http_request.c'; else $(CYGPATH_W) '$(srcdir)/http_request.c'; fi`
-
-trollbot-ics_server.o: ics_server.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-ics_server.o -MD -MP -MF $(DEPDIR)/trollbot-ics_server.Tpo -c -o trollbot-ics_server.o `test -f 'ics_server.c' || echo '$(srcdir)/'`ics_server.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-ics_server.Tpo $(DEPDIR)/trollbot-ics_server.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ics_server.c' object='trollbot-ics_server.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-ics_server.o `test -f 'ics_server.c' || echo '$(srcdir)/'`ics_server.c
-
-trollbot-ics_server.obj: ics_server.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-ics_server.obj -MD -MP -MF $(DEPDIR)/trollbot-ics_server.Tpo -c -o trollbot-ics_server.obj `if test -f 'ics_server.c'; then $(CYGPATH_W) 'ics_server.c'; else $(CYGPATH_W) '$(srcdir)/ics_server.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-ics_server.Tpo $(DEPDIR)/trollbot-ics_server.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ics_server.c' object='trollbot-ics_server.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-ics_server.obj `if test -f 'ics_server.c'; then $(CYGPATH_W) 'ics_server.c'; else $(CYGPATH_W) '$(srcdir)/ics_server.c'; fi`
-
-trollbot-ics_proto.o: ics_proto.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-ics_proto.o -MD -MP -MF $(DEPDIR)/trollbot-ics_proto.Tpo -c -o trollbot-ics_proto.o `test -f 'ics_proto.c' || echo '$(srcdir)/'`ics_proto.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-ics_proto.Tpo $(DEPDIR)/trollbot-ics_proto.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ics_proto.c' object='trollbot-ics_proto.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-ics_proto.o `test -f 'ics_proto.c' || echo '$(srcdir)/'`ics_proto.c
-
-trollbot-ics_proto.obj: ics_proto.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-ics_proto.obj -MD -MP -MF $(DEPDIR)/trollbot-ics_proto.Tpo -c -o trollbot-ics_proto.obj `if test -f 'ics_proto.c'; then $(CYGPATH_W) 'ics_proto.c'; else $(CYGPATH_W) '$(srcdir)/ics_proto.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-ics_proto.Tpo $(DEPDIR)/trollbot-ics_proto.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ics_proto.c' object='trollbot-ics_proto.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-ics_proto.obj `if test -f 'ics_proto.c'; then $(CYGPATH_W) 'ics_proto.c'; else $(CYGPATH_W) '$(srcdir)/ics_proto.c'; fi`
-
-trollbot-ics_trigger.o: ics_trigger.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-ics_trigger.o -MD -MP -MF $(DEPDIR)/trollbot-ics_trigger.Tpo -c -o trollbot-ics_trigger.o `test -f 'ics_trigger.c' || echo '$(srcdir)/'`ics_trigger.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-ics_trigger.Tpo $(DEPDIR)/trollbot-ics_trigger.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ics_trigger.c' object='trollbot-ics_trigger.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-ics_trigger.o `test -f 'ics_trigger.c' || echo '$(srcdir)/'`ics_trigger.c
-
-trollbot-ics_trigger.obj: ics_trigger.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-ics_trigger.obj -MD -MP -MF $(DEPDIR)/trollbot-ics_trigger.Tpo -c -o trollbot-ics_trigger.obj `if test -f 'ics_trigger.c'; then $(CYGPATH_W) 'ics_trigger.c'; else $(CYGPATH_W) '$(srcdir)/ics_trigger.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-ics_trigger.Tpo $(DEPDIR)/trollbot-ics_trigger.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ics_trigger.c' object='trollbot-ics_trigger.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-ics_trigger.obj `if test -f 'ics_trigger.c'; then $(CYGPATH_W) 'ics_trigger.c'; else $(CYGPATH_W) '$(srcdir)/ics_trigger.c'; fi`
-
-trollbot-ics_game.o: ics_game.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-ics_game.o -MD -MP -MF $(DEPDIR)/trollbot-ics_game.Tpo -c -o trollbot-ics_game.o `test -f 'ics_game.c' || echo '$(srcdir)/'`ics_game.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-ics_game.Tpo $(DEPDIR)/trollbot-ics_game.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ics_game.c' object='trollbot-ics_game.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-ics_game.o `test -f 'ics_game.c' || echo '$(srcdir)/'`ics_game.c
-
-trollbot-ics_game.obj: ics_game.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-ics_game.obj -MD -MP -MF $(DEPDIR)/trollbot-ics_game.Tpo -c -o trollbot-ics_game.obj `if test -f 'ics_game.c'; then $(CYGPATH_W) 'ics_game.c'; else $(CYGPATH_W) '$(srcdir)/ics_game.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-ics_game.Tpo $(DEPDIR)/trollbot-ics_game.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ics_game.c' object='trollbot-ics_game.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-ics_game.obj `if test -f 'ics_game.c'; then $(CYGPATH_W) 'ics_game.c'; else $(CYGPATH_W) '$(srcdir)/ics_game.c'; fi`
-
-trollbot-ics_lib.o: ics_lib.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-ics_lib.o -MD -MP -MF $(DEPDIR)/trollbot-ics_lib.Tpo -c -o trollbot-ics_lib.o `test -f 'ics_lib.c' || echo '$(srcdir)/'`ics_lib.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-ics_lib.Tpo $(DEPDIR)/trollbot-ics_lib.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ics_lib.c' object='trollbot-ics_lib.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-ics_lib.o `test -f 'ics_lib.c' || echo '$(srcdir)/'`ics_lib.c
-
-trollbot-ics_lib.obj: ics_lib.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-ics_lib.obj -MD -MP -MF $(DEPDIR)/trollbot-ics_lib.Tpo -c -o trollbot-ics_lib.obj `if test -f 'ics_lib.c'; then $(CYGPATH_W) 'ics_lib.c'; else $(CYGPATH_W) '$(srcdir)/ics_lib.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-ics_lib.Tpo $(DEPDIR)/trollbot-ics_lib.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ics_lib.c' object='trollbot-ics_lib.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-ics_lib.obj `if test -f 'ics_lib.c'; then $(CYGPATH_W) 'ics_lib.c'; else $(CYGPATH_W) '$(srcdir)/ics_lib.c'; fi`
 
 trollbot-xmpp_server.o: xmpp_server.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-xmpp_server.o -MD -MP -MF $(DEPDIR)/trollbot-xmpp_server.Tpo -c -o trollbot-xmpp_server.o `test -f 'xmpp_server.c' || echo '$(srcdir)/'`xmpp_server.c

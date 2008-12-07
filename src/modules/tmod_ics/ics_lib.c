@@ -11,6 +11,10 @@
 
 #include "ics_lib.h"
 
+#define ics_getboard  tmod_ics_LTX_ics_getboard
+#define ics_get_score tmod_ics_LTX_ics_get_score
+#define ics_bind      tmod_ics_LTX_ics_bind
+
 char **ics_getboard(struct ics_server *ics, int game_id)
 {
 	struct ics_game *turn;

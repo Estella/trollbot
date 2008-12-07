@@ -4,14 +4,14 @@ bindir = ${prefix}
 
 bin_PROGRAMS = trollbot
 
-trollbot_SOURCES = channel.c config_engine.c dcc.c debug.c irc_proto.c die.c egg_lib.c irc.c log_entry.c log_filter.c main.c network.c server.c sockets.c tconfig.c t_crypto_module.c irc_trigger.c user.c util.c channel.h config_engine.h dcc.h debug.h irc_proto.h die.h egg_lib.h irc.h log_entry.h log_filter.h main.h network.h server.h sockets.h tconfig.h t_crypto_module.h irc_trigger.h user.h util.h t_timer.c t_timer.h troll_lib.c troll_lib.h
+trollbot_SOURCES = channel.c config_engine.c dcc.c debug.c irc_proto.c die.c egg_lib.c irc.c log_entry.c log_filter.c main.c network.c server.c sockets.c tconfig.c t_crypto_module.c irc_trigger.c user.c util.c channel.h config_engine.h dcc.h debug.h irc_proto.h die.h egg_lib.h irc.h log_entry.h log_filter.h main.h network.h server.h sockets.h tconfig.h t_crypto_module.h irc_trigger.h user.h util.h t_timer.c t_timer.h troll_lib.c troll_lib.h tsocket.c tsocket.h
 
 trollbot_CXXFLAGS = -O0 -g
 trollbot_CFLAGS = -O0 -Wall -std=c99 -pedantic ${LTDLINCL}
 
-trollbot_LDADD  = ${LIBLTDL} "-dlopen" modules/crypto/crypto.la
+trollbot_LDADD  = ${LIBLTDL} "-dlopen" modules/crypto/crypto.la "-dlopen" modules/tmod_ics/tmod_ics.la
 
-trollbot_DEPENDENCIES = modules/crypto/crypto.la
+trollbot_DEPENDENCIES = modules/crypto/crypto.la modules/tmod_ics/tmod_ics.la
 
 if WITH_PGSQL
 trollbot_LDADD += "-dlopen" modules/pgsql_log_filter/pgsql_log_filter.la
@@ -23,7 +23,8 @@ trollbot_SOURCES += http_server.c http_server.h http_proto.c http_proto.h http_r
 endif
 
 if WITH_ICS
-trollbot_SOURCES += ics_server.c ics_server.h ics_proto.c ics_proto.h ics_trigger.c ics_trigger.h ics_game.c ics_game.h ics_lib.c ics_lib.h
+trollbot_LDADD += "-dlopen" modules/tmod_ics/tmod_ics.la
+trollbot_DEPENDENCIES += modules/tmod_ics/tmod_ics.la
 endif
 
 if WITH_XMPP
