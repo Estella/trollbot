@@ -169,7 +169,7 @@ void network_connect(struct network *net)
 	while (srv != NULL)
 	{
 		if (srv->host != NULL)
-			if (tsocket_connect(tsock, srv->vhost, srv->host, srv->port))
+			if (tsocket_connect(tsock, net->vhost, srv->host, srv->port))
 				break;
 
 		srv = srv->next;
