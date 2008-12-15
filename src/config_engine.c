@@ -48,7 +48,6 @@
 #include "js_embed.h"
 #endif /* HAVE_JS */
 
-
 /* The configuration process works in 2 steps
  * first it loads the file's data in tree form
  * and checks for syntax, then it walks through
@@ -152,6 +151,8 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 	cfg->filters      = NULL;
 
 	cfg->dcc_motd     = NULL;
+
+	cfg->tsockets     = NULL;
 
 #ifdef HAVE_HTTP
 	cfg->http_servers = NULL;
