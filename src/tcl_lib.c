@@ -763,7 +763,7 @@ int tcl_puthelp(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *co
 		return TCL_ERROR;
 	}
 
-	irc_printf(net->sock,"%s",Tcl_GetString(objv[1]));
+	tsocket_printf(net->tsock,"%s",Tcl_GetString(objv[1]));
 
 	return TCL_OK;
 }
@@ -782,7 +782,7 @@ int tcl_putserv(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *co
 		return TCL_ERROR;
 	}
 
-	irc_printf(net->sock,"%s",Tcl_GetString(objv[1]));
+	tsocket_printf(net->tsock,"%s",Tcl_GetString(objv[1]));
 
 	return TCL_OK;
 }

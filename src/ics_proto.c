@@ -269,7 +269,7 @@ void ics_internal_announce_new_game(struct ics_server *ics, struct ics_trigger *
 		{
 			if (!tstrcasecmp(chan->name, "#christian_debate"))
 			{
-				irc_printf(net->sock, "PRIVMSG %s :A new chess battle has been started with %s facing %s. There is a time limit on this match. Each player starts with %d minutes and gets %d seconds upon the completion of each move.", chan->name, ics->game->white_name, ics->game->black_name, ics->game->initial_time, ics->game->increment_time);
+				tsocket_printf(net->tsock, "PRIVMSG %s :A new chess battle has been started with %s facing %s. There is a time limit on this match. Each player starts with %d minutes and gets %d seconds upon the completion of each move.", chan->name, ics->game->white_name, ics->game->black_name, ics->game->initial_time, ics->game->increment_time);
 			}
 
 			chan = chan->next;

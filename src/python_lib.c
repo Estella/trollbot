@@ -182,7 +182,7 @@ PyObject *py_putserv(PyObject *self, PyObject *args) {
 		Py_RETURN_FALSE;
 	}
 
-	irc_printf(net->sock, msg);
+	tsocket_printf(net->tsock, msg);
 
 	Py_RETURN_TRUE;
 }
@@ -212,7 +212,7 @@ PyObject *py_privmsg(PyObject *self, PyObject *args) {
 
 	snprintf(raw_msg, 509, "PRIVMSG %s :%s", dest, msg); 
 
-	irc_printf(net->sock, raw_msg);
+	tsocket_printf(net->tsock, raw_msg);
 
 	Py_RETURN_TRUE;
 }

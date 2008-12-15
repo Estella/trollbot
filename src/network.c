@@ -30,6 +30,7 @@
 #include "log_filter.h"
 #include "egg_lib.h"
 #include "troll_lib.h"
+#include "tsocket.h"
 
 #ifdef HAVE_TCL
 #include "tcl_embed.h"
@@ -42,6 +43,16 @@
 #ifdef HAVE_JS
 #include "js_embed.h"
 #endif /* HAVE_JS */
+
+void irc_ball_start_rolling(struct tsocket *tsock)
+{
+	struct network *net = tsock->data;
+
+	tsocket_printf(net->tsock,"USER %s foo.com foo.com :%s",net->ident,net->realname);
+	tsocket_printf(net->tsock,"NICK %s",net->nick);
+
+	return;
+}
 
 struct user *network_user_find_by_hostmask(struct network *net, const char *hostmask)
 {
@@ -136,103 +147,46 @@ struct channel *network_channel_find(struct network *net, const char *name)
 
 void network_connect(struct network *net)
 {
-	struct sockaddr_in serv_addr;
-	struct sockaddr_in my_addr;
-	struct hostent *he;
+	struct tsocket *tsock;
+	struct server  *srv;
 
-	char *vhostip      = NULL;
-	struct server *svr = NULL;
+	tsock = tsocket_new();
 
-	if ((net->sock = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+	/* Assign it in the irc_server */
+	tsock->data = net;
+	net->tsock  = tsock;
+
+	tsock->name = tstrdup(net->label);
+
+	/* in irc_proto.c */
+	tsock->tsocket_read_cb    = irc_in;
+	tsock->tsocket_write_cb   = NULL;
+	tsock->tsocket_connect_cb = irc_ball_start_rolling;
+
+	/* Find a suitable network server */
+	srv = net->servers;
+
+	while (srv != NULL)
 	{
-		troll_debug(LOG_WARN,"Could not create socket to server for network %s",net->label);
+		if (srv->host != NULL)
+			if (tsocket_connect(tsock, srv->vhost, srv->host, srv->port))
+				break;
+
+		srv = srv->next;
+	}
+
+	if (srv == NULL)
+	{
+		troll_debug(LOG_WARN, "Could not connect to any servers for IRC network %s", net->label);
+		tsocket_free(tsock);
 		return;
 	}
 
-	socket_set_nonblocking(net->sock);
+	/* Insert it into the global check list */
+	if (g_cfg->tsockets == NULL)
+		slist_init(&g_cfg->tsockets, tsocket_free);
 
-	if (net->vhost != NULL)
-	{
-		if ((he = gethostbyname(net->vhost)) == NULL)
-			troll_debug(LOG_WARN,"Could not resolve vhost (%s) using default",net->vhost);
-		else
-		{
-			vhostip = tmalloc0(3*4+3+1);
-			sprintf(vhostip,"%s",inet_ntoa(*((struct in_addr *)he->h_addr_list[0])));
-		}
-	}
-
-	svr = net->cur_server;
-
-	if (svr == NULL)
-	{
-		troll_debug(LOG_WARN, "NULL current server for network %s",net->label);
-
-		net->status = NET_DISCONNECTED;
-		net->sock   = -1;
-		return;
-	}
-
-	/* Move on to the next one on the list, if exhausted, start over */
-	if (svr->next == NULL)
-	{
-		while (svr->prev != NULL)
-			svr = svr->prev;
-	}
-	else
-		svr = svr->next;
-
-	net->cur_server = svr;
-
-	if ((he = gethostbyname(svr->host)) == NULL)
-	{
-		troll_debug(LOG_WARN,"Could not resolve %s in network %s\n",svr->host,net->label);
-		net->status = NET_DISCONNECTED;
-		net->sock   = -1;
-		return;
-	}
-
-	serv_addr.sin_family = AF_INET;
-	serv_addr.sin_port   = htons(svr->port);
-	serv_addr.sin_addr   = *((struct in_addr *)he->h_addr_list[0]);
-	memset(&(serv_addr.sin_zero), '\0', 8);
-
-	if (vhostip != NULL)
-	{
-		my_addr.sin_family = AF_INET;
-		my_addr.sin_addr.s_addr = inet_addr(vhostip);
-		free(vhostip);
-		my_addr.sin_port = htons(0);
-		memset(&(my_addr.sin_zero), '\0', 8);
-
-		/* Bind IRC connection to vhost */
-		if (bind(net->sock, (struct sockaddr *)&my_addr, sizeof(my_addr)) == -1)
-			troll_debug(LOG_WARN,"Could not use vhost: %s",net->vhost);
-	}
-
-	if (connect(net->sock,(struct sockaddr *)&serv_addr,sizeof(struct sockaddr)) == -1)
-	{
-		if (errno == EINPROGRESS)
-			troll_debug(LOG_DEBUG,"Non-blocking connect(%s) in progress", svr->host);
-		else
-		{
-			troll_debug(LOG_WARN,"Could not connect to server %s at %d",svr->host,svr->port);
-			net->last_try = time(NULL);
-			net->status   = NET_DISCONNECTED;
-			return;
-		}
-
-	}
-	else
-	{
-		troll_debug(LOG_DEBUG,"Connected instantly to server %s at %d",svr->host,svr->port);
-		/* Connected right away */
-		net->status     = NET_NOTREADY;
-		return;
-	}
-
-
-	net->status = NET_NONBLOCKCONNECT;
+	slist_insert_next(g_cfg->tsockets, NULL, (void *)tsock);
 
 	return;
 }
@@ -259,6 +213,7 @@ void free_networks(struct network *net)
 		free(net->shost);
 		free(net->userfile);
 		free(net->chanfile);
+		tsocket_free(net->tsock);
 
 		/* hey kicken, free(NULL) is defined and perfectly fine behavior 
 		 * No need to check pointers beforehand. If it crashes, it's because
@@ -326,7 +281,7 @@ struct network *new_network(char *label)
 
 	ret->cur_server    = NULL;
 
-	ret->sock          = -1;
+	ret->tsock         = NULL;
 	ret->status        = 0;
 
 	ret->botnick       = NULL;
