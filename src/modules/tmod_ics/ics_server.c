@@ -29,6 +29,7 @@
 #include "log_filter.h"
 #include "log_entry.h"
 #include "tconfig.h"
+#include "tsocket.h"
 
 #ifdef HAVE_TCL
 #include "tcl_embed.h"
@@ -212,104 +213,47 @@ struct ics_server *ics_server_del(struct ics_server *ics_server, struct ics_serv
 
 void ics_server_connect(struct ics_server *ics)
 {
-	struct sockaddr_in serv_addr;
-	struct sockaddr_in my_addr;
-	struct hostent *he;
+	struct tsocket *tsock;
+	struct server  *srv;
 
-	char *vhostip      = NULL;
-	struct server *svr = NULL;
+	tsock = tsocket_new();
 
-	if ((ics->sock = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+	/* Assign it in the ics_server */
+	tsock->data = ics;
+	ics->tsock  = tsock;
+
+	tsock->name = tstrdup(ics->label);
+
+	/* in ics_proto.c */
+	tsock->tsocket_read_cb    = ics_in;
+	tsock->tsocket_write_cb   = NULL;
+	tsock->tsocket_connect_cb = ics_ball_start_rolling;
+	
+	/* Find a suitable network server */
+	srv = ics->ics_servers;
+
+	while (srv != NULL)
 	{
-		troll_debug(LOG_WARN,"Could not create socket to server for ICS server %s",ics->label);
-		return;
+		if (srv->host != NULL)
+			if (tsocket_connect(tsock, NULL, srv->host, srv->port))
+				break;
+
+		srv = srv->next;
 	}
 
-	socket_set_nonblocking(ics->sock);
-
-	if (ics->vhost != NULL)
+	if (srv == NULL)
 	{
-		if ((he = gethostbyname(ics->vhost)) == NULL)
-			troll_debug(LOG_WARN,"Could not resolve vhost (%s) using default",ics->vhost);
-		else
-		{
-			vhostip = tmalloc0(3*4+3+1);
-			sprintf(vhostip,"%s",inet_ntoa(*((struct in_addr *)he->h_addr)));
-		}
-	}
-
-	svr = ics->cur_server;
-
-	if (svr == NULL)
-	{
-		troll_debug(LOG_WARN,"NULL current server for ICS server %s",ics->label);
-
-		ics->status = ICS_DISCONNECTED;
-		ics->sock   = -1;
-		return;
-	}
-
-	/* Move on to the next one on the list, if exhausted, start over */
-	if (svr->next == NULL)
-	{
-		while (svr->prev != NULL)
-			svr = svr->prev;
-	}
-	else
-		svr = svr->next;
-
-	ics->cur_server = svr;
-
-	if ((he = gethostbyname(svr->host)) == NULL)
-	{
-		troll_debug(LOG_WARN,"Could not resolve %s in ICS server %s\n",svr->host,ics->label);
-		ics->status = ICS_DISCONNECTED;
-		ics->sock   = -1;
-		return;
-	}
-
-	serv_addr.sin_family = AF_INET;
-	serv_addr.sin_port   = htons(svr->port);
-	serv_addr.sin_addr   = *((struct in_addr *)he->h_addr);
-	memset(&(serv_addr.sin_zero), '\0', 8);
-
-	if (vhostip != NULL)
-	{
-		my_addr.sin_family = AF_INET;
-		my_addr.sin_addr.s_addr = inet_addr(vhostip);
-		free(vhostip);
-		my_addr.sin_port = htons(0);
-		memset(&(my_addr.sin_zero), '\0', 8);
-
-		/* Bind IRC connection to vhost */
-		if (bind(ics->sock, (struct sockaddr *)&my_addr, sizeof(my_addr)) == -1)
-			troll_debug(LOG_WARN,"Could not use vhost: %s",ics->vhost);
-	}
-
-	if (connect(ics->sock,(struct sockaddr *)&serv_addr,sizeof(struct sockaddr)) == -1)
-	{
-		if (errno == EINPROGRESS)
-			troll_debug(LOG_DEBUG,"Non-blocking connect(%s) in progress", svr->host);
-		else
-		{
-			troll_debug(LOG_WARN,"Could not connect to server %s at %d",svr->host,svr->port);
-			ics->last_try = time(NULL);
-			ics->status   = ICS_DISCONNECTED;
-			return;
-		}
-
-	}
-	else
-	{
-		troll_debug(LOG_DEBUG,"Connected instantly to server %s at %d",svr->host,svr->port);
-		/* Connected right away */
-		ics->status     = ICS_NOTREADY;
-		ics->connected  = 0;
+		troll_debug(LOG_WARN, "Could not connect to any servers for ICS server %s", ics->label);
+		tsocket_free(tsock);
 		return;
 	}
 
 
-	ics->status = ICS_NONBLOCKCONNECT;
+	/* Insert it into the global check list */
+	if (g_cfg->tsockets == NULL)
+		slist_init(&g_cfg->tsockets, tsocket_free);
+
+	slist_insert_next(g_cfg->tsockets, NULL, (void *)tsock);
 
 	return;
 }
@@ -349,6 +293,7 @@ void free_ics_server(struct ics_server *ics)
 	free(ics->my_name);
 
 	free_ics_game(ics->game);
+	tsocket_free(ics->tsock);
 
 	free_servers(ics->ics_servers);
 	t_timers_free(ics->timers);
@@ -393,11 +338,11 @@ struct ics_server *new_ics_server(char *label)
 	ret->prev          = NULL;
 	ret->next          = NULL;
 
-	ret->ics_servers      = NULL; 
+	ret->ics_servers   = NULL; 
 
 	ret->cur_server    = NULL;
 
-	ret->sock          = -1;
+	ret->tsock         = NULL;
 	ret->status        = 0;
 
 	ret->timers        = NULL;

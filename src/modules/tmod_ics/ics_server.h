@@ -7,6 +7,7 @@ struct server;
 struct tconfig_block;
 struct log_filter;
 struct ics_game;
+struct tsocket;
 
 #include <time.h>
 
@@ -41,6 +42,7 @@ enum ics_status {
 	ICS_IDLE
 };
 
+
 /* All lists are at head */
 struct ics_server
 {
@@ -61,7 +63,7 @@ struct ics_server
 	char *password;
 
 	/* Copy over on rehash */
-  int sock;
+  struct tsocket *tsock;
 
 	struct ics_trigger_table *ics_trigger_table;
 

@@ -30,6 +30,7 @@
 #include "t_crypto_module.h"
 #include "t_timer.h"
 #include "util.h"
+#include "tsocket.h"
 
 /* These are builtin triggers for ICS,
  * They can be overriden in languages
@@ -518,8 +519,9 @@ void ics_internal_login(struct ics_server *ics, struct ics_trigger *ics_trig, st
 }
 
 /* This is called on connect? */
-void ics_ball_start_rolling(struct ics_server *ics)
+void ics_ball_start_rolling(struct tsocket *tsock)
 {
+	struct ics_server *ics = tsock->data;
 	init_ics_triggers(ics);
 }
 
@@ -544,7 +546,7 @@ void ics_printf(struct ics_server *ics, const char *fmt, ...)
 	snprintf(buf2,sizeof(buf2),"%s\n",buf);
 
 /*	printf("Sent: %s\n",buf2);*/
-	send(ics->sock,buf2,strlen(buf2),0);
+	send(ics->tsock->sock,buf2,strlen(buf2),0);
 }
 
 /* Constructor */
@@ -586,7 +588,7 @@ void parse_ics_line(struct ics_server *ics, char *buffer)
 	ics_data_free(data);
 }
 
-int ics_in(struct ics_server *ics)
+int ics_in(struct tsocket *tsock)
 {
 	static char         *buffer  = NULL;
 	static size_t       size     = BUFFER_SIZE;
@@ -595,6 +597,7 @@ int ics_in(struct ics_server *ics)
 	const char          *ptr     = NULL;
 	char                *optr    = NULL;
 	char                *bufcopy = NULL;
+	struct ics_server   *ics     = tsock->data;
 
 
 	/* The previous line never existed, or it was completed and
@@ -604,14 +607,14 @@ int ics_in(struct ics_server *ics)
 	{
 		/* Start with a new zeroed buffer */
 		buffer = tmalloc0(BUFFER_SIZE + 1);
-		recved = recv(ics->sock,buffer,BUFFER_SIZE-1,0);
+		recved = recv(ics->tsock->sock,buffer,BUFFER_SIZE-1,0);
 	} else {
 		/* There was a fragment left over, create a larger buffer */
 		buffer = tcrealloc0(buffer,
 				strlen(buffer) + BUFFER_SIZE + 1,
 				&size);
 
-		recved = recv(ics->sock,&buffer[strlen(buffer)],BUFFER_SIZE-1,0);
+		recved = recv(ics->tsock->sock,&buffer[strlen(buffer)],BUFFER_SIZE-1,0);
 
 	}
 
@@ -623,7 +626,7 @@ int ics_in(struct ics_server *ics)
 			buffer = NULL;
 			return 1;
 		case 0:
-			ics->sock = -1;
+			ics->tsock->sock = -1;
 			free(buffer);
 			buffer = NULL;
 			return 0;
