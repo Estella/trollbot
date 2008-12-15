@@ -197,57 +197,6 @@ void irc_loop(void)
 		timeout.tv_sec  = 1;
 		timeout.tv_usec = 0;
 
-#ifdef HAVE_XMPP
-		xs = g_cfg->xmpp_servers;
-
-		while (xs != NULL)
-		{
-			if (xs->status == XMPP_DISCONNECTED)
-			{
-				if (xs->never_give_up == 1)
-				{
-					if (xs->last_try + xs->connect_delay <= time(NULL))
-					{
-						xs->status = XMPP_INPROGRESS;
-						/* Try a non-blocking connect to the next server */
-						xs->last_try = time(NULL);
-
-						xmpp_server_connect(xs);
-					}
-				}
-			}
-
-			if (xs->status == XMPP_NONBLOCKCONNECT || xs->status == XMPP_WAITINGCONNECT)
-			{
-				numsocks = (xs->sock > numsocks) ? xs->sock : numsocks;
-
-				FD_SET(xs->sock,&writefds);
-
-				/* Now in a FD set */
-				xs->status = XMPP_WAITINGCONNECT;
-			}
-
-			/* Add each xmpp_server to the read fd set */
-			if (xs->sock != -1)
-			{
-				if (xs->status >= XMPP_NOTREADY)
-				{
-					if (xs->status == XMPP_NOTREADY)
-					{
-						xmpp_ball_start_rolling(xs);
-						xs->status = XMPP_CONNECTED;
-					}
-
-					numsocks = (xs->sock > numsocks) ? xs->sock : numsocks;
-					FD_SET(xs->sock,&socks);
-				}
-			}
-
-			xs = xs->next;
-		}
-
-#endif /* HAVE_XMPP */
-
 		net = g_cfg->networks;
 
 		while (net != NULL)
@@ -265,16 +214,6 @@ void irc_loop(void)
 						network_connect(net);
 					}
 				}	
-			}
-
-			if (net->status == NET_NONBLOCKCONNECT || net->status == NET_WAITINGCONNECT)
-			{
-				numsocks = (net->sock > numsocks) ? net->sock : numsocks;
-
-				FD_SET(net->sock,&writefds);
-
-				/* Now in a FD set */
-				net->status = NET_WAITINGCONNECT;
 			}
 
 			/* If a DCC listener exists, add it to the fd set */
@@ -312,19 +251,6 @@ void irc_loop(void)
 				}
 
 				dcc = dcc->next;
-			}
-
-			/* Add each network to the read fd set */
-			if (net->sock != -1)
-			{
-				if (net->status >= NET_NOTREADY)
-				{
-					if (net->status == NET_NOTREADY)
-						net->status = NET_CONNECTED;
-
-					numsocks = (net->sock > numsocks) ? net->sock : numsocks;
-					FD_SET(net->sock,&socks);
-				}
 			}
 
 			net = net->next;
@@ -419,63 +345,6 @@ void irc_loop(void)
 			}
 		}
 
-#ifdef HAVE_XMPP
-		xs = g_cfg->xmpp_servers;
-
-		while (xs != NULL)
-		{
-			if (xs->status == XMPP_WAITINGCONNECT)
-			{
-				if (FD_ISSET(xs->sock, &writefds))
-				{
-					/* Socket is set as writeable */
-					lon = sizeof(int); 
-
-					/* Get the current socket options for the non-blocking socket */
-					if (getsockopt(xs->sock, SOL_SOCKET, SO_ERROR, (void*)(&valopt), &lon) < 0) 
-					{ 
-						xs->sock   = -1;
-						xs->status = XMPP_DISCONNECTED;
-						troll_debug(LOG_ERROR,"Could not get socket options for xmpp_server sock");
-					}
-					else
-					{    
-						if (valopt != 0) 
-						{ 
-							xs->sock   = -1;
-							xs->status = XMPP_DISCONNECTED;
-							troll_debug(LOG_ERROR,"Non-blocking connect() to xmpp_server failed.");
-						}
-						else
-						{
-							/* Socket connect succeeded */
-							troll_debug(LOG_DEBUG,"Non-blocking connect() to xmpp_server succeeded");
-
-							/* Set connection as blocking again */
-							/* socket_set_blocking(dcc->sock); */
-
-
-							xs->status = XMPP_NOTREADY;
-						}
-					}
-				}
-			}
-
-			if (xs->sock != -1 && xs->status >= XMPP_CONNECTED)
-			{
-				if (FD_ISSET(xs->sock,&socks))
-				{
-					if (!xmpp_in(xs))
-					{
-						xs->status = XMPP_DISCONNECTED;
-					}
-				}
-			}
-
-			xs = xs->next;
-		}
-#endif /* HAVE_XMPP */
-
 		net = g_cfg->networks;
 
 #ifdef HAVE_HTTP
@@ -512,43 +381,6 @@ void irc_loop(void)
 			}
 
 			dcc = net->dccs;
-
-			if (net->status == NET_WAITINGCONNECT)
-			{
-				if (FD_ISSET(net->sock, &writefds))
-				{
-					/* Socket is set as writeable */
-					lon = sizeof(int); 
-
-					/* Get the current socket options for the non-blocking socket */
-					if (getsockopt(net->sock, SOL_SOCKET, SO_ERROR, (void*)(&valopt), &lon) < 0) 
-					{ 
-						net->sock   = -1;
-						net->status = NET_DISCONNECTED;
-						troll_debug(LOG_ERROR,"Could not get socket options for server sock");
-					}
-					else
-					{    
-						if (valopt != 0) 
-						{ 
-							net->sock   = -1;
-							net->status = NET_DISCONNECTED;
-							troll_debug(LOG_ERROR,"Non-blocking connect() to server failed.");
-						}
-						else
-						{
-							/* Socket connect succeeded */
-							troll_debug(LOG_DEBUG,"Non-blocking connect() to server succeeded");
-
-							/* Set connection as blocking again */
-							/* socket_set_blocking(dcc->sock); */
-
-
-							net->status = NET_NOTREADY;
-						}
-					}
-				}
-			}
 
 			if (net->status >= NET_CONNECTED && net->timers != NULL)
 			{
@@ -633,24 +465,6 @@ void irc_loop(void)
 					}
 				}
 				dcc = dcc->next;
-			}
-
-			if (net->sock != -1 && net->status >= NET_CONNECTED)
-			{
-				if (FD_ISSET(net->sock,&socks))
-				{
-					if (net->status == NET_CONNECTED)
-					{
-						irc_printf(net->sock,"USER %s foo.com foo.com :%s",net->ident,net->realname);
-						irc_printf(net->sock,"NICK %s",net->nick);
-						net->status = NET_AUTHORIZED;
-					} 
-
-					if (!irc_in(net))
-					{
-						net->status = NET_DISCONNECTED;
-					}
-				}
 			}
 
 			net = net->next;

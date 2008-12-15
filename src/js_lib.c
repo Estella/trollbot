@@ -543,7 +543,7 @@ JSBool js_eval(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rva
 	if ((JS_CallFunction(net->plain_cx, net->plain_global, efunk, 0, NULL, &our_rval)) == JS_TRUE)
 	{
 		jsc_return = JS_ValueToString(net->plain_cx, our_rval); 
-		irc_printf(net->sock,"PRIVMSG %s :Javascript result: %s\n", JS_GetStringBytes(jsc_chan), JS_GetStringBytes(jsc_return));
+		tsocket_printf(net->tsock,"PRIVMSG %s :Javascript result: %s\n", JS_GetStringBytes(jsc_chan), JS_GetStringBytes(jsc_return));
 
 		return JS_TRUE;
 	}
@@ -627,7 +627,7 @@ JSBool js_putserv(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 
 	str = JS_ValueToString(cx, argv[0]);
 
-	irc_printf(net->sock,"%s",JS_GetStringBytes(str));
+	tsocket_printf(net->tsock,"%s",JS_GetStringBytes(str));
 
 	*rval = JSVAL_VOID;
 

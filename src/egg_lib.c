@@ -16,6 +16,7 @@
 #include "t_timer.h"
 #include "util.h"
 #include "troll_lib.h"
+#include "tsocket.h"
 
 #ifdef HAVE_TCL
 #include "tcl_embed.h"
@@ -56,7 +57,7 @@
 void egg_putserv(struct network *net, const char *text, int option_next)
 {
 	/* option_next currently ignored */
-	irc_printf(net->sock,text); 
+	tsocket_printf(net->tsock,text); 
 }
 
 /* NEED_IMP: ??? */
@@ -64,7 +65,7 @@ void egg_putserv(struct network *net, const char *text, int option_next)
 void egg_puthelp(struct network *net, const char *text, int option_next)
 {
 	/* option_next currently ignored */
-	irc_printf(net->sock,text);
+	tsocket_printf(net->tsock,text);
 }
 
 /* NEED_IMP: ??? */
@@ -72,7 +73,7 @@ void egg_puthelp(struct network *net, const char *text, int option_next)
 void egg_putquick(struct network *net, const char *text, int option_next)
 {
 	/* option_next currently ignored */
-	irc_printf(net->sock,text);
+	tsocket_printf(net->tsock,text);
 }
 
 /* Fully compatible */
@@ -81,7 +82,7 @@ void egg_putquick(struct network *net, const char *text, int option_next)
 /* IMP_IN: ??? */
 void egg_putkick(struct network *net, const char *chan, const char *nick_list, const char *reason)
 {
-	irc_printf(net->sock,"KICK %s %s :%s",chan,nick_list,reason);
+	tsocket_printf(net->tsock,"KICK %s %s :%s",chan,nick_list,reason);
 }
 
 /* Fully compatible */
@@ -711,7 +712,7 @@ void egg_newchanban(struct network *net, const char *channel, const char *ban, c
 
 	chan->banlist = channel_ban_add(chan->banlist, cban);
 
-	irc_printf(net->sock, "MODE %s +b %s", cban->chan, cban->mask);
+	tsocket_printf(net->tsock, "MODE %s +b %s", cban->chan, cban->mask);
 /*	log_entry_sprintf(net, "b", "Added ban for %s", cban->mask);*/
 
 	return;
@@ -2197,13 +2198,12 @@ void egg_die(struct network *net, const char *reason)
 	while (tmp != NULL)
 	{
 		if (reason == NULL)
-			irc_printf(tmp->sock, "QUIT");
+			tsocket_printf(tmp->tsock, "QUIT");
 		else
-			irc_printf(tmp->sock, "QUIT :%s",reason);
+			tsocket_printf(tmp->tsock, "QUIT :%s",reason);
 
 		/* Flush out the socket TODO: Make function for this */
-		shutdown(tmp->sock, SHUT_RDWR);
-		tmp->sock = -1;
+		tsocket_close(tmp->tsock);
 		
 		tmp = tmp->next;
 	}
@@ -2281,9 +2281,6 @@ void egg_rehash(void)
 				free_channels(ntmp->chans);
 				ntmp->chans = otmp->chans;
 				otmp->chans = NULL;
-
-				ntmp->sock  = otmp->sock;
-				otmp->sock  = -1;
 
 				if (ntmp->shost != NULL) free(ntmp->shost);
 				ntmp->shost = otmp->shost;

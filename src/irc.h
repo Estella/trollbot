@@ -14,6 +14,7 @@
 #include <sys/types.h>
 
 struct network;
+struct tsocket;
 
 /* <servername> | <nick> [ '!' <user> ] [ '@' <host> ] */
 struct irc_prefix {
@@ -42,7 +43,7 @@ ssize_t irc_printf(int sock, const char *fmt, ...);
 void irc_data_free(struct irc_data *data);
 void parse_irc_line(struct network *net, const char *buffer);
 struct irc_data *irc_data_new(void);
-int irc_in(struct network *net);
+int irc_in(struct tsocket *tsock);
 
 
 #endif /* __IRC_H__ */

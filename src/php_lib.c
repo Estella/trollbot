@@ -721,6 +721,6 @@ PHP_FUNCTION(putserv)
 	if (net == NULL)
 		RETURN_FALSE;
 
-	irc_printf(net->sock,msg);
+	tsocket_printf(net->tsock,msg);
 }
 

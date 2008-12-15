@@ -18,6 +18,7 @@
 #include "irc_trigger.h"
 #include "dcc.h"
 #include "log_entry.h"
+#include "tsocket.h"
 
 /* Simple printf like function that outputs to a socket, buffer work needs to be more dynamic */
 /* Should be sock_printf() */
@@ -295,7 +296,7 @@ void parse_irc_line(struct network *net, const char *buffer)
 	if (!strcmp(data->command,"PING"))
 	{
 		if (data->rest[0] != NULL)
-			irc_printf(net->sock, "PONG :%s\n",data->rest[0]);
+			tsocket_printf(net->tsock, "PONG :%s\n",data->rest[0]);
 	}
 
 
@@ -327,8 +328,9 @@ void parse_irc_line(struct network *net, const char *buffer)
 	/* Get yourself an aspirin */
 }
 
-int irc_in(struct network *net)
+int irc_in(struct tsocket *tsock)
 {
+	struct network      *net     = tsock->data;
 	static char         *buffer  = NULL;
 	static size_t       size     = BUFFER_SIZE;
 	int                 recved   = 0;
@@ -341,14 +343,14 @@ int irc_in(struct network *net)
 	if (buffer == NULL)
 	{
 		buffer = tmalloc0(BUFFER_SIZE + 1);
-		recved = recv(net->sock,buffer,BUFFER_SIZE-1,0);
+		recved = recv(tsock->sock,buffer,BUFFER_SIZE-1,0);
 	} else {
 		/* There was a fragment left over */
 		buffer = tcrealloc0(buffer,
 				strlen(buffer) + BUFFER_SIZE + 1,
 				&size);
 
-		recved = recv(net->sock,&buffer[strlen(buffer)],BUFFER_SIZE-1,0);
+		recved = recv(tsock->sock,&buffer[strlen(buffer)],BUFFER_SIZE-1,0);
 
 	}
 
@@ -360,7 +362,7 @@ int irc_in(struct network *net)
 			buffer = NULL;
 			return 1;
 		case 0:
-			net->sock = -1;
+			tsocket_close(net->tsock);
 			free(buffer);
 			buffer = NULL;
 			return 0;

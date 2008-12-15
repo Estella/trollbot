@@ -530,7 +530,7 @@ void join_channels(struct network *net)
 	joinstr[strlen(joinstr)-1] = '\0';
 
 	/* Hopefully all IRCDs support #chan1,#chan2,#chan3, TODO: verify with RFC */
-	irc_printf(net->sock,"JOIN %s\n",joinstr);
+	tsocket_printf(net->tsock,"JOIN %s\n",joinstr);
 
 	/* Toss it like a used condom */
 	free(joinstr);

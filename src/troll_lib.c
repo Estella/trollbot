@@ -132,7 +132,7 @@ char *troll_makearg(const char *rest, const char *mask)
 
 void troll_user_host_handler(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
-	irc_printf(net->sock,"USERHOST %s",net->nick);
+	tsocket_printf(net->tsock,"USERHOST %s",net->nick);
 	join_channels(net);
 	net->status = NET_IDLE;
 }
@@ -140,7 +140,7 @@ void troll_user_host_handler(struct network *net, struct trigger *trig, struct i
 void troll_nick_in_use_handler(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
 	if (net->altnick != NULL)
-		irc_printf(net->sock,"NICK %s",net->altnick);
+		tsocket_printf(net->tsock,"NICK %s",net->altnick);
 
 	if (net->botnick != NULL)
 		free(net->botnick);
@@ -150,7 +150,7 @@ void troll_nick_in_use_handler(struct network *net, struct trigger *trig, struct
 	 */
 	net->botnick = tstrdup(net->altnick);
 
-	irc_printf(net->sock, "NICK %s", net->botnick);
+	tsocket_printf(net->tsock, "NICK %s", net->botnick);
 
 	return;
 }
@@ -221,7 +221,7 @@ void troll_undernet_hack(struct network *net, struct trigger *trig, struct irc_d
 		if (data->rest[i+2] == NULL)
 			return;
 
-		irc_printf(net->sock, "%s %s", data->rest[i+1], data->rest[i+2]);
+		tsocket_printf(net->tsock, "%s %s", data->rest[i+1], data->rest[i+2]);
 		
 		troll_debug(LOG_DEBUG, "Undernet countermeasure sent.");
 	}

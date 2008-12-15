@@ -252,7 +252,7 @@ static void dcc_saveall(struct network *net, struct trigger *trig, struct irc_da
 
 static void dcc_dump(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
-	irc_printf(net->sock, "%s", troll_makearg(dccbuf,trig->mask));
+	tsocket_printf(net->tsock, "%s", troll_makearg(dccbuf,trig->mask));
 }
 
 static void rehash_bot(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
@@ -297,11 +297,11 @@ void new_join(struct network *net, struct trigger *trig, struct irc_data *data, 
 			if (!tstrcasecmp(net->botnick,data->prefix->nick))
 			{
 				/* Definitely want to queue this */
-				irc_printf(net->sock,"MODE %s",chan->name);
-				irc_printf(net->sock,"MODE %s b",chan->name);
-				irc_printf(net->sock,"MODE %s e",chan->name);
-				irc_printf(net->sock,"MODE %s I",chan->name);
-				irc_printf(net->sock,"WHO %s",chan->name);
+				tsocket_printf(net->tsock,"MODE %s",chan->name);
+				tsocket_printf(net->tsock,"MODE %s b",chan->name);
+				tsocket_printf(net->tsock,"MODE %s e",chan->name);
+				tsocket_printf(net->tsock,"MODE %s I",chan->name);
+				tsocket_printf(net->tsock,"WHO %s",chan->name);
 			}
 
 			return;
@@ -390,7 +390,7 @@ void new_kick(struct network *net, struct trigger *trig, struct irc_data *data, 
 	/* if bot was kicked, try a rejoin immediately */
 	/* Verified eggdrop behavior, there is no setting for this [acidtoken] */
 	if (!strcmp(data->c_params[1],net->nick))
-		irc_printf(net->sock,"JOIN %s",data->c_params[0]);
+		tsocket_printf(net->tsock,"JOIN %s",data->c_params[0]);
 
 	chan = network_channel_find(net, data->c_params[0]);
 
@@ -428,7 +428,7 @@ void new_user_pass(struct network *net, struct trigger *trig, struct irc_data *d
 
 	if (user == NULL)
 	{
-		irc_printf(net->sock,"PRIVMSG %s :I don't know you",data->prefix->nick);
+		tsocket_printf(net->tsock,"PRIVMSG %s :I don't know you",data->prefix->nick);
 		return;
 	}
 
@@ -442,7 +442,7 @@ void new_user_pass(struct network *net, struct trigger *trig, struct irc_data *d
 
 	user->hash_type = tstrdup(g_cfg->hash_type);
 
-	irc_printf(net->sock,"PRIVMSG %s :Your password has been set as '%s'",data->prefix->nick,data->rest[1]);
+	tsocket_printf(net->tsock,"PRIVMSG %s :Your password has been set as '%s'",data->prefix->nick,data->rest[1]);
 
 	users_save(net);
 
@@ -456,7 +456,7 @@ void check_user_pass(struct network *net, struct trigger *trig, struct irc_data 
 void disconnect_bot(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
 	egg_save(NULL);
-	irc_printf(net->sock,"QUIT :Trollbot v1.0");
+	tsocket_printf(net->tsock,"QUIT :Trollbot v1.0");
 	die_nicely(0);
 }
 
@@ -489,7 +489,7 @@ void introduce_user(struct network *net, struct trigger *trig, struct irc_data *
 
 		if (!strcmp(user->nick,data->prefix->nick))
 		{
-			irc_printf(net->sock,"PRIVMSG %s :Another user already exists by that nick",data->prefix->nick);
+			tsocket_printf(net->tsock,"PRIVMSG %s :Another user already exists by that nick",data->prefix->nick);
 			return;
 		}
 
@@ -514,13 +514,13 @@ void introduce_user(struct network *net, struct trigger *trig, struct irc_data *
 
 	sprintf(user->uhost,"%s!%s@%s",data->prefix->user,data->prefix->nick,data->prefix->host);
 
-	irc_printf(net->sock,"PRIVMSG %s :Welcome to trollbot, your username is '%s'",data->prefix->nick,data->prefix->nick);
-	irc_printf(net->sock,"PRIVMSG %s :Type '/msg %s pass <your new password>' to continue",data->prefix->nick,net->nick);
+	tsocket_printf(net->tsock,"PRIVMSG %s :Welcome to trollbot, your username is '%s'",data->prefix->nick,data->prefix->nick);
+	tsocket_printf(net->tsock,"PRIVMSG %s :Type '/msg %s pass <your new password>' to continue",data->prefix->nick,net->nick);
 }
 
 void return_ctcp_ping(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
-	irc_printf(net->sock,"NOTICE %s :\001PING %d\001",data->prefix->nick,time(NULL));
+	tsocket_printf(net->tsock,"NOTICE %s :\001PING %d\001",data->prefix->nick,time(NULL));
 	return;
 }
 
@@ -538,12 +538,12 @@ void return_ctcp_time(struct network *net, struct trigger *trig, struct irc_data
 
 	strftime(tdate,100,"%x %X",now);
 
-	irc_printf(net->sock,"NOTICE %s :\001TIME %s\001",data->prefix->nick,tdate);
+	tsocket_printf(net->tsock,"NOTICE %s :\001TIME %s\001",data->prefix->nick,tdate);
 }
 
 void return_ctcp_version(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
-	irc_printf(net->sock,"NOTICE %s :\001VERSION Trollbot v1.0.0 by poutine\001",data->prefix->nick);
+	tsocket_printf(net->tsock,"NOTICE %s :\001VERSION Trollbot v1.0.0 by poutine\001",data->prefix->nick);
 
 	return;
 }

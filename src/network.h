@@ -13,6 +13,7 @@ struct dcc_session;
 struct t_timer;
 struct log_filter;
 struct slist;
+struct tsocket;
 
 #include <time.h>
 
@@ -81,7 +82,7 @@ struct network
   struct channel *chans;
    
 	/* Copy over on rehash */
-  int sock;
+  struct tsocket *tsock;
 
   /* This is the actual nick of the bot, nick is the wanted */
   char *botnick;
@@ -185,6 +186,9 @@ struct network
   char *userfile;
   char *chanfile;
 };
+
+/* On connect function */
+void irc_ball_start_rolling(struct tsocket *tsock);
 
 /* Network capabilities */
 struct network_capabilities *network_capabilities_new(void);

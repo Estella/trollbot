@@ -309,7 +309,7 @@ void reverse_dcc_chat(struct network *net, struct trigger *trig, struct irc_data
 	{
 		if (net->vhost == NULL)
 		{
-			irc_printf(net->sock,"PRIVMSG %s :No suitable IP/Port combination found.",data->prefix->nick);
+			tsocket_printf(net->tsock,"PRIVMSG %s :No suitable IP/Port combination found.",data->prefix->nick);
 			return;
 		} else
 			net->shost = tstrdup(net->vhost);
@@ -324,7 +324,7 @@ void reverse_dcc_chat(struct network *net, struct trigger *trig, struct irc_data
 	dcchostip = tmalloc0(3*4+3+1);
 	sprintf(dcchostip,"%s",inet_ntoa(*((struct in_addr *)he->h_addr_list[0])));
 
-	irc_printf(net->sock,"PRIVMSG %s :\001DCC CHAT chat %d %d\001",data->prefix->nick,htonl(inet_addr(dcchostip)),net->dcc_port);
+	tsocket_printf(net->tsock,"PRIVMSG %s :\001DCC CHAT chat %d %d\001",data->prefix->nick,htonl(inet_addr(dcchostip)),net->dcc_port);
 
 	troll_debug(LOG_DEBUG, "Attempting DCC CHAT to %s", dcchostip);
 
@@ -726,12 +726,12 @@ void parse_dcc_line(struct dcc_session *dcc, const char *buffer)
 void dcc_add_chan(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
 	/* hack */
-	irc_printf(dcc->net->sock,"JOIN %s",troll_makearg(dccbuf,trig->mask));
+	tsocket_printf(dcc->net->tsock,"JOIN %s",troll_makearg(dccbuf,trig->mask));
 }
 
 void dcc_del_chan(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
-	irc_printf(dcc->net->sock,"PART %s",troll_makearg(dccbuf,trig->mask));
+	tsocket_printf(dcc->net->tsock,"PART %s",troll_makearg(dccbuf,trig->mask));
 }
 
 void dcc_rehash(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
