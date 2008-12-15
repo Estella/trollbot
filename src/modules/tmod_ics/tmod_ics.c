@@ -13,14 +13,16 @@
 
 #define tmodule_init          tmod_ics_LTX_tmodule_init
 #define tmodule_unload        tmod_ics_LTX_tmodule_unload
-
 #define tmodule_get_tsockets  tmod_ics_LTX_tmodule_get_tsockets
-
 
 int tmodule_init(struct tconfig *)
 {
+	
 }
 
 int tmodule_unload(void)
 {
+	
 }
+
+
