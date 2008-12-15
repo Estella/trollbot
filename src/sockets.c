@@ -417,7 +417,6 @@ void irc_loop(void)
 
 				node = node->next;
 			}
-
 		}
 
 #ifdef HAVE_XMPP

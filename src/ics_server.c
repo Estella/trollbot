@@ -218,6 +218,10 @@ void ics_server_connect(struct ics_server *ics)
 
 	tsock = tsocket_new();
 
+	/* Assign it in the ics_server */
+	tsock->data = ics;
+	ics->tsock  = tsock;
+
 	tsock->name = tstrdup(ics->label);
 
 	/* in ics_proto.c */
@@ -244,9 +248,6 @@ void ics_server_connect(struct ics_server *ics)
 		return;
 	}
 
-	/* Assign it in the ics_server */
-	ics->tsock  = tsock;
-	tsock->data = ics;
 
 	/* Insert it into the global check list */
 	if (g_cfg->tsockets == NULL)
