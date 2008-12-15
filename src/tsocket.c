@@ -2,20 +2,94 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <netdb.h>
+#include <unistd.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <fcntl.h>
+#include <errno.h>
+
 
 #include "tsocket.h"
+#include "debug.h"
 #include "util.h"
+
+static void tsocket_set_nonblocking(int sock)
+{
+  int opts;
+
+  opts = fcntl(sock,F_GETFL);
+
+  if (opts < 0)
+  {
+    troll_debug(LOG_ERROR,"Could not get socket options");
+    return;
+  }
+
+  opts = (opts | O_NONBLOCK);
+
+  if (fcntl(sock,F_SETFL,opts) < 0)
+  {
+    troll_debug(LOG_ERROR,"Could not set socket as nonblocking");
+  }
+
+  return;
+}
 
 int tsocket_close(struct tsocket *tsock)
 {
 	if (tsock->sock != -1)
 	{
 		shutdown(tsock->sock, SHUT_RDWR);
-		tsock->status = TSOCK_UNITIALIZED;
+		tsock->status = TSOCK_UNINITIALIZED;
 		tsock->sock = -1;
 	}
 
 	return 1;
+}
+
+int tsocket_check_nonblocking_connect(struct tsocket *tsock)
+{
+	socklen_t lon  = 0;
+	int valopt     = 0;
+
+	if (tsock->status == TSOCK_CONNECTING)
+	{
+		/* Socket is set as writeable */
+		lon = sizeof(int);
+
+		/* Get the current socket options for the non-blocking socket */
+		if (getsockopt(tsock->sock, SOL_SOCKET, SO_ERROR, (void*)(&valopt), &lon) < 0)
+		{
+			tsock->sock   = -1;
+			tsock->status = TSOCK_UNINITIALIZED;
+			troll_debug(LOG_ERROR,"Could not get socket options for tsocket");
+		}
+		else
+		{
+			if (valopt != 0)
+			{
+				tsock->sock   = -1;
+				tsock->status = TSOCK_UNINITIALIZED;
+				troll_debug(LOG_ERROR,"Non-blocking connect() to tsocket failed.");
+			}
+			else
+			{
+				/* Socket connect succeeded */
+				troll_debug(LOG_DEBUG,"Non-blocking connect() to tsocket succeeded");
+	
+				if (tsock->tsocket_connect_cb != NULL)
+					tsock->tsocket_connect_cb(tsock);
+
+				tsock->status = TSOCK_NOTINFDSET;
+				return 1;
+			}
+		}
+	}
+
+	return 0;
 }
 
 /* The current behavior of this function is to listen on this hostname if it resolves, if not INADDR_ANY
@@ -26,7 +100,6 @@ int tsocket_listen(struct tsocket *tsock, const char *hostname, int port)
 	struct hostent *he;
 	char hostip[16];
 	struct sockaddr_in my_addr;
-	struct hostent *he;
 	int yes=1;
 	int use_hostname = 0;
 
@@ -92,14 +165,15 @@ int tsocket_listen(struct tsocket *tsock, const char *hostname, int port)
 
 	tsock->status = TSOCK_LISTENER;
 
-	return;
+	return 1;
 }
 
 int tsocket_connect(struct tsocket *tsock, const char *from_hostname, const char *to_hostname, int port)
 {
 	char   hostip[16];
-	struct sockaddr_in req_addr;
-	struct sockaddr_in their_addr;
+	struct sockaddr_in my_addr;
+	struct sockaddr_in serv_addr;
+	struct hostent *he;
 
 	/* Create the socket
 	 * Just working with TCP/IP now
@@ -109,6 +183,8 @@ int tsocket_connect(struct tsocket *tsock, const char *from_hostname, const char
     troll_debug(LOG_WARN,"tsocket_connect() could not create a socket");
     return 0;
   }
+
+	tsocket_set_nonblocking(tsock->sock);
 
   /* If a hostname is provided, go ahead and resolve it, get the ip for later binding */
   if (from_hostname != NULL)
@@ -183,24 +259,34 @@ int tsocket_connect(struct tsocket *tsock, const char *from_hostname, const char
 		 * make sure it gets put into the FD_SET the next select run
 		 */
 		tsock->status     = TSOCK_NOTINFDSET;
+
+		if (tsock->tsocket_connect_cb != NULL)
+			tsock->tsocket_connect_cb(tsock);
+
 		return 1;
 	}
 
 	/* They're in a non-blocking connect, check for write status in the select loop */
 	tsock->status = TSOCK_CONNECTING;
+
+	return 1;
 }
 
 struct tsocket *tsocket_new(void)
 {
-	struct tsocket = tmalloc(sizeof(struct tsocket));
+	struct tsocket *tsocket = tmalloc(sizeof(struct tsocket));
 
 	tsocket->status = TSOCK_UNINITIALIZED;
 
 	tsocket->sock   = -1;
 	tsocket->name   = NULL;
 
+	tsocket->data = NULL;
+
 	tsocket->tsocket_read_cb  = NULL;
 	tsocket->tsocket_write_cb = NULL;
+
+	tsocket->tsocket_connect_cb = NULL;
 	
 	return tsocket;
 }
@@ -228,9 +314,11 @@ void tsockets_free(struct slist *tsockets)
 	free(tsockets);
 }
 
-void tsocket_free(struct tsocket *tsocket)
+void tsocket_free(void *tsocket)
 {
-	free(tsocket->name);
-	free(tsocket);
+	struct tsocket *tsock = tsocket;
+
+	free(tsock->name);
+	free(tsock);
 }
 

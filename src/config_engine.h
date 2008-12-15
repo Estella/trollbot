@@ -29,6 +29,7 @@ struct user;
 struct tconfig_block;
 struct t_crypto_module;
 struct log_filter;
+struct slist;
 
 /* This is the main struct that information is loaded
  * into from the config block format.
@@ -55,6 +56,8 @@ struct config
   struct tconfig_block *tcfg;
 
 	struct log_filter *filters;
+
+	struct slist *tsockets;
 
 	char *hash_type;
 
