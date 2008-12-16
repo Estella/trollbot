@@ -30,6 +30,7 @@
 #include "log_entry.h"
 #include "tconfig.h"
 #include "tsocket.h"
+#include "tmod_ics.h"
 
 #ifdef HAVE_TCL
 #include "tcl_embed.h"
@@ -76,9 +77,9 @@ struct ics_server *ics_server_from_tconfig_block(struct tconfig_block *tcfg)
 	{
 		if (!tstrcasecmp(tmp->key,"server"))
 		{
-			if (ics->ics_servers != NULL)
+			if (ics->servers != NULL)
 			{
-				svr = ics->ics_servers;
+				svr = ics->servers;
 
 				while (svr->next != NULL)
 					svr = svr->next;
@@ -89,8 +90,8 @@ struct ics_server *ics_server_from_tconfig_block(struct tconfig_block *tcfg)
 			}
 			else
 			{
-				ics->ics_servers  = new_server(tmp->value);
-				svr          = ics->ics_servers;
+				ics->servers  = new_server(tmp->value);
+				svr          = ics->servers;
 				svr->prev    = NULL;
 				svr->next    = NULL;
 			}
@@ -230,7 +231,7 @@ void ics_server_connect(struct ics_server *ics)
 	tsock->tsocket_connect_cb = ics_ball_start_rolling;
 	
 	/* Find a suitable network server */
-	srv = ics->ics_servers;
+	srv = ics->servers;
 
 	while (srv != NULL)
 	{
@@ -243,17 +244,17 @@ void ics_server_connect(struct ics_server *ics)
 
 	if (srv == NULL)
 	{
-		troll_debug(LOG_WARN, "Could not connect to any servers for ICS server %s", ics->label);
+		/* troll_debug(LOG_WARN, "Could not connect to any servers for ICS server %s", ics->label); */
 		tsocket_free(tsock);
 		return;
 	}
 
 
 	/* Insert it into the global check list */
-	if (g_cfg->tsockets == NULL)
-		slist_init(&g_cfg->tsockets, tsocket_free);
+	if (tsockets == NULL)
+		slist_init(&tsockets, tsocket_free);
 
-	slist_insert_next(g_cfg->tsockets, NULL, (void *)tsock);
+	slist_insert_next(tsockets, NULL, (void *)tsock);
 
 	return;
 }
@@ -283,8 +284,9 @@ void free_ics_servers(struct ics_server *ics_server)
 	return;
 }
 
-void free_ics_server(struct ics_server *ics)
+void free_ics_server(void *ics_ptr)
 {
+	struct ics_server *ics = ics_ptr;
 	free(ics->label);
 	free(ics->vhost);
 	free(ics->shost); 
@@ -295,7 +297,7 @@ void free_ics_server(struct ics_server *ics)
 	free_ics_game(ics->game);
 	tsocket_free(ics->tsock);
 
-	free_servers(ics->ics_servers);
+	free_servers(ics->servers);
 	t_timers_free(ics->timers);
 	free_ics_trigger_table(ics->ics_trigger_table);
 
@@ -338,7 +340,7 @@ struct ics_server *new_ics_server(char *label)
 	ret->prev          = NULL;
 	ret->next          = NULL;
 
-	ret->ics_servers   = NULL; 
+	ret->servers   = NULL; 
 
 	ret->cur_server    = NULL;
 
@@ -379,7 +381,7 @@ struct ics_server *new_ics_server(char *label)
 #ifdef HAVE_TCL
 	ret->tcl_scripts      = NULL;
 	ret->tcl_scripts_size = 0;
-	ics_init_tcl(ret);
+	/* ics_init_tcl(ret); */
 #endif /* HAVE_TCL */
 
 #ifdef HAVE_PERL

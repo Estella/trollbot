@@ -1,6 +1,13 @@
 #ifndef __ICS_GAME_H__
 #define __ICS_GAME_H__
 
+/* ltdl stuff */
+#define ics_game_add  tmod_ics_LTX_ics_game_add
+#define ics_game_del  tmod_ics_LTX_ics_game_del
+#define new_ics_game  tmod_ics_LTX_new_ics_game
+#define free_ics_game tmod_ics_LTX_free_ics_game
+
+
 enum ics_game_types
 {
 	ICS_GAME_UNHANDLED = 0, 

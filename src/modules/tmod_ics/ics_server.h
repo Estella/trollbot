@@ -57,7 +57,7 @@ struct ics_server
   struct server *cur_server;
 
 	/* This should be used for inner "mirror" sites */
-  struct server *ics_servers;
+  struct server *servers;
 
 	char *username;
 	char *password;
@@ -148,7 +148,7 @@ struct ics_server *ics_server_del(struct ics_server *servers, struct ics_server 
 
 void ics_server_connect(struct ics_server *ics);
 void free_ics_servers(struct ics_server *ics_servers);
-void free_ics_server(struct ics_server *ics);
+void free_ics_server(void *ics_ptr);
 
 struct ics_server *new_ics_server(char *label);
 

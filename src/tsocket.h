@@ -28,10 +28,10 @@ struct tsocket
 	void *data;
 
 	/* Callback API */
-	void (*tsocket_read_cb)(struct tsocket *);
-	void (*tsocket_write_cb)(struct tsocket *);
-	void (*tsocket_connect_cb)(struct tsocket *);
-	void (*tsocket_disconnect_cb)(struct tsocket *);
+	int (*tsocket_read_cb)(struct tsocket *);
+	int (*tsocket_write_cb)(struct tsocket *);
+	int (*tsocket_connect_cb)(struct tsocket *);
+	int (*tsocket_disconnect_cb)(struct tsocket *);
 
 	/* Connection queuing */
 	time_t last_attempt;

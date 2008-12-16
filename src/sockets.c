@@ -29,19 +29,15 @@
 #include "channel.h"
 #include "user.h"
 #include "t_timer.h"
+#include "tmodule.h"
 #include "tsocket.h"
+#include "util.h"
 
 #ifdef HAVE_HTTP
 #include "http_server.h"
 #include "http_proto.h"
 #include "http_request.h"
 #endif /* HAVE_HTTP */
-
-#ifdef HAVE_ICS
-#include "ics_server.h"
-#include "ics_proto.h"
-#include "ics_trigger.h"
-#endif /* HAVE_ICS */
 
 #ifdef HAVE_XMPP
 #include "xmpp_server.h"
@@ -100,9 +96,6 @@ void irc_loop(void)
 	fd_set writefds;
 	struct timeval timeout;
 	struct network *net;
-#ifdef HAVE_ICS
-	struct ics_server *ics;
-#endif /* HAVE_ICS */
 #ifdef HAVE_XMPP
 	struct xmpp_server *xs;
 #endif /* HAVE_XMPP */
@@ -116,8 +109,11 @@ void irc_loop(void)
 	socklen_t lon      = 0;
 	int valopt   = 0;
 	time_t last = 0;
+	struct slist *sublist;
 	struct slist_node *node;
+	struct slist_node *inode;
 	struct tsocket *tsock;
+	struct tmodule *tmodule;
 
 
 	/* Rather then all these conditional piece of shits
@@ -125,22 +121,6 @@ void irc_loop(void)
 	 * thingamajigs, let's introduce this gradually
 	 */
 	
-#ifdef HAVE_ICS
-	ics = g_cfg->ics_servers;
-
-	/* Connect to one server for each network, or mark network unconnectable */
-	while (ics != NULL)
-	{
-		/* Shouldn't be done here */
-		ics->cur_server = ics->ics_servers;
-
-		ics->last_try = time(NULL);
-		ics_server_connect(ics);
-
-		ics = ics->next;
-	}
-#endif /* HAVE_ICS */
-
 #ifdef HAVE_XMPP
 	xs = g_cfg->xmpp_servers;
 
@@ -275,6 +255,54 @@ void irc_loop(void)
 			http = http->next;
 		}
 #endif /* HAVE_HTTP */
+
+
+		if (g_cfg->tmodules != NULL)
+		{
+			node = g_cfg->tmodules->head;
+
+			while (node != NULL)
+			{
+				tmodule = node->data;
+
+				if (tmodule != NULL)
+				{
+					sublist = tmodule->tmodule_get_tsockets();
+
+					if (sublist != NULL)
+					{
+						inode = sublist->head;
+
+						while (inode != NULL)
+						{
+							tsock = inode->data;
+
+							switch (tsock->status)
+							{
+								case TSOCK_CONNECTING:
+									FD_SET(tsock->sock, &writefds);
+									numsocks = (tsock->sock > numsocks) ? tsock->sock : numsocks;
+									break;
+									/* Check reads/writes and call their respective callbacks */
+								case TSOCK_INFDSET:
+								case TSOCK_NOTINFDSET:
+									FD_SET(tsock->sock, &socks);
+									tsock->status = TSOCK_INFDSET;
+									numsocks = (tsock->sock > numsocks) ? tsock->sock : numsocks;
+									break;
+							}
+
+							inode = inode->next;
+						}
+					}	
+				}
+				node = node->next;
+			}
+
+		}
+	
+
+
 		/* Check the generic list of tsockets */
 		if (g_cfg->tsockets != NULL)
 		{
@@ -308,6 +336,56 @@ void irc_loop(void)
 		}
 
 		select(numsocks+1, &socks, &writefds, NULL, NULL);
+
+		if (g_cfg->tmodules != NULL)
+		{
+			node = g_cfg->tmodules->head;
+
+			while (node != NULL)
+			{
+				tmodule = node->data;
+
+				if (tmodule != NULL)
+				{
+					sublist = tmodule->tmodule_get_tsockets();
+
+					if (sublist != NULL)
+					{
+						inode = sublist->head;
+
+						while (inode != NULL)
+						{
+							tsock = inode->data;
+
+							switch (tsock->status)
+							{
+								case TSOCK_CONNECTING:
+									/* Socket is in a non-blocking connect, do some hacks to figure
+									 * out if it succeeded or not.
+									 */
+									if (FD_ISSET(tsock->sock, &writefds))
+										tsocket_check_nonblocking_connect(tsock);
+									break;
+									/* Check reads/writes and call their respective callbacks */
+								case TSOCK_INFDSET:
+									if (FD_ISSET(tsock->sock, &socks))
+										if (tsock->tsocket_read_cb != NULL)
+											tsock->tsocket_read_cb(tsock);
+									if (FD_ISSET(tsock->sock, &writefds))
+										if (tsock->tsocket_write_cb != NULL)
+											tsock->tsocket_write_cb(tsock);
+									break;
+							}
+
+							inode = inode->next;
+						}
+					}	
+				}
+				node = node->next;
+			}
+
+		}
+
 
 		/* Check the generic list of tsockets */
 		if (g_cfg->tsockets != NULL)

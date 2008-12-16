@@ -61,12 +61,14 @@ am__installdirs = "$(DESTDIR)$(libdir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 tmod_ics_la_LIBADD =
-am_tmod_ics_la_OBJECTS = ics_game.lo ics_lib.lo ics_proto.lo \
-	ics_server.lo ics_trigger.lo
+am_tmod_ics_la_OBJECTS = tmod_ics_la-ics_game.lo \
+	tmod_ics_la-ics_lib.lo tmod_ics_la-ics_proto.lo \
+	tmod_ics_la-ics_server.lo tmod_ics_la-ics_trigger.lo \
+	tmod_ics_la-tmod_ics.lo
 tmod_ics_la_OBJECTS = $(am_tmod_ics_la_OBJECTS)
 tmod_ics_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
-	$(tmod_ics_la_LDFLAGS) $(LDFLAGS) -o $@
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(tmod_ics_la_CFLAGS) \
+	$(CFLAGS) $(tmod_ics_la_LDFLAGS) $(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -244,8 +246,9 @@ INCLUDES = -I$(top_builddir) -I$(top_srcdir)         \
                   -I$(top_builddir)/src -I$(top_srcdir)/src
 
 lib_LTLIBRARIES = tmod_ics.la
-tmod_ics_la_SOURCES = ics_game.c ics_game.h ics_lib.c ics_lib.h ics_proto.c ics_proto.h ics_server.c ics_server.h ics_trigger.c ics_trigger.h
-tmod_ics_la_LDFLAGS = -module -no-undefined -avoid-version
+tmod_ics_la_SOURCES = ics_game.c ics_game.h ics_lib.c ics_lib.h ics_proto.c ics_proto.h ics_server.c ics_server.h ics_trigger.c ics_trigger.h tmod_ics.c tmod_ics.h
+tmod_ics_la_CFLAGS = ${JS_CFLAGS} ${PYTHON_CFLAGS} ${TCL_CPPFLAGS} ${PHP_CFLAGS}
+tmod_ics_la_LDFLAGS = -module -no-undefined -avoid-version ${JS_LIBS} ${PYTHON_LDADD} ${TCL_LIBS} ${PHP_LDADD}
 all: all-am
 
 .SUFFIXES:
@@ -315,11 +318,12 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ics_game.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ics_lib.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ics_proto.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ics_server.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ics_trigger.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tmod_ics_la-ics_game.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tmod_ics_la-ics_lib.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tmod_ics_la-ics_proto.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tmod_ics_la-ics_server.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tmod_ics_la-ics_trigger.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tmod_ics_la-tmod_ics.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -341,6 +345,48 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LTCOMPILE) -c -o $@ $<
+
+tmod_ics_la-ics_game.lo: ics_game.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tmod_ics_la_CFLAGS) $(CFLAGS) -MT tmod_ics_la-ics_game.lo -MD -MP -MF $(DEPDIR)/tmod_ics_la-ics_game.Tpo -c -o tmod_ics_la-ics_game.lo `test -f 'ics_game.c' || echo '$(srcdir)/'`ics_game.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/tmod_ics_la-ics_game.Tpo $(DEPDIR)/tmod_ics_la-ics_game.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ics_game.c' object='tmod_ics_la-ics_game.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tmod_ics_la_CFLAGS) $(CFLAGS) -c -o tmod_ics_la-ics_game.lo `test -f 'ics_game.c' || echo '$(srcdir)/'`ics_game.c
+
+tmod_ics_la-ics_lib.lo: ics_lib.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tmod_ics_la_CFLAGS) $(CFLAGS) -MT tmod_ics_la-ics_lib.lo -MD -MP -MF $(DEPDIR)/tmod_ics_la-ics_lib.Tpo -c -o tmod_ics_la-ics_lib.lo `test -f 'ics_lib.c' || echo '$(srcdir)/'`ics_lib.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/tmod_ics_la-ics_lib.Tpo $(DEPDIR)/tmod_ics_la-ics_lib.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ics_lib.c' object='tmod_ics_la-ics_lib.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tmod_ics_la_CFLAGS) $(CFLAGS) -c -o tmod_ics_la-ics_lib.lo `test -f 'ics_lib.c' || echo '$(srcdir)/'`ics_lib.c
+
+tmod_ics_la-ics_proto.lo: ics_proto.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tmod_ics_la_CFLAGS) $(CFLAGS) -MT tmod_ics_la-ics_proto.lo -MD -MP -MF $(DEPDIR)/tmod_ics_la-ics_proto.Tpo -c -o tmod_ics_la-ics_proto.lo `test -f 'ics_proto.c' || echo '$(srcdir)/'`ics_proto.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/tmod_ics_la-ics_proto.Tpo $(DEPDIR)/tmod_ics_la-ics_proto.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ics_proto.c' object='tmod_ics_la-ics_proto.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tmod_ics_la_CFLAGS) $(CFLAGS) -c -o tmod_ics_la-ics_proto.lo `test -f 'ics_proto.c' || echo '$(srcdir)/'`ics_proto.c
+
+tmod_ics_la-ics_server.lo: ics_server.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tmod_ics_la_CFLAGS) $(CFLAGS) -MT tmod_ics_la-ics_server.lo -MD -MP -MF $(DEPDIR)/tmod_ics_la-ics_server.Tpo -c -o tmod_ics_la-ics_server.lo `test -f 'ics_server.c' || echo '$(srcdir)/'`ics_server.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/tmod_ics_la-ics_server.Tpo $(DEPDIR)/tmod_ics_la-ics_server.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ics_server.c' object='tmod_ics_la-ics_server.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tmod_ics_la_CFLAGS) $(CFLAGS) -c -o tmod_ics_la-ics_server.lo `test -f 'ics_server.c' || echo '$(srcdir)/'`ics_server.c
+
+tmod_ics_la-ics_trigger.lo: ics_trigger.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tmod_ics_la_CFLAGS) $(CFLAGS) -MT tmod_ics_la-ics_trigger.lo -MD -MP -MF $(DEPDIR)/tmod_ics_la-ics_trigger.Tpo -c -o tmod_ics_la-ics_trigger.lo `test -f 'ics_trigger.c' || echo '$(srcdir)/'`ics_trigger.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/tmod_ics_la-ics_trigger.Tpo $(DEPDIR)/tmod_ics_la-ics_trigger.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ics_trigger.c' object='tmod_ics_la-ics_trigger.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tmod_ics_la_CFLAGS) $(CFLAGS) -c -o tmod_ics_la-ics_trigger.lo `test -f 'ics_trigger.c' || echo '$(srcdir)/'`ics_trigger.c
+
+tmod_ics_la-tmod_ics.lo: tmod_ics.c
+@am__fastdepCC_TRUE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tmod_ics_la_CFLAGS) $(CFLAGS) -MT tmod_ics_la-tmod_ics.lo -MD -MP -MF $(DEPDIR)/tmod_ics_la-tmod_ics.Tpo -c -o tmod_ics_la-tmod_ics.lo `test -f 'tmod_ics.c' || echo '$(srcdir)/'`tmod_ics.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/tmod_ics_la-tmod_ics.Tpo $(DEPDIR)/tmod_ics_la-tmod_ics.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tmod_ics.c' object='tmod_ics_la-tmod_ics.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tmod_ics_la_CFLAGS) $(CFLAGS) -c -o tmod_ics_la-tmod_ics.lo `test -f 'tmod_ics.c' || echo '$(srcdir)/'`tmod_ics.c
 
 mostlyclean-libtool:
 	-rm -f *.lo

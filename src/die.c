@@ -17,10 +17,6 @@
 #include "server.h"
 #include "irc.h"
 
-#ifdef HAVE_ICS
-#include "ics_server.h"
-#endif /* HAVE_ICS */
-
 #ifdef HAVE_XMPP
 #include "xmpp_server.h"
 #endif /* HAVE_XMPP */
@@ -31,10 +27,6 @@ void die_nicely(int ret)
 	if (g_cfg != NULL)
 	{
 		free_networks(g_cfg->networks);
-
-#ifdef HAVE_ICS
-		/* free_ics_servers(g_cfg->ics_servers); */
-#endif /* HAVE_ICS */
 
 #ifdef HAVE_XMPP
 		free_xmpp_servers(g_cfg->xmpp_servers);

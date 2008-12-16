@@ -14,6 +14,29 @@
 struct ics_trigger;
 struct tsocket;
 
+/* ltdl shit */
+#define init_ics_triggers               tmod_ics_LTX_init_ics_triggers
+#define ics_internal_tell               tmod_ics_LTX_ics_internal_tell
+#define ics_internal_endgame            tmod_ics_LTX_ics_internal_endgame 
+#define ics_internal_msg_handler        tmod_ics_LTX_ics_internal_msg_handler
+#define ics_internal_announce_new_game  tmod_ics_LTX_ics_internal_announce_new_game
+#define ics_internal_baord_get_info     tmod_ics_LTX_ics_internal_board_get_info
+#define ics_internal_call_game_triggers tmod_ics_LTX_ics_internal_call_game_triggers
+#define ics_internal_set_name           tmod_ics_LTX_ics_internal_set_name
+#define ics_internal_my_name            tmod_ics_LTX_ics_internal_my_name
+#define ics_internal_anti_anti_idle     tmod_ics_LTX_ics_internal_anti_anti_idle
+#define ics_internal_notify             tmod_ics_LTX_ics_internal_notify
+#define ics_internal_style_twelve_init  tmod_ics_LTX_ics_internal_style_twelve_init
+#define ics_internal_connect            tmod_ics_LTX_ics_internal_connect
+#define ics_internal_enter              tmod_ics_LTX_ics_internal_enter
+#define ics_internal_login              tmod_ics_LTX_ics_internal_login
+#define ics_ball_start_rolling          tmod_ics_LTX_ics_internal_ball_start_rolling
+#define ics_printf                      tmod_ics_LTX_ics_printf
+#define ics_data_new                    tmod_ics_LTX_ics_data_new
+#define ics_data_free                   tmod_ics_LTX_ics_data_free
+#define parse_ics_line                  tmod_ics_LTX_parse_ics_line
+
+
 /* Freechess */
 #define LOGIN_TRIGGER "*(If your return key does not work, use cntrl-J)*"
 #define PASS_TRIGGER "*If it is yours, type the password.*"
@@ -176,7 +199,7 @@ void ics_internal_connect(struct ics_server *ics, struct ics_trigger *ics_trig, 
 void ics_internal_enter(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
 void init_ics_triggers(struct ics_server *ics);
 void ics_internal_login(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
-void ics_ball_start_rolling(struct tsocket *tsock);
+int ics_ball_start_rolling(struct tsocket *tsock);
 
 void ics_printf(struct ics_server *ics, const char *fmt, ...);
 struct ics_data *ics_data_new(void);
