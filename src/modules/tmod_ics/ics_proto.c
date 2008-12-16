@@ -32,6 +32,27 @@
 #include "util.h"
 #include "tsocket.h"
 
+#define init_ics_triggers               tmod_ics_LTX_init_ics_triggers
+#define ics_internal_tell               tmod_ics_LTX_ics_internal_tell
+#define ics_internal_endgame            tmod_ics_LTX_ics_internal_endgame 
+#define ics_internal_msg_handler        tmod_ics_LTX_ics_internal_msg_handler
+#define ics_internal_announce_new_game  tmod_ics_LTX_ics_internal_announce_new_game
+#define ics_internal_baord_get_info     tmod_ics_LTX_ics_internal_board_get_info
+#define ics_internal_call_game_triggers tmod_ics_LTX_ics_internal_call_game_triggers
+#define ics_internal_set_name           tmod_ics_LTX_ics_internal_set_name
+#define ics_internal_my_name            tmod_ics_LTX_ics_internal_my_name
+#define ics_internal_anti_anti_idle     tmod_ics_LTX_ics_internal_anti_anti_idle
+#define ics_internal_notify             tmod_ics_LTX_ics_internal_notify
+#define ics_internal_style_twelve_init  tmod_ics_LTX_ics_internal_style_twelve_init
+#define ics_internal_connect            tmod_ics_LTX_ics_internal_connect
+#define ics_internal_enter              tmod_ics_LTX_ics_internal_enter
+#define ics_internal_login              tmod_ics_LTX_ics_internal_login
+#define ics_ball_start_rolling          tmod_ics_LTX_ics_internal_ball_start_rolling
+#define ics_printf                      tmod_ics_LTX_ics_printf
+#define ics_data_new                    tmod_ics_LTX_ics_data_new
+#define ics_data_free                   tmod_ics_LTX_ics_data_free
+#define parse_ics_line                  tmod_ics_LTX_parse_ics_line
+
 /* These are builtin triggers for ICS,
  * They can be overriden in languages
  * but I'm not sure if I've worked that
@@ -423,7 +444,7 @@ void ics_internal_my_name(struct ics_server *ics, struct ics_trigger *ics_trig, 
 
 	ics->my_name = my_name;
 
-	troll_debug(LOG_DEBUG, "My name on ICS server (%s) is %s", ics->label, my_name);
+	/* troll_debug(LOG_DEBUG, "My name on ICS server (%s) is %s", ics->label, my_name); */
 }
 
 /* Something better needs worked out for this */
@@ -519,10 +540,12 @@ void ics_internal_login(struct ics_server *ics, struct ics_trigger *ics_trig, st
 }
 
 /* This is called on connect? */
-void ics_ball_start_rolling(struct tsocket *tsock)
+int ics_ball_start_rolling(struct tsocket *tsock)
 {
 	struct ics_server *ics = tsock->data;
 	init_ics_triggers(ics);
+
+	return 1;
 }
 
 /* This is like irc_printf but it takes an ics_server and not a socket,
@@ -575,13 +598,15 @@ void parse_ics_line(struct ics_server *ics, char *buffer)
 {
 	struct ics_data *data    = NULL;
 
+	printf("%s\n",buffer);
+
 	data = ics_data_new();
 
 	data->txt_packet = tstrdup(buffer);
 	data->tokens     = tssv_split(buffer);
 
 	/* Should be log_entry with letter 'I' like 'X' for XMPP */
-	troll_debug(LOG_DEBUG, "%s\n",data->txt_packet);
+	/* troll_debug(LOG_DEBUG, "%s\n",data->txt_packet); */
 
 	ics_trigger_match(ics, data);
 

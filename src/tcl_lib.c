@@ -12,17 +12,8 @@
 #include "egg_lib.h"
 #include "user.h"
 
-#ifdef HAVE_ICS
-#include "ics_server.h"
-#include "ics_proto.h"
-#include "ics_game.h"
-#include "ics_trigger.h"
-#include "ics_lib.h"
-#endif /* HAVE_ICS */
-
-
 /* ICS specific eggdrop IRC commands */
-#ifdef HAVE_ICS
+#ifdef HAVE_ICS_CLOWNS
 
 int tcl_ics_get_score(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {

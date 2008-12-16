@@ -57,6 +57,8 @@ struct config
 
 	struct log_filter *filters;
 
+	struct slist *tmodules;
+
 	struct slist *tsockets;
 
 	char *hash_type;

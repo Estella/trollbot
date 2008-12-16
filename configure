@@ -17321,7 +17321,7 @@ if test $prefix = NONE; then
     prefix=${HOME}/trollbot
 fi
 
-ac_config_files="$ac_config_files Makefile src/Makefile src/modules/Makefile src/modules/crypto/Makefile src/modules/pgsql_log_filter/Makefile doc_dist/Makefile scripts_dist/Makefile log_dist/Makefile modules_dist/Makefile text_dist/Makefile conf_dist/Makefile db_dist/Makefile webroot_dist/Makefile"
+ac_config_files="$ac_config_files Makefile src/Makefile src/modules/Makefile src/modules/crypto/Makefile src/modules/pgsql_log_filter/Makefile src/modules/tmod_ics/Makefile doc_dist/Makefile scripts_dist/Makefile log_dist/Makefile modules_dist/Makefile text_dist/Makefile conf_dist/Makefile db_dist/Makefile webroot_dist/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -18269,6 +18269,7 @@ do
     "src/modules/Makefile") CONFIG_FILES="$CONFIG_FILES src/modules/Makefile" ;;
     "src/modules/crypto/Makefile") CONFIG_FILES="$CONFIG_FILES src/modules/crypto/Makefile" ;;
     "src/modules/pgsql_log_filter/Makefile") CONFIG_FILES="$CONFIG_FILES src/modules/pgsql_log_filter/Makefile" ;;
+    "src/modules/tmod_ics/Makefile") CONFIG_FILES="$CONFIG_FILES src/modules/tmod_ics/Makefile" ;;
     "doc_dist/Makefile") CONFIG_FILES="$CONFIG_FILES doc_dist/Makefile" ;;
     "scripts_dist/Makefile") CONFIG_FILES="$CONFIG_FILES scripts_dist/Makefile" ;;
     "log_dist/Makefile") CONFIG_FILES="$CONFIG_FILES log_dist/Makefile" ;;

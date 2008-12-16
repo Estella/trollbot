@@ -11,6 +11,10 @@
 
 #include "ics_lib.h"
 
+#define ics_getboard  tmod_ics_LTX_ics_getboard
+#define ics_get_score tmod_ics_LTX_ics_getscore
+#define ics_bind      tmod_ics_LTX_ics_bind
+
 char **ics_getboard(struct ics_server *ics, int game_id)
 {
 	struct ics_game *turn;
@@ -37,7 +41,7 @@ int ics_get_score(struct ics_server *ics, char *whom)
 
 	if (ics->game == NULL)
 	{
-		troll_debug(LOG_WARN,"ics_get_score() called with no active game");
+		/* troll_debug(LOG_WARN,"ics_get_score() called with no active game"); */
 		return 0;
 	}
 
@@ -46,7 +50,7 @@ int ics_get_score(struct ics_server *ics, char *whom)
 
 	if (tstrcasecmp(whom,"white") && tstrcasecmp(whom,"black") && tstrcasecmp(whom, ics->game->white_name) && tstrcasecmp(whom, ics->game->black_name))
 	{
-		troll_debug(LOG_WARN,"ics_get_score() called with non white/black or player argument");
+		/* troll_debug(LOG_WARN,"ics_get_score() called with non white/black or player argument"); */
 		return 0;
 	}
 	

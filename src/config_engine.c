@@ -17,18 +17,13 @@
 #include "log_filter.h"
 #include "log_entry.h"
 #include "debug.h"
+#include "tmodule.h"
 
 #ifdef HAVE_HTTP
 #include "http_server.h"
 #include "http_proto.h"
 #include "http_request.h"
 #endif /* HAVE_HTTP */
-
-#ifdef HAVE_ICS
-#include "ics_server.h"
-#include "ics_proto.h"
-#include "ics_trigger.h"
-#endif /* HAVE_ICS */
 
 #ifdef HAVE_XMPP
 #include "xmpp_server.h"
@@ -107,14 +102,6 @@ int config_engine_init(char *filename)
 	log_entry_printf(NULL,NULL,"o","Loaded TCL scripts.");
 #endif /* HAVE_TCL */
 
-#ifdef HAVE_ICS
-#ifdef HAVE_TCL
-	log_entry_printf(NULL,NULL,"I","Loading TCL scripts contained in config file for ICS.");
-	ics_tcl_load_scripts_from_config(g_cfg);
-	log_entry_printf(NULL,NULL,"o","Loaded ICS TCL scripts.");
-#endif /* HAVE_TCL */
-#endif /* HAVE_ICS */
-
 	/* keep a copy in the global config */
 	g_cfg->tcfg = tcfg;
 
@@ -137,6 +124,7 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 	struct server *svr;
 	struct channel *chan;
 	struct log_filter *filter;
+	struct tmodule *tmodule;
 
 	int i;
 
@@ -152,15 +140,13 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 
 	cfg->dcc_motd     = NULL;
 
+	cfg->tmodules     = NULL;
 	cfg->tsockets     = NULL;
 
 #ifdef HAVE_HTTP
 	cfg->http_servers = NULL;
 #endif /* HAVE_HTTP */
 
-#ifdef HAVE_ICS
-	cfg->ics_servers = NULL;
-#endif /* HAVE_ICS */
 #ifdef HAVE_XMPP
 	cfg->xmpp_servers = NULL;
 #endif /* HAVE_XMPP */
@@ -250,6 +236,16 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 				search = search->next;
 			}
 		}
+		else if (!strcmp(topmost->key,"module"))
+		{
+			if (cfg->tmodules == NULL)
+				slist_init(&cfg->tmodules, tmodule_free);
+
+			tmodule = tmodule_from_tconfig(topmost);
+	
+			if (tmodule != NULL)
+				slist_insert_next(cfg->tmodules, NULL, tmodule);
+		}
 #ifdef HAVE_HTTP
 		else if (!strcmp(topmost->key,"http_server"))
 		{
@@ -257,13 +253,6 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 			cfg->http_servers = http_server_add(cfg->http_servers,http_server_from_tconfig_block(topmost));
 		}
 #endif /* HAVE_HTTP */
-#ifdef HAVE_ICS
-		else if (!strcmp(topmost->key,"ics_server"))
-		{
-			/* Much simpler this way, isn't it? */
-			cfg->ics_servers = ics_server_add(cfg->ics_servers,ics_server_from_tconfig_block(topmost));
-		}
-#endif /* HAVE_ICS */
 
 #ifdef HAVE_XMPP
 		else if (!strcmp(topmost->key,"xmpp_server"))

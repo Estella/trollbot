@@ -15,14 +15,6 @@
 #include "egg_lib.h"
 #include "troll_lib.h"
 
-#ifdef HAVE_ICS
-#include "ics_server.h"
-#include "ics_proto.h"
-#include "ics_game.h"
-#include "ics_trigger.h"
-#include "ics_lib.h"
-#endif /* HAVE_ICS */
-
 
 void dcc_tcl(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
@@ -74,7 +66,7 @@ void net_init_tcl(struct network *net)
 
 void net_tcl_init_commands(struct network *net)
 {
-#ifdef HAVE_ICS
+#ifdef HAVE_ICS_CLOWNS
 	Tcl_CreateObjCommand(net->tclinterp, "ics_get_score", tcl_ics_get_score, net, NULL);
 	Tcl_CreateObjCommand(net->tclinterp, "putics", tcl_putics, net, NULL);
 #endif /* HAVE_ICS */
@@ -536,7 +528,7 @@ void tcl_handler(struct network *net, struct trigger *trig, struct irc_data *dat
 	}  
 }
 
-#ifdef HAVE_ICS
+#ifdef HAVE_ICS_CLOWNS
 
 void ics_tcl_load_scripts_from_config(struct config *cfg)
 {
