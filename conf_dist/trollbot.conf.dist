@@ -44,12 +44,15 @@ global settings
 
 
 /*
-ics_server freechess.org
+module ics
 {
-	username jeanclaude
-	password maisno
+	ics_server freechess.org
+	{
+		username frenchfriescheese
+		password maisno
 
-	server freechess.org:5000
+		server freechess.org:5000
+	}
 }
 */
 /*

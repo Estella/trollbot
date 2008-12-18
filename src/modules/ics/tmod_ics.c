@@ -15,11 +15,11 @@
 #include "tsocket.h"
 #include "util.h"
 
-#define tmodule_load          tmod_ics_LTX_tmodule_load
-#define tmodule_unload        tmod_ics_LTX_tmodule_unload
-#define tmodule_get_tsockets  tmod_ics_LTX_tmodule_get_tsockets
-#define tsockets              tmod_ics_LTX_tsockets
-#define ics_servers           tmod_ics_LTX_ics_servers
+#define tmodule_load          ics_LTX_tmodule_load
+#define tmodule_unload        ics_LTX_tmodule_unload
+#define tmodule_get_tsockets  ics_LTX_tmodule_get_tsockets
+#define tsockets              ics_LTX_tsockets
+#define ics_servers           ics_LTX_ics_servers
 
 
 struct slist *tsockets    = NULL;

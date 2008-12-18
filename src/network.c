@@ -31,6 +31,7 @@
 #include "egg_lib.h"
 #include "troll_lib.h"
 #include "tsocket.h"
+#include "irc.h"
 
 #ifdef HAVE_TCL
 #include "tcl_embed.h"

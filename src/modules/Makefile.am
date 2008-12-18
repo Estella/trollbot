@@ -1,7 +1,7 @@
 SUBDIRS = crypto
 
 if WITH_ICS
-SUBDIRS += tmod_ics
+SUBDIRS += ics
 endif
 
 if WITH_PGSQL

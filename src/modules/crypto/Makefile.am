@@ -12,3 +12,4 @@ crypto_la_SOURCES = sha512.c tomcrypt_argchk.h tomcrypt_cfg.h \
 										tomcrypt_prng.h crypto.c util.c util.h blowfish.c
 
 crypto_la_LDFLAGS = -module -no-undefined -avoid-version
+crypto_la_CFLAGS = -O0 -Wall -std=c99 -pedantic ${LTDLINCL}

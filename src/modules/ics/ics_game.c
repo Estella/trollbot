@@ -13,10 +13,10 @@
 
 #include "server.h"
 
-#define ics_game_add  tmod_ics_LTX_ics_game_add
-#define ics_game_del  tmod_ics_LTX_ics_game_del
-#define new_ics_game  tmod_ics_LTX_new_ics_game
-#define free_ics_game tmod_ics_LTX_free_ics_game
+#define ics_game_add  ics_LTX_ics_game_add
+#define ics_game_del  ics_LTX_ics_game_del
+#define new_ics_game  ics_LTX_new_ics_game
+#define free_ics_game ics_LTX_free_ics_game
 
 
 /* Adds an ICS game to the game list */

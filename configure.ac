@@ -155,7 +155,7 @@ AC_OUTPUT(Makefile
 					src/modules/Makefile
 					src/modules/crypto/Makefile
 					src/modules/pgsql_log_filter/Makefile
-					src/modules/tmod_ics/Makefile
+					src/modules/ics/Makefile
           doc_dist/Makefile
           scripts_dist/Makefile
 					log_dist/Makefile

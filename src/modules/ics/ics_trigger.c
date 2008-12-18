@@ -14,14 +14,14 @@
 
 #include "server.h"
 
-#define ics_trigger_add        tmod_ics_LTX_ics_trigger_add
-#define ics_trigger_del        tmod_ics_LTX_ics_trigger_del
-#define new_ics_trigger        tmod_ics_LTX_new_ics_trigger
-#define ics_trigger_match      tmod_ics_LTX_ics_trigger_match
-#define new_ics_trigger_table  tmod_ics_LTX_new_ics_trigger_table
-#define free_ics_triggers      tmod_ics_LTX_free_ics_triggers
-#define free_ics_trigger       tmod_ics_LTX_free_ics_trigger
-#define free_ics_trigger_table tmod_ics_LTX_free_ics_trigger_table
+#define ics_trigger_add        ics_LTX_ics_trigger_add
+#define ics_trigger_del        ics_LTX_ics_trigger_del
+#define new_ics_trigger        ics_LTX_new_ics_trigger
+#define ics_trigger_match      ics_LTX_ics_trigger_match
+#define new_ics_trigger_table  ics_LTX_new_ics_trigger_table
+#define free_ics_triggers      ics_LTX_free_ics_triggers
+#define free_ics_trigger       ics_LTX_free_ics_trigger
+#define free_ics_trigger_table ics_LTX_free_ics_trigger_table
 
 
 /* Adds an ICS trigger to the trigger list */

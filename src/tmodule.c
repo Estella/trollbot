@@ -25,11 +25,11 @@ struct tmodule *tmodule_from_tconfig(struct tconfig_block *tcfg)
   /* Search modules directory */
   lt_dlsetsearchpath("modules");
 
-  ltmodule = lt_dlopenext(tcfg->value);
+	ltmodule = lt_dlopenext(tcfg->value);
 
   if (ltmodule == NULL)
   {
-    troll_debug(LOG_WARN,"Could not open module \"%s\"",tcfg->value);
+    troll_debug(LOG_WARN,"Could not open module \"%s\" (Reason: %s)",tcfg->value, lt_dlerror());
     return NULL;
   }
 

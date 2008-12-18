@@ -11,9 +11,9 @@
 
 #include "ics_lib.h"
 
-#define ics_getboard  tmod_ics_LTX_ics_getboard
-#define ics_get_score tmod_ics_LTX_ics_getscore
-#define ics_bind      tmod_ics_LTX_ics_bind
+#define ics_getboard  ics_LTX_ics_getboard
+#define ics_get_score ics_LTX_ics_getscore
+#define ics_bind      ics_LTX_ics_bind
 
 char **ics_getboard(struct ics_server *ics, int game_id)
 {
