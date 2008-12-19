@@ -58,9 +58,6 @@
 /* Define to 1 if you have the `fork' function. */
 #undef HAVE_FORK
 
-/* Whether to use http support */
-#undef HAVE_HTTP
-
 /* Whether to use ICS support */
 #undef HAVE_ICS
 
@@ -76,9 +73,6 @@
 /* Define if libdlloader will be built on this platform */
 #undef HAVE_LIBDLLOADER
 
-/* Ability to use libxml2 */
-#undef HAVE_LIBXML
-
 /* Define this if a modern libltdl is already installed */
 #undef HAVE_LTDL
 
@@ -93,9 +87,6 @@
 
 /* Ability to use Perl scripting */
 #undef HAVE_PERL
-
-/* Whether to use PostgreSQL support */
-#undef HAVE_PGSQL
 
 /* Ability to use PHP scripting */
 #undef HAVE_PHP
@@ -165,9 +156,6 @@
 
 /* Define to 1 if `vfork' works. */
 #undef HAVE_WORKING_VFORK
-
-/* Ability to use XMPP/Jabber */
-#undef HAVE_XMPP
 
 /* Define if the OS needs help to load dependent libraries for dlopen(). */
 #undef LTDL_DLOPEN_DEPLIBS

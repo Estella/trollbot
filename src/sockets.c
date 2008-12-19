@@ -33,18 +33,6 @@
 #include "tsocket.h"
 #include "util.h"
 
-#ifdef HAVE_HTTP
-#include "http_server.h"
-#include "http_proto.h"
-#include "http_request.h"
-#endif /* HAVE_HTTP */
-
-#ifdef HAVE_XMPP
-#include "xmpp_server.h"
-#include "xmpp_proto.h"
-#include "xmpp_trigger.h"
-#endif /* HAVE_XMPP */
-
 void socket_set_blocking(int sock)
 {
 	int opts;
@@ -96,14 +84,7 @@ void irc_loop(void)
 	fd_set writefds;
 	struct timeval timeout;
 	struct network *net;
-#ifdef HAVE_XMPP
-	struct xmpp_server *xs;
-#endif /* HAVE_XMPP */
 	struct dcc_session *dcc;
-
-#ifdef HAVE_HTTP
-	struct http_server *http;
-#endif /* HAVE_HTTP */
 
 	int numsocks = 0;
 	socklen_t lon      = 0;
@@ -121,35 +102,6 @@ void irc_loop(void)
 	 * thingamajigs, let's introduce this gradually
 	 */
 	
-#ifdef HAVE_XMPP
-	xs = g_cfg->xmpp_servers;
-
-	/* Connect to one server for each network, or mark network unconnectable */
-	while (xs != NULL)
-	{
-		/* Shouldn't be done here */
-		xs->cur_server = xs->servers;
-
-		xs->last_try = time(NULL);
-		xs->status   = XMPP_INPROGRESS;
-		xmpp_server_connect(xs);
-
-		xs = xs->next;
-	}
-#endif /* HAVE_XMPP */
-#ifdef HAVE_HTTP
-	http = g_cfg->http_servers;
-
-	/* Connect to one server for each network, or mark network unconnectable */
-	while (http != NULL)
-	{
-		http->status = HTTP_UNINITIALIZED;
-		http_server_listen(http);
-
-		http = http->next;
-	}
-#endif /* HAVE_HTTP */
-
 	net = g_cfg->networks;
 
 	/* Connect to one server for each network, or mark network unconnectable */
@@ -235,27 +187,6 @@ void irc_loop(void)
 
 			net = net->next;
 		}
-
-#ifdef HAVE_HTTP
-		http = g_cfg->http_servers;
-		
-		while (http != NULL)
-		{
-			if (http->sock == -2)
-				continue;
-
-      if (http->sock == -1)
-      {
-				http_init_listener(http);	
-			}
-
-			FD_SET(http->sock,&socks);
-			numsocks = (http->sock > numsocks) ? http->sock : numsocks;
-			
-			http = http->next;
-		}
-#endif /* HAVE_HTTP */
-
 
 		if (g_cfg->tmodules != NULL)
 		{
@@ -370,10 +301,17 @@ void irc_loop(void)
 								case TSOCK_INFDSET:
 									if (FD_ISSET(tsock->sock, &socks))
 										if (tsock->tsocket_read_cb != NULL)
-											tsock->tsocket_read_cb(tsock);
-									if (FD_ISSET(tsock->sock, &writefds))
-										if (tsock->tsocket_write_cb != NULL)
-											tsock->tsocket_write_cb(tsock);
+											if (!tsock->tsocket_read_cb(tsock))
+												tsock->tsocket_disconnect_cb(tsock);
+
+									if (tsock->sock != -1)
+									{
+										if (FD_ISSET(tsock->sock, &writefds))
+											if (tsock->tsocket_write_cb != NULL)
+												if (!tsock->tsocket_write_cb(tsock))
+													tsock->tsocket_disconnect_cb(tsock);
+									}
+
 									break;
 							}
 
@@ -411,10 +349,13 @@ void irc_loop(void)
 						case TSOCK_INFDSET:
 							if (FD_ISSET(tsock->sock, &socks))
 								if (tsock->tsocket_read_cb != NULL)
-									tsock->tsocket_read_cb(tsock);
+									if (!tsock->tsocket_read_cb(tsock))
+										tsock->tsocket_disconnect_cb(tsock);
+
 							if (FD_ISSET(tsock->sock, &writefds))
 								if (tsock->tsocket_write_cb != NULL)
-									tsock->tsocket_write_cb(tsock);
+									if (!tsock->tsocket_write_cb(tsock))
+										tsock->tsocket_disconnect_cb(tsock);
 							break;
 					}
 				}	
@@ -424,28 +365,6 @@ void irc_loop(void)
 		}
 
 		net = g_cfg->networks;
-
-#ifdef HAVE_HTTP
-
-		http = g_cfg->http_servers;
-		
-		while (http != NULL)
-		{
-      /* If a DCC listener exists, add it to the fd set */
-      if (http->sock > 0)
-      {
-        if (FD_ISSET(http->sock,&socks))
-				{
-					new_http_connection(http);
-				}
-      }
-			
-			http = http->next;
-		}
-
-
-#endif /* HAVE_HTTP */
-
 
 		while (net != NULL)
 		{

@@ -52,7 +52,7 @@ int tmodule_load(struct tconfig_block *tcfg)
 	}
 
 	/* HACK */
-	ics_server_connect(ics);
+	ics_server_connect(ics, NULL);
 
 	/* FIXME: Need logging mechanism */
 	printf("ICS Module Loaded.\n");

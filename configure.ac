@@ -50,41 +50,43 @@ AC_TYPE_PID_T
 dnl check if libxml2 exists
 dnl needed for jabber/xmpp
 
-AC_ARG_WITH(http, [  --with-http=[yes/no]  Whether to include webserver support],
-	[ AC_DEFINE([HAVE_HTTP],1,[Whether to use http support])
-		with_http="yes"])
+dnl temporarily disabled
+dnl AC_ARG_WITH(http, [  --with-http=[yes/no]  Whether to include webserver support],
+dnl	[ AC_DEFINE([HAVE_HTTP],1,[Whether to use http support])
+dnl		with_http="yes"])
 
-AC_ARG_WITH(pgsql, [  --with-pgsql=[yes/no]  Whether to include PostgreSQL support],
-	[ AC_DEFINE([HAVE_PGSQL],1,[Whether to use PostgreSQL support])
-		with_pgsql="yes"])
+dnl temporarily disabled
+dnl AC_ARG_WITH(pgsql, [  --with-pgsql=[yes/no]  Whether to include PostgreSQL support],
+dnl	[ AC_DEFINE([HAVE_PGSQL],1,[Whether to use PostgreSQL support])
+dnl		with_pgsql="yes"])
 
 AC_ARG_WITH(ics, [  --with-ics=[yes/no]  Whether to include ICS support],
 	[ AC_DEFINE([HAVE_ICS],1,[Whether to use ICS support])
 		with_ics="yes" ])
 
+dnl temporarily disabled
+dnl AC_ARG_WITH(xmpp, [  --with-xmpp=[yes/no]  Whether to include XMPP support],
+dnl	[ with_xmpp="$withval" ])
 
-AC_ARG_WITH(xmpp, [  --with-xmpp=[yes/no]  Whether to include XMPP support],
-	[ with_xmpp="$withval" ])
-
-if test "${with_pgsql}" = "yes"; then
+dnl if test "${with_pgsql}" = "yes"; then
 	dnl check if postgresql exists
-	POSTGRESQL_CHECKS
+dnl	POSTGRESQL_CHECKS
 
-	AC_SUBST(PQINCPATH)
-	AC_SUBST(PQLIB)
-fi
+dnl	AC_SUBST(PQINCPATH)
+dnl	AC_SUBST(PQLIB)
+dnl fi
 
-if test "${with_xmpp}" = "yes"; then
-	AM_PATH_XML2(2.6.13)
+dnl if test "${with_xmpp}" = "yes"; then
+dnl	AM_PATH_XML2(2.6.13)
 
-	AC_SUBST(XML_LIBS)
-	AC_SUBST(XML_CPPFLAGS)
-fi
+dnl	AC_SUBST(XML_LIBS)
+dnl	AC_SUBST(XML_CPPFLAGS)
+dnl fi
 
-if test "x${XML_LIBS}" != "x"; then
-	AC_DEFINE([HAVE_LIBXML],1,[Ability to use libxml2])
-	AC_DEFINE([HAVE_XMPP],1,[Ability to use XMPP/Jabber])
-fi
+dnl if test "x${XML_LIBS}" != "x"; then
+dnl	AC_DEFINE([HAVE_LIBXML],1,[Ability to use libxml2])
+dnl	AC_DEFINE([HAVE_XMPP],1,[Ability to use XMPP/Jabber])
+dnlfi
 
 dnl check if python exists
 AC_PYTHON_DEVEL

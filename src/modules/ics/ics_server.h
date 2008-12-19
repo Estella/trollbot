@@ -146,7 +146,7 @@ struct ics_server *ics_server_from_tconfig_block(struct tconfig_block *tcfg);
 struct ics_server *ics_server_add(struct ics_server *servers, struct ics_server *add);
 struct ics_server *ics_server_del(struct ics_server *servers, struct ics_server *del);
 
-void ics_server_connect(struct ics_server *ics);
+void ics_server_connect(struct ics_server *ics, struct tsocket *tsock);
 void free_ics_servers(struct ics_server *ics_servers);
 void free_ics_server(void *ics_ptr);
 

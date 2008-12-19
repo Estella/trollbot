@@ -212,23 +212,27 @@ struct ics_server *ics_server_del(struct ics_server *ics_server, struct ics_serv
 
 }
 
-void ics_server_connect(struct ics_server *ics)
+void ics_server_connect(struct ics_server *ics, struct tsocket *tsock)
 {
-	struct tsocket *tsock;
+	struct tsocket *mytsock;
 	struct server  *srv;
 
-	tsock = tsocket_new();
+	if (tsock == NULL)
+		mytsock = tsocket_new();
+	else
+		mytsock = tsock;
 
 	/* Assign it in the ics_server */
-	tsock->data = ics;
-	ics->tsock  = tsock;
+	mytsock->data = ics;
+	ics->tsock    = mytsock;
 
-	tsock->name = tstrdup(ics->label);
+	mytsock->name = tstrdup(ics->label);
 
 	/* in ics_proto.c */
-	tsock->tsocket_read_cb    = ics_in;
-	tsock->tsocket_write_cb   = NULL;
-	tsock->tsocket_connect_cb = ics_ball_start_rolling;
+	mytsock->tsocket_read_cb       = ics_in;
+	mytsock->tsocket_write_cb      = NULL;
+	mytsock->tsocket_connect_cb    = ics_ball_start_rolling;
+	mytsock->tsocket_disconnect_cb = ics_disconnected; 
 	
 	/* Find a suitable network server */
 	srv = ics->servers;
@@ -236,7 +240,7 @@ void ics_server_connect(struct ics_server *ics)
 	while (srv != NULL)
 	{
 		if (srv->host != NULL)
-			if (tsocket_connect(tsock, NULL, srv->host, srv->port))
+			if (tsocket_connect(mytsock, NULL, srv->host, srv->port))
 				break;
 
 		srv = srv->next;
@@ -249,12 +253,14 @@ void ics_server_connect(struct ics_server *ics)
 		return;
 	}
 
+	if (tsock == NULL)
+	{
+		/* Insert it into the global check list */
+		if (tsockets == NULL)
+			slist_init(&tsockets, tsocket_free);
 
-	/* Insert it into the global check list */
-	if (tsockets == NULL)
-		slist_init(&tsockets, tsocket_free);
-
-	slist_insert_next(tsockets, NULL, (void *)tsock);
+		slist_insert_next(tsockets, NULL, (void *)mytsock);
+	}
 
 	return;
 }

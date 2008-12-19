@@ -18,6 +18,7 @@
 #include "log_entry.h"
 #include "ics_game.h"
 
+#include "tmod_ics.h"
 #include "troll_lib.h"
 #include "egg_lib.h"
 #include "network.h"
@@ -537,6 +538,17 @@ void ics_internal_enter(struct ics_server *ics, struct ics_trigger *ics_trig, st
 void ics_internal_login(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data)
 {
 	ics_printf(ics, ics->username);
+}
+
+int ics_disconnected(struct tsocket *tsock)
+{
+	struct ics_server *ics = tsock->data;
+
+	tsocket_close(tsock);
+	
+	ics_server_connect(ics, tsock);
+
+	return 1;
 }
 
 /* This is called on connect? */
