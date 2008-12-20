@@ -9,12 +9,12 @@ trollbot_SOURCES = channel.c config_engine.c dcc.c debug.c irc_proto.c die.c egg
 trollbot_CXXFLAGS = -O0 -g
 trollbot_CFLAGS = -O0 -Wall -std=c99 -pedantic ${LTDLINCL}
 
-trollbot_LDADD  = ${LIBLTDL} "-dlpreopen" modules/crypto/crypto.la
+trollbot_LDADD  = ${LIBLTDL} "-dlopen" modules/crypto/crypto.la
 
 trollbot_DEPENDENCIES = modules/crypto/crypto.la
 
 if WITH_PGSQL
-trollbot_LDADD += "-dlpreopen" modules/pgsql_log_filter/pgsql_log_filter.la
+trollbot_LDADD += "-dlopen" modules/pgsql_log_filter/pgsql_log_filter.la
 trollbot_DEPENDENCIES += modules/pgsql_log_filter/pgsql_log_filter.la
 endif
 
@@ -23,7 +23,7 @@ trollbot_SOURCES += http_server.c http_server.h http_proto.c http_proto.h http_r
 endif
 
 if WITH_ICS
-trollbot_LDADD += "-dlpreopen" modules/ics/ics.la
+trollbot_LDADD += "-dlopen" modules/ics/ics.la
 trollbot_DEPENDENCIES += modules/ics/ics.la
 endif
 
