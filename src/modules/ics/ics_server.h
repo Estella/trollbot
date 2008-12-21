@@ -5,31 +5,10 @@
 
 struct server;
 struct tconfig_block;
-struct log_filter;
 struct ics_game;
 struct tsocket;
 
 #include <time.h>
-
-#ifdef HAVE_TCL
-#include <tcl.h>
-#undef STRINGIFY
-#undef JOIN
-#undef END_EXTERN_C
-#endif /* HAVE_TCL */
-
-
-#ifdef HAVE_PERL
-struct interpreter;
-#endif /* HAVE_PERL */
-
-#ifdef HAVE_PYTHON
-#include <Python.h>
-#endif /* HAVE_PYTHON */
-
-#ifdef HAVE_JS
-#include <jsapi.h>
-#endif /* HAVE_JS */
 
 enum ics_status {
   ICS_DISCONNECTED = 0,
@@ -92,9 +71,6 @@ struct ics_server
 
 	struct t_timer *timers;
 
-	/* LOG FILTERS! */
-	struct log_filter *filters;
-
   /* Unhandled blocks go here */
   struct tconfig_block *tcfg;
 
@@ -102,42 +78,6 @@ struct ics_server
 
   struct ics_server *prev;
   struct ics_server *next;
-
-#ifdef HAVE_TCL
-  /* Network TCL Interpreter */
-	/* Copy over on rehash */
-  Tcl_Interp *tclinterp;
-
-	char **tcl_scripts;
-	unsigned int tcl_scripts_size;
-#endif /* HAVE_TCL */  
-
-#ifdef HAVE_PERL
-	/* Copy over on rehash */
-  struct interpreter *perlinterp;
-#endif /* HAVE_PERL */
-
-#ifdef HAVE_PYTHON
-	/* Copy over on rehash */
-  PyObject *py_netobj;
-  PyObject *pydict;
-  char **py_scripts;
-  unsigned int py_scripts_size;
-#endif /* HAVE_PYTHON */
-
-#ifdef HAVE_JS
-	/* Copy both over on rehash */
-	JSContext *cx;
-	JSObject  *global;
-	
-	/* HACK */
-	/* Copy both over on rehash */
-	JSContext *plain_cx;
-	JSObject  *plain_global;
-
-	char **js_scripts;
-	unsigned int js_scripts_size;
-#endif /* HAVE_JS */
 };
 
 

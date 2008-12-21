@@ -9,9 +9,9 @@
  ******************************/
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stdarg.h>
 
-#include "main.h"
 #include "ics_proto.h"
 #include "ics_server.h"
 #include "ics_trigger.h"
@@ -23,12 +23,6 @@
 #include "egg_lib.h"
 #include "network.h"
 #include "server.h"
-#include "channel.h"
-#include "user.h"
-#include "irc.h"
-#include "dcc.h"
-#include "irc_trigger.h"
-#include "t_crypto_module.h"
 #include "t_timer.h"
 #include "util.h"
 #include "tsocket.h"
@@ -169,7 +163,7 @@ void ics_internal_tell(struct ics_server *ics, struct ics_trigger *ics_trig, str
 
 	while (trig != NULL)
 	{
-		if (troll_matchwilds(data->txt_packet, trig->mask))
+		if (matchwilds(data->txt_packet, trig->mask))
 		{
 			if (trig->handler != NULL)
 			{
@@ -261,7 +255,7 @@ void ics_internal_msg_handler(struct ics_server *ics, struct ics_trigger *ics_tr
 
 	while (trig != NULL)
 	{
-		if (troll_matchwilds(data->txt_packet, trig->mask))
+		if (matchwilds(data->txt_packet, trig->mask))
 		{
 			if (trig->handler != NULL)
 			{
@@ -276,8 +270,11 @@ void ics_internal_msg_handler(struct ics_server *ics, struct ics_trigger *ics_tr
 	return;
 }
 
+
 void ics_internal_announce_new_game(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data)
 {
+	return;
+#ifdef CLOWNS
 	struct network *net;
 	struct channel *chan;
 
@@ -301,7 +298,7 @@ void ics_internal_announce_new_game(struct ics_server *ics, struct ics_trigger *
 	}
 
 	return;
-
+#endif /* CLOWNS */
 }
 
 void ics_internal_board_get_info(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data)
@@ -475,7 +472,7 @@ void ics_internal_notify(struct ics_server *ics, struct ics_trigger *ics_trig, s
 	/* Call all triggers that match the username of whoever was on your notify list */
 	while (trig != NULL)
 	{
-		if (!troll_matchwilds(data->tokens[1],trig->mask))
+		if (!matchwilds(data->tokens[1],trig->mask))
 		{
 			if (trig->handler != NULL)
 			{

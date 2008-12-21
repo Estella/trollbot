@@ -10,6 +10,8 @@ struct slist;
 #define tsockets              ics_LTX_tsockets
 #define ics_servers           ics_LTX_ics_servers
 
+#define BUFFER_SIZE 1024
+
 extern struct slist *tsockets;
 extern struct slist *ics_servers;
 

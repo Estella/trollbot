@@ -3,13 +3,9 @@
 #include <string.h>
 #include <strings.h>
 
-#include "main.h"
-
 #include "ics_server.h"
 #include "ics_proto.h"
 #include "ics_game.h"
-#include "log_entry.h"
-#include "egg_lib.h"
 
 #include "server.h"
 
@@ -42,7 +38,7 @@ struct ics_game *ics_game_del(struct ics_game *ics_games, struct ics_game *del)
 
 	if ((tmp = ics_games) == NULL)
 	{
-		log_entry_printf(NULL,NULL,"X","ics_game_del() called with NULL game list");
+		printf("ics_game_del() called with NULL game list");
 		return NULL;
 	}
 
@@ -72,7 +68,7 @@ struct ics_game *ics_game_del(struct ics_game *ics_games, struct ics_game *del)
 		tmp = tmp->next;
 	}
 
-	log_entry_printf(NULL,NULL,"X","ics_game_del() called with a game deletion that no entry existed for");
+	printf("ics_game_del() called with a game deletion that no entry existed for");
 
 	return ics_games;
 }
@@ -136,7 +132,7 @@ void free_ics_games(struct ics_game *ics_games)
 
 	if (tmp == NULL)
 	{
-		log_entry_printf(NULL,NULL,"X","free_ics_games() called with NULL game list");
+		printf("free_ics_games() called with NULL game list");
 		return;
 	}
 

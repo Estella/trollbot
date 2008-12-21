@@ -47,7 +47,7 @@ struct ics_trigger *ics_trigger_del(struct ics_trigger *ics_triggers, struct ics
 
 	if ((tmp = ics_triggers) == NULL)
 	{
-		log_entry_printf(NULL,NULL,"X","ics_trigger_del() called with NULL trigger list");
+		printf("ics_trigger_del() called with NULL trigger list");
 		return NULL;
 	}
 
@@ -77,7 +77,7 @@ struct ics_trigger *ics_trigger_del(struct ics_trigger *ics_triggers, struct ics
 		tmp = tmp->next;
 	}
 
-	log_entry_printf(NULL,NULL,"X","ics_trigger_del() called with a trigger deletion that no entry existed for");
+	printf("ics_trigger_del() called with a trigger deletion that no entry existed for");
 
 	return ics_triggers;
 }
@@ -114,7 +114,7 @@ int ics_trigger_match(struct ics_server *xs, struct ics_data *data)
 	while (trig != NULL)
 	{
 		/* MSG Bind handler */
-		if (!troll_matchwilds(data->txt_packet, trig->mask))
+		if (!matchwilds(data->txt_packet, trig->mask))
 		{
 			if (trig->handler != NULL)
 			{
@@ -123,7 +123,7 @@ int ics_trigger_match(struct ics_server *xs, struct ics_data *data)
 			}
 		}
 
-		if (!troll_matchwilds(data->txt_packet, "Notification:*has arrived."))
+		if (!matchwilds(data->txt_packet, "Notification:*has arrived."))
 		{
 			/* Check notifications for whatever is in the * */	
 		}
@@ -159,7 +159,7 @@ void free_ics_triggers(struct ics_trigger *ics_triggers)
 
 	if (tmp == NULL)
 	{
-		log_entry_printf(NULL,NULL,"X","free_ics_triggers() called with NULL trigger list");
+		printf("free_ics_triggers() called with NULL trigger list");
 		return;
 	}
 

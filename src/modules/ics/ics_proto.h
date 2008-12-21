@@ -11,6 +11,7 @@
 #ifndef __ICS_PROTO_H__
 #define __ICS_PROTO_H__
 
+struct ics_server;
 struct ics_trigger;
 struct tsocket;
 

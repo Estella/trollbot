@@ -1,10 +1,7 @@
 #include "config.h"
 
-/* I have to do this */
-#ifdef HAVE_PYTHON
-#include "python_embed.h"
-#endif /* HAVE_PYTHON */
-
+#include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <sys/select.h>
 #include <netdb.h>
@@ -17,7 +14,6 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#include "main.h"
 #include "ics_server.h"
 #include "ics_proto.h"
 #include "ics_trigger.h"
@@ -25,24 +21,9 @@
 #include "server.h"
 #include "t_timer.h"
 #include "sockets.h"
-#include "debug.h"
-#include "log_filter.h"
-#include "log_entry.h"
 #include "tconfig.h"
 #include "tsocket.h"
 #include "tmod_ics.h"
-
-#ifdef HAVE_TCL
-#include "tcl_embed.h"
-#endif /* HAVE_TCL */
-
-#ifdef HAVE_PERL
-#include "perl_embed.h"
-#endif /* HAVE_PERL */
-
-#ifdef HAVE_JS
-#include "js_embed.h"
-#endif /* HAVE_JS */
 
 
 struct ics_server *ics_server_from_tconfig_block(struct tconfig_block *tcfg)
@@ -54,19 +35,19 @@ struct ics_server *ics_server_from_tconfig_block(struct tconfig_block *tcfg)
 
 	if ((tmp = tcfg) == NULL)
 	{
-		log_entry_printf(NULL,NULL,"X","ics_server_from_tconfig_block() called with NULL tconfig block");
+		printf("ics_server_from_tconfig_block() called with NULL tconfig block");
 		return NULL;
 	}
 
 	if (tstrcasecmp(tmp->key,"ics_server"))
 	{
-		log_entry_printf(NULL,NULL,"X","ics_server_from_tconfig_block() called with invalid block type");
+		printf("ics_server_from_tconfig_block() called with invalid block type");
 		return NULL;
 	}
 
 	if (tmp->child == NULL)
 	{
-		log_entry_printf(NULL,NULL,"X","ics_server_from_tconfig_block() called with a ics_server with no fucking child");
+		printf("ics_server_from_tconfig_block() called with a ics_server with no fucking child");
 		return NULL;
 	}
 
@@ -117,37 +98,6 @@ struct ics_server *ics_server_from_tconfig_block(struct tconfig_block *tcfg)
 				ics->vhost = tstrdup(tmp->value);
 			}
 		}
-#ifdef HAVE_TCL
-		else if (!strcmp(tmp->key,"tclscript"))
-		{
-			if (ics->tcl_scripts_size == 0)
-			{
-				/* Allocate 10 slots (9 usable, 1 NULL) */
-				ics->tcl_scripts = tmalloc0(sizeof(char *) * 10);
-
-
-				ics->tcl_scripts_size = 10;
-			}
-
-			for (i=0;i<(ics->tcl_scripts_size-1);i++)
-			{
-				if (ics->tcl_scripts[i] == NULL)
-				{
-					ics->tcl_scripts[i] = tstrdup(tmp->value);
-					break;
-				}
-			}
-
-			if (ics->tcl_scripts[i] == NULL)
-			{
-				/* Need more slots */
-				ics->tcl_scripts = tsrealloc0(ics->tcl_scripts,ics->tcl_scripts_size+10,&ics->tcl_scripts_size);
-
-				ics->tcl_scripts[i] = tstrdup(tmp->value);
-			}
-		}
-#endif /* HAVE_TCL */
-		
 
 		tmp = tmp->next;
 	}
@@ -176,7 +126,7 @@ struct ics_server *ics_server_del(struct ics_server *ics_server, struct ics_serv
 
 	if ((tmp = ics_server) == NULL)
 	{
-		log_entry_printf(NULL,NULL,"X","ics_server_del() called with NULL server list");
+		printf("ics_server_del() called with NULL server list");
 		return NULL;
 	}
 
@@ -206,7 +156,7 @@ struct ics_server *ics_server_del(struct ics_server *ics_server, struct ics_serv
 		tmp = tmp->next;
 	}
 
-	log_entry_printf(NULL,NULL,"X","ics_server_del() called with a server deletion that no entry existed for");
+	printf("ics_server_del() called with a server deletion that no entry existed for");
 
 	return ics_server;
 
@@ -307,25 +257,6 @@ void free_ics_server(void *ics_ptr)
 	t_timers_free(ics->timers);
 	free_ics_trigger_table(ics->ics_trigger_table);
 
-	/* FIXME: free fucking JS shit, PHP shit, etc */
-
-#ifdef HAVE_TCL
-	tstrfreev(ics->tcl_scripts);
-#endif /* HAVE_TCL */
-
-#ifdef HAVE_JS
-	tstrfreev(ics->js_scripts);
-	/* Cleanup Spidermonkey */
-	if (ics->cx != NULL)
-	{
-		JS_DestroyContext(ics->cx);
-	}
-#endif /* HAVE_JS */
-
-#ifdef HAVE_PYTHON
-	tstrfreev(ics->py_scripts);
-#endif /* HAVE_PYTHON*/
-
 	free(ics);
 
 	return;
@@ -378,38 +309,8 @@ struct ics_server *new_ics_server(char *label)
 	ret->connect_delay = -1; 
 	ret->last_try      = 0;  
 
-	ret->filters       = NULL;
-
 	/* Ridiculously long */
 	ret->ics_trigger_table = new_ics_trigger_table();
-
-
-#ifdef HAVE_TCL
-	ret->tcl_scripts      = NULL;
-	ret->tcl_scripts_size = 0;
-	/* ics_init_tcl(ret); */
-#endif /* HAVE_TCL */
-
-#ifdef HAVE_PERL
-	/* net_init_perl(ret); Need Jabber func */
-#endif /* HAVE_PERL */
-
-#ifdef HAVE_PYTHON
-	ret->py_scripts = NULL;
-	ret->py_scripts_size = 0;
-#endif /* HAVE_PYTHON */
-
-#ifdef HAVE_JS
-	ret->cx     = NULL;
-	ret->global = NULL;
-	/*net_init_js(ret); */
-
-	ret->plain_cx     = NULL;
-	ret->plain_global = NULL;
-
-	ret->js_scripts   = NULL;
-	ret->js_scripts_size = 0;
-#endif /* HAVE_JS */
 
 	return ret;
 }
