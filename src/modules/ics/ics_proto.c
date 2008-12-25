@@ -19,34 +19,10 @@
 #include "ics_game.h"
 
 #include "tmod_ics.h"
-#include "troll_lib.h"
-#include "egg_lib.h"
-#include "network.h"
 #include "server.h"
 #include "t_timer.h"
 #include "util.h"
 #include "tsocket.h"
-
-#define init_ics_triggers               ics_LTX_init_ics_triggers
-#define ics_internal_tell               ics_LTX_ics_internal_tell
-#define ics_internal_endgame            ics_LTX_ics_internal_endgame 
-#define ics_internal_msg_handler        ics_LTX_ics_internal_msg_handler
-#define ics_internal_announce_new_game  ics_LTX_ics_internal_announce_new_game
-#define ics_internal_baord_get_info     ics_LTX_ics_internal_board_get_info
-#define ics_internal_call_game_triggers ics_LTX_ics_internal_call_game_triggers
-#define ics_internal_set_name           ics_LTX_ics_internal_set_name
-#define ics_internal_my_name            ics_LTX_ics_internal_my_name
-#define ics_internal_anti_anti_idle     ics_LTX_ics_internal_anti_anti_idle
-#define ics_internal_notify             ics_LTX_ics_internal_notify
-#define ics_internal_style_twelve_init  ics_LTX_ics_internal_style_twelve_init
-#define ics_internal_connect            ics_LTX_ics_internal_connect
-#define ics_internal_enter              ics_LTX_ics_internal_enter
-#define ics_internal_login              ics_LTX_ics_internal_login
-#define ics_ball_start_rolling          ics_LTX_ics_internal_ball_start_rolling
-#define ics_printf                      ics_LTX_ics_printf
-#define ics_data_new                    ics_LTX_ics_data_new
-#define ics_data_free                   ics_LTX_ics_data_free
-#define parse_ics_line                  ics_LTX_parse_ics_line
 
 /* These are builtin triggers for ICS,
  * They can be overriden in languages

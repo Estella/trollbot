@@ -9,20 +9,8 @@
 #include "ics_proto.h"
 #include "ics_trigger.h"
 #include "log_entry.h"
-#include "egg_lib.h"
-#include "troll_lib.h"
 
 #include "server.h"
-
-#define ics_trigger_add        ics_LTX_ics_trigger_add
-#define ics_trigger_del        ics_LTX_ics_trigger_del
-#define new_ics_trigger        ics_LTX_new_ics_trigger
-#define ics_trigger_match      ics_LTX_ics_trigger_match
-#define new_ics_trigger_table  ics_LTX_new_ics_trigger_table
-#define free_ics_triggers      ics_LTX_free_ics_triggers
-#define free_ics_trigger       ics_LTX_free_ics_trigger
-#define free_ics_trigger_table ics_LTX_free_ics_trigger_table
-
 
 /* Adds an ICS trigger to the trigger list */
 struct ics_trigger *ics_trigger_add(struct ics_trigger *ics_triggers, struct ics_trigger *add)

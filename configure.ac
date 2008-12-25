@@ -60,6 +60,10 @@ dnl AC_ARG_WITH(pgsql, [  --with-pgsql=[yes/no]  Whether to include PostgreSQL s
 dnl	[ AC_DEFINE([HAVE_PGSQL],1,[Whether to use PostgreSQL support])
 dnl		with_pgsql="yes"])
 
+AC_ARG_WITH(irc, [  --with-irc=[yes/no]  Whether to include IRC support],
+	[ AC_DEFINE([HAVE_IRC],1,[Whether to use IRC support])
+		with_irc="yes" ])
+
 AC_ARG_WITH(ics, [  --with-ics=[yes/no]  Whether to include ICS support],
 	[ AC_DEFINE([HAVE_ICS],1,[Whether to use ICS support])
 		with_ics="yes" ])
@@ -120,6 +124,8 @@ AM_CONDITIONAL(WITH_PGSQL, test "x${PQLIB}" != "x")
 
 AM_CONDITIONAL(WITH_JS, test "x${JS_LIBS}" != "x")
 
+AM_CONDITIONAL(WITH_IRC, test "x${with_irc}" != "x")
+
 AM_CONDITIONAL(WITH_ICS, test "x${with_ics}" != "x")
 
 AM_CONDITIONAL(WITH_HTTP, test "x${with_http}" != "x")
@@ -158,6 +164,8 @@ AC_OUTPUT(Makefile
 					src/modules/crypto/Makefile
 					src/modules/pgsql_log_filter/Makefile
 					src/modules/ics/Makefile
+					src/modules/irc/Makefile
+					src/modules/js/Makefile
           doc_dist/Makefile
           scripts_dist/Makefile
 					log_dist/Makefile
@@ -178,7 +186,11 @@ echo ""
 echo "  -=Protocol Support=-"
 echo ""
 
-echo "  IRC        Support: Yes"
+if test "${with_irc}" = "yes"; then
+	echo "  IRC        Support: Yes"
+else
+	echo "  IRS        Support: No"
+fi
 
 if test "${with_xmpp}" = "yes"; then
 	echo "  XMPP       Support: Yes"

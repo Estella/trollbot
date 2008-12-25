@@ -1,13 +1,8 @@
-/* Comments can be c++ style or c */
+// Comments can be c++ style or c
 /* All lines are <key> <value>, both the keys and the
  * values can have spaces, but they need to be wrapped in
  * quotes
  */ 
-//   global settings
-//   {
-//     fork <0 for no fork, 1 to fork>
-//     debuglevel <0 none, 1 fatal, 2 error, 3 warn, 4 all, 5 debug>
-//   }
 
 global settings
 {
@@ -55,40 +50,6 @@ module ics
 	}
 }
 */
-/*
-xmpp_server localhost
-{
-  // Acceptable auth modes (Used in order of listing)
-  auth_type DIGEST-MD5
-  auth_type PLAIN
-
-  username Trollbot
-
-  // Default, all others fall to this
-  password_plain foo
-
-  // Optional if password_plain is provided
-  // Used if specified
-  password_md5 d3b07384d113edec49eaa6238ad5ff00
-
-  // XMPP server w/ optional port
-  // Mirrors can be listed
-  // use sslserver if using old style ssl and not SASL
-  server localhost:5222
-}*/
-
-//   network <Network Label>
-//   {
-//     nick <nickname to use on network>
-//     altnick <nickname to use if nick is taken>
-//     
-//     realname <Whatever you want in your realname slot>
-//
-//     // The bot listens to this port for DCC/telnet for users
-//     userlisten <Whatever port you want to listen on for DCC conole>
-//
-//     channel <channel to join>
-//   }
 
 network DALnet
 {

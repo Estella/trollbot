@@ -7,6 +7,7 @@
  * domain. Free for any use   *
  * whatsoever.                *
  ******************************/
+/* This file is local to this module because the system-wide one relies on g_cfg */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

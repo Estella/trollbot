@@ -8,7 +8,6 @@
 #include "log_filter.h"
 #include "log_entry.h"
 #include "debug.h"
-#include "network.h"
 #include "util.h"
 
 
@@ -43,8 +42,8 @@ void log_filters_check(struct log_filter *filters, struct log_entry *entry)
 		if (entry->flags[i] != '\0')
 			continue;
 
-		if (tmp->handler != NULL)
-			tmp->handler(tmp->net, tmp, entry);
+		if (tmp->handler != NULL && entry != NULL)
+			tmp->handler(tmp, entry);
 
 		tmp = tmp->next;
 	}
@@ -131,8 +130,6 @@ struct log_filter *log_filter_new(void)
 
 	ret = tmalloc(sizeof (struct log_filter));
 
-	ret->net     = NULL;
-	ret->chan    = NULL;
 	ret->flags   = NULL;
 	ret->handler = NULL;
 

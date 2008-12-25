@@ -7,14 +7,6 @@
 #include <Python.h>
 #endif /* HAVE_PYTHON */
 
-#ifdef HAVE_JS
-#include <jsapi.h>
-#endif
-
-#ifdef HAVE_ICS
-struct ics_server;
-#endif /* HAVE_ICS */
-
 #ifdef HAVE_XMPP
 struct xmpp_server;
 #endif /* HAVE_XMPP */
@@ -44,9 +36,6 @@ struct config
 #ifdef HAVE_HTTP
 	struct http_server *http_servers;
 #endif /* HAVE_HTTP */
-#ifdef HAVE_ICS
-	struct ics_server *ics_servers;
-#endif /* HAVE_ICS */
 
 #ifdef HAVE_XMPP
 	struct xmpp_server *xmpp_servers;
@@ -90,13 +79,6 @@ struct config
 	char **tcl_scripts;
 	unsigned int tcl_scripts_size;
 #endif /* HAVE_TCL */
-
-#ifdef HAVE_JS
-  /* Runtime object for Spidermonkey */
-  JSRuntime *js_rt;
-	char **js_scripts;
-	unsigned int js_scripts_size;
-#endif /* HAVE_JS */
 };
 
 /* Function Prototypes */

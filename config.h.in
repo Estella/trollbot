@@ -64,6 +64,9 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
+/* Whether to use IRC support */
+#undef HAVE_IRC
+
 /* Ability to use Javascript scripting */
 #undef HAVE_JS
 

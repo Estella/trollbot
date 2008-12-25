@@ -1,7 +1,6 @@
 #ifndef __DEBUG_H__
 #define __DEBUG_H__
 
-struct network;
 struct log_filter;
 struct log_entry;
 
@@ -14,7 +13,7 @@ enum {
   LOG_DEBUG
 };
 
-void console_log_filter_handler(struct network *net, struct log_filter *filter, struct log_entry *entry);
+void console_log_filter_handler(struct log_filter *filter, struct log_entry *entry);
 void troll_debug(int level, const char *fmt, ...);
 
 #endif /* __DEBUG_H__ */

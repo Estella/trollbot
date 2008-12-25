@@ -1,17 +1,13 @@
 #ifndef __LOG_FILTER__
 #define __LOG_FILTER__
 
-struct network;
 struct log_entry;
 
 struct log_filter
 {
-	struct network *net;
-	char *chan;
-
 	char *flags;
 
-	void (*handler)(struct network *, struct log_filter *, struct log_entry *);
+	void (*handler)(struct log_filter *, struct log_entry *);
 
 	struct log_filter *prev;
 	struct log_filter *next;

@@ -16,22 +16,7 @@
 #include "config.h"
 
 #include "main.h"
-#include "network.h"
-#include "server.h"
-#include "channel.h"
-#include "user.h"
 #include "sockets.h"
-#include "dcc.h"
-#include "irc_proto.h"
-#include "log_entry.h"
-#include "egg_lib.h"
-
-#ifdef HAVE_TCL
-#include "tcl_embed.h"
-#endif /* HAVE_TCL */
-
-#ifdef HAVE_HTTP
-#endif /* HAVE_HTTP */
 
 struct config *g_cfg = NULL;
 
@@ -39,8 +24,6 @@ int main(int argc, char *argv[])
 {
 	pid_t pid;
 	int lt_errors;
-#ifdef HAVE_HTTP
-#endif /* HAVE_HTTP */
 
 	/* This macro let's libltdl know what preloaded symbols exist if
 	 * modules are statically linked
@@ -53,10 +36,6 @@ int main(int argc, char *argv[])
 		printf("Trollbot could not initialize libltdl, initialization failed with %d errors\n",lt_errors);
 		return EXIT_FAILURE;
 	}
-
-#ifdef HAVE_TCL
-	Tcl_FindExecutable(argv[0]);
-#endif /* HAVE_TCL */
 
 	printf("#################################################\n");
 	printf("# Trollbot v1.0.0, written by                   #\n");
@@ -83,43 +62,13 @@ int main(int argc, char *argv[])
 		config_engine_init("trollbot.conf");
 
 	printf("#################################################\n");
-	printf("# %-45s #\n","Configuration file looks good");
-	printf("# %-45s #\n","Checking user databases");
-	printf("#################################################\n");
-	printf("userdb Parser Output:\n");
-
-	user_init();
-
-	printf("#################################################\n");
-	printf("# %-45s #\n","User databases loaded");
-	printf("# %-45s #\n","Checking channel databases");
-	printf("#################################################\n");
-	printf("chandb Parser Output:\n");
-
-	chan_init();
-
-	printf("#################################################\n");
-	printf("# %-45s #\n","Channel databases loaded");
-
-#ifdef HAVE_HTTP
-	printf("#################################################\n");
-	printf("# %-45s #\n","Starting webserver");
-	printf("#################################################\n");
-	printf("http Parser Output:\n");
-
-	printf("#################################################\n");
-#endif /* HAVE_HTTP */
+	printf("# %-45s #\n","Configuration file looks good.");
+	printf("# %-45s #\n","Dumping formatted tconfig tree.");
 	printf("# %-45s #\n","Entering Socket loop");
 	printf("#################################################\n");
-	printf("IRC Debug Output:\n");
 
-	add_default_triggers();
-
-	log_entry_printf(NULL,NULL,"o","Dumping formatted tconfig tree to out.txt");
+	/* Outputs a formatted tconfig tree for debugging purposes */
 	tconfig_to_file(g_cfg->tcfg,"out.txt");
-
-	egg_save(NULL);
-
 
 #ifdef HAVE_WORKING_FORK
 	if (g_cfg->fork == 1)
@@ -136,7 +85,11 @@ int main(int argc, char *argv[])
 	}
 #endif /* HAVE_WORKING_FORK */
 
-	irc_loop();
+	/*while(1)
+	{
+	}*/
+
+	socket_loop();
 
 	die_nicely(EXIT_SUCCESS);
 

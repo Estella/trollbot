@@ -1,42 +1,9 @@
-/******************************
- * Trollbot                   *
- ******************************
- * Written by poutine DALnet  *
- ******************************
- * This software is public    *
- * domain. Free for any use   *
- * whatsoever.                *
- ******************************/
-
 #ifndef __ICS_PROTO_H__
 #define __ICS_PROTO_H__
 
 struct ics_server;
 struct ics_trigger;
 struct tsocket;
-
-/* ltdl shit */
-#define init_ics_triggers               ics_LTX_init_ics_triggers
-#define ics_internal_tell               ics_LTX_ics_internal_tell
-#define ics_internal_endgame            ics_LTX_ics_internal_endgame 
-#define ics_internal_msg_handler        ics_LTX_ics_internal_msg_handler
-#define ics_internal_announce_new_game  ics_LTX_ics_internal_announce_new_game
-#define ics_internal_baord_get_info     ics_LTX_ics_internal_board_get_info
-#define ics_internal_call_game_triggers ics_LTX_ics_internal_call_game_triggers
-#define ics_internal_set_name           ics_LTX_ics_internal_set_name
-#define ics_internal_my_name            ics_LTX_ics_internal_my_name
-#define ics_internal_anti_anti_idle     ics_LTX_ics_internal_anti_anti_idle
-#define ics_internal_notify             ics_LTX_ics_internal_notify
-#define ics_internal_style_twelve_init  ics_LTX_ics_internal_style_twelve_init
-#define ics_internal_connect            ics_LTX_ics_internal_connect
-#define ics_internal_enter              ics_LTX_ics_internal_enter
-#define ics_internal_login              ics_LTX_ics_internal_login
-#define ics_ball_start_rolling          ics_LTX_ics_internal_ball_start_rolling
-#define ics_printf                      ics_LTX_ics_printf
-#define ics_data_new                    ics_LTX_ics_data_new
-#define ics_data_free                   ics_LTX_ics_data_free
-#define parse_ics_line                  ics_LTX_parse_ics_line
-
 
 /* Freechess */
 #define LOGIN_TRIGGER "*(If your return key does not work, use cntrl-J)*"
@@ -203,10 +170,12 @@ void init_ics_triggers(struct ics_server *ics);
 void ics_internal_login(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
 int ics_ball_start_rolling(struct tsocket *tsock);
 
-void ics_printf(struct ics_server *ics, const char *fmt, ...);
 struct ics_data *ics_data_new(void);
 void ics_data_free(struct ics_data *data);
 void parse_ics_line(struct ics_server *ics, char *buffer);
 int ics_in(struct tsocket *tsock);
 
-#endif /* __ICS_H__ */
+void ics_printf(struct ics_server *ics, const char *fmt, ...);
+
+
+#endif /* __ICS_PROTO_H__ */

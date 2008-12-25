@@ -11,38 +11,20 @@
 #include "die.h"
 #include "tconfig.h"
 #include "config_engine.h"
-#include "dcc.h"
-#include "network.h"
 #include "config.h"
-#include "server.h"
-#include "irc.h"
+#include "util.h"
 
-#ifdef HAVE_XMPP
-#include "xmpp_server.h"
-#endif /* HAVE_XMPP */
-
-/* Needs more cowbell */
 void die_nicely(int ret)
 {
+	struct tmodule *tmodule;
+	struct tmodule *tmod_tmp;
+
 	if (g_cfg != NULL)
 	{
-		free_networks(g_cfg->networks);
-
-#ifdef HAVE_XMPP
-		free_xmpp_servers(g_cfg->xmpp_servers);
-#endif /* HAVE_XMPP */
-
+		/* Go through each module and unload it */
+		
+	
 		free_tconfig(g_cfg->tcfg);
-
-		free_dcc_sessions(g_cfg->dccs);
-
-#ifdef HAVE_JS
-		if (g_cfg->js_rt != NULL)
-			JS_DestroyRuntime(g_cfg->js_rt);
-#endif
-
-
-		free(g_cfg->hash_type);
 		free(g_cfg);
 	}
 
