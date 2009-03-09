@@ -166,6 +166,45 @@ int tcl_irc_interp(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj 
 	return TCL_OK;
 }
 
+int tcl_ics_interp(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	struct ics_server *ics;
+	char *ics_name;
+	Tcl_Interp *alt_interp;
+	int ret;
+	Tcl_Obj *nobjv[1];
+
+	if (objc != 3)
+	{
+		Tcl_WrongNumArgs(interp, objc, objv, "<ics name> <code to send>");
+		return TCL_ERROR;
+	}
+
+	ics_name = Tcl_GetString(objv[1]);
+
+	ics = g_cfg->ics_servers;
+
+	while (ics != NULL)
+	{
+		if (!troll_matchwilds(ics->label, ics_name))
+		{
+			alt_interp = ics->tclinterp;
+		
+			ret = Tcl_GlobalEvalObj(alt_interp, objv[2]);
+
+			/* If we returned an error, send it to trollbot's warning channel */
+			if (ret == TCL_ERROR)
+			{
+				troll_debug(LOG_WARN,"TCL Error: %s\n",Tcl_GetStringResult(alt_interp));
+			}
+		}
+
+		ics = ics->next;
+	}
+
+	return TCL_OK;
+}
+
 
 #endif /* HAVE_ICS */
 

@@ -77,6 +77,7 @@ void net_tcl_init_commands(struct network *net)
 #ifdef HAVE_ICS
 	Tcl_CreateObjCommand(net->tclinterp, "ics_get_score", tcl_ics_get_score, net, NULL);
 	Tcl_CreateObjCommand(net->tclinterp, "putics", tcl_putics, net, NULL);
+	Tcl_CreateObjCommand(net->tclinterp, "ics_interp", tcl_ics_interp, net, NULL);
 #endif /* HAVE_ICS */
 
 	Tcl_CreateObjCommand(net->tclinterp, "binds", tcl_binds, net, NULL);

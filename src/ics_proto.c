@@ -136,6 +136,8 @@ void init_ics_triggers(struct ics_server *ics)
 	trig->handler = ics_internal_endgame;
 	trig->command = NULL;
 	ics->ics_trigger_table->msg = ics_trigger_add(ics->ics_trigger_table->msg, trig);
+
+
 }
 
 void ics_internal_tell(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data)
@@ -193,6 +195,8 @@ void ics_internal_endgame(struct ics_server *ics, struct ics_trigger *ics_trig, 
 		/* White won */
 		if (!strncmp(data->tokens[argc-2], "checkmated", 10))
 			ics->game->end_result = tstrdup("checkmate");
+		else if (!strncmp(data->tokens[argc-2], "resigns", 7))
+			ics->game->end_result = tstrdup("resignation");
 
 		ics->game->winner_name = tstrdup(ics->game->white_name);
 		ics->game->loser_name  = tstrdup(ics->game->black_name);
@@ -202,10 +206,15 @@ void ics_internal_endgame(struct ics_server *ics, struct ics_trigger *ics_trig, 
 		/* Black won */
 		if (!strncmp(data->tokens[argc-2], "checkmated", 10))
 			ics->game->end_result = tstrdup("checkmate");
+		else if (!strncmp(data->tokens[argc-2], "resigns", 7))
+			ics->game->end_result = tstrdup("resignation");
 
 		ics->game->winner_name = tstrdup(ics->game->black_name);
 		ics->game->loser_name  = tstrdup(ics->game->white_name);
 	}
+
+	if (!strncmp(data->tokens[argc-2], "aborted", 7))
+		ics->game->end_result = tstrdup("abort");
 
 	if (ics->game->end_result == NULL)
 		ics->game->end_result  = tstrdup("WIN");
@@ -269,7 +278,7 @@ void ics_internal_announce_new_game(struct ics_server *ics, struct ics_trigger *
 		{
 			if (!tstrcasecmp(chan->name, "#christian_debate"))
 			{
-				irc_printf(net->sock, "PRIVMSG %s :A new chess battle has been started with %s facing %s. There is a time limit on this match. Each player starts with %d minutes and gets %d seconds upon the completion of each move.", chan->name, ics->game->white_name, ics->game->black_name, ics->game->initial_time, ics->game->increment_time);
+/*				irc_printf(net->sock, "PRIVMSG %s :A new chess battle has been started with %s facing %s. There is a time limit on this match. Each player starts with %d minutes and gets %d seconds upon the completion of each move.", chan->name, ics->game->white_name, ics->game->black_name, ics->game->initial_time, ics->game->increment_time);*/
 			}
 
 			chan = chan->next;

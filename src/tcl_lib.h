@@ -11,6 +11,7 @@ int tcl_ics_get_score(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_O
 int tcl_putics(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]);
 int tcl_ics_bind(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]);
 int tcl_irc_interp(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]);
+int tcl_ics_interp(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]);
 #endif /* HAVE_ICS */
 
 
