@@ -186,7 +186,7 @@ int tcl_ics_interp(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj 
 
 	while (ics != NULL)
 	{
-		if (!troll_matchwilds(ics->label, ics_name))
+		if (!matchwilds(ics->label, ics_name))
 		{
 			alt_interp = ics->tclinterp;
 		

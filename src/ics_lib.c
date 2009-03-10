@@ -104,7 +104,7 @@ char **ics_bind(struct ics_server *ics, char *type, char *flags, char *mask, cha
 		{
 			if (!strcmp(trigger->mask, mask))
 			{	
-				numMatches=0;
+				return NULL;
 			}
 
 			trigger = trigger->next;
@@ -125,6 +125,35 @@ char **ics_bind(struct ics_server *ics, char *type, char *flags, char *mask, cha
 	}
 	else 
 	{
+		if (!tstrcasecmp("msg",type)) 
+			triggerListHead = ics->ics_trigger_table->msg;
+		else if (!tstrcasecmp("notify",type)) 
+			triggerListHead = ics->ics_trigger_table->notify;
+		else if (!tstrcasecmp("error",type))  
+			triggerListHead = ics->ics_trigger_table->error; 
+		else if (!tstrcasecmp("connect",type))  
+			triggerListHead = ics->ics_trigger_table->connect; 
+		else if (!tstrcasecmp("game",type))  
+			triggerListHead = ics->ics_trigger_table->game; 
+		else if (!tstrcasecmp("move",type))  
+			triggerListHead = ics->ics_trigger_table->move; 
+		else if (!tstrcasecmp("endgame",type))  
+			triggerListHead = ics->ics_trigger_table->endgame; 
+		else if (!tstrcasecmp("tell",type))  
+			triggerListHead = ics->ics_trigger_table->tell; 
+
+
+		trigger = triggerListHead;
+		while (trigger != NULL)
+		{
+			if (!strcmp(trigger->mask, mask))
+			{	
+				return NULL;
+			}
+
+			trigger = trigger->next;
+		}
+
 		returnValue = tmalloc0(sizeof(*returnValue));
 
 		if (!tstrcasecmp("msg",type))
@@ -206,6 +235,9 @@ char **ics_bind(struct ics_server *ics, char *type, char *flags, char *mask, cha
 		}
 		else if (!tstrcasecmp("tell",type))
 		{ 
+			if (numMatches > 0 )
+				return NULL;
+
       trigger          = new_ics_trigger();
       trigger->type    = ICS_TRIG_TELL;
       trigger->mask    = tstrdup(mask);
