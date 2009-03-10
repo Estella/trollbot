@@ -95,6 +95,9 @@ char **ics_bind(struct ics_server *ics, char *type, char *flags, char *mask, cha
 			triggerListHead = ics->ics_trigger_table->move; 
 		else if (!tstrcasecmp("endgame",type))  
 			triggerListHead = ics->ics_trigger_table->endgame; 
+		else if (!tstrcasecmp("tell",type))  
+			triggerListHead = ics->ics_trigger_table->tell; 
+
 
 		trigger = triggerListHead;
 		while (trigger != NULL)
@@ -201,6 +204,18 @@ char **ics_bind(struct ics_server *ics, char *type, char *flags, char *mask, cha
 
       *returnValue=tstrdup(cmd);
 		}
+		else if (!tstrcasecmp("tell",type))
+		{ 
+      trigger          = new_ics_trigger();
+      trigger->type    = ICS_TRIG_TELL;
+      trigger->mask    = tstrdup(mask);
+      trigger->handler = handler;
+      trigger->command = tstrdup(cmd);
+      ics->ics_trigger_table->tell = ics_trigger_add(ics->ics_trigger_table->tell, trigger);
+
+      *returnValue=tstrdup(cmd);
+		}
+
 
 	}
 

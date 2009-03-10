@@ -9,6 +9,7 @@
  ******************************/
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stdarg.h>
 
 #include "main.h"
@@ -149,7 +150,7 @@ void ics_internal_tell(struct ics_server *ics, struct ics_trigger *ics_trig, str
 
 	while (trig != NULL)
 	{
-		if (troll_matchwilds(data->txt_packet, trig->mask))
+		if (!matchwilds(data->txt_packet, trig->mask))
 		{
 			if (trig->handler != NULL)
 			{
@@ -248,7 +249,7 @@ void ics_internal_msg_handler(struct ics_server *ics, struct ics_trigger *ics_tr
 
 	while (trig != NULL)
 	{
-		if (troll_matchwilds(data->txt_packet, trig->mask))
+		if (!matchwilds(data->txt_packet, trig->mask))
 		{
 			if (trig->handler != NULL)
 			{
@@ -462,7 +463,7 @@ void ics_internal_notify(struct ics_server *ics, struct ics_trigger *ics_trig, s
 	/* Call all triggers that match the username of whoever was on your notify list */
 	while (trig != NULL)
 	{
-		if (!troll_matchwilds(data->tokens[1],trig->mask))
+		if (!matchwilds(data->tokens[1],trig->mask))
 		{
 			if (trig->handler != NULL)
 			{
@@ -527,11 +528,24 @@ void ics_internal_login(struct ics_server *ics, struct ics_trigger *ics_trig, st
 	ics_printf(ics, ics->username);
 }
 
+int ics_disconnected(struct tsocket *tsock)
+{
+	struct ics_server *ics = tsock->data;
+
+	tsocket_close(tsock);
+	
+	ics_server_connect(ics, tsock);
+
+	return 1;
+}
+
 /* This is called on connect? */
-void ics_ball_start_rolling(struct tsocket *tsock)
+int ics_ball_start_rolling(struct tsocket *tsock)
 {
 	struct ics_server *ics = tsock->data;
 	init_ics_triggers(ics);
+
+	return 1;
 }
 
 /* This is like irc_printf but it takes an ics_server and not a socket,
@@ -583,6 +597,9 @@ void ics_data_free(struct ics_data *data)
 void parse_ics_line(struct ics_server *ics, char *buffer)
 {
 	struct ics_data *data    = NULL;
+
+	if (strlen(buffer) == 0)
+		return;
 
 	data = ics_data_new();
 

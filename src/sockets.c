@@ -30,6 +30,7 @@
 #include "user.h"
 #include "t_timer.h"
 #include "tsocket.h"
+#include "util.h"
 
 #ifdef HAVE_HTTP
 #include "http_server.h"
@@ -116,30 +117,28 @@ void irc_loop(void)
 	socklen_t lon      = 0;
 	int valopt   = 0;
 	time_t last = 0;
+	struct slist *sublist;
 	struct slist_node *node;
+	struct slist_node *inode;
 	struct tsocket *tsock;
+	struct tmodule *tmodule;
 
 
 	/* Rather then all these conditional piece of shits
 	 * I made everything generic around these tsocket
 	 * thingamajigs, let's introduce this gradually
 	 */
-	
 #ifdef HAVE_ICS
 	ics = g_cfg->ics_servers;
 
-	/* Connect to one server for each network, or mark network unconnectable */
 	while (ics != NULL)
 	{
-		/* Shouldn't be done here */
-		ics->cur_server = ics->ics_servers;
-
-		ics->last_try = time(NULL);
-		ics_server_connect(ics);
-
+		ics_server_connect(ics, tsock);
 		ics = ics->next;
 	}
+
 #endif /* HAVE_ICS */
+	
 
 #ifdef HAVE_XMPP
 	xs = g_cfg->xmpp_servers;
@@ -407,10 +406,13 @@ void irc_loop(void)
 						case TSOCK_INFDSET:
 							if (FD_ISSET(tsock->sock, &socks))
 								if (tsock->tsocket_read_cb != NULL)
-									tsock->tsocket_read_cb(tsock);
+									if (!tsock->tsocket_read_cb(tsock))
+										tsock->tsocket_disconnect_cb(tsock);
+
 							if (FD_ISSET(tsock->sock, &writefds))
 								if (tsock->tsocket_write_cb != NULL)
-									tsock->tsocket_write_cb(tsock);
+									if (!tsock->tsocket_write_cb(tsock))
+										tsock->tsocket_disconnect_cb(tsock);
 							break;
 					}
 				}	

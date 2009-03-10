@@ -14,7 +14,123 @@
 #include <ctype.h>
 
 #include "util.h"
-#include "debug.h"
+
+/* 
+	 ?  matches any single character
+   *  matches 0 or more characters of any type
+   %  matches 0 or more non-space characters (can be used to match a single
+      word)
+   ~  matches 1 or more space characters (can be used for whitespace between
+      words)
+	 \  makes the next character literal
+
+   returns 1 if no match, 0 if matched
+*/
+int matchwilds(const char *haystack, const char *needle)
+{
+	int escaped = 0;
+	char *lasthay    = NULL;
+	char *lastneedle = NULL;
+
+	if (needle == NULL || haystack == NULL)
+		return 1;
+
+	while (*needle)
+	{
+		if (*haystack == '\0')
+		{
+			/* If *needle is '*', and *(needle+1) = '\0', this should return 0 for success */
+			if ((*needle == '*') && *(needle+1) == '\0' && escaped == 0)
+				return 0;
+			/* Hit end of haystack but not the ned of needle, so match fails. */
+			return 1;
+		}
+
+		if (*needle == '\\')
+		{
+			escaped = 1;
+			needle++;
+		}
+
+		if (*needle == '?' && escaped == 0)
+		{
+			/* Any character matches, just move on. */
+			needle++;
+			haystack++;
+		}
+		else if (*needle == '*' && escaped == 0)
+		{
+			/* Match characters til end of haystack, or until *(needle+1) */
+			while (*haystack != '\0' && *haystack != *(needle+1))
+			{
+				haystack++;
+			}
+			lasthay    = &haystack[1];
+			lastneedle = needle;
+			needle++;
+		}
+		else if (*needle == '%' && escaped == 0)
+		{
+			while (*haystack != '\0' && !isspace(*haystack) && *haystack != *(needle+1))
+			{
+				haystack++;
+			}
+			needle++;
+		}
+		else if (*needle == '~' && escaped == 0)
+		{
+			if (isspace(*haystack))
+			{
+				haystack++;
+				while (*haystack != '\0' && isspace(*haystack))
+				{
+					haystack++;
+				}
+				needle++;
+			}
+			else 
+			{
+				/* Must match at least one space. */
+				return 1;
+			}
+		}
+		else if (*needle != *haystack)
+		{
+			/* Condition: Previous wildcard breaking match was invalid */
+			/* FIXME: Needs to be stack */
+			if (lasthay != NULL && lastneedle != NULL)
+			{
+				haystack   = lasthay;
+				needle     = lastneedle;
+				lasthay    = NULL;
+				lastneedle = NULL;
+			}
+			else
+			{
+				return 1;
+			}
+		}
+		else 
+		{
+			/* Two characters match.  Next */
+			needle++;
+			haystack++;
+	
+			escaped = 0;
+		}
+	}
+
+	if (*haystack == '\0')
+	{
+		/* Hit end of haystack and end of needle, so match succeeded */
+		return 0;
+	}
+	else 
+	{
+		/* Hit end of needled, but not end of haystack, match fails. */
+		return 1;
+	}
+}
 
 /* Singly linked lists interface */
 void slist_init(struct slist **list, void (*destroy)(void *))
@@ -78,47 +194,68 @@ int slist_insert_next(struct slist *list, struct slist_node *node, void *data)
 	return 0;    
 }
 
-int slist_remove(struct slist *list, struct slist_node *node, void **data)
+/* 
+ * We have two options here, search by node ptr or data ptr
+ * removes from the slist, calls delete function on it if it
+ * exists. if not, sets data to it.
+ */
+void *slist_remove(struct slist *list, struct slist_node *node, void *data)
 {
-	struct slist_node *nodesearch = NULL;
-	struct slist_node *oldnode    = NULL;
-	/* struct slist_node *find       = NULL; */
-	int i = 0;
+	struct slist_node *snode = NULL; /* Search node */
+	struct slist_node *lnode = NULL; /* Last Node   */
 
-	if (list->size == 0)
-		return -1;
+	snode = list->head;
 
-	/* I wonder why I did this */
-	if (node == NULL)
+	while (snode != NULL)
 	{
-		*data      = list->head->data;
-		oldnode    = list->head;
-		list->head = list->head->next;
-
-		list->size--;
-
-		if (list->size == 0)
-			list->tail = NULL;
-
-		return 0;
-	}
-	else
-	{
-		nodesearch = list->head;
-		oldnode    = NULL;
-		
-		for (i=0; i<list->size; i++)
+		if (node != NULL)
 		{
-			if (nodesearch == node)
+			if (snode == node)
 				break;
+		}
 
-			oldnode    = nodesearch;
-			nodesearch = nodesearch->next;
+		if (data != NULL)
+		{
+			if (data == snode->data)
+				break;
+		}
+
+		lnode  = snode;
+		snode  = snode->next;
+	}
+
+	if (snode != NULL)
+	{
+		if (lnode == NULL)
+		{
+			/* If it's head */
+			list->head = list->head->next;
+		}
+
+		if (snode->next == NULL)
+		{
+			/* If it's tail */
+			list->tail = lnode;
+		}
+
+		if (lnode != NULL)
+		{
+			/* If it's not head */
+			lnode->next = snode->next;
+		}
+
+		/* Call the free function on the node's data */
+		if (list->destroy != NULL)
+		{
+			list->destroy(snode->data);
+			return NULL;
+		}
+		else
+		{
+			return snode->data;
 		}
 		
-		if (nodesearch != NULL)
-			slist_remove_next(list, oldnode, &data);
-
+		free(snode);
 	}
 
 	return 0;
@@ -242,8 +379,6 @@ void tstrfreev(char *ptr[])
 		i++;
 	}
 
-	free((char **)ptr);
-
 	return;
 }
 
@@ -265,7 +400,7 @@ void *tmalloc(size_t size)
 
 	if ((ret = malloc(size)) == NULL)
 	{
-		troll_debug(LOG_FATAL,"Allocation failed");
+		printf("Allocation failed");
 	}
 
 	return ret;

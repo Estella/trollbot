@@ -1,5 +1,8 @@
 #include "config.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+
 /* I have to do this */
 #ifdef HAVE_PYTHON
 #include "python_embed.h"
@@ -76,9 +79,9 @@ struct ics_server *ics_server_from_tconfig_block(struct tconfig_block *tcfg)
 	{
 		if (!tstrcasecmp(tmp->key,"server"))
 		{
-			if (ics->ics_servers != NULL)
+			if (ics->servers != NULL)
 			{
-				svr = ics->ics_servers;
+				svr = ics->servers;
 
 				while (svr->next != NULL)
 					svr = svr->next;
@@ -89,8 +92,8 @@ struct ics_server *ics_server_from_tconfig_block(struct tconfig_block *tcfg)
 			}
 			else
 			{
-				ics->ics_servers  = new_server(tmp->value);
-				svr          = ics->ics_servers;
+				ics->servers  = new_server(tmp->value);
+				svr          = ics->servers;
 				svr->prev    = NULL;
 				svr->next    = NULL;
 			}
@@ -211,31 +214,35 @@ struct ics_server *ics_server_del(struct ics_server *ics_server, struct ics_serv
 
 }
 
-void ics_server_connect(struct ics_server *ics)
+void ics_server_connect(struct ics_server *ics, struct tsocket *tsock)
 {
-	struct tsocket *tsock;
+	struct tsocket *mytsock;
 	struct server  *srv;
 
-	tsock = tsocket_new();
+	if (tsock == NULL)
+		mytsock = tsocket_new();
+	else
+		mytsock = tsock;
 
 	/* Assign it in the ics_server */
-	tsock->data = ics;
-	ics->tsock  = tsock;
+	mytsock->data = ics;
+	ics->tsock    = mytsock;
 
-	tsock->name = tstrdup(ics->label);
+	mytsock->name = tstrdup(ics->label);
 
 	/* in ics_proto.c */
-	tsock->tsocket_read_cb    = ics_in;
-	tsock->tsocket_write_cb   = NULL;
-	tsock->tsocket_connect_cb = ics_ball_start_rolling;
+	mytsock->tsocket_read_cb       = ics_in;
+	mytsock->tsocket_write_cb      = NULL;
+	mytsock->tsocket_connect_cb    = ics_ball_start_rolling;
+	mytsock->tsocket_disconnect_cb = ics_disconnected; 
 	
 	/* Find a suitable network server */
-	srv = ics->ics_servers;
+	srv = ics->servers;
 
 	while (srv != NULL)
 	{
 		if (srv->host != NULL)
-			if (tsocket_connect(tsock, NULL, srv->host, srv->port))
+			if (tsocket_connect(mytsock, NULL, srv->host, srv->port))
 				break;
 
 		srv = srv->next;
@@ -248,12 +255,14 @@ void ics_server_connect(struct ics_server *ics)
 		return;
 	}
 
+	if (tsock == NULL)
+	{
+		/* Insert it into the global check list */
+		if (g_cfg->tsockets == NULL)
+			slist_init(&g_cfg->tsockets, tsocket_free);
 
-	/* Insert it into the global check list */
-	if (g_cfg->tsockets == NULL)
-		slist_init(&g_cfg->tsockets, tsocket_free);
-
-	slist_insert_next(g_cfg->tsockets, NULL, (void *)tsock);
+		slist_insert_next(g_cfg->tsockets, NULL, (void *)mytsock);
+	}
 
 	return;
 }
@@ -283,8 +292,9 @@ void free_ics_servers(struct ics_server *ics_server)
 	return;
 }
 
-void free_ics_server(struct ics_server *ics)
+void free_ics_server(void *ics_ptr)
 {
+	struct ics_server *ics = ics_ptr;
 	free(ics->label);
 	free(ics->vhost);
 	free(ics->shost); 
@@ -295,7 +305,7 @@ void free_ics_server(struct ics_server *ics)
 	free_ics_game(ics->game);
 	tsocket_free(ics->tsock);
 
-	free_servers(ics->ics_servers);
+	free_servers(ics->servers);
 	t_timers_free(ics->timers);
 	free_ics_trigger_table(ics->ics_trigger_table);
 
@@ -338,7 +348,7 @@ struct ics_server *new_ics_server(char *label)
 	ret->prev          = NULL;
 	ret->next          = NULL;
 
-	ret->ics_servers   = NULL; 
+	ret->servers   = NULL; 
 
 	ret->cur_server    = NULL;
 

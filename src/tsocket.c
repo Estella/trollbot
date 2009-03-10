@@ -10,7 +10,8 @@
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <errno.h>
-
+#include <stdarg.h>
+#include <time.h>
 
 #include "tsocket.h"
 #include "debug.h"
@@ -36,6 +37,26 @@ static void tsocket_set_nonblocking(int sock)
   }
 
   return;
+}
+
+ssize_t tsocket_printf(struct tsocket *tsock, const char *fmt, ...)
+{
+	va_list va;
+	char buf[2048];
+	char buf2[2059];
+
+	memset(buf, 0, sizeof(buf));
+	memset(buf2, 0, sizeof(buf2));
+
+	va_start(va, fmt);
+
+	/* C99 */
+	vsnprintf(buf, sizeof(buf), fmt, va);
+	va_end(va);
+
+	snprintf(buf2,sizeof(buf2),"%s\n",buf);
+
+	return send(tsock->sock,buf2,strlen(buf2),0);
 }
 
 int tsocket_close(struct tsocket *tsock)
@@ -266,6 +287,8 @@ int tsocket_connect(struct tsocket *tsock, const char *from_hostname, const char
 		return 1;
 	}
 
+	tsock->last_attempt = time(NULL);
+
 	/* They're in a non-blocking connect, check for write status in the select loop */
 	tsock->status = TSOCK_CONNECTING;
 
@@ -276,17 +299,24 @@ struct tsocket *tsocket_new(void)
 {
 	struct tsocket *tsocket = tmalloc(sizeof(struct tsocket));
 
-	tsocket->status = TSOCK_UNINITIALIZED;
+	tsocket->status      = TSOCK_UNINITIALIZED;
+	tsocket->save_status = TSOCK_UNINITIALIZED;
+
 
 	tsocket->sock   = -1;
 	tsocket->name   = NULL;
+	tsocket->data   = NULL;
 
-	tsocket->data = NULL;
+	tsocket->tsocket_read_cb       = NULL;
+	tsocket->tsocket_write_cb      = NULL;
+	tsocket->tsocket_connect_cb    = NULL;
+	tsocket->tsocket_disconnect_cb = NULL;
 
-	tsocket->tsocket_read_cb  = NULL;
-	tsocket->tsocket_write_cb = NULL;
-
-	tsocket->tsocket_connect_cb = NULL;
+	/* Connection Queueing */
+	tsocket->last_attempt       = 0;
+	tsocket->retry_limit        = 0;
+	tsocket->retry_amount       = 0;
+	tsocket->retry_wait         = 0;
 	
 	return tsocket;
 }
