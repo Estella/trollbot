@@ -134,7 +134,7 @@ void irc_loop(void)
 
 	while (ics != NULL)
 	{
-		ics_server_connect(ics, tsock);
+		ics_server_connect(ics, NULL);
 		ics = ics->next;
 	}
 
