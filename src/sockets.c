@@ -114,6 +114,7 @@ void irc_loop(void)
 #endif /* HAVE_HTTP */
 
 	int numsocks = 0;
+	int sockcount = 0; /* Don't know why this is different than above */
 	socklen_t lon      = 0;
 	int valopt   = 0;
 	time_t last = 0;
@@ -193,6 +194,8 @@ void irc_loop(void)
 		FD_ZERO(&socks);
 		FD_ZERO(&writefds);
 
+		sockcount = 0;
+
 		timeout.tv_sec  = 1;
 		timeout.tv_usec = 0;
 
@@ -221,6 +224,7 @@ void irc_loop(void)
 				numsocks = (xs->sock > numsocks) ? xs->sock : numsocks;
 
 				FD_SET(xs->sock,&writefds);
+				sockcount++;
 
 				/* Now in a FD set */
 				xs->status = XMPP_WAITINGCONNECT;
@@ -239,6 +243,7 @@ void irc_loop(void)
 
 					numsocks = (xs->sock > numsocks) ? xs->sock : numsocks;
 					FD_SET(xs->sock,&socks);
+					sockcount++;
 				}
 			}
 
@@ -271,6 +276,7 @@ void irc_loop(void)
 				numsocks = (net->sock > numsocks) ? net->sock : numsocks;
 
 				FD_SET(net->sock,&writefds);
+				sockcount++;
 
 				/* Now in a FD set */
 				net->status = NET_WAITINGCONNECT;
@@ -280,6 +286,7 @@ void irc_loop(void)
 			if (net->dcc_listener != -1)
 			{
 				FD_SET(net->dcc_listener,&socks);
+				sockcount++;
 				numsocks = (net->dcc_listener > numsocks) ? net->dcc_listener : numsocks;
 			}
 
@@ -292,6 +299,7 @@ void irc_loop(void)
 				{
 					numsocks = (dcc->sock > numsocks) ? dcc->sock : numsocks;
 					FD_SET(dcc->sock,&socks);
+					sockcount++;
 
 					/* If it was previously waiting on being in a fd set, set it as connected */
 					if (dcc->status == DCC_NOTREADY)
@@ -305,6 +313,7 @@ void irc_loop(void)
 					numsocks = (dcc->sock > numsocks) ? dcc->sock : numsocks;
 
 					FD_SET(dcc->sock,&writefds);
+					sockcount++;
 
 					/* Now in a FD set */
 					dcc->status = DCC_WAITINGCONNECT;
@@ -323,6 +332,7 @@ void irc_loop(void)
 
 					numsocks = (net->sock > numsocks) ? net->sock : numsocks;
 					FD_SET(net->sock,&socks);
+					sockcount++;
 				}
 			}
 
@@ -343,6 +353,7 @@ void irc_loop(void)
 			}
 
 			FD_SET(http->sock,&socks);
+			sockcount++;
 			numsocks = (http->sock > numsocks) ? http->sock : numsocks;
 			
 			http = http->next;
@@ -363,12 +374,14 @@ void irc_loop(void)
 					{
 						case TSOCK_CONNECTING:
 							FD_SET(tsock->sock, &writefds);
+							sockcount++;
 							numsocks = (tsock->sock > numsocks) ? tsock->sock : numsocks;
 							break;
 						/* Check reads/writes and call their respective callbacks */
 						case TSOCK_INFDSET:
 						case TSOCK_NOTINFDSET:
 							FD_SET(tsock->sock, &socks);
+							sockcount++;
 							tsock->status = TSOCK_INFDSET;
 							numsocks = (tsock->sock > numsocks) ? tsock->sock : numsocks;
 							break;
@@ -379,6 +392,9 @@ void irc_loop(void)
 			}
 
 		}
+
+		if (sockcount == 0)
+			continue;
 
 		select(numsocks+1, &socks, &writefds, NULL, NULL);
 

@@ -205,7 +205,7 @@ int tsocket_connect(struct tsocket *tsock, const char *from_hostname, const char
     return 0;
   }
 
-	tsocket_set_nonblocking(tsock->sock);
+	/* tsocket_set_nonblocking(tsock->sock); */
 
   /* If a hostname is provided, go ahead and resolve it, get the ip for later binding */
   if (from_hostname != NULL)
