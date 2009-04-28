@@ -596,6 +596,7 @@ void ics_tcl_handler(struct ics_server *ics, struct ics_trigger *trig, struct ic
 	Tcl_Obj *winner;
 	Tcl_Obj *loser;
 	Tcl_Obj *result;
+	Tcl_Obj *style12;
 	Tcl_Obj *initial_time;
 	Tcl_Obj *time_increment;
 	Tcl_Obj **objv;
@@ -823,6 +824,38 @@ void ics_tcl_handler(struct ics_server *ics, struct ics_trigger *trig, struct ic
 
 			free(objv);
 
+			break;
+		case ICS_TRIG_MOVE:
+			command   = Tcl_NewStringObj(trig->command, strlen(trig->command));
+			ics_label = Tcl_NewStringObj(ics->label,    strlen(ics->label));
+			style12   = Tcl_NewStringObj(ics->game->style_twelve, strlen(ics->game->style_twelve));
+
+			Tcl_IncrRefCount(command);
+			Tcl_IncrRefCount(ics_label);
+			Tcl_IncrRefCount(style12);
+
+			/* I don't need a NULL last array element */
+			objv = tmalloc(sizeof(Tcl_Obj *) * 3);
+
+			objv[0] = command;
+			objv[1] = ics_label;
+			objv[2] = style12;
+	
+			/* Call <command> <nick> <uhost> <hand> <chan> <arg> */
+			ret = Tcl_EvalObjv(ics->tclinterp, 3, objv, TCL_EVAL_GLOBAL);
+
+			/* Decrement the reference count so the GC will catch it */
+			Tcl_DecrRefCount(command);
+			Tcl_DecrRefCount(ics_label);
+			Tcl_DecrRefCount(style12);
+
+			/* If we returned an error, send it to trollbot's warning channel */
+			if (ret == TCL_ERROR)
+			{
+				troll_debug(LOG_WARN,"TCL Error: %s\n",Tcl_GetStringResult(ics->tclinterp));
+			}
+
+			free(objv);
 			break;
 		case ICS_TRIG_NOTIFY: 
 			/* The proper way of doing things, according to #tcl on freenode (they'd know) */

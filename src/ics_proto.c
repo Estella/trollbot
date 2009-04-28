@@ -56,8 +56,8 @@ void init_ics_triggers(struct ics_server *ics)
 	trig->mask    = tstrdup("*");
 	trig->handler = ics_internal_msg_handler;
 	trig->command = NULL;
-	ics->ics_trigger_table->msg = ics_trigger_add(ics->ics_trigger_table->msg, trig);
-*/
+	ics->ics_trigger_table->msg = ics_trigger_add(ics->ics_trigger_table->msg, trig);*/
+
 	/* Hits return when ICS asks it to do so */
 	trig          = new_ics_trigger();
 	trig->type    = ICS_TRIG_MSG;
@@ -118,7 +118,7 @@ void init_ics_triggers(struct ics_server *ics)
 	trig          = new_ics_trigger();
 	trig->type    = ICS_TRIG_MSG;
 	trig->mask    = tstrdup(STYLE_TWELVE_TRIGGER);
-	trig->handler = ics_internal_board_get_info;
+	trig->handler = ics_move_or_new_game;
 	trig->command = NULL;
 	ics->ics_trigger_table->msg = ics_trigger_add(ics->ics_trigger_table->msg, trig);
 
@@ -180,7 +180,7 @@ void ics_internal_endgame(struct ics_server *ics, struct ics_trigger *ics_trig, 
 		ics->game->winner_name = tstrdup(ics->game->white_name);
 		ics->game->loser_name  = tstrdup(ics->game->black_name);
 	} 
-	else if (!strcmp(data->tokens[argc-1], "1/2-1/2")) 
+	else if (strstr(data->txt_packet, "1/2-1/2") != NULL) 
 	{
 		/* This means it's a stalemate, draw */
 		if (!strncmp(data->tokens[argc-2], "stalemate", 9))
@@ -191,24 +191,28 @@ void ics_internal_endgame(struct ics_server *ics, struct ics_trigger *ics_trig, 
 		ics->game->winner_name = tstrdup(ics->game->white_name);
 		ics->game->loser_name  = tstrdup(ics->game->black_name);
 	}
-	else if (!strcmp(data->tokens[argc-1], "1-0"))
+	else if (strstr(data->txt_packet, "1-0") != NULL)
 	{
 		/* White won */
 		if (!strncmp(data->tokens[argc-2], "checkmated", 10))
 			ics->game->end_result = tstrdup("checkmate");
 		else if (!strncmp(data->tokens[argc-2], "resigns", 7))
 			ics->game->end_result = tstrdup("resignation");
+		else if (!strncmp(data->tokens[1], "forfeits", 8))
+			ics->game->end_result = tstrdup("forfeiture");
 
 		ics->game->winner_name = tstrdup(ics->game->white_name);
 		ics->game->loser_name  = tstrdup(ics->game->black_name);
 	}
-	else if (!strcmp(data->tokens[argc-1], "0-1"))
+	else if (strstr(data->txt_packet, "0-1") != NULL)
 	{
 		/* Black won */
 		if (!strncmp(data->tokens[argc-2], "checkmated", 10))
 			ics->game->end_result = tstrdup("checkmate");
 		else if (!strncmp(data->tokens[argc-2], "resigns", 7))
 			ics->game->end_result = tstrdup("resignation");
+		else if (!strncmp(data->tokens[1], "forfeits", 8))
+			ics->game->end_result = tstrdup("forfeiture");
 
 		ics->game->winner_name = tstrdup(ics->game->black_name);
 		ics->game->loser_name  = tstrdup(ics->game->white_name);
@@ -249,7 +253,7 @@ void ics_internal_msg_handler(struct ics_server *ics, struct ics_trigger *ics_tr
 
 	while (trig != NULL)
 	{
-		if (!matchwilds(data->txt_packet, trig->mask))
+		if (!matchwilds(data->txt_packet, trig->mask) && trig != ics_trig)
 		{
 			if (trig->handler != NULL)
 			{
@@ -264,32 +268,29 @@ void ics_internal_msg_handler(struct ics_server *ics, struct ics_trigger *ics_tr
 	return;
 }
 
-void ics_internal_announce_new_game(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data)
+
+void ics_move_or_new_game(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data)
 {
-	struct network *net;
-	struct channel *chan;
+	struct ics_trigger *trig;
 
-	net = g_cfg->networks;
+	ics_internal_board_get_info(ics, ics_trig, data);
+	printf("We have move\n");
+	
+	trig = ics->ics_trigger_table->move;
 
-	while (net != NULL)
+	while (trig != NULL)
 	{
-		chan = net->chans;
-
-		while (chan != NULL)
+		if (trig->handler != NULL)
 		{
-			if (!tstrcasecmp(chan->name, "#christian_debate"))
-			{
-/*				irc_printf(net->sock, "PRIVMSG %s :A new chess battle has been started with %s facing %s. There is a time limit on this match. Each player starts with %d minutes and gets %d seconds upon the completion of each move.", chan->name, ics->game->white_name, ics->game->black_name, ics->game->initial_time, ics->game->increment_time);*/
-			}
-
-			chan = chan->next;
+			printf("Found trigger\n");
+			trig->handler(ics, trig, data);
+			trig->usecount++;
 		}
-
-		net = net->next;
+			
+		trig = trig->next;
 	}
 
 	return;
-
 }
 
 void ics_internal_board_get_info(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data)
@@ -383,13 +384,13 @@ void ics_internal_board_get_info(struct ics_server *ics, struct ics_trigger *ics
 
 	if (ics->game == NULL)
 	{
-		ics->game = ics_game_add(ics->game, game);
+		ics->game = game;
 
 		/* Start of a new game, or just joining into view it */
 		ics_internal_call_game_triggers(ics, data);
 	}
 	else
-		ics->game = ics_game_add(ics->game, game);		
+		ics->game = game;		
 
 
 	return;

@@ -11,6 +11,36 @@
 
 #include "ics_lib.h"
 
+char *ics_get_moves_as_pgn(struct ics_server *ics, char *output)
+{
+	struct ics_game *turn;
+
+/*
+	 Oh FFS, this is what output looks like
+Movelist for game 25:
+
+GuestMKYK (UNR) vs. GuestQCFB (UNR) --- Wed Apr  1, 21:48 PDT 2009
+Unrated blitz match, initial time: 5 minutes, increment: 0 seconds.
+
+Move  GuestMKYK          GuestQCFB          
+----  ----------------   ----------------   
+  1.  d4      (0:00)     d5      (0:00)     
+  2.  Bg5     (0:01)     Nf6     (0:06)     
+  3.  e3      (0:01)     Ne4     (0:03)     
+  4.  Bh4     (0:02)     g5      (0:03)     
+  5.  Bg3     (0:01)     Nxg3    (0:02)     
+  6.  hxg3    (0:02)     e6      (0:05)     
+  7.  Bd3     (0:01)     h6      (0:03)     
+  8.  Nd2     (0:01)     Bg7     (0:02)     
+  9.  c3      (0:02)     Nc6     (0:01)     
+ 10.  f4      (0:11)     Qf6     (0:13)     
+ 11.  Ngf3    (0:08)     g4      (0:11)
+ 12.  Ne5     (0:23)     Nxe5    (0:01)
+ 13.  fxe5    (0:02)     Qg5     (0:01)
+ 14.  Qe2     (0:07)
+      {Still in progress} *
+*/
+}
 char **ics_getboard(struct ics_server *ics, int game_id)
 {
 	struct ics_game *turn;

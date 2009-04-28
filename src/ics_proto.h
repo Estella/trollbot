@@ -172,6 +172,7 @@ void ics_internal_set_game(struct ics_server *ics, struct ics_trigger *ics_trig,
 void ics_internal_my_name(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
 void ics_internal_anti_anti_idle(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
 void ics_internal_notify(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
+void ics_move_or_new_game(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
 void ics_internal_style_twelve_init(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
 int ics_disconnected(struct tsocket *tsock);
 void ics_internal_connect(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data);
