@@ -110,6 +110,7 @@ void net_tcl_init_commands(struct network *net)
 	Tcl_CreateObjCommand(net->tclinterp, "bind", tcl_bind, net, NULL);
 	Tcl_CreateObjCommand(net->tclinterp, "matchattr", tcl_matchattr, net, NULL); 
 	Tcl_CreateObjCommand(net->tclinterp, "countusers", tcl_countusers, net, NULL);
+	Tcl_CreateObjCommand(net->tclinterp, "ispermban", tcl_ispermban, net, NULL);
 }
 
 void t_timer_tcl_handler(struct network *net, struct t_timer *timer)

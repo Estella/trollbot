@@ -829,8 +829,8 @@ int egg_isban(struct network *net, char *ban, char *channel)
 }
 
 /* ispermban <ban> [channel] */
-/* NEED_IMP: TCL, Python */
-/* IMP_IN: Javascript, PHP */
+/* NEED_IMP: Python */
+/* IMP_IN: TCL, Javascript, PHP */
 int egg_ispermban(struct network *net, char *ban, char *channel)
 {
 	struct channel     *chan;
