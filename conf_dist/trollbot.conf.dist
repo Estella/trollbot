@@ -12,28 +12,28 @@
 global settings
 {
 	/* Go into the background on startup? */
-  fork 1
+	fork 0
 
 	/* Do not output anything by troll_debug() */
-  debuglevel 0
+	debuglevel 1024
 
-  // Logfile flags:
-  //   b - information about bot linking and userfile sharing
-  //   c - commands
-  //   d - misc debug information
-  //   h - raw share traffic
-  //   j - joins, parts, quits, and netsplits on the channel
-  //   k - kicks, bans, and mode changes on the channel
-  //   m - private msgs, notices and ctcps to the bot
-  //   o - misc info, errors, etc (IMPORTANT STUFF)
-  //   p - public text on the channel
-  //   r - raw incoming server traffic
-  //   s - server connects, disconnects, and notices
-  //   t - raw botnet traffic
-  //   v - raw outgoing server traffic
-  //   w - wallops (make sure the bot sets +w in init-server)
-  //   x - file transfers and file-area commands
-	//console_log_flags abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
+	// Logfile flags:
+	//   b - information about bot linking and userfile sharing
+	//   c - commands
+	//   d - misc debug information
+	//   h - raw share traffic
+	//   j - joins, parts, quits, and netsplits on the channel
+	//   k - kicks, bans, and mode changes on the channel
+	//   m - private msgs, notices and ctcps to the bot
+	//   o - misc info, errors, etc (IMPORTANT STUFF)
+	//   p - public text on the channel
+	//   r - raw incoming server traffic
+	//   s - server connects, disconnects, and notices
+	//   t - raw botnet traffic
+	//   v - raw outgoing server traffic
+	//   w - wallops (make sure the bot sets +w in init-server)
+	//   x - file transfers and file-area commands
+	console_log_flags abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
 
 	/* Which hash type should users use by default
 	 * Existing users will be converted to this on
@@ -89,78 +89,79 @@ xmpp_server localhost
 
 network DALnet
 {
-		// Nick to use when connecting to network
-    nick Trollbot
-		// Alternative nickname to use, can contain ? for random numbers
-    altnick Trollbot
+	// Nick to use when connecting to network
+	nick Trollbot
 
-		// Ident/Username to tell server
-    ident rawr
+	// Alternative nickname to use, can contain ? for random numbers
+	altnick Trollbot
 
-		// Realname/GECOS
-    realname "http://www.sourceforge.net/projects/trollbot"
+	// Ident/Username to tell server
+	ident rawr
 
-		// This is the hostname Trollbot will try and connect from
-		vhost 192.168.2.6 
-   
-		// Static Channels (Cannot be removed via DCC)
-    channel #php
+	// Realname/GECOS
+	realname "http://www.sourceforge.net/projects/trollbot"
 
-		// This is where network specific user/channel files are
-    userfile db/userdb.DALnet
-    chanfile db/chandb.DALnet
+	// This is the hostname Trollbot will try and connect from
+	vhost 200.35.147.56
 
-		// Which port should Trollbot listen on for the console 
-    userlisten 64121
+	// Static Channels (Cannot be removed via DCC)
+	channel #php
 
-		// What flags to give to a user if not specified when adding
-		default-flags "hp"
+	// This is where network specific user/channel files are
+	userfile db/userdb.DALnet
+	chanfile db/chandb.DALnet
 
-		// DCC console default flags:
-	  //   b - information about bot linking and userfile sharing
-	  //   c - commands
-	  //   d - misc debug information
-	  //   h - raw share traffic
-	  //   j - joins, parts, quits, and netsplits on the channel
-	  //   k - kicks, bans, and mode changes on the channel
-	  //   m - private msgs, notices and ctcps to the bot
-	  //   o - misc info, errors, etc (IMPORTANT STUFF)
-	  //   p - public text on the channel
-	  //   r - raw incoming server traffic
-	  //   s - server connects, disconnects, and notices
-	  //   t - raw botnet traffic
-	  //   v - raw outgoing server traffic
-	  //   w - wallops (make sure the bot sets +w in init-server)
-	  //   x - file transfers and file-area commands
-		console "mkcobxs"
+	// Which port should Trollbot listen on for the console 
+	dcc_port 4310
 
-		// Scripts to load
-		tclscript scripts/test.tcl
-    tclscript scripts/cryptoquote-1.02.tcl
-    phpscript scripts/bmi.php
-    phpscript scripts/mirckey.php
-    phpscript scripts/test.php
-    phpscript scripts/dnd.php
-		javascript scripts/test.js
+	// What flags to give to a user if not specified when adding
+	default-flags "hp"
 
-		// Servers:ports to try and connect to
-    server swiftco.dal.net:6668
+	// DCC console default flags:
+	//   b - information about bot linking and userfile sharing
+	//   c - commands
+	//   d - misc debug information
+	//   h - raw share traffic
+	//   j - joins, parts, quits, and netsplits on the channel
+	//   k - kicks, bans, and mode changes on the channel
+	//   m - private msgs, notices and ctcps to the bot
+	//   o - misc info, errors, etc (IMPORTANT STUFF)
+	//   p - public text on the channel
+	//   r - raw incoming server traffic
+	//   s - server connects, disconnects, and notices
+	//   t - raw botnet traffic
+	//   v - raw outgoing server traffic
+	//   w - wallops (make sure the bot sets +w in init-server)
+	//   x - file transfers and file-area commands
+	console "mkcobxs"
 
-		// New feature, see log_filter.txt in doc/ (not there yet)
-		// This config gets passed to the module, which 
-		log_filter_module pgsql_log_filter
-		{
-			db_host localhost
-			db_port 5432
-			db_name troll_log
+	// Scripts to load
+	tclscript scripts/test.tcl
+	tclscript scripts/cryptoquote-1.02.tcl
+	phpscript scripts/bmi.php
+	phpscript scripts/mirckey.php
+	phpscript scripts/test.php
+	phpscript scripts/dnd.php
+	javascript scripts/test.js
 
-			db_user troll_log
-			db_pass troll_log
+	// Servers:ports to try and connect to
+	server swiftco.dal.net:6667
 
-			// Will auto-create
-			db_tbl dalnet_log
-			
-			// Logs joins to database
-			log_flags j
-		}
+	// New feature, see log_filter.txt in doc/ (not there yet)
+	// This config gets passed to the module, which 
+	log_filter_module pgsql_log_filter
+	{
+		db_host localhost
+		db_port 5432
+		db_name troll_log
+
+		db_user troll_log
+		db_pass troll_log
+
+		// Will auto-create
+		db_tbl dalnet_log
+
+		// Logs joins to database
+		log_flags j
+	}
 }

@@ -357,6 +357,11 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 					if (net->dcc_motd == NULL)
 						net->dcc_motd = tstrdup(search->value);
 				}		
+				else if (!strcmp(search->key,"dcc_port"))
+				{
+					if (net->dcc_port == -1)
+						net->dcc_port = atoi(search->value);
+				}
 				else if (!strcmp(search->key,"altnick"))
 				{
 					/* Use first value only */
