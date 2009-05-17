@@ -299,7 +299,9 @@ struct tsocket *tsocket_new(void)
 {
 	struct tsocket *tsocket = tmalloc(sizeof(struct tsocket));
 
-	tsocket->status = TSOCK_UNINITIALIZED;
+	tsocket->status      = TSOCK_UNINITIALIZED;
+	tsocket->save_status = TSOCK_UNINITIALIZED;
+
 
 	tsocket->sock   = -1;
 	tsocket->name   = NULL;

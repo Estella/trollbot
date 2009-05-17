@@ -1,9 +1,4 @@
 #!/bin/sh
 
-PYTHON_VERSION="3.0"
-CXXFLAGS="-g -O0"
-LDFLAGS="-lpthread"
-#./configure --prefix=/home/ben/Projects/trollbot --with-tclsh=/usr/bin/tclsh8.4 --with-js=yes --with-python --with-perl --with-php=5 --with-libxml2 --with-xmpp --with-http --with-ics --enable-static
-
-./configure --with-ics --prefix=/home/ben/Projects/trollbot --with-js --with-irc
+./configure --with-tclsh=/usr/local/bin/tclsh8.4 --with-js=yes --with-perl --with-php=5 --with-libxml2 --with-xmpp --with-http --with-ics --prefix=/home/trollbot/hotgurl4u
 for i in `find ./ -name Makefile`; do sed -i 's/O2/O0/g' $i; done;

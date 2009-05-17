@@ -16,10 +16,7 @@ struct trigger *trigger_list_del(struct trigger *triggers, struct trigger *del)
 	struct trigger *tmp = NULL;
 
 	if ((tmp = triggers) == NULL)
-	{
-		log_entry_printf(NULL,NULL,"T","trigger_list_del() called with NULL trigger list");
 		return NULL;
-	}
 
 	while (tmp != NULL)
 	{
@@ -31,25 +28,21 @@ struct trigger *trigger_list_del(struct trigger *triggers, struct trigger *del)
 			if (tmp->next != NULL)
 				tmp->next->prev = tmp->prev;
 
-			if (tmp->prev == NULL && tmp->next == NULL)
-				return NULL;
-
-			if (tmp->prev != NULL)
+			while (tmp == del && tmp->prev != NULL)
 				tmp = tmp->prev;
-			else if (tmp->next != NULL)
+
+			while (tmp == del && tmp->next != NULL)
 				tmp = tmp->next;
-			
-			while (tmp->prev != NULL)
-				tmp = tmp->prev;
 
-			return tmp;
+			if (tmp == del)
+				return NULL;
+			else
+				return tmp;
 
 		}
 
 		tmp = tmp->next;
 	}
-
-	log_entry_printf(NULL,NULL,"T","trigger_list_del() called with a trigger deletion that no entry existed for");
 
 	return triggers;
 }

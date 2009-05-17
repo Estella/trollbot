@@ -23,6 +23,7 @@ struct tsocket
 	int sock;
 
   int status;
+	int save_status; /* For reloading without dropping connections */
 
 	/* Extra data */
 	void *data;

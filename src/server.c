@@ -10,6 +10,7 @@
  * Last Audit: 2007-04-30     *
  ******************************/
 
+/* This should go the fuck away */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

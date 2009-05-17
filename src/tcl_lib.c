@@ -12,8 +12,17 @@
 #include "egg_lib.h"
 #include "user.h"
 
+#ifdef HAVE_ICS
+#include "ics_server.h"
+#include "ics_proto.h"
+#include "ics_game.h"
+#include "ics_trigger.h"
+#include "ics_lib.h"
+#endif /* HAVE_ICS */
+
+
 /* ICS specific eggdrop IRC commands */
-#ifdef HAVE_ICS_CLOWNS
+#ifdef HAVE_ICS
 
 int tcl_ics_get_score(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {
@@ -157,10 +166,93 @@ int tcl_irc_interp(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj 
 	return TCL_OK;
 }
 
+int tcl_ics_interp(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	struct ics_server *ics;
+	char *ics_name;
+	Tcl_Interp *alt_interp;
+	int ret;
+	Tcl_Obj *nobjv[1];
+
+	if (objc != 3)
+	{
+		Tcl_WrongNumArgs(interp, objc, objv, "<ics name> <code to send>");
+		return TCL_ERROR;
+	}
+
+	ics_name = Tcl_GetString(objv[1]);
+
+	ics = g_cfg->ics_servers;
+
+	while (ics != NULL)
+	{
+		if (!matchwilds(ics->label, ics_name))
+		{
+			alt_interp = ics->tclinterp;
+		
+			ret = Tcl_GlobalEvalObj(alt_interp, objv[2]);
+
+			/* If we returned an error, send it to trollbot's warning channel */
+			if (ret == TCL_ERROR)
+			{
+				troll_debug(LOG_WARN,"TCL Error: %s\n",Tcl_GetStringResult(alt_interp));
+			}
+		}
+
+		ics = ics->next;
+	}
+
+	return TCL_OK;
+}
+
 
 #endif /* HAVE_ICS */
 
+int tcl_chanbans(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	struct network *net = clientData;
+	Tcl_Obj *list;
+	Tcl_Obj *scratch;
+	
+	char *channel = NULL;
+	char **ret;
+	int i;
 
+	if (objc != 2)
+	{
+		Tcl_WrongNumArgs(interp, objc, objv, "<channel>");
+		return TCL_ERROR;
+	}
+
+	channel = Tcl_GetString(objv[1]);
+
+	ret = egg_chanbans(net, channel);
+
+	if (ret == NULL)
+	{
+		return TCL_ERROR;
+	}
+	
+	list = Tcl_NewListObj(0, NULL);
+	Tcl_IncrRefCount(list);
+
+
+	for (i=0;ret[i] != NULL && ret[i][0] != '\0';i++)
+	{
+		scratch = Tcl_NewStringObj(ret[i], strlen(ret[i]));
+		Tcl_IncrRefCount(scratch);
+
+		Tcl_ListObjAppendElement(interp, list, scratch);
+		
+		Tcl_DecrRefCount(scratch);
+	}
+
+	Tcl_SetObjResult(interp, list);
+	
+	tstrfreev(ret);
+	
+	return TCL_OK;
+}
 /*
   newchanban <channel> <ban> <creator> <comment> [lifetime] [options]
     Description: adds a ban to the ban list of a channel; creator is given
@@ -754,7 +846,7 @@ int tcl_puthelp(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *co
 		return TCL_ERROR;
 	}
 
-	tsocket_printf(net->tsock,"%s",Tcl_GetString(objv[1]));
+	irc_printf(net->sock,"%s",Tcl_GetString(objv[1]));
 
 	return TCL_OK;
 }
@@ -773,7 +865,7 @@ int tcl_putserv(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *co
 		return TCL_ERROR;
 	}
 
-	tsocket_printf(net->tsock,"%s",Tcl_GetString(objv[1]));
+	irc_printf(net->sock,"%s",Tcl_GetString(objv[1]));
 
 	return TCL_OK;
 }
@@ -831,4 +923,28 @@ int tcl_countusers(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj 
 
 	return TCL_OK;
 }
+
+int tcl_ispermban(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	Tcl_Obj *ret;
+	struct network *net;
+
+	net = clientData;
+
+	if (objc != 2 && objc != 3)
+	{
+		Tcl_WrongNumArgs(interp,objc,objv,"<ban> [channel]");
+		return TCL_ERROR;
+	}
+
+	if (objc == 2)
+		ret = Tcl_NewIntObj(egg_ispermban(net, Tcl_GetString(objv[1]), NULL));
+	else
+		ret = Tcl_NewIntObj(egg_ispermban(net, Tcl_GetString(objv[1]), Tcl_GetString(objv[2])));
+
+	Tcl_SetObjResult(interp,ret);  
+
+	return TCL_OK;
+}
+
 

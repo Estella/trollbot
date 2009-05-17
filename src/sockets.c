@@ -29,9 +29,26 @@
 #include "channel.h"
 #include "user.h"
 #include "t_timer.h"
-#include "tmodule.h"
 #include "tsocket.h"
 #include "util.h"
+
+#ifdef HAVE_HTTP
+#include "http_server.h"
+#include "http_proto.h"
+#include "http_request.h"
+#endif /* HAVE_HTTP */
+
+#ifdef HAVE_ICS
+#include "ics_server.h"
+#include "ics_proto.h"
+#include "ics_trigger.h"
+#endif /* HAVE_ICS */
+
+#ifdef HAVE_XMPP
+#include "xmpp_server.h"
+#include "xmpp_proto.h"
+#include "xmpp_trigger.h"
+#endif /* HAVE_XMPP */
 
 void socket_set_blocking(int sock)
 {
@@ -84,9 +101,20 @@ void irc_loop(void)
 	fd_set writefds;
 	struct timeval timeout;
 	struct network *net;
+#ifdef HAVE_ICS
+	struct ics_server *ics;
+#endif /* HAVE_ICS */
+#ifdef HAVE_XMPP
+	struct xmpp_server *xs;
+#endif /* HAVE_XMPP */
 	struct dcc_session *dcc;
 
+#ifdef HAVE_HTTP
+	struct http_server *http;
+#endif /* HAVE_HTTP */
+
 	int numsocks = 0;
+	int sockcount = 0; /* Don't know why this is different than above */
 	socklen_t lon      = 0;
 	int valopt   = 0;
 	time_t last = 0;
@@ -101,7 +129,47 @@ void irc_loop(void)
 	 * I made everything generic around these tsocket
 	 * thingamajigs, let's introduce this gradually
 	 */
+#ifdef HAVE_ICS
+	ics = g_cfg->ics_servers;
+
+	while (ics != NULL)
+	{
+		ics_server_connect(ics, NULL);
+		ics = ics->next;
+	}
+
+#endif /* HAVE_ICS */
 	
+
+#ifdef HAVE_XMPP
+	xs = g_cfg->xmpp_servers;
+
+	/* Connect to one server for each network, or mark network unconnectable */
+	while (xs != NULL)
+	{
+		/* Shouldn't be done here */
+		xs->cur_server = xs->servers;
+
+		xs->last_try = time(NULL);
+		xs->status   = XMPP_INPROGRESS;
+		xmpp_server_connect(xs);
+
+		xs = xs->next;
+	}
+#endif /* HAVE_XMPP */
+#ifdef HAVE_HTTP
+	http = g_cfg->http_servers;
+
+	/* Connect to one server for each network, or mark network unconnectable */
+	while (http != NULL)
+	{
+		http->status = HTTP_UNINITIALIZED;
+		http_server_listen(http);
+
+		http = http->next;
+	}
+#endif /* HAVE_HTTP */
+
 	net = g_cfg->networks;
 
 	/* Connect to one server for each network, or mark network unconnectable */
@@ -126,8 +194,63 @@ void irc_loop(void)
 		FD_ZERO(&socks);
 		FD_ZERO(&writefds);
 
+		sockcount = 0;
+
 		timeout.tv_sec  = 1;
 		timeout.tv_usec = 0;
+
+#ifdef HAVE_XMPP
+		xs = g_cfg->xmpp_servers;
+
+		while (xs != NULL)
+		{
+			if (xs->status == XMPP_DISCONNECTED)
+			{
+				if (xs->never_give_up == 1)
+				{
+					if (xs->last_try + xs->connect_delay <= time(NULL))
+					{
+						xs->status = XMPP_INPROGRESS;
+						/* Try a non-blocking connect to the next server */
+						xs->last_try = time(NULL);
+
+						xmpp_server_connect(xs);
+					}
+				}
+			}
+
+			if (xs->status == XMPP_NONBLOCKCONNECT || xs->status == XMPP_WAITINGCONNECT)
+			{
+				numsocks = (xs->sock > numsocks) ? xs->sock : numsocks;
+
+				FD_SET(xs->sock,&writefds);
+				sockcount++;
+
+				/* Now in a FD set */
+				xs->status = XMPP_WAITINGCONNECT;
+			}
+
+			/* Add each xmpp_server to the read fd set */
+			if (xs->sock != -1)
+			{
+				if (xs->status >= XMPP_NOTREADY)
+				{
+					if (xs->status == XMPP_NOTREADY)
+					{
+						xmpp_ball_start_rolling(xs);
+						xs->status = XMPP_CONNECTED;
+					}
+
+					numsocks = (xs->sock > numsocks) ? xs->sock : numsocks;
+					FD_SET(xs->sock,&socks);
+					sockcount++;
+				}
+			}
+
+			xs = xs->next;
+		}
+
+#endif /* HAVE_XMPP */
 
 		net = g_cfg->networks;
 
@@ -148,10 +271,22 @@ void irc_loop(void)
 				}	
 			}
 
+			if (net->status == NET_NONBLOCKCONNECT || net->status == NET_WAITINGCONNECT)
+			{
+				numsocks = (net->sock > numsocks) ? net->sock : numsocks;
+
+				FD_SET(net->sock,&writefds);
+				sockcount++;
+
+				/* Now in a FD set */
+				net->status = NET_WAITINGCONNECT;
+			}
+
 			/* If a DCC listener exists, add it to the fd set */
 			if (net->dcc_listener != -1)
 			{
 				FD_SET(net->dcc_listener,&socks);
+				sockcount++;
 				numsocks = (net->dcc_listener > numsocks) ? net->dcc_listener : numsocks;
 			}
 
@@ -164,6 +299,7 @@ void irc_loop(void)
 				{
 					numsocks = (dcc->sock > numsocks) ? dcc->sock : numsocks;
 					FD_SET(dcc->sock,&socks);
+					sockcount++;
 
 					/* If it was previously waiting on being in a fd set, set it as connected */
 					if (dcc->status == DCC_NOTREADY)
@@ -177,6 +313,7 @@ void irc_loop(void)
 					numsocks = (dcc->sock > numsocks) ? dcc->sock : numsocks;
 
 					FD_SET(dcc->sock,&writefds);
+					sockcount++;
 
 					/* Now in a FD set */
 					dcc->status = DCC_WAITINGCONNECT;
@@ -185,55 +322,43 @@ void irc_loop(void)
 				dcc = dcc->next;
 			}
 
+			/* Add each network to the read fd set */
+			if (net->sock != -1)
+			{
+				if (net->status >= NET_NOTREADY)
+				{
+					if (net->status == NET_NOTREADY)
+						net->status = NET_CONNECTED;
+
+					numsocks = (net->sock > numsocks) ? net->sock : numsocks;
+					FD_SET(net->sock,&socks);
+					sockcount++;
+				}
+			}
+
 			net = net->next;
 		}
 
-		if (g_cfg->tmodules != NULL)
+#ifdef HAVE_HTTP
+		http = g_cfg->http_servers;
+		
+		while (http != NULL)
 		{
-			node = g_cfg->tmodules->head;
+			if (http->sock == -2)
+				continue;
 
-			while (node != NULL)
-			{
-				tmodule = node->data;
-
-				if (tmodule != NULL)
-				{
-					sublist = tmodule->tmodule_get_tsockets();
-
-					if (sublist != NULL)
-					{
-						inode = sublist->head;
-
-						while (inode != NULL)
-						{
-							tsock = inode->data;
-
-							switch (tsock->status)
-							{
-								case TSOCK_CONNECTING:
-									FD_SET(tsock->sock, &writefds);
-									numsocks = (tsock->sock > numsocks) ? tsock->sock : numsocks;
-									break;
-									/* Check reads/writes and call their respective callbacks */
-								case TSOCK_INFDSET:
-								case TSOCK_NOTINFDSET:
-									FD_SET(tsock->sock, &socks);
-									tsock->status = TSOCK_INFDSET;
-									numsocks = (tsock->sock > numsocks) ? tsock->sock : numsocks;
-									break;
-							}
-
-							inode = inode->next;
-						}
-					}	
-				}
-				node = node->next;
+      if (http->sock == -1)
+      {
+				http_init_listener(http);	
 			}
 
+			FD_SET(http->sock,&socks);
+			sockcount++;
+			numsocks = (http->sock > numsocks) ? http->sock : numsocks;
+			
+			http = http->next;
 		}
-	
-
-
+#endif /* HAVE_HTTP */
 		/* Check the generic list of tsockets */
 		if (g_cfg->tsockets != NULL)
 		{
@@ -249,12 +374,14 @@ void irc_loop(void)
 					{
 						case TSOCK_CONNECTING:
 							FD_SET(tsock->sock, &writefds);
+							sockcount++;
 							numsocks = (tsock->sock > numsocks) ? tsock->sock : numsocks;
 							break;
 						/* Check reads/writes and call their respective callbacks */
 						case TSOCK_INFDSET:
 						case TSOCK_NOTINFDSET:
 							FD_SET(tsock->sock, &socks);
+							sockcount++;
 							tsock->status = TSOCK_INFDSET;
 							numsocks = (tsock->sock > numsocks) ? tsock->sock : numsocks;
 							break;
@@ -266,64 +393,10 @@ void irc_loop(void)
 
 		}
 
+		if (sockcount == 0)
+			continue;
+
 		select(numsocks+1, &socks, &writefds, NULL, NULL);
-
-		if (g_cfg->tmodules != NULL)
-		{
-			node = g_cfg->tmodules->head;
-
-			while (node != NULL)
-			{
-				tmodule = node->data;
-
-				if (tmodule != NULL)
-				{
-					sublist = tmodule->tmodule_get_tsockets();
-
-					if (sublist != NULL)
-					{
-						inode = sublist->head;
-
-						while (inode != NULL)
-						{
-							tsock = inode->data;
-
-							switch (tsock->status)
-							{
-								case TSOCK_CONNECTING:
-									/* Socket is in a non-blocking connect, do some hacks to figure
-									 * out if it succeeded or not.
-									 */
-									if (FD_ISSET(tsock->sock, &writefds))
-										tsocket_check_nonblocking_connect(tsock);
-									break;
-									/* Check reads/writes and call their respective callbacks */
-								case TSOCK_INFDSET:
-									if (FD_ISSET(tsock->sock, &socks))
-										if (tsock->tsocket_read_cb != NULL)
-											if (!tsock->tsocket_read_cb(tsock))
-												tsock->tsocket_disconnect_cb(tsock);
-
-									if (tsock->sock != -1)
-									{
-										if (FD_ISSET(tsock->sock, &writefds))
-											if (tsock->tsocket_write_cb != NULL)
-												if (!tsock->tsocket_write_cb(tsock))
-													tsock->tsocket_disconnect_cb(tsock);
-									}
-
-									break;
-							}
-
-							inode = inode->next;
-						}
-					}	
-				}
-				node = node->next;
-			}
-
-		}
-
 
 		/* Check the generic list of tsockets */
 		if (g_cfg->tsockets != NULL)
@@ -364,7 +437,86 @@ void irc_loop(void)
 			}
 		}
 
+#ifdef HAVE_XMPP
+		xs = g_cfg->xmpp_servers;
+
+		while (xs != NULL)
+		{
+			if (xs->status == XMPP_WAITINGCONNECT)
+			{
+				if (FD_ISSET(xs->sock, &writefds))
+				{
+					/* Socket is set as writeable */
+					lon = sizeof(int); 
+
+					/* Get the current socket options for the non-blocking socket */
+					if (getsockopt(xs->sock, SOL_SOCKET, SO_ERROR, (void*)(&valopt), &lon) < 0) 
+					{ 
+						xs->sock   = -1;
+						xs->status = XMPP_DISCONNECTED;
+						troll_debug(LOG_ERROR,"Could not get socket options for xmpp_server sock");
+					}
+					else
+					{    
+						if (valopt != 0) 
+						{ 
+							xs->sock   = -1;
+							xs->status = XMPP_DISCONNECTED;
+							troll_debug(LOG_ERROR,"Non-blocking connect() to xmpp_server failed.");
+						}
+						else
+						{
+							/* Socket connect succeeded */
+							troll_debug(LOG_DEBUG,"Non-blocking connect() to xmpp_server succeeded");
+
+							/* Set connection as blocking again */
+							/* socket_set_blocking(dcc->sock); */
+
+
+							xs->status = XMPP_NOTREADY;
+						}
+					}
+				}
+			}
+
+			if (xs->sock != -1 && xs->status >= XMPP_CONNECTED)
+			{
+				if (FD_ISSET(xs->sock,&socks))
+				{
+					if (!xmpp_in(xs))
+					{
+						xs->status = XMPP_DISCONNECTED;
+					}
+				}
+			}
+
+			xs = xs->next;
+		}
+#endif /* HAVE_XMPP */
+
 		net = g_cfg->networks;
+
+#ifdef HAVE_HTTP
+
+		http = g_cfg->http_servers;
+		
+		while (http != NULL)
+		{
+      /* If a DCC listener exists, add it to the fd set */
+      if (http->sock > 0)
+      {
+        if (FD_ISSET(http->sock,&socks))
+				{
+					new_http_connection(http);
+				}
+      }
+			
+			http = http->next;
+		}
+
+
+#endif /* HAVE_HTTP */
+
 
 		while (net != NULL)
 		{
@@ -378,6 +530,43 @@ void irc_loop(void)
 			}
 
 			dcc = net->dccs;
+
+			if (net->status == NET_WAITINGCONNECT)
+			{
+				if (FD_ISSET(net->sock, &writefds))
+				{
+					/* Socket is set as writeable */
+					lon = sizeof(int); 
+
+					/* Get the current socket options for the non-blocking socket */
+					if (getsockopt(net->sock, SOL_SOCKET, SO_ERROR, (void*)(&valopt), &lon) < 0) 
+					{ 
+						net->sock   = -1;
+						net->status = NET_DISCONNECTED;
+						troll_debug(LOG_ERROR,"Could not get socket options for server sock");
+					}
+					else
+					{    
+						if (valopt != 0) 
+						{ 
+							net->sock   = -1;
+							net->status = NET_DISCONNECTED;
+							troll_debug(LOG_ERROR,"Non-blocking connect() to server failed.");
+						}
+						else
+						{
+							/* Socket connect succeeded */
+							troll_debug(LOG_DEBUG,"Non-blocking connect() to server succeeded");
+
+							/* Set connection as blocking again */
+							/* socket_set_blocking(dcc->sock); */
+
+
+							net->status = NET_NOTREADY;
+						}
+					}
+				}
+			}
 
 			if (net->status >= NET_CONNECTED && net->timers != NULL)
 			{
@@ -462,6 +651,24 @@ void irc_loop(void)
 					}
 				}
 				dcc = dcc->next;
+			}
+
+			if (net->sock != -1 && net->status >= NET_CONNECTED)
+			{
+				if (FD_ISSET(net->sock,&socks))
+				{
+					if (net->status == NET_CONNECTED)
+					{
+						irc_printf(net->sock,"USER %s foo.com foo.com :%s",net->ident,net->realname);
+						irc_printf(net->sock,"NICK %s",net->nick);
+						net->status = NET_AUTHORIZED;
+					} 
+
+					if (!irc_in(net))
+					{
+						net->status = NET_DISCONNECTED;
+					}
+				}
 			}
 
 			net = net->next;

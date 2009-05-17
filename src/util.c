@@ -29,6 +29,8 @@
 int matchwilds(const char *haystack, const char *needle)
 {
 	int escaped = 0;
+	char *lasthay    = NULL;
+	char *lastneedle = NULL;
 
 	if (needle == NULL || haystack == NULL)
 		return 1;
@@ -63,6 +65,8 @@ int matchwilds(const char *haystack, const char *needle)
 			{
 				haystack++;
 			}
+			lasthay    = &haystack[1];
+			lastneedle = needle;
 			needle++;
 		}
 		else if (*needle == '%' && escaped == 0)
@@ -92,7 +96,19 @@ int matchwilds(const char *haystack, const char *needle)
 		}
 		else if (*needle != *haystack)
 		{
-			return 1;
+			/* Condition: Previous wildcard breaking match was invalid */
+			/* FIXME: Needs to be stack */
+			if (lasthay != NULL && lastneedle != NULL)
+			{
+				haystack   = lasthay;
+				needle     = lastneedle;
+				lasthay    = NULL;
+				lastneedle = NULL;
+			}
+			else
+			{
+				return 1;
+			}
 		}
 		else 
 		{

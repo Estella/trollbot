@@ -830,8 +830,8 @@ int egg_isban(struct network *net, char *ban, char *channel)
 }
 
 /* ispermban <ban> [channel] */
-/* NEED_IMP: TCL, Python */
-/* IMP_IN: Javascript, PHP */
+/* NEED_IMP: Python */
+/* IMP_IN: TCL, Javascript, PHP */
 int egg_ispermban(struct network *net, char *ban, char *channel)
 {
 	struct channel     *chan;
@@ -1288,15 +1288,16 @@ int egg_ischanban(struct network *net, const char *ban, const char *channel)
  *  an odd thing to do as that information would be available to it. Perhaps
  *  this is a candidate for eggdrop strict versus trollbot modes.
  */
-/* NEED_IMP: Javascript, PHP, Python, TCL */
-/* IMP_IN: None */
-#ifdef CLOWNS
+/* NEED_IMP: Javascript, PHP, Python */
+/* IMP_IN: TCL */
 char **egg_chanbans(struct network *net, const char *channel)
 {
 	struct channel *chan;
 	struct channel_ban *cban;
+	char age[20];
 	char **ret;
 	int count = 0;
+	int i;
 
 	/* If channel not found return NULL */
 	if ((chan = network_channel_find(net, channel)) == NULL)
@@ -1313,16 +1314,22 @@ char **egg_chanbans(struct network *net, const char *channel)
 
 	ret = tmalloc0(sizeof(char *) * count + 1);
 
-	cban = cban->banlist;
+	cban = chan->banlist;
 	
-	for (count);
-	while (chan != NULL)
+	for (i = 0; cban != NULL; i++)
 	{
-		
+		memset(age, 0, sizeof(age));
+		snprintf(age, sizeof(age), "%d", (int)(time(NULL) - cban->time));
+		ret[i] = tmalloc0(strlen(cban->mask) + strlen(cban->who) + strlen(age) + 3);
+
+		sprintf(ret[i],"%s %s %s",cban->mask, cban->who, age);
+		cban = cban->next;
 	}
 
+	ret[i] = NULL;
+
+	return ret;
 }
-#endif /* CLOWNS */
 
 /* chanexempts <channel> */
 /* chaninvites <channel> */
@@ -1747,6 +1754,7 @@ char *egg_unbind(struct network *net, char *type, char *flags, char *mask, char 
 {
 	struct trigger *trig_list = NULL;
 	struct trigger *trig_head = NULL;
+	struct trigger *to_free   = NULL;
 	char *ret               = NULL;
 
 	/* Case insensitive, checked eggdrop */
@@ -1781,11 +1789,35 @@ char *egg_unbind(struct network *net, char *type, char *flags, char *mask, char 
 		/* Verified case sensitive on eggdrop */
 		if (!strcmp(mask, trig_list->mask) && !tstrcasecmp(command, trig_list->command))
 		{
-			trigger_list_del(trig_head, trig_list);
-			/* Saves reallocation */
+			/* Memory swap */
 			ret = trig_list->mask;
 			trig_list->mask = NULL;
-			free_trigger(trig_list);
+
+			to_free   = trig_list;
+			trig_head = trigger_list_del(trig_head, trig_list);
+
+			if (!tstrcasecmp("pub",type))
+				net->trigs->pub = trig_head;
+			else if (!tstrcasecmp("pubm",type))
+				net->trigs->pubm = trig_head;
+			else if (!tstrcasecmp("msg",type))
+				net->trigs->msg = trig_head;
+			else if (!tstrcasecmp("msgm",type))
+				net->trigs->msgm = trig_head;
+			else if (!tstrcasecmp("notc",type))
+				net->trigs->notc = trig_head;
+			else if (!tstrcasecmp("join",type))
+				net->trigs->join = trig_head;
+			else if (!tstrcasecmp("part",type))
+				net->trigs->part = trig_head;
+			else if (!tstrcasecmp("dcc",type))
+				net->trigs->dcc = trig_head;
+			else if (!tstrcasecmp("topc",type))
+				net->trigs->topc = trig_head;
+			else if (!tstrcasecmp("raw",type))
+				net->trigs->raw = trig_head;
+
+			free_trigger(to_free);
 			return ret;
 		}
 

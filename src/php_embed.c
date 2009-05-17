@@ -76,7 +76,7 @@ void myphp_eval_file(char *filename)
 	 */
 	if ((fp = fopen(filename, "r")) == NULL)
 	{
-		troll_log(LOG_WARN, "Could not open (%s) for PHP evaluation.", filename);
+		troll_debug(LOG_WARN, "Could not open (%s) for PHP evaluation.", filename);
 		return;
 	}
 	
