@@ -208,7 +208,51 @@ int tcl_ics_interp(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj 
 
 #endif /* HAVE_ICS */
 
+int tcl_chanbans(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	struct network *net = clientData;
+	Tcl_Obj *list;
+	Tcl_Obj *scratch;
+	
+	char *channel = NULL;
+	char **ret;
+	int i;
 
+	if (objc != 2)
+	{
+		Tcl_WrongNumArgs(interp, objc, objv, "<channel>");
+		return TCL_ERROR;
+	}
+
+	channel = Tcl_GetString(objv[1]);
+
+	ret = egg_chanbans(net, channel);
+
+	if (ret == NULL)
+	{
+		return TCL_ERROR;
+	}
+	
+	list = Tcl_NewListObj(0, NULL);
+	Tcl_IncrRefCount(list);
+
+
+	for (i=0;ret[i] != NULL && ret[i][0] != '\0';i++)
+	{
+		scratch = Tcl_NewStringObj(ret[i], strlen(ret[i]));
+		Tcl_IncrRefCount(scratch);
+
+		Tcl_ListObjAppendElement(interp, list, scratch);
+		
+		Tcl_DecrRefCount(scratch);
+	}
+
+	Tcl_SetObjResult(interp, list);
+	
+	tstrfreev(ret);
+	
+	return TCL_OK;
+}
 /*
   newchanban <channel> <ban> <creator> <comment> [lifetime] [options]
     Description: adds a ban to the ban list of a channel; creator is given
@@ -893,7 +937,7 @@ int tcl_ispermban(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *
 		return TCL_ERROR;
 	}
 
-	if (objv == 2)
+	if (objc == 2)
 		ret = Tcl_NewIntObj(egg_ispermban(net, Tcl_GetString(objv[1]), NULL));
 	else
 		ret = Tcl_NewIntObj(egg_ispermban(net, Tcl_GetString(objv[1]), Tcl_GetString(objv[2])));

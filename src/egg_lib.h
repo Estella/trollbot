@@ -95,6 +95,10 @@ time_t egg_unixtime(void);
 char **egg_binds(struct network *net, char *mask);
 
 
+/* Unorganized */
+char **egg_chanbans(struct network *net, const char *channel);
+
+
 
 /*** THESE SHOULD BE GLOBAL VARIABLES, NOT QUITE SURE WTF I WAS THINKING */
 char *egg_botnick(struct network *net);

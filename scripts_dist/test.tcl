@@ -9,6 +9,11 @@ bind pub - "!tcl-finduser" do:finduser
 bind pub - "!tcl-getchanmode" do:getchanmode
 bind pub - "!tcl-utimertest" do:utimertest
 bind pub - "!tcl-die" do:tcldie
+bind pub - "!tcl-chanbans" do:chanbans
+
+proc do:chanbans { nick uhost hand chan arg } {
+	putserv "PRIVMSG $chan :chanbans [chanbans $chan]"
+}
 
 proc do:tcldie { nick uhost hand chan arg } {
 	die $arg
