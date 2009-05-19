@@ -58,43 +58,45 @@ struct channel_ban
 
 struct channel_user
 {
-  char *nick;
+	char *nick;
 	char *ident;
 
 	char *modes;
 
-  char *host;
+	char *host;
 
 	char *realname;
-  
-  int jointime;
 
-  /* Actual user record */
-  struct user *urec;
-	
+	int jointime;
+
+	/* Actual user record */
+	struct user *urec;
+
 	struct channel_user *prev;
 	struct channel_user *next;
 };
 
 struct channel
 {
-  char *name;
-  int status;
+	char *name;
+	int status;
 
 	struct slist *egg_vars;
 
-  struct channel_user *user_list;
+	struct slist *bans;
+
+	struct channel_user *user_list;
 
 	char *chanmode;
 	char *topic;
 
 	struct channel_ban  *banlist;
 
-  /* Unhandled blocks get stuck here */
-  struct tconfig_block *tcfg;
+	/* Unhandled blocks get stuck here */
+	struct tconfig_block *tcfg;
 
-  struct channel *prev;
-  struct channel *next;
+	struct channel *prev;
+	struct channel *next;
 };
 
 struct chan_egg_var *new_chan_egg_var(void);
@@ -108,6 +110,8 @@ void channel_ban_free(struct channel_ban *ban);
 struct channel_ban *channel_ban_new(void);
 void channel_bans_free(struct channel_ban *bans);
 struct channel_ban *channel_channel_ban_find(struct channel *, const char *);
+struct ban *channel_ban_find(struct channel *, const char *);
+
 
 
 struct tconfig_block *chans_to_tconfig(struct channel *chans);

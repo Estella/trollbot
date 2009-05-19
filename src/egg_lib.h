@@ -40,6 +40,8 @@ int egg_countusers(struct network *net);
 int egg_validuser(struct network *net, const char *handle);
 struct user *egg_finduser(struct network *net, const char *mask);
 void egg_newchanban(struct network *net, const char *channel, const char *ban, const char *who, const char *comment, int lifetime, char *options);
+void egg_newban(struct network *net, char *mask, char *creator, char *comment, int lifetime, char *options);
+
 
 /* Rename in case using c++ compiler */
 int egg_chhandle(struct network *net, const char *old, const char *new);
@@ -97,6 +99,8 @@ char **egg_binds(struct network *net, char *mask);
 
 /* Unorganized */
 char **egg_chanbans(struct network *net, const char *channel);
+char **egg_banlist(struct network *net, const char *channel);
+
 
 
 

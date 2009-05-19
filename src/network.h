@@ -36,13 +36,14 @@ struct interpreter;
 #include <jsapi.h>
 #endif /* HAVE_JS */
 
-enum network_status {
-  NET_DISCONNECTED = 0,
+enum network_status 
+{
+	NET_DISCONNECTED = 0,
 	NET_INPROGRESS,
-  NET_NONBLOCKCONNECT, /* A connect() call has been made, it is not in any fd set */
-  NET_WAITINGCONNECT,  /* A connect() call has been made, it's now in a fd set    */
-  NET_NOTREADY,        /* Socket has been accept()ed but not added to FD set      */
-  NET_CONNECTED,
+	NET_NONBLOCKCONNECT, /* A connect() call has been made, it is not in any fd set */
+	NET_WAITINGCONNECT,  /* A connect() call has been made, it's now in a fd set    */
+	NET_NOTREADY,        /* Socket has been accept()ed but not added to FD set      */
+	NET_CONNECTED,
 	NET_AUTHORIZED,
 	NET_IDLE
 };
@@ -70,65 +71,68 @@ struct network_capabilities
 /* All lists are at head */
 struct network
 {
-  char *label;
+	char *label;
 
 	/* Copy over on rehash */
-  struct server *cur_server;
+	struct server *cur_server;
 
-  struct server *servers;
-
-	/* Copy over on rehash */
-  struct channel *chans;
-   
-	/* Copy over on rehash */
-  int sock;
-
-  /* This is the actual nick of the bot, nick is the wanted */
-  char *botnick;
-  
-  char *nick;
-  char *altnick;
-  char *ident;
-  char *realname;
-
-  char *vhost;
-  char *shost; /* Server given host */
+	struct server *servers;
 
 	/* Copy over on rehash */
-  int status;
+	struct channel *chans;
+
+	/* Internal banlist */
+	struct slist *bans;
+
+	/* Copy over on rehash */
+	int sock;
+
+	/* This is the actual nick of the bot, nick is the wanted */
+	char *botnick;
+
+	char *nick;
+	char *altnick;
+	char *ident;
+	char *realname;
+
+	char *vhost;
+	char *shost; /* Server given host */
+
+	/* Copy over on rehash */
+	int status;
 
 	char *default_flags;
 
 	/* This settings makes the bot cycle forever through the server list until
- 	 * it successfully connects to one.
- 	 */ 
+	 * it successfully connects to one.
+	 */ 
 	int never_give_up;
 
-  /* Time in seconds to wait before trying to reconnect */
-  int connect_delay;
+	/* Time in seconds to wait before trying to reconnect */
+	int connect_delay;
 
-  /* if (connect_try--) if (last_try + connect_delay <= time(NULL)) connect() */
-  time_t last_try;
+	/* if (connect_try--) if (last_try + connect_delay <= time(NULL)) connect() */
+	time_t last_try;
 
-  /* Users */
+	/* Users */
 	/* Copy over on rehash */
-  struct user *users;
+	struct user *users;
 
 	/* For Compatibility with eggdrop */
 	int handlen;
- 
+
 	/* LOG FILTERS! */
 	struct log_filter *filters;
 
-  /* DCCs */
+	/* DCCs */
 	/* Copy over on rehash */
-  struct dcc_session *dccs;
- 
-  /* Each network has its own DCC listener */
-	/* Copy over on rehash */
-  int dcc_listener;
+	struct dcc_session *dccs;
 
-  int dcc_port;
+	/* Each network has its own DCC listener */
+	/* Copy over on rehash */
+	int dcc_listener;
+
+	int dcc_port;
 
 	char *dcc_motd;
 
@@ -136,20 +140,20 @@ struct network
 	struct t_timer *timers;
 
 	/* Copy over on rehash */
-  struct trig_table *trigs;  
+	struct trig_table *trigs;  
 
-  /* Unhandled blocks go here */
-  struct tconfig_block *tcfg;
+	/* Unhandled blocks go here */
+	struct tconfig_block *tcfg;
 
 	struct network_capabilities *caps;
 
-  struct network *prev;
-  struct network *next;
+	struct network *prev;
+	struct network *next;
 
 #ifdef HAVE_TCL
-  /* Network TCL Interpreter */
+	/* Network TCL Interpreter */
 	/* Copy over on rehash */
-  Tcl_Interp *tclinterp;
+	Tcl_Interp *tclinterp;
 
 	char **tcl_scripts;
 	unsigned int tcl_scripts_size;
@@ -157,22 +161,22 @@ struct network
 
 #ifdef HAVE_PERL
 	/* Copy over on rehash */
-  struct interpreter *perlinterp;
+	struct interpreter *perlinterp;
 #endif /* HAVE_PERL */
 
 #ifdef HAVE_PYTHON
 	/* Copy over on rehash */
-  PyObject *py_netobj;
-  PyObject *pydict;
-  char **py_scripts;
-  unsigned int py_scripts_size;
+	PyObject *py_netobj;
+	PyObject *pydict;
+	char **py_scripts;
+	unsigned int py_scripts_size;
 #endif /* HAVE_PYTHON */
 
 #ifdef HAVE_JS
 	/* Copy both over on rehash */
 	JSContext *cx;
 	JSObject  *global;
-	
+
 	/* HACK */
 	/* Copy both over on rehash */
 	JSContext *plain_cx;
@@ -182,8 +186,8 @@ struct network
 	unsigned int js_scripts_size;
 #endif /* HAVE_JS */
 
-  char *userfile;
-  char *chanfile;
+	char *userfile;
+	char *chanfile;
 };
 
 /* Network capabilities */

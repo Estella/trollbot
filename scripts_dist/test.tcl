@@ -10,9 +10,14 @@ bind pub - "!tcl-getchanmode" do:getchanmode
 bind pub - "!tcl-utimertest" do:utimertest
 bind pub - "!tcl-die" do:tcldie
 bind pub - "!tcl-chanbans" do:chanbans
+bind pub - "!tcl-banlist" do:banlist
+
+proc do:banlist { nick uhost hand chan arg } {
+	putserv "PRIVMSG $chan :banlist [banlist $arg]"
+}
 
 proc do:chanbans { nick uhost hand chan arg } {
-	putserv "PRIVMSG $chan :chanbans [chanbans $chan]"
+	putserv "PRIVMSG $chan :chanbans [chanbans $arg]"
 }
 
 proc do:tcldie { nick uhost hand chan arg } {

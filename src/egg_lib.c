@@ -16,6 +16,7 @@
 #include "t_timer.h"
 #include "util.h"
 #include "troll_lib.h"
+#include "ban.h"
 
 #ifdef HAVE_TCL
 #include "tcl_embed.h"
@@ -661,16 +662,16 @@ int egg_deluser(struct network *net, char *username)
       used. Setting the lifetime to 0 makes it a permanent ban.
 */
 /* Trollbot Specific: Calling this with -1 as lifetime will cause it to use the value in ban-time */
-void egg_newchanban(struct network *net, const char *channel, const char *ban, const char *who, const char *comment, int lifetime, char *options)
+void egg_newchanban(struct network *net, const char *channel, const char *ban, const char *creator, const char *comment, int lifetime, char *options)
 {
 	struct channel     *chan;
-	struct channel_ban *cban;
+	struct ban         *cban;
 
 	/* Why the retardation? I don't know how I'm getting these strings from the interpreters */
 	if ((channel == NULL) || strlen(channel) == 0 ||
-			(ban     == NULL) || strlen(ban)     == 0 ||
-			(who     == NULL) || strlen(who)     == 0 ||
-			(comment == NULL) || strlen(comment) == 0)
+		(ban     == NULL) || strlen(ban)     == 0 ||
+		(creator == NULL) || strlen(creator) == 0 ||
+		(comment == NULL) || strlen(comment) == 0)
 	{
 		troll_debug(LOG_WARN, "egg_newchanban called with null or empty channel, mask, who, or comment. (real helpful eh?)");
 		return;
@@ -683,41 +684,124 @@ void egg_newchanban(struct network *net, const char *channel, const char *ban, c
 		return;
 
 	/* Find the channel's banlist */
-	/* Check for existing (dupes) TODO: Verify Eggdrop behavior */	
-	cban = channel_channel_ban_find(chan, ban);
+	cban = channel_ban_find(chan, ban);
 
-	if (cban != NULL)
-		return;
-
-	/* Populate the ban data */
-	cban = channel_ban_new();
-
-	cban->chan     = tstrdup(channel);
-	cban->mask     = tstrdup(ban);
-	cban->who      = tstrdup(who);
-	cban->comment  = tstrdup(comment);
-
-	if (cban->lifetime != -1)
+	if (cban == NULL)
 	{
-		cban->lifetime = lifetime;
+		/* Populate the ban data */
+		cban = ban_new();
 	}
+
+	cban->mask       = tstrdup(ban);
+	cban->creator    = tstrdup(creator);
+	cban->comment    = tstrdup(comment);
+	cban->created    = time(NULL);
+
+	if (lifetime != 0)
+		cban->expiration = time(NULL) + lifetime;
 	else
-	{
-		/* FIXME: Get ban-time */
-		cban->lifetime = 60;
-	}
+		cban->expiration = 0;
 
-	cban->expire_time = time(NULL) + cban->lifetime;
+	if (chan->bans == NULL)
+		slist_init(&chan->bans, ban_free);
 
-	chan->banlist = channel_ban_add(chan->banlist, cban);
+	slist_insert_next(chan->bans, NULL, (void *)cban);
 
+	/* Evaluate bans, see if any channel users match, if so, ban them */
+
+	/* Only if sticky, dynamic bans
 	irc_printf(net->sock, "MODE %s +b %s", cban->chan, cban->mask);
-/*	log_entry_sprintf(net, "b", "Added ban for %s", cban->mask);*/
+	log_entry_sprintf(net, "b", "Added ban for %s", cban->mask);*/
 
 	return;
 }
 
 /* newban <ban> <creator> <comment> [lifetime] [options] */
+/*
+  newban <ban> <creator> <comment> [lifetime] [options]
+    Description: adds a ban to the global ban list (which takes effect on
+      all channels); creator is given credit for the ban in the ban list.
+      lifetime is specified in minutes. If lifetime is not specified,
+      global-ban-time (usually 60) is used. Setting the lifetime to 0 makes
+      it a permanent ban.
+    Options:
+      sticky: forces the ban to be always active on a channel, even
+              with dynamicbans on
+      none:   no effect
+    Returns: nothing
+    Module: channels
+*/
+void egg_newban(struct network *net, char *mask, char *creator, char *comment, int lifetime, char *options)
+{
+	struct ban         *ban;
+	struct slist_node  *node;
+
+	/* Why the retardation? I don't know how I'm getting these strings from the interpreters */
+	if (((mask    == NULL) || strlen(mask)     == 0) ||
+		((creator == NULL) || strlen(creator) == 0) ||
+		((comment == NULL) || strlen(comment) == 0))
+	{
+		troll_debug(LOG_WARN, "egg_newchanban called with null or empty mask, who, or comment. (real helpful eh?)");
+		return;
+	}
+
+	if ((net->bans != NULL) && net->bans->size > 0)
+	{
+		node = net->bans->head;
+
+		while (node != NULL)
+		{
+			ban  = node->data;
+
+			if (!tstrcasecmp(ban->mask, mask))
+			{
+				/* Just Update */
+				free(ban->creator);
+				free(ban->comment);
+			
+				ban->creator    = tstrdup(creator);
+				ban->comment    = tstrdup(comment);
+				ban->created    = time(NULL);
+
+				if (lifetime != 0)
+					ban->expiration = time(NULL) + lifetime;
+				else
+					ban->expiration = 0;
+
+				return;
+			}
+
+			node = node->next;
+		}
+	}
+	
+	
+	ban = ban_new();
+
+	ban->mask       = tstrdup(mask);
+	ban->creator    = tstrdup(creator);
+	ban->comment    = tstrdup(comment);
+	ban->created    = time(NULL);
+
+	if (lifetime != 0)
+		ban->expiration = time(NULL) + lifetime;
+	else
+		ban->expiration = 0;
+
+	if (net->bans == NULL)
+		slist_init(&net->bans, ban_free);
+
+	slist_insert_next(net->bans, NULL, (void *)ban);
+
+	/* Evaluate bans, see if any channel users match, if so, ban them */
+
+	/* Only if sticky, dynamic bans
+	irc_printf(net->sock, "MODE %s +b %s", cban->chan, cban->mask);
+	log_entry_sprintf(net, "b", "Added ban for %s", cban->mask);*/
+
+	return;
+}
+
 /* newchanexempt <channel> <exempt> <creator> <comment> [lifetime] [options] */
 /* newexempt <exempt> <creator> <comment> [lifetime] [options] */
 /* newchaninvite <channel> <invite> <creator> <comment> [lifetime] [options] */
@@ -901,17 +985,66 @@ int egg_isbansticky(struct network *net,  char *ban, char *channel)
 /* matchexempt <nick!user@host> [channel] */
 /* matchinvite <nick!user@host> [channel] */
 /* banlist [channel] */
-#ifdef CLOWNS
+/*
+  banlist [channel]
+    Returns: a list of global bans, or, if a channel is specified, a
+      list of channel-specific bans. Each entry is a sublist containing:
+      hostmask, comment, expiration timestamp, time added, last time
+      active, and creator. The three timestamps are in unixtime format.
+    Module: channels
+*/
+/* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
+/* IMP_IN: None */
 char **egg_banlist(struct network *net, const char *channel)
 {
+	int i;
 	int count;
-	struct channel     *chan;
-	struct channel_ban *cban;
+	char              expiration[20];
+	char              added[20];
+	char              lastactive[20];
+	char              **ret;
+	struct channel    *chan;
+	struct ban        *ban;
+	struct slist_node *node;
+	struct slist      *slist;
 
 	if ((channel == NULL) || strlen(channel) == 0)
 	{
-		/* TODO: Check Global list, which doesn't exist yet */
-		return (char **)NULL;
+		/* Check Global list  */
+		if ((net->bans == NULL) || net->bans->size == 0)
+			return (char **)NULL;
+
+		node = net->bans->head;
+
+		ret = (char **)tmalloc0(sizeof(char *) * net->bans->size + 1);
+
+		for (i=0;i<net->bans->size;i++)
+		{
+			ban = node->data;
+
+			/* hostmask, comment, expiration timestamp, time added, last time active, and creator */
+			memset(expiration, 0, sizeof(expiration));
+			/* 2k+38 bug */
+			snprintf(expiration, sizeof(expiration), "%d", ban->expiration);
+
+			memset(added, 0, sizeof(added));
+			/* 2k+38 bug */
+			snprintf(added, sizeof(added), "%d", ban->created);
+
+			memset(lastactive, 0, sizeof(lastactive));
+			/* 2k+38 bug */
+			snprintf(lastactive, sizeof(lastactive), "%d", ban->last_time);
+
+			ret[i] = tmalloc0(strlen(ban->mask) + strlen(ban->comment) + strlen(expiration) + strlen(added) + strlen(lastactive) + strlen(ban->creator) + 7);
+
+			sprintf(ret[i],"%s %s %s %s %s %s",ban->mask, ban->comment, expiration, added, lastactive, ban->creator);
+			
+			node = node->next;
+		} 
+	
+		ret[i] = NULL;
+
+		return ret;
 	}
 
 	/* Find the channel */
@@ -920,10 +1053,41 @@ char **egg_banlist(struct network *net, const char *channel)
 	if (chan == NULL)
 		return (char **)NULL;
 
-	
+	if ((chan->bans == NULL) || chan->bans->size == 0)
+		return (char **)NULL;
 
+	node = chan->bans->head;
+
+	ret = (char **)tmalloc0(sizeof(char *) * chan->bans->size + 1);
+
+	for (i=0;i<chan->bans->size;i++)
+	{
+		ban = node->data;
+
+		/* hostmask, comment, expiration timestamp, time added, last time active, and creator */
+		memset(expiration, 0, sizeof(expiration));
+		/* 2k+38 bug */
+		snprintf(expiration, sizeof(expiration), "%d", ban->expiration);
+
+		memset(added, 0, sizeof(added));
+		/* 2k+38 bug */
+		snprintf(added, sizeof(added), "%d", ban->created);
+
+		memset(lastactive, 0, sizeof(lastactive));
+		/* 2k+38 bug */
+		snprintf(lastactive, sizeof(lastactive), "%d", ban->last_time);
+
+		ret[i] = tmalloc0(strlen(ban->mask) + strlen(ban->comment) + strlen(expiration) + strlen(added) + strlen(lastactive) + strlen(ban->creator) + 7);
+
+		sprintf(ret[i],"%s %s %s %s %s %s",ban->mask, ban->comment, expiration, added, lastactive, ban->creator);
+
+		node = node->next;
+	} 
+
+	ret[i] = NULL;
+
+	return ret;
 }
-#endif /* CLOWNS */
 
 /* exemptlist [channel] */
 /* invitelist [channel] */

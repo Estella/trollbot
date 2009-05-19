@@ -208,6 +208,54 @@ int tcl_ics_interp(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj 
 
 #endif /* HAVE_ICS */
 
+int tcl_banlist(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	struct network *net = clientData;
+	Tcl_Obj *list;
+	Tcl_Obj *scratch;
+	
+	char *channel = NULL;
+	char **ret;
+	int i;
+
+	if (objc != 1 && objc != 2)
+	{
+		Tcl_WrongNumArgs(interp, objc, objv, "[channel]");
+		return TCL_ERROR;
+	}
+
+	if (objc == 2) 
+		channel = Tcl_GetString(objv[1]);
+	else
+		channel = NULL;
+	
+	ret = egg_banlist(net, channel);
+
+	if (ret == NULL)
+	{
+		return TCL_ERROR;
+	}
+	
+	list = Tcl_NewListObj(0, NULL);
+	Tcl_IncrRefCount(list);
+
+	for (i=0;ret[i] != NULL && ret[i][0] != '\0';i++)
+	{
+		scratch = Tcl_NewStringObj(ret[i], strlen(ret[i]));
+		Tcl_IncrRefCount(scratch);
+
+		Tcl_ListObjAppendElement(interp, list, scratch);
+		
+		Tcl_DecrRefCount(scratch);
+	}
+
+	Tcl_SetObjResult(interp, list);
+	
+	tstrfreev(ret);
+	
+	return TCL_OK;
+}
+
 int tcl_chanbans(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {
 	struct network *net = clientData;
@@ -254,6 +302,43 @@ int tcl_chanbans(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *c
 	return TCL_OK;
 }
 /*
+  newban <ban> <creator> <comment> [lifetime] [options]
+*/
+int tcl_newban(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	struct network *net = clientData;
+	char *ban     = NULL;
+	char *creator = NULL;
+	char *comment = NULL;
+	int lifetime  = -1;
+	char *options = NULL;
+
+	if (objc < 4 || objc > 6)
+	{
+		Tcl_WrongNumArgs(interp, objc, objv, "<ban> <creator> <comment> [lifetime] [options]");
+		return TCL_ERROR;
+	}
+
+	ban     = Tcl_GetString(objv[1]);
+	creator = Tcl_GetString(objv[2]);
+	comment = Tcl_GetString(objv[3]);
+
+	switch (objc)
+	{
+		case 5:
+			Tcl_GetIntFromObj(interp,objv[4],&lifetime);
+			options = NULL;
+			break;
+		case 6:
+			options = Tcl_GetString(objv[5]);
+		break;
+	}
+
+	egg_newban(net, ban, creator, comment, lifetime, options);
+	
+	return TCL_OK;
+}
+/*
   newchanban <channel> <ban> <creator> <comment> [lifetime] [options]
     Description: adds a ban to the ban list of a channel; creator is given
       credit for the ban in the ban list. lifetime is specified in
@@ -285,6 +370,8 @@ int tcl_newchanban(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj 
 	{
 		case 6:
 			Tcl_GetIntFromObj(interp,objv[5],&lifetime);
+			options = NULL;
+			break;
 		case 7:
 			options = Tcl_GetString(objv[6]);
 		break;

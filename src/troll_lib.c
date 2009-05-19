@@ -371,7 +371,8 @@ void troll_trig_update_mode(struct network *net, struct trigger *trig, struct ir
 					cban = channel_ban_new();
 					cban->chan = tstrdup(data->c_params[0]);
 					cban->mask = tstrdup(data->c_params[arg_index+2]);
-					cban->who  = tstrdup(data->prefix->nick);
+					cban->who  = tmalloc0(strlen(data->prefix->nick) + strlen(data->prefix->user) + strlen(data->prefix->host) + 3);
+					sprintf(cban->who, "%s!%s@%s",data->prefix->nick, data->prefix->user, data->prefix->host);
 					arg_index++; /* So the next thing recognizes this bitch */
 					cban->time = time(NULL);
 					

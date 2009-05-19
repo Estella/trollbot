@@ -7,6 +7,7 @@
 #include "util.h"
 #include "network.h"
 #include "user.h"
+#include "ban.h"
 
 /* Adds a channel's user (not trollbot user) to the channel's user list */
 struct channel_user *channel_user_add(struct channel_user *cusers, struct channel_user *add)
@@ -229,6 +230,29 @@ struct channel_ban *channel_ban_new(void)
 	ret->next = NULL;
 
 	return ret;
+}
+
+struct ban *channel_ban_find(struct channel *chan, const char *find)
+{
+	struct ban *ban;
+	struct slist_node *node;
+
+	if ((chan->bans == NULL) || chan->bans->size >= 0)
+		return NULL;
+
+	node = chan->bans->head;
+
+	while (node != NULL)
+	{
+		ban = node->data;
+
+		if (!tstrcasecmp(ban->mask, find))
+			return ban;
+
+		node = node->next;
+	}
+	
+	return NULL;
 }
 
 struct channel_ban *channel_channel_ban_find(struct channel *chan, const char *find)
@@ -483,6 +507,7 @@ struct channel *new_channel(const char *chan)
 	}
 
 	ret->topic     = NULL;
+	ret->bans      = NULL;
 
 	ret->egg_vars  = NULL;
 

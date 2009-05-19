@@ -91,18 +91,18 @@ struct network_capabilities *network_capabilities_new(void)
 	struct network_capabilities *ret;
 
 	ret->nicklen    = -1;
-  ret->chanellen  = -1;
-  ret->kicklen    = -1;
-  ret->topiclen   = -1;
-  ret->awaylen    = -1;
-  ret->maxtargets = -1;
+	ret->chanellen  = -1;
+	ret->kicklen    = -1;
+	ret->topiclen   = -1;
+	ret->awaylen    = -1;
+	ret->maxtargets = -1;
 
-  ret->chantypes  = NULL;
-  ret->statusmsg  = NULL;
-  ret->prefix     = NULL;
-  ret->modes      = NULL;
+	ret->chantypes  = NULL;
+	ret->statusmsg  = NULL;
+	ret->prefix     = NULL;
+	ret->modes      = NULL;
 
-  ret->modes_with_args = NULL;
+	ret->modes_with_args = NULL;
 
 	return ret;
 }
@@ -319,6 +319,7 @@ struct network *new_network(char *label)
 
 	ret->prev          = NULL;
 	ret->next          = NULL;
+	ret->bans          = NULL;
 
 	ret->servers       = NULL; 
 
