@@ -14,6 +14,8 @@ int tcl_irc_interp(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj 
 int tcl_ics_interp(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]);
 #endif /* HAVE_ICS */
 
+int tcl_stripcodes(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]);
+
 
 /* Function prototypes */
 int tcl_binds(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]);

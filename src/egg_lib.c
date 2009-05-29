@@ -49,7 +49,65 @@
  * tcl-commands.doc in the docs/ or docs_dist/
  */
 
+/*
+  stripcodes <strip-flags> <string>
+    Description: strips specified control characters from the string given.
+      strip-flags can be any combination of the following:
+        b - remove all boldface codes
+        c - remove all color codes
+        r - remove all reverse video codes
+        u - remove all underline codes
+        a - remove all ANSI codes
+        g - remove all ctrl-g (bell) codes
+    Returns: the stripped string.
+    Module: core
+*/
+char *egg_stripcodes(const char *flags, const char *text)
+{
+	char *ret = tmalloc0(strlen(text) + 1);
+	char *ptr  = text;
+	char *head = NULL;
 
+	head = ret;
+
+	while (*ptr != '\0')
+	{
+		switch (*ptr)
+		{
+			case '\002': /* Bold */
+				if (!strchr(flags, 'b'))
+					*(ret++) = *ptr;
+				break;
+			case '\003':
+				/* Check for valid color code */
+				/* Check for ANSI colors [ */
+				break;
+			case '\037': /* Underline */
+				if (!strchr(flags, 'u'))
+					*(ret++) = *ptr;
+				break;
+			case '\007': /* Bell */
+				if (!strchr(flags, 'g'))
+					*(ret++) = *ptr;
+				break;
+			case '\026': /* Reverse */
+				if (!strchr(flags, 'r'))
+					*(ret++) = *ptr;
+				break;
+			case '\017': /* Regular */
+				/* Always strip? check eggdrop behavior */
+				break;
+			default:
+				*(ret++) = *ptr;
+				break;
+		}
+	
+		ptr++;
+	}
+
+
+	return head;
+}
 
 /* These functions need queue support */
 /* NEED_IMP: None */

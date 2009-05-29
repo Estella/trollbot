@@ -28,6 +28,10 @@ struct trigger;
 struct dcc_session;
 struct t_timer;
 
+/* Stirpcodes */
+char *egg_stripcodes(const char *flags, const char *text);
+
+
 /*** Output Commands ***/
 void egg_putserv(struct network *net, const char *text, int option_next);
 void egg_puthelp(struct network *net, const char *text, int option_next);

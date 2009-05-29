@@ -80,6 +80,7 @@ void net_tcl_init_commands(struct network *net)
 	Tcl_CreateObjCommand(net->tclinterp, "ics_interp", tcl_ics_interp, net, NULL);
 #endif /* HAVE_ICS */
 
+	Tcl_CreateObjCommand(net->tclinterp, "stripcodes", tcl_stripcodes, net, NULL);
 	Tcl_CreateObjCommand(net->tclinterp, "binds", tcl_binds, net, NULL);
 	Tcl_CreateObjCommand(net->tclinterp, "newchanban", tcl_newchanban, net, NULL);
 	Tcl_CreateObjCommand(net->tclinterp, "putlog", tcl_putlog, net, NULL);
