@@ -64,9 +64,9 @@
 */
 char *egg_stripcodes(const char *flags, const char *text)
 {
-	char *ret = tmalloc0(strlen(text) + 1);
-	char *ptr  = text;
-	char *head = NULL;
+	char *ret   = tmalloc0(strlen(text) + 1);
+	char *ptr   = text;
+	char *head  = NULL;
 
 	head = ret;
 
@@ -80,6 +80,13 @@ char *egg_stripcodes(const char *flags, const char *text)
 				break;
 			case '\003':
 				/* Check for valid color code */
+				/* fuck it, I'll do it later */
+				ptr++; /* Skip escape */
+
+				/* LAZY LAZY LAZY */
+				while ((isdigit(*ptr) || *ptr == ',') && *ptr != '\0')
+					ptr++;
+
 				/* Check for ANSI colors [ */
 				break;
 			case '\037': /* Underline */

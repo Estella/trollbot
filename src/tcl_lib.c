@@ -208,25 +208,12 @@ int tcl_ics_interp(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj 
 
 #endif /* HAVE_ICS */
 
-<<<<<<< .mine
 int tcl_stripcodes(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {
 	char *flags = NULL;
 	char *text  = NULL;
 	char *ret   = NULL;
-=======
-int tcl_banlist(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
-{
-	struct network *net = clientData;
-	Tcl_Obj *list;
-	Tcl_Obj *scratch;
-	
-	char *channel = NULL;
-	char **ret;
-	int i;
->>>>>>> .r219
 
-<<<<<<< .mine
 	if (objc < 3)
 	{
 		Tcl_WrongNumArgs(interp, objc, objv, "<strip-flags> <text>");
@@ -244,7 +231,17 @@ int tcl_banlist(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *co
 	return TCL_OK;
 }
 
-=======
+
+int tcl_banlist(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	struct network *net = clientData;
+	Tcl_Obj *list;
+	Tcl_Obj *scratch;
+	
+	char *channel = NULL;
+	char **ret;
+	int i;
+
 	if (objc != 1 && objc != 2)
 	{
 		Tcl_WrongNumArgs(interp, objc, objv, "[channel]");
@@ -328,7 +325,6 @@ int tcl_chanbans(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *c
 	
 	return TCL_OK;
 }
->>>>>>> .r219
 /*
   newban <ban> <creator> <comment> [lifetime] [options]
 */
