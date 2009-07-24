@@ -1,6 +1,7 @@
 #ifndef __APRCOMPAT_H__
 #define __APRCOMPAT_H__
 
+const char *apr_table_clear(void);
 const char *ap_auth_type(void);
 const char *ap_loaded_modules(void);
 const char *ap_log_rerror(void);

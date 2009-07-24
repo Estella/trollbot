@@ -4,6 +4,7 @@
  */
 #include "apachecompat.h"
 
+const char *apr_table_clear(void) { return 0; }
 const char *ap_auth_type(void) { return 0; }
 const char *ap_loaded_modules(void) { return 0; }
 const char *ap_log_rerror(void) { return 0; }
