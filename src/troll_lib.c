@@ -245,6 +245,7 @@ void troll_trig_update_mode(struct network *net, struct trigger *trig, struct ir
 	char *tmpptr;
 
 	int mode = 1; /* 0 = -, 1 = + */
+	int cnt = 0; /* Counter for bounds checking */
 	int arg_index = 0;
 	unsigned int oldmodesize = 0;
 	
@@ -265,13 +266,14 @@ void troll_trig_update_mode(struct network *net, struct trigger *trig, struct ir
 				break;
 			case 'o':
 				/* Ops [user] HAS_ARGS */
+				for (cnt = 0; cnt < (arg_index+2);cnt++)
+					if (data->c_params[cnt] == NULL)
+						return;
 				cuser = channel_channel_user_find(chan, data->c_params[arg_index+2]);
 
 				if (mode == 1)
 				{
-					/* FIXME: Bounds checking */
 					/* data->c_params[arg_index+2] == nick */
-						
 					if (cuser != NULL)
 					{
 						if (cuser->modes == NULL)
@@ -309,11 +311,14 @@ void troll_trig_update_mode(struct network *net, struct trigger *trig, struct ir
 				break;
 			case 'v':
 				/* Voice [user] HAS_ARGS */
+				for (cnt = 0; cnt < (arg_index+2);cnt++)
+					if (data->c_params[cnt] == NULL)
+						return;
+
 				cuser = channel_channel_user_find(chan, data->c_params[arg_index+2]);
 
 				if (mode == 1)
 				{
-					/* FIXME: Bounds checking */
 					/* data->c_params[arg_index+2] == nick */
 					if (cuser != NULL)
 					{
@@ -366,7 +371,10 @@ void troll_trig_update_mode(struct network *net, struct trigger *trig, struct ir
 				/* ban [chan] maybe user too HAS_ARGS */
 				if (mode == 1)
 				{
-					/* FIXME: Bounds checking */
+					for (cnt = 0; cnt < (arg_index+2);cnt++)
+						if (data->c_params[cnt] == NULL)
+							return;
+
 					/* data->c_params[arg_index+2] == mask */
 					cban = channel_ban_new();
 					cban->chan = tstrdup(data->c_params[0]);
@@ -381,6 +389,10 @@ void troll_trig_update_mode(struct network *net, struct trigger *trig, struct ir
 				else
 				{
 					/* Find if it exists */
+					for (cnt = 0; cnt < (arg_index+2);cnt++)
+						if (data->c_params[cnt] == NULL)
+							return;
+
 					cban = chan->banlist;
 
 					while (cban != NULL)

@@ -97,13 +97,14 @@ void add_default_triggers(void)
 		/* OWNER only 
 			 trigger_list_add(&net->trigs->dcc,new_trigger("n",TRIG_DCC,".php",NULL,&dcc_php));*/
 #endif /* HAVE_PHP */
+
+		/*
+			[00:14] Command: NOTICE
+			[00:14] Command Parameters: AUTH
+			[00:14] Rest: *** Ident is broken or disabled, to continue to connect you must type /QUOTE PASS 11022	
+		*/
+		/* [00:14] Rest: *** Ident is broken or disabled, to continue to connect you must type /QUOTE PASS 11022 */
 		trigger_list_add(&net->trigs->notc, new_trigger(NULL, TRIG_NOTC, "*QUOTE PASS*", NULL, &troll_undernet_hack));
-/*
-[00:14] Command: NOTICE
-[00:14] Command Parameters: AUTH
-[00:14] Rest: *** Ident is broken or disabled, to continue to connect you must type /QUOTE PASS 11022	
-*/
-/* [00:14] Rest: *** Ident is broken or disabled, to continue to connect you must type /QUOTE PASS 11022 */
 	
 		/* BIND RAW */
 		trigger_list_add(&net->trigs->raw,new_trigger(NULL,TRIG_RAW,"352",NULL,&troll_parse_who));
@@ -117,11 +118,9 @@ void add_default_triggers(void)
 		trigger_list_add(&net->trigs->raw,new_trigger(NULL,TRIG_RAW,"376",NULL,&troll_user_host_handler));
 
 		/* Freenode channel redirect */
+		/* FIXME: I'm quite sure this doesn't work */
 		trigger_list_add(&net->trigs->raw,new_trigger(NULL,TRIG_RAW,"470",NULL,&troll_trig_channel_redirect));
 	
-
-
-
 		net = net->next;
 	}
 }
@@ -155,6 +154,7 @@ static void channel_set_modes(struct network *net, struct trigger *trig, struct 
 		log_entry_printf(net,data->c_params[1],"T","channel_banlist_add() called with a channel that does not exist: %s",data->c_params[1]);
 		return;
 	}
+
 
 	/* FIXME: What if there's no modes? */
 	chan->chanmode = (strlen(data->c_params[2]) == 0) ? NULL : tstrdup(data->c_params[2]);

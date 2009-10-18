@@ -46,6 +46,8 @@ AC_FUNC_FORK
 
 AC_TYPE_PID_T
 
+dnl This gcc on ubuntu kept barfing with this
+AC_DEFINE([LTC_NO_ASM], 1, [Hack])
 
 dnl check if libxml2 exists
 dnl needed for jabber/xmpp

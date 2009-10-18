@@ -14,6 +14,38 @@
 #include "network.h"
 #include "egg_lib.h"
 
+
+#ifdef CLOWNS
+/* newchanban <channel> <ban> <creator> <comment> [lifetime] [options] */
+JSBool js_newchanban(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+	struct network *net     = JS_GetContextPrivate(cx);
+	char           *channel = NULL;
+	char           *ban     = NULL;
+	char           *creator = NULL;
+	char           *comment = NULL;
+	int            lifetime = NULL;
+	char           *option  = NULL;
+
+	/* Not that this will be used */	
+	*rval = JSVAL_VOID;
+
+	/* 4-6 args */
+	if (argc <= 5 || argc > 7)
+	{
+		return JS_FALSE;
+	}
+
+	channel = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+	ban     = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+	creator = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+	comment = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+
+
+	text = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+#endif /* CLOWNS */
+
+/* FIXME: I don't think the arg checking in this is right */
 JSBool js_putlog(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	struct network *net = JS_GetContextPrivate(cx);
@@ -22,7 +54,7 @@ JSBool js_putlog(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 	/* Not that this will be used */	
 	*rval = JSVAL_VOID;
 
-	if (argc != 2)
+	if (argc != 1)
 	{
 		/* Need to add error reporting */
 		return JS_FALSE;

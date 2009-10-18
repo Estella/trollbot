@@ -447,20 +447,21 @@ void free_trigger(struct trigger *trig)
 }
 
 
-void free_trigger_table(struct trig_table *table){
-	if (table->pub){  free_trigger_list(table->pub);  }
-	if (table->pubm){  free_trigger_list(table->pubm);  }
-	if (table->msg){  free_trigger_list(table->msg);  }
-	if (table->msgm){  free_trigger_list(table->msgm);  }
-	if (table->join){  free_trigger_list(table->join);  }
-	if (table->part){  free_trigger_list(table->part);  }
-	if (table->sign){  free_trigger_list(table->sign);  }
-	if (table->ctcp){  free_trigger_list(table->ctcp);  }
-	if (table->kick){  free_trigger_list(table->kick);  }
-	if (table->notc){  free_trigger_list(table->notc);  }
-	if (table->dcc){  free_trigger_list(table->dcc);  }
-	if (table->raw){  free_trigger_list(table->raw);  }
-	if (table->topc){	free_trigger_list(table->topc); }
+void free_trigger_table(struct trig_table *table)
+{
+	free_trigger_list(table->pub);
+	free_trigger_list(table->pubm);
+	free_trigger_list(table->msg);
+	free_trigger_list(table->msgm);
+	free_trigger_list(table->join);
+	free_trigger_list(table->part);
+	free_trigger_list(table->sign);
+	free_trigger_list(table->ctcp);
+	free_trigger_list(table->kick);
+	free_trigger_list(table->notc);
+	free_trigger_list(table->dcc);
+	free_trigger_list(table->raw);
+	free_trigger_list(table->topc);
 	free(table);
 }
 
