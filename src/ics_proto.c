@@ -122,13 +122,14 @@ void init_ics_triggers(struct ics_server *ics)
 	trig->command = NULL;
 	ics->ics_trigger_table->msg = ics_trigger_add(ics->ics_trigger_table->msg, trig);
 
-	/* Announcing game on IRC */
+	/* Announcing game on IRC *
 	trig          = new_ics_trigger();
 	trig->type    = ICS_TRIG_GAME;
 	trig->mask    = NULL;
 	trig->handler = ics_internal_announce_new_game;
 	trig->command = NULL;
 	ics->ics_trigger_table->game = ics_trigger_add(ics->ics_trigger_table->game, trig);
+*/
 
 	/* Handling updates of the board */
 	trig          = new_ics_trigger();

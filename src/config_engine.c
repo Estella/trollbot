@@ -1,5 +1,7 @@
 #include "config.h"
 
+#include <sys/types.h>
+
 #ifdef HAVE_PYTHON
 #include "python_embed.h"
 #endif /* HAVE_PYTHON */
