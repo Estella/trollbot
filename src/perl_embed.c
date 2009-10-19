@@ -1,11 +1,11 @@
 #include <EXTERN.h>
 #include <perl.h>
 
-#include "main.h"
+#include "trollbot.h"
 #include "perl_embed.h"
 #include "perl_lib.h"
 
-#include "network.h"
+#include "irc_network.h"
 
 void net_init_perl(struct network *net)
 {

@@ -7,10 +7,10 @@
 #include "log_entry.h"
 #include "debug.h"
 #include "config_engine.h"
-#include "network.h"
+#include "irc_network.h"
 #include "util.h"
-#include "main.h"
-#include "channel.h"
+#include "trollbot.h"
+#include "irc_channel.h"
 
 void log_entry_printf(struct network *net, char *chan, const char *flags, const char *fmt, ...)
 {

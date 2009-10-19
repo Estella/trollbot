@@ -18,6 +18,7 @@ int tcl_stripcodes(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj 
 
 
 /* Function prototypes */
+int tcl_hand2idx(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]);
 int tcl_binds(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]);
 int tcl_banlist(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]);
 int tcl_chanbans(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[]);

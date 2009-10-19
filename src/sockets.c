@@ -19,14 +19,14 @@
 #include <arpa/inet.h>
 #include <fcntl.h>
 
-#include "main.h"
+#include "trollbot.h"
 #include "sockets.h"
 
 #include "dcc.h"
 #include "irc.h"
-#include "network.h"
+#include "irc_network.h"
 #include "server.h"
-#include "channel.h"
+#include "irc_channel.h"
 #include "user.h"
 #include "t_timer.h"
 #include "tsocket.h"

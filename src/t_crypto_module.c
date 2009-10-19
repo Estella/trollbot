@@ -4,7 +4,7 @@
 #include <ltdl.h>
 
 #include "debug.h"
-#include "network.h"
+#include "irc_network.h"
 #include "util.h"
 #include "t_crypto_module.h"
 

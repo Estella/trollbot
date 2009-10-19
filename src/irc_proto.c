@@ -2,13 +2,13 @@
 
 #include "config.h"
 
-#include "main.h"
+#include "trollbot.h"
 #include "irc_proto.h"
 
 #include "dcc.h"
 #include "irc.h"
-#include "network.h"
-#include "channel.h"
+#include "irc_network.h"
+#include "irc_channel.h"
 #include "irc_trigger.h"
 #include "user.h"
 #include "util.h"

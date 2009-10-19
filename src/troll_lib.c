@@ -9,8 +9,8 @@
 #include "util.h"
 
 #include "irc.h"
-#include "network.h"
-#include "channel.h"
+#include "irc_network.h"
+#include "irc_channel.h"
 #include "log_entry.h"
 #include "debug.h"
 

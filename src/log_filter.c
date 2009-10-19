@@ -8,7 +8,7 @@
 #include "log_filter.h"
 #include "log_entry.h"
 #include "debug.h"
-#include "network.h"
+#include "irc_network.h"
 #include "util.h"
 
 

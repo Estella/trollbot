@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "main.h"
+#include "trollbot.h"
 
 #include "util.h"
 #include "tconfig.h"

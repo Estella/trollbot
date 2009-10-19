@@ -11,9 +11,40 @@
 #include "user.h"
 #include "dcc.h"
 #include "irc.h"
-#include "network.h"
+#include "irc_network.h"
 #include "egg_lib.h"
 
+JSBool js_hand2idx(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+	struct network *net     = JS_GetContextPrivate(cx);
+	char *handle            = NULL;
+	int ret                 = 0;
+
+	/* 1 arg, exactly */
+	if (argc != 1)
+	{
+		return JS_FALSE;
+	}
+
+	handle = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+		
+	ret = egg_hand2idx(net, handle);
+
+	*rval = INT_TO_JSVAL(ret);
+
+	return JS_TRUE;
+}
+
+#ifdef CLOWNS
+/* Need to know how to return arrays in JS */
+JSBool js_chanbans(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+	struct network *net     = JS_GetContextPrivate(cx);
+	char           *channel = NULL;
+	struct channel *chan;
+}
+
+#endif /* CLOWNS */
 
 #ifdef CLOWNS
 /* newchanban <channel> <ban> <creator> <comment> [lifetime] [options] */

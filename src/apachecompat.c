@@ -1,7 +1,25 @@
-/* This file merely just provides libphp4.so or libphp5.so with apache symbols
- * so it will link
- * not sure if this is portable, or even needed with -Wl,--unresolved-symbols=ignore-all
- */
+/*********************************************
+ * TrollBot v1.0                             *
+ *********************************************
+ * TrollBot is an eggdrop-clone designed to  *
+ * work with multiple networks and protocols *
+ * in order to present a unified scriptable  *
+ * event-based platform,                     *
+ *********************************************
+ * This software is PUBLIC DOMAIN. Feel free *
+ * to use it for whatever use whatsoever.    *
+ *********************************************
+ * Originally written by poutine/DALnet      *
+ *                       kicken/DALnet       *
+ *                       comcor/DALnet       *
+ *********************************************
+ * File Description:                         *
+ * This file merely just provides libphp4.so *
+ * or libphp5.so with apache symbols so it   *
+ * will link. Not sure if this is portable,  *
+ * or even needed with:                      *
+ * -Wl,--unresolved-symbols=ignore-all       *
+ *********************************************/
 #include "apachecompat.h"
 
 const char *apr_table_clear(void) { return 0; }

@@ -1,13 +1,28 @@
-#include "main.h"
-#include "channel.h"
+/*********************************************
+ * TrollBot v1.0                             *
+ *********************************************
+ * TrollBot is an eggdrop-clone designed to  *
+ * work with multiple networks and protocols *
+ * in order to present a unified scriptable  *
+ * event-based platform,                     *
+ *********************************************
+ * This software is PUBLIC DOMAIN. Feel free *
+ * to use it for whatever use whatsoever.    *
+ *********************************************
+ * Originally written by poutine/DALnet      *
+ *                       kicken/DALnet       *
+ *                       comcor/DALnet       *
+ *********************************************/
+#include "trollbot.h"
+#include "irc_channel.h"
 
 #include "log_entry.h"
 #include "tconfig.h"
 #include "irc.h"
 #include "util.h"
-#include "network.h"
+#include "irc_network.h"
 #include "user.h"
-#include "ban.h"
+#include "irc_ban.h"
 
 /* Adds a channel's user (not trollbot user) to the channel's user list */
 struct channel_user *channel_user_add(struct channel_user *cusers, struct channel_user *add)

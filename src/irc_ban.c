@@ -13,11 +13,47 @@
  *                       kicken/DALnet       *
  *                       comcor/DALnet       *
  *********************************************/
-#ifndef __DIE_H__
-#define __DIE_H__
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
+/* Utility */
+#include "tconfig.h"
+#include "util.h"
 
+/* Protocol */
+#include "irc.h"
+#include "irc_network.h"
+#include "irc_channel.h"
+#include "user.h"
 
-void die_nicely(int ret);
+/* Supplementary */
+#include "log_entry.h"
 
-#endif /* __DIE_H__ */
+/* Self */
+#include "irc_ban.h"
+
+struct ban *ban_new(void)
+{
+	struct ban *ban = tmalloc(sizeof(struct ban));
+
+	ban->mask       = NULL;
+	ban->comment    = NULL;
+	ban->expiration = 0;
+	ban->created    = 0;
+	ban->last_time  = 0;
+	ban->creator    = NULL;
+
+	return ban;
+}
+
+void ban_free(void *data)
+{
+	struct ban *ban = data;
+
+	free(ban->mask);
+	free(ban->comment);
+	free(ban->creator);
+
+	return;
+}

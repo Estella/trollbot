@@ -15,10 +15,10 @@
 
 #include "config.h"
 
-#include "main.h"
-#include "network.h"
+#include "trollbot.h"
+#include "irc_network.h"
 #include "server.h"
-#include "channel.h"
+#include "irc_channel.h"
 #include "user.h"
 #include "sockets.h"
 #include "dcc.h"

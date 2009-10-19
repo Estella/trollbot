@@ -4,7 +4,7 @@ AC_SUBST(VERSION)
 
 dnl set the default prefix to be /home/user/trollbot
 
-AC_INIT(src/main.c)
+AC_INIT(src/trollbot.c)
 AM_INIT_AUTOMAKE(trollbot,snap20080930)
 
 AC_CONFIG_HEADER(config.h)

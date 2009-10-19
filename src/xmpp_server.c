@@ -17,7 +17,7 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#include "main.h"
+#include "trollbot.h"
 #include "xmpp_server.h"
 #include "xmpp_proto.h"
 #include "xmpp_trigger.h"

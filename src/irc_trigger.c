@@ -1,10 +1,10 @@
-#include "main.h"
+#include "trollbot.h"
 #include "irc_trigger.h"
 #include "strings.h"
 #include "irc.h"
-#include "network.h"
+#include "irc_network.h"
 #include "server.h"
-#include "channel.h"
+#include "irc_channel.h"
 #include "user.h"
 #include "log_entry.h"
 

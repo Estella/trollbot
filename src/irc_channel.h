@@ -1,5 +1,20 @@
-#ifndef __CHANNEL_H__
-#define __CHANNEL_H__
+/*********************************************
+ * TrollBot v1.0                             *
+ *********************************************
+ * TrollBot is an eggdrop-clone designed to  *
+ * work with multiple networks and protocols *
+ * in order to present a unified scriptable  *
+ * event-based platform,                     *
+ *********************************************
+ * This software is PUBLIC DOMAIN. Feel free *
+ * to use it for whatever use whatsoever.    *
+ *********************************************
+ * Originally written by poutine/DALnet      *
+ *                       kicken/DALnet       *
+ *                       comcor/DALnet       *
+ *********************************************/
+#ifndef __IRC_CHANNEL_H__
+#define __IRC_CHANNEL_H__
 
 #include <time.h>
 
@@ -140,4 +155,4 @@ struct channel *new_chan_from_tconfig_block(struct tconfig_block *tcfg);
 void chan_init(void);
 
 
-#endif /* __CHANNEL_H__ */
+#endif /* __IRC_CHANNEL_H__ */

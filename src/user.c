@@ -1,5 +1,5 @@
-#include "main.h"
-#include "network.h"
+#include "trollbot.h"
+#include "irc_network.h"
 #include "tconfig.h"
 #include "user.h"
 #include "log_entry.h"

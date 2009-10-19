@@ -1,12 +1,12 @@
 #include <Python.h>
-#include "main.h"
+#include "trollbot.h"
 #include "python_embed.h"
 
 #include "irc_trigger.h"
 #include "irc.h"
-#include "network.h"
+#include "irc_network.h"
 #include "server.h"
-#include "channel.h"
+#include "irc_channel.h"
 #include "user.h"
 #include "config_engine.h"
 #include "python_lib.h"
@@ -40,6 +40,9 @@ PyMethodDef PyTbMethods[] = {
 
 	{"savechannels", py_savechannels, METH_VARARGS,
 	  "Saves channel file"},
+
+	{"countusers", py_countusers, METH_VARARGS,
+		"Counts number of recognized users on network."},
 
 	{"validuser", py_validuser, METH_VARARGS,
 		"Checks if a user is valid"},

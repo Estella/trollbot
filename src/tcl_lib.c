@@ -1,11 +1,11 @@
 /* This file is conditionally built if TCL support is enabled */
 #include <time.h>
 
-#include "main.h"
+#include "trollbot.h"
 #include "tcl_lib.h"
 #include "tcl_embed.h"
 
-#include "network.h"
+#include "irc_network.h"
 #include "irc_trigger.h"
 #include "irc.h"
 #include "troll_lib.h"
@@ -20,6 +20,30 @@
 #include "ics_lib.h"
 #endif /* HAVE_ICS */
 
+
+int tcl_hand2idx(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	struct network *net    = clientData;
+	char           *handle = NULL;
+	Tcl_Obj        *t_ret  = NULL;
+	int             ret    = 0;
+	
+	if (objc != 2)
+	{
+		Tcl_WrongNumArgs(interp, objc, objv, "<handle>");
+		return TCL_ERROR;
+	}
+
+	handle   = Tcl_GetString(objv[1]);
+
+	ret = egg_hand2idx(net, handle);
+
+	t_ret = Tcl_NewIntObj(ret);
+
+	Tcl_SetObjResult(interp, t_ret);
+
+	return TCL_OK;
+}
 
 /* ICS specific eggdrop IRC commands */
 #ifdef HAVE_ICS

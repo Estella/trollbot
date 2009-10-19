@@ -77,25 +77,25 @@ CONFIG_CLEAN_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
-am__trollbot_SOURCES_DIST = channel.c config_engine.c dcc.c debug.c \
-	irc_proto.c die.c egg_lib.c irc.c log_entry.c log_filter.c \
-	main.c network.c server.c sockets.c tconfig.c \
-	t_crypto_module.c irc_trigger.c user.c util.c channel.h \
-	config_engine.h dcc.h debug.h irc_proto.h die.h egg_lib.h \
-	irc.h log_entry.h log_filter.h main.h network.h server.h \
-	sockets.h tconfig.h t_crypto_module.h irc_trigger.h user.h \
-	util.h t_timer.c t_timer.h troll_lib.c troll_lib.h tsocket.c \
-	tsocket.h ban.c ban.h http_server.c http_server.h http_proto.c \
-	http_proto.h http_request.c http_request.h ics_server.c \
-	ics_server.h ics_proto.c ics_proto.h ics_trigger.c \
-	ics_trigger.h ics_game.c ics_game.h ics_lib.c ics_lib.h \
-	xmpp_server.c xmpp_server.h xmpp_proto.c xmpp_proto.h \
-	xmpp_trigger.c xmpp_trigger.h js_embed.c js_embed.h js_lib.c \
-	js_lib.h tcl_embed.c tcl_embed.h tcl_lib.c tcl_lib.h \
-	apachecompat.c apachecompat.h php_embed.c php_embed.h \
-	php_lib.c php_lib.h perl_embed.c perl_embed.h perl_lib.c \
-	perl_lib.h python_embed.c python_embed.h python_lib.c \
-	python_lib.h
+am__trollbot_SOURCES_DIST = irc_channel.c config_engine.c dcc.c \
+	debug.c irc_proto.c die.c egg_lib.c irc.c log_entry.c \
+	log_filter.c trollbot.c irc_network.c server.c sockets.c \
+	tconfig.c t_crypto_module.c irc_trigger.c user.c util.c \
+	irc_channel.h config_engine.h dcc.h debug.h irc_proto.h die.h \
+	egg_lib.h irc.h log_entry.h log_filter.h trollbot.h \
+	irc_network.h server.h sockets.h tconfig.h t_crypto_module.h \
+	irc_trigger.h user.h util.h t_timer.c t_timer.h troll_lib.c \
+	troll_lib.h tsocket.c tsocket.h irc_ban.c irc_ban.h \
+	http_server.c http_server.h http_proto.c http_proto.h \
+	http_request.c http_request.h ics_server.c ics_server.h \
+	ics_proto.c ics_proto.h ics_trigger.c ics_trigger.h ics_game.c \
+	ics_game.h ics_lib.c ics_lib.h xmpp_server.c xmpp_server.h \
+	xmpp_proto.c xmpp_proto.h xmpp_trigger.c xmpp_trigger.h \
+	js_embed.c js_embed.h js_lib.c js_lib.h tcl_embed.c \
+	tcl_embed.h tcl_lib.c tcl_lib.h apachecompat.c apachecompat.h \
+	php_embed.c php_embed.h php_lib.c php_lib.h perl_embed.c \
+	perl_embed.h perl_lib.c perl_lib.h python_embed.c \
+	python_embed.h python_lib.c python_lib.h
 @WITH_HTTP_TRUE@am__objects_1 = trollbot-http_server.$(OBJEXT) \
 @WITH_HTTP_TRUE@	trollbot-http_proto.$(OBJEXT) \
 @WITH_HTTP_TRUE@	trollbot-http_request.$(OBJEXT)
@@ -118,19 +118,19 @@ am__trollbot_SOURCES_DIST = channel.c config_engine.c dcc.c debug.c \
 @WITH_PERL_TRUE@	trollbot-perl_lib.$(OBJEXT)
 @WITH_PYTHON_TRUE@am__objects_8 = trollbot-python_embed.$(OBJEXT) \
 @WITH_PYTHON_TRUE@	trollbot-python_lib.$(OBJEXT)
-am_trollbot_OBJECTS = trollbot-channel.$(OBJEXT) \
+am_trollbot_OBJECTS = trollbot-irc_channel.$(OBJEXT) \
 	trollbot-config_engine.$(OBJEXT) trollbot-dcc.$(OBJEXT) \
 	trollbot-debug.$(OBJEXT) trollbot-irc_proto.$(OBJEXT) \
 	trollbot-die.$(OBJEXT) trollbot-egg_lib.$(OBJEXT) \
 	trollbot-irc.$(OBJEXT) trollbot-log_entry.$(OBJEXT) \
-	trollbot-log_filter.$(OBJEXT) trollbot-main.$(OBJEXT) \
-	trollbot-network.$(OBJEXT) trollbot-server.$(OBJEXT) \
+	trollbot-log_filter.$(OBJEXT) trollbot-trollbot.$(OBJEXT) \
+	trollbot-irc_network.$(OBJEXT) trollbot-server.$(OBJEXT) \
 	trollbot-sockets.$(OBJEXT) trollbot-tconfig.$(OBJEXT) \
 	trollbot-t_crypto_module.$(OBJEXT) \
 	trollbot-irc_trigger.$(OBJEXT) trollbot-user.$(OBJEXT) \
 	trollbot-util.$(OBJEXT) trollbot-t_timer.$(OBJEXT) \
 	trollbot-troll_lib.$(OBJEXT) trollbot-tsocket.$(OBJEXT) \
-	trollbot-ban.$(OBJEXT) $(am__objects_1) $(am__objects_2) \
+	trollbot-irc_ban.$(OBJEXT) $(am__objects_1) $(am__objects_2) \
 	$(am__objects_3) $(am__objects_4) $(am__objects_5) \
 	$(am__objects_6) $(am__objects_7) $(am__objects_8)
 trollbot_OBJECTS = $(am_trollbot_OBJECTS)
@@ -330,17 +330,18 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 SUBDIRS = modules
-trollbot_SOURCES = channel.c config_engine.c dcc.c debug.c irc_proto.c \
-	die.c egg_lib.c irc.c log_entry.c log_filter.c main.c \
-	network.c server.c sockets.c tconfig.c t_crypto_module.c \
-	irc_trigger.c user.c util.c channel.h config_engine.h dcc.h \
-	debug.h irc_proto.h die.h egg_lib.h irc.h log_entry.h \
-	log_filter.h main.h network.h server.h sockets.h tconfig.h \
-	t_crypto_module.h irc_trigger.h user.h util.h t_timer.c \
-	t_timer.h troll_lib.c troll_lib.h tsocket.c tsocket.h ban.c \
-	ban.h $(am__append_3) $(am__append_4) $(am__append_5) \
-	$(am__append_8) $(am__append_11) $(am__append_14) \
-	$(am__append_17) $(am__append_20)
+trollbot_SOURCES = irc_channel.c config_engine.c dcc.c debug.c \
+	irc_proto.c die.c egg_lib.c irc.c log_entry.c log_filter.c \
+	trollbot.c irc_network.c server.c sockets.c tconfig.c \
+	t_crypto_module.c irc_trigger.c user.c util.c irc_channel.h \
+	config_engine.h dcc.h debug.h irc_proto.h die.h egg_lib.h \
+	irc.h log_entry.h log_filter.h trollbot.h irc_network.h \
+	server.h sockets.h tconfig.h t_crypto_module.h irc_trigger.h \
+	user.h util.h t_timer.c t_timer.h troll_lib.c troll_lib.h \
+	tsocket.c tsocket.h irc_ban.c irc_ban.h $(am__append_3) \
+	$(am__append_4) $(am__append_5) $(am__append_8) \
+	$(am__append_11) $(am__append_14) $(am__append_17) \
+	$(am__append_20)
 trollbot_CXXFLAGS = -O0 -g
 trollbot_CFLAGS = -O0 -Wall -std=c99 -pedantic ${LTDLINCL} \
 	$(am__append_6) $(am__append_9) $(am__append_12) \
@@ -422,8 +423,6 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-apachecompat.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-ban.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-channel.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-config_engine.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-dcc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-debug.Po@am__quote@
@@ -438,14 +437,15 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-ics_server.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-ics_trigger.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-irc.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-irc_ban.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-irc_channel.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-irc_network.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-irc_proto.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-irc_trigger.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-js_embed.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-js_lib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-log_entry.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-log_filter.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-main.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-network.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-perl_embed.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-perl_lib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-php_embed.Po@am__quote@
@@ -460,6 +460,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-tcl_lib.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-tconfig.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-troll_lib.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-trollbot.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-tsocket.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-user.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trollbot-util.Po@am__quote@
@@ -488,19 +489,19 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LTCOMPILE) -c -o $@ $<
 
-trollbot-channel.o: channel.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-channel.o -MD -MP -MF $(DEPDIR)/trollbot-channel.Tpo -c -o trollbot-channel.o `test -f 'channel.c' || echo '$(srcdir)/'`channel.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-channel.Tpo $(DEPDIR)/trollbot-channel.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='channel.c' object='trollbot-channel.o' libtool=no @AMDEPBACKSLASH@
+trollbot-irc_channel.o: irc_channel.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-irc_channel.o -MD -MP -MF $(DEPDIR)/trollbot-irc_channel.Tpo -c -o trollbot-irc_channel.o `test -f 'irc_channel.c' || echo '$(srcdir)/'`irc_channel.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-irc_channel.Tpo $(DEPDIR)/trollbot-irc_channel.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='irc_channel.c' object='trollbot-irc_channel.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-channel.o `test -f 'channel.c' || echo '$(srcdir)/'`channel.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-irc_channel.o `test -f 'irc_channel.c' || echo '$(srcdir)/'`irc_channel.c
 
-trollbot-channel.obj: channel.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-channel.obj -MD -MP -MF $(DEPDIR)/trollbot-channel.Tpo -c -o trollbot-channel.obj `if test -f 'channel.c'; then $(CYGPATH_W) 'channel.c'; else $(CYGPATH_W) '$(srcdir)/channel.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-channel.Tpo $(DEPDIR)/trollbot-channel.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='channel.c' object='trollbot-channel.obj' libtool=no @AMDEPBACKSLASH@
+trollbot-irc_channel.obj: irc_channel.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-irc_channel.obj -MD -MP -MF $(DEPDIR)/trollbot-irc_channel.Tpo -c -o trollbot-irc_channel.obj `if test -f 'irc_channel.c'; then $(CYGPATH_W) 'irc_channel.c'; else $(CYGPATH_W) '$(srcdir)/irc_channel.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-irc_channel.Tpo $(DEPDIR)/trollbot-irc_channel.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='irc_channel.c' object='trollbot-irc_channel.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-channel.obj `if test -f 'channel.c'; then $(CYGPATH_W) 'channel.c'; else $(CYGPATH_W) '$(srcdir)/channel.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-irc_channel.obj `if test -f 'irc_channel.c'; then $(CYGPATH_W) 'irc_channel.c'; else $(CYGPATH_W) '$(srcdir)/irc_channel.c'; fi`
 
 trollbot-config_engine.o: config_engine.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-config_engine.o -MD -MP -MF $(DEPDIR)/trollbot-config_engine.Tpo -c -o trollbot-config_engine.o `test -f 'config_engine.c' || echo '$(srcdir)/'`config_engine.c
@@ -628,33 +629,33 @@ trollbot-log_filter.obj: log_filter.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-log_filter.obj `if test -f 'log_filter.c'; then $(CYGPATH_W) 'log_filter.c'; else $(CYGPATH_W) '$(srcdir)/log_filter.c'; fi`
 
-trollbot-main.o: main.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-main.o -MD -MP -MF $(DEPDIR)/trollbot-main.Tpo -c -o trollbot-main.o `test -f 'main.c' || echo '$(srcdir)/'`main.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-main.Tpo $(DEPDIR)/trollbot-main.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='main.c' object='trollbot-main.o' libtool=no @AMDEPBACKSLASH@
+trollbot-trollbot.o: trollbot.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-trollbot.o -MD -MP -MF $(DEPDIR)/trollbot-trollbot.Tpo -c -o trollbot-trollbot.o `test -f 'trollbot.c' || echo '$(srcdir)/'`trollbot.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-trollbot.Tpo $(DEPDIR)/trollbot-trollbot.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='trollbot.c' object='trollbot-trollbot.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-main.o `test -f 'main.c' || echo '$(srcdir)/'`main.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-trollbot.o `test -f 'trollbot.c' || echo '$(srcdir)/'`trollbot.c
 
-trollbot-main.obj: main.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-main.obj -MD -MP -MF $(DEPDIR)/trollbot-main.Tpo -c -o trollbot-main.obj `if test -f 'main.c'; then $(CYGPATH_W) 'main.c'; else $(CYGPATH_W) '$(srcdir)/main.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-main.Tpo $(DEPDIR)/trollbot-main.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='main.c' object='trollbot-main.obj' libtool=no @AMDEPBACKSLASH@
+trollbot-trollbot.obj: trollbot.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-trollbot.obj -MD -MP -MF $(DEPDIR)/trollbot-trollbot.Tpo -c -o trollbot-trollbot.obj `if test -f 'trollbot.c'; then $(CYGPATH_W) 'trollbot.c'; else $(CYGPATH_W) '$(srcdir)/trollbot.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-trollbot.Tpo $(DEPDIR)/trollbot-trollbot.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='trollbot.c' object='trollbot-trollbot.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-main.obj `if test -f 'main.c'; then $(CYGPATH_W) 'main.c'; else $(CYGPATH_W) '$(srcdir)/main.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-trollbot.obj `if test -f 'trollbot.c'; then $(CYGPATH_W) 'trollbot.c'; else $(CYGPATH_W) '$(srcdir)/trollbot.c'; fi`
 
-trollbot-network.o: network.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-network.o -MD -MP -MF $(DEPDIR)/trollbot-network.Tpo -c -o trollbot-network.o `test -f 'network.c' || echo '$(srcdir)/'`network.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-network.Tpo $(DEPDIR)/trollbot-network.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='network.c' object='trollbot-network.o' libtool=no @AMDEPBACKSLASH@
+trollbot-irc_network.o: irc_network.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-irc_network.o -MD -MP -MF $(DEPDIR)/trollbot-irc_network.Tpo -c -o trollbot-irc_network.o `test -f 'irc_network.c' || echo '$(srcdir)/'`irc_network.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-irc_network.Tpo $(DEPDIR)/trollbot-irc_network.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='irc_network.c' object='trollbot-irc_network.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-network.o `test -f 'network.c' || echo '$(srcdir)/'`network.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-irc_network.o `test -f 'irc_network.c' || echo '$(srcdir)/'`irc_network.c
 
-trollbot-network.obj: network.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-network.obj -MD -MP -MF $(DEPDIR)/trollbot-network.Tpo -c -o trollbot-network.obj `if test -f 'network.c'; then $(CYGPATH_W) 'network.c'; else $(CYGPATH_W) '$(srcdir)/network.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-network.Tpo $(DEPDIR)/trollbot-network.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='network.c' object='trollbot-network.obj' libtool=no @AMDEPBACKSLASH@
+trollbot-irc_network.obj: irc_network.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-irc_network.obj -MD -MP -MF $(DEPDIR)/trollbot-irc_network.Tpo -c -o trollbot-irc_network.obj `if test -f 'irc_network.c'; then $(CYGPATH_W) 'irc_network.c'; else $(CYGPATH_W) '$(srcdir)/irc_network.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-irc_network.Tpo $(DEPDIR)/trollbot-irc_network.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='irc_network.c' object='trollbot-irc_network.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-network.obj `if test -f 'network.c'; then $(CYGPATH_W) 'network.c'; else $(CYGPATH_W) '$(srcdir)/network.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-irc_network.obj `if test -f 'irc_network.c'; then $(CYGPATH_W) 'irc_network.c'; else $(CYGPATH_W) '$(srcdir)/irc_network.c'; fi`
 
 trollbot-server.o: server.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-server.o -MD -MP -MF $(DEPDIR)/trollbot-server.Tpo -c -o trollbot-server.o `test -f 'server.c' || echo '$(srcdir)/'`server.c
@@ -796,19 +797,19 @@ trollbot-tsocket.obj: tsocket.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-tsocket.obj `if test -f 'tsocket.c'; then $(CYGPATH_W) 'tsocket.c'; else $(CYGPATH_W) '$(srcdir)/tsocket.c'; fi`
 
-trollbot-ban.o: ban.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-ban.o -MD -MP -MF $(DEPDIR)/trollbot-ban.Tpo -c -o trollbot-ban.o `test -f 'ban.c' || echo '$(srcdir)/'`ban.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-ban.Tpo $(DEPDIR)/trollbot-ban.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ban.c' object='trollbot-ban.o' libtool=no @AMDEPBACKSLASH@
+trollbot-irc_ban.o: irc_ban.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-irc_ban.o -MD -MP -MF $(DEPDIR)/trollbot-irc_ban.Tpo -c -o trollbot-irc_ban.o `test -f 'irc_ban.c' || echo '$(srcdir)/'`irc_ban.c
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-irc_ban.Tpo $(DEPDIR)/trollbot-irc_ban.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='irc_ban.c' object='trollbot-irc_ban.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-ban.o `test -f 'ban.c' || echo '$(srcdir)/'`ban.c
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-irc_ban.o `test -f 'irc_ban.c' || echo '$(srcdir)/'`irc_ban.c
 
-trollbot-ban.obj: ban.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-ban.obj -MD -MP -MF $(DEPDIR)/trollbot-ban.Tpo -c -o trollbot-ban.obj `if test -f 'ban.c'; then $(CYGPATH_W) 'ban.c'; else $(CYGPATH_W) '$(srcdir)/ban.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-ban.Tpo $(DEPDIR)/trollbot-ban.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ban.c' object='trollbot-ban.obj' libtool=no @AMDEPBACKSLASH@
+trollbot-irc_ban.obj: irc_ban.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-irc_ban.obj -MD -MP -MF $(DEPDIR)/trollbot-irc_ban.Tpo -c -o trollbot-irc_ban.obj `if test -f 'irc_ban.c'; then $(CYGPATH_W) 'irc_ban.c'; else $(CYGPATH_W) '$(srcdir)/irc_ban.c'; fi`
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/trollbot-irc_ban.Tpo $(DEPDIR)/trollbot-irc_ban.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='irc_ban.c' object='trollbot-irc_ban.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-ban.obj `if test -f 'ban.c'; then $(CYGPATH_W) 'ban.c'; else $(CYGPATH_W) '$(srcdir)/ban.c'; fi`
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -c -o trollbot-irc_ban.obj `if test -f 'irc_ban.c'; then $(CYGPATH_W) 'irc_ban.c'; else $(CYGPATH_W) '$(srcdir)/irc_ban.c'; fi`
 
 trollbot-http_server.o: http_server.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(trollbot_CFLAGS) $(CFLAGS) -MT trollbot-http_server.o -MD -MP -MF $(DEPDIR)/trollbot-http_server.Tpo -c -o trollbot-http_server.o `test -f 'http_server.c' || echo '$(srcdir)/'`http_server.c

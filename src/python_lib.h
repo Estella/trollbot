@@ -3,6 +3,7 @@
 
 #include <Python.h>
 
+PyObject *py_countusers(PyObject *self, PyObject *args);
 PyObject *py_unbind(PyObject *self, PyObject *args);
 PyObject *py_savechannels(PyObject *self, PyObject *args);
 PyObject *py_validuser(PyObject *self, PyObject *args);

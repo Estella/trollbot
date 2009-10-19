@@ -1,13 +1,13 @@
-#include "main.h"
+#include "trollbot.h"
 
 #include "tcl_embed.h"
 #include "tcl_lib.h"
 
 #include "irc_trigger.h"
 #include "irc.h"
-#include "network.h"
+#include "irc_network.h"
 #include "server.h"
-#include "channel.h"
+#include "irc_channel.h"
 #include "user.h"
 #include "dcc.h"
 #include "t_timer.h"
@@ -80,6 +80,7 @@ void net_tcl_init_commands(struct network *net)
 	Tcl_CreateObjCommand(net->tclinterp, "ics_interp", tcl_ics_interp, net, NULL);
 #endif /* HAVE_ICS */
 
+	Tcl_CreateObjCommand(net->tclinterp, "hand2idx", tcl_hand2idx, net, NULL);
 	Tcl_CreateObjCommand(net->tclinterp, "stripcodes", tcl_stripcodes, net, NULL);
 	Tcl_CreateObjCommand(net->tclinterp, "binds", tcl_binds, net, NULL);
 	Tcl_CreateObjCommand(net->tclinterp, "newchanban", tcl_newchanban, net, NULL);

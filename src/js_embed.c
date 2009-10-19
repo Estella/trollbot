@@ -1,10 +1,10 @@
 #include <jsapi.h>
 
-#include "main.h"
+#include "trollbot.h"
 #include "js_embed.h"
 #include "js_lib.h"
 
-#include "network.h"
+#include "irc_network.h"
 #include "irc_trigger.h"
 #include "irc.h"
 #include "dcc.h"
@@ -198,6 +198,7 @@ void net_init_js_global_object(struct network *net)
 	builtins = JS_InitStandardClasses(net->cx, net->global);
 
 	/* Initialize egg_lib functions */
+	JS_DefineFunction(net->cx, net->global, "hand2idx", js_hand2idx, 1, 0);
 	JS_DefineFunction(net->cx, net->global, "putlog", js_putlog, 1, 0);
 	JS_DefineFunction(net->cx, net->global, "adduser", js_adduser, 1, 0);
 	JS_DefineFunction(net->cx, net->global, "unbind", js_unbind, 4, 0);

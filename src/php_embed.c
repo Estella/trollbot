@@ -17,12 +17,12 @@
 	 */
 /* $Id: php_embed.c,v 1.11.2.1.2.1 2007/01/01 09:36:12 sebastian Exp $ */
 
-#include "main.h"
+#include "trollbot.h"
 #include "php_embed.h"
 
 #include <main/php.h>
 #include <main/SAPI.h>
-#include <main/php_main.h>
+#include <main/php_trollbot.h>
 #include <main/php_variables.h>
 #include <main/php_ini.h>
 #include <zend_ini.h>
@@ -45,7 +45,7 @@
 #include "dcc.h"
 #include "irc.h"
 #include "irc_trigger.h"
-#include "network.h"
+#include "irc_network.h"
 #include "egg_lib.h"
 
 void php_load_scripts_from_config(struct config *cfg)

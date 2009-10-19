@@ -1,4 +1,4 @@
-#include "main.h"
+#include "trollbot.h"
 #include "python_lib.h"
 
 #include <Python.h>
@@ -10,7 +10,7 @@
 #include "config_engine.h"
 #include "python_embed.h"
 #include "irc_trigger.h"
-#include "network.h"
+#include "irc_network.h"
 #include "egg_lib.h"
 #include "irc.h"
 #include "user.h"
@@ -47,35 +47,6 @@ PyObject *py_unbind(PyObject *self, PyObject *args)
 }
 
 
-/* How the fuck do I return non boolean values? */
-#ifdef CLOWNS
-PyObject *py_countusers(PyObject *self, PyObject *args)
-{
-	struct network *net;
-	PyObject *network;
-
-	if (!PyArg_ParseTuple(args, "O", &network))
-	{
-		troll_debug(LOG_DEBUG, "[python-bindings] py_bind failed to parse arguments from script");
-		Py_RETURN_FALSE;
-	}
-
-	Py_XINCREF(network);
-
-	net = (struct network *) PyCObject_AsVoidPtr(network);
-
-	if (net == NULL)
-	{
-		troll_debug(LOG_DEBUG, "[python-bindings] py_bind failed to resolve network object reference");
-		Py_RETURN_FALSE;
-	}
-
-	egg_savechannels(net);
-
-	Py_RETURN_TRUE;
-}
-#endif /* CLOWNS */
-
 PyObject *py_savechannels(PyObject *self, PyObject *args)
 {
 	struct network *net;
@@ -100,6 +71,36 @@ PyObject *py_savechannels(PyObject *self, PyObject *args)
 	egg_savechannels(net);
 
 	Py_RETURN_TRUE;
+}
+
+PyObject *py_countusers(PyObject *self, PyObject *args)
+{
+	struct network *net;
+	PyObject *network;
+	int user_count = 0;
+	PyObject *ret;
+
+	if (!PyArg_ParseTuple(args, "O", &network)) 
+	{
+		troll_debug(LOG_DEBUG, "[python-bindings] py_bind failed to parse arguments from script");
+		Py_RETURN_FALSE;
+	}
+
+	Py_XINCREF(network); 
+
+	net = (struct network *) PyCObject_AsVoidPtr(network); 
+
+	if (net == NULL) 
+	{
+		troll_debug(LOG_DEBUG, "[python-bindings] py_bind failed to resolve network object reference");
+		Py_RETURN_FALSE;
+	}
+
+	user_count = egg_countusers(net);
+	
+	ret = Py_BuildValue("i", user_count);
+
+	return ret;
 }
 
 PyObject *py_validuser(PyObject *self, PyObject *args)

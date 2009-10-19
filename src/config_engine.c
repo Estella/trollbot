@@ -1,18 +1,39 @@
+/*********************************************
+ * TrollBot v1.0                             *
+ *********************************************
+ * TrollBot is an eggdrop-clone designed to  *
+ * work with multiple networks and protocols *
+ * in order to present a unified scriptable  *
+ * event-based platform,                     *
+ *********************************************
+ * This software is PUBLIC DOMAIN. Feel free *
+ * to use it for whatever use whatsoever.    *
+ *********************************************
+ * Originally written by poutine/DALnet      *
+ *                       kicken/DALnet       *
+ *                       comcor/DALnet       *
+ *********************************************/
 #include "config.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
+#endif /* HAVE_SYS_TYPES_H */
 
 #ifdef HAVE_PYTHON
 #include "python_embed.h"
 #endif /* HAVE_PYTHON */
 
-#include "main.h"
+#include "trollbot.h"
 #include "config_engine.h"
 
-#include "network.h"
+#include "irc_network.h"
 #include "server.h"
 #include "dcc.h"
-#include "channel.h"
+#include "irc_channel.h"
 #include "user.h"
 #include "irc_trigger.h"
 #include "t_crypto_module.h"

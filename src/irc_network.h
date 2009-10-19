@@ -1,5 +1,5 @@
-#ifndef __NETWORK_H__
-#define __NETWORK_H__
+#ifndef __IRC_NETWORK_H__
+#define __IRC_NETWORK_H__
 
 #include "config.h"
 
@@ -206,4 +206,4 @@ void free_networks(struct network *net);
 
 struct network *new_network(char *label);
 
-#endif /* __NETWORK_H__ */
+#endif /* __IRC_NETWORK_H__ */

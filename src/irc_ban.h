@@ -13,11 +13,24 @@
  *                       kicken/DALnet       *
  *                       comcor/DALnet       *
  *********************************************/
-#ifndef __DIE_H__
-#define __DIE_H__
+#ifndef __IRC_BAN_H__
+#define __IRC_BAN_H__
+
+#include <time.h>
+
+struct ban
+{
+	char *mask;
+	char *comment;
+	time_t expiration;
+	time_t created;
+	time_t last_time;
+
+	char *creator;
+};
+
+struct ban *ban_new(void);
+void ban_free(void *data);
 
 
-
-void die_nicely(int ret);
-
-#endif /* __DIE_H__ */
+#endif /* __IRC_BAN_H__ */

@@ -1,18 +1,24 @@
-/******************************
- * Trollbot                   *
- ******************************
- * Written by poutine DALnet  *
- ******************************
- * This software is public    *
- * domain. Free for any use   *
- * whatsoever.                *
- ******************************/
-#include "main.h"
+/*********************************************
+ * TrollBot v1.0                             *
+ *********************************************
+ * TrollBot is an eggdrop-clone designed to  *
+ * work with multiple networks and protocols *
+ * in order to present a unified scriptable  *
+ * event-based platform,                     *
+ *********************************************
+ * This software is PUBLIC DOMAIN. Feel free *
+ * to use it for whatever use whatsoever.    *
+ *********************************************
+ * Originally written by poutine/DALnet      *
+ *                       kicken/DALnet       *
+ *                       comcor/DALnet       *
+ *********************************************/
+#include "trollbot.h"
 #include "die.h"
 #include "tconfig.h"
 #include "config_engine.h"
 #include "dcc.h"
-#include "network.h"
+#include "irc_network.h"
 #include "config.h"
 #include "server.h"
 #include "irc.h"

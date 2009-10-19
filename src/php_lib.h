@@ -3,7 +3,7 @@
 
 #include <main/php.h>
 #include <main/SAPI.h>
-#include <main/php_main.h>
+#include <main/php_trollbot.h>
 #include <main/php_variables.h>
 #include <main/php_ini.h>
 #include <zend_ini.h>

@@ -1,13 +1,28 @@
+/*********************************************
+ * TrollBot v1.0                             *
+ *********************************************
+ * TrollBot is an eggdrop-clone designed to  *
+ * work with multiple networks and protocols *
+ * in order to present a unified scriptable  *
+ * event-based platform,                     *
+ *********************************************
+ * This software is PUBLIC DOMAIN. Feel free *
+ * to use it for whatever use whatsoever.    *
+ *********************************************
+ * Originally written by poutine/DALnet      *
+ *                       kicken/DALnet       *
+ *                       comcor/DALnet       *
+ *********************************************/
 #include <stdio.h>
 #include <ctype.h>
 
 #include <sys/socket.h>
 
-#include "main.h"
+#include "trollbot.h"
 #include "egg_lib.h"
-#include "network.h"
+#include "irc_network.h"
 #include "server.h"
-#include "channel.h"
+#include "irc_channel.h"
 #include "user.h"
 #include "irc.h"
 #include "dcc.h"
@@ -16,7 +31,7 @@
 #include "t_timer.h"
 #include "util.h"
 #include "troll_lib.h"
-#include "ban.h"
+#include "irc_ban.h"
 
 #ifdef HAVE_TCL
 #include "tcl_embed.h"
@@ -201,8 +216,8 @@ int egg_clearqueue(struct network *net, const char *queue)
 
 /* Returns number of users in net, 0 if none */
 /* Ready for export */
-/* NEED_IMP: Python, Perl */
-/* IMP_IN: Javascript, TCL, PHP */
+/* NEED_IMP: NONE */
+/* IMP_IN: Javascript, TCL, PHP, Python */
 int egg_countusers(struct network *net)
 {
 	struct user *user;
@@ -223,8 +238,8 @@ int egg_countusers(struct network *net)
 }
 
 /* Fully compatible */
-/* NEED_IMP: Perl, Python  */
-/* IMP_IN: Javascript[kicken], PHP, TCL */
+/* NEED_IMP: NONE */
+/* IMP_IN: Javascript[kicken], PHP, TCL, Python */
 int egg_validuser(struct network *net, const char *handle)
 {
 	struct user *user;
@@ -1668,7 +1683,8 @@ void egg_dccbroadcast(struct network *net, const char *message)
 /* dccsimul <idx> <text> */
 
 /* Returns 0 on error, an idx if successful */
-/* NEED_IMP: TCL, PHP, Perl, Python, Javascript */
+/* NEED_IMP: PHP, Perl, Python */
+/* IMP_IN: Javascript, TCL */
 int egg_hand2idx(struct network *net, const char *handle)
 {
 	struct dcc_session *dtmp;

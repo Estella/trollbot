@@ -1,9 +1,9 @@
-#include "main.h"
+#include "trollbot.h"
 #include "php_lib.h"
 
 #include <main/php.h>
 #include <main/SAPI.h>
-#include <main/php_main.h>
+#include <main/php_trollbot.h>
 #include <main/php_variables.h>
 #include <main/php_ini.h>
 #include <zend_ini.h>
@@ -12,7 +12,7 @@
 #include "config_engine.h"
 #include "php_embed.h"
 #include "irc_trigger.h"
-#include "network.h"
+#include "irc_network.h"
 #include "egg_lib.h"
 #include "troll_lib.h"
 #include "irc.h"

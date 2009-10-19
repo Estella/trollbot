@@ -4,7 +4,7 @@
 
 #include "t_timer.h"
 #include "debug.h"
-#include "network.h"
+#include "irc_network.h"
 #include "util.h"
 
 struct t_timer *t_timers_check(struct t_timer *timers, time_t timestamp)
