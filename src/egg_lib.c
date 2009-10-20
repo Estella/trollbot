@@ -314,8 +314,8 @@ char *egg_makepasswd(const char *pass, const char *hash_type)
 
 /* Fully Compatible */
 /* passwdok <handle> <pass> */
-/* NEED_IMP: Python */
-/* IMP_IN: Javascript[kicken], PHP, TCL */
+/* NEED_IMP: NONE */
+/* IMP_IN: Javascript[kicken], PHP, TCL, Python */
 int egg_passwdok(struct network *net, const char *handle, const char *pass) 
 {
 	char *hash_string = NULL;
@@ -329,11 +329,14 @@ int egg_passwdok(struct network *net, const char *handle, const char *pass)
 		if (!strcmp(handle,user->username))
 		{
 			/* If pass is null or zero length, or '-', only check to see if user has a password. */
-			if (pass == NULL || strlen(pass) == 0 || (strlen(pass)==1 && pass[0] == '-')){
-				if (user->passhash != NULL){
+			if (pass == NULL || strlen(pass) == 0 || (strlen(pass)==1 && pass[0] == '-'))
+			{
+				if (user->passhash != NULL)
+				{
 					return 1;
 				}
-				else {
+				else 	
+				{
 					return 0;
 				}
 			}

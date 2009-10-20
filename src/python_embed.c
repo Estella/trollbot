@@ -41,6 +41,9 @@ PyMethodDef PyTbMethods[] = {
 	{"savechannels", py_savechannels, METH_VARARGS,
 	  "Saves channel file"},
 
+	{"passwdok", py_passwdok, METH_VARARGS,
+		"Returns whether given password was a user's password."},
+
 	{"countusers", py_countusers, METH_VARARGS,
 		"Counts number of recognized users on network."},
 

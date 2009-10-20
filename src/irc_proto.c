@@ -13,6 +13,10 @@
  *                       kicken/DALnet       *
  *                       comcor/DALnet       *
  *********************************************/
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include <time.h>
 
 #include "config.h"
@@ -68,7 +72,6 @@ void add_default_triggers(void)
 		trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,"pass",NULL,&new_user_pass));
 		trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,"ident",NULL,&check_user_pass));
 		trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,"hello",NULL,&introduce_user));
-		trigger_list_add(&net->trigs->msg,new_trigger(NULL,TRIG_MSG,"goodbye",NULL,&disconnect_bot));
 
 		/* BIND TOPC */
 		trigger_list_add(&net->trigs->topc,new_trigger(NULL,TRIG_TOPC,"*",NULL,&troll_trig_update_topic));
@@ -81,7 +84,6 @@ void add_default_triggers(void)
 
 		/* BIND SIGN */
 		trigger_list_add(&net->trigs->sign,new_trigger(NULL,TRIG_SIGN,"*",NULL,&new_quit));
-
 
 		/* BIND KICK */
 		trigger_list_add(&net->trigs->kick,new_trigger(NULL,TRIG_KICK,"*",NULL,&new_kick));
@@ -99,7 +101,7 @@ void add_default_triggers(void)
 		trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".console",NULL, &dcc_console));
 
 #ifdef HAVE_JS
-		trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".loadjavascript",NULL,&dcc_javascript_load));
+		trigger_list_add(&net->trigs->dcc,new_trigger("n",TRIG_DCC,".loadjavascript",NULL,&dcc_javascript_load));
 		trigger_list_add(&net->trigs->dcc,new_trigger("n",TRIG_DCC,".js",NULL,&dcc_javascript));
 #endif /* HAVE_JS */
 
@@ -224,6 +226,7 @@ static void channel_banlist_add(struct network *net, struct trigger *trig, struc
 	ban->who  = tstrdup(data->c_params[3]);
 
 	/* FIXME: Proper checking, why? */
+	/* 2k38 bug, womgz */
 	ban->time = atoi(data->c_params[4]);
 
 	chan->banlist = channel_ban_add(chan->banlist, ban);
