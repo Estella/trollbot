@@ -1,3 +1,18 @@
+/*********************************************
+ * TrollBot v1.0                             *
+ *********************************************
+ * TrollBot is an eggdrop-clone designed to  *
+ * work with multiple networks and protocols *
+ * in order to present a unified scriptable  *
+ * event-based platform,                     *
+ *********************************************
+ * This software is PUBLIC DOMAIN. Feel free *
+ * to use it for whatever use whatsoever.    *
+ *********************************************
+ * Originally written by poutine/DALnet      *
+ *                       kicken/DALnet       *
+ *                       comcor/DALnet       *
+ *********************************************/
 #include <jsapi.h>
 
 #include "trollbot.h"
@@ -138,43 +153,49 @@ void net_init_js(struct network *net)
 	return;
 }
 
-static void js_error_handler(JSContext *ctx, const char *msg, JSErrorReport *er){
-	char *pointer=NULL;
-	char *line=NULL;
+static void js_error_handler(JSContext *ctx, const char *msg, JSErrorReport *er)
+{
+	char *pointer = NULL;
+	char *line    = NULL;
 	int len;
 
-	if (er->linebuf != NULL){
+	if (er->linebuf != NULL)
+	{
 		line = tstrdup(er->linebuf);
 		len = er->tokenptr - er->linebuf + 2;
 		pointer = malloc(len);
 		memset(pointer, '-', len-2);
-		pointer[len-1]='\0';
-		pointer[len-2]='^';
+		pointer[len-1] = '\0';
+		pointer[len-2] = '^';
 	}
-	else {
+	else 
+	{
 		len=0;
 		pointer = malloc(1);
 		line = malloc(1);
-		pointer[0]='\0';
+		pointer[0] = '\0';
 		line[0] = '\0';
 	}
 
-	while (len > 0){
-		if (line[len-1] == '\r' || line[len-1] == '\n'){
-			line[len-1]='\0';
+	while (len > 0)
+	{
+		if (line[len-1] == '\r' || line[len-1] == '\n')
+		{
+			line[len-1] = '\0';
 		}
-		else if (line[len-1]=='\t'){
+		else if (line[len-1]=='\t')
+		{
 			/*Convert tabs into spaces */
-			line[len-1]=' ';
+			line[len-1] = ' ';
 		}
 		len--;
 	}
 
-
-
+	/* TODO: Perhaps this should use trollbot's built in log facility */
 	printf("JS Error: %s\nFile: %s:%u\n", msg, er->filename, er->lineno);
 
-	if (line[0]){
+	if (line[0])
+	{
 		printf("%s\n%s\n", line, pointer);
 	}
 
@@ -198,6 +219,7 @@ void net_init_js_global_object(struct network *net)
 	builtins = JS_InitStandardClasses(net->cx, net->global);
 
 	/* Initialize egg_lib functions */
+	JS_DefineFunction(net->cx, net->global, "stripcodes", js_stripcodes, 2, 0);
 	JS_DefineFunction(net->cx, net->global, "hand2idx", js_hand2idx, 1, 0);
 	JS_DefineFunction(net->cx, net->global, "putlog", js_putlog, 1, 0);
 	JS_DefineFunction(net->cx, net->global, "adduser", js_adduser, 1, 0);

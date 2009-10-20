@@ -79,6 +79,7 @@ struct config
 	char *crypto_name;
 	struct t_crypto_module *crypto;
 
+	char *log_file;
 	char *dcc_motd;
 
   int fork; /* 0 to not fork, 1 to fork */

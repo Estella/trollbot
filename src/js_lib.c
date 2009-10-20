@@ -1,3 +1,18 @@
+/*********************************************
+ * TrollBot v1.0                             *
+ *********************************************
+ * TrollBot is an eggdrop-clone designed to  *
+ * work with multiple networks and protocols *
+ * in order to present a unified scriptable  *
+ * event-based platform,                     *
+ *********************************************
+ * This software is PUBLIC DOMAIN. Feel free *
+ * to use it for whatever use whatsoever.    *
+ *********************************************
+ * Originally written by poutine/DALnet      *
+ *                       kicken/DALnet       *
+ *                       comcor/DALnet       *
+ *********************************************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,6 +28,30 @@
 #include "irc.h"
 #include "irc_network.h"
 #include "egg_lib.h"
+
+JSBool js_stripcodes(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+	char *codes             = NULL;
+	char *text              = NULL;
+	char *ret               = NULL;
+
+	/* 2 args, exactly */
+	if (argc != 2)
+	{
+		return JS_FALSE;
+	}
+
+	codes = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+	text  = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
+
+	ret = egg_stripcodes(codes, text);
+
+	*rval = STRING_TO_JSVAL(JS_NewStringCopyZ(cx, ret));
+
+	free(ret);
+
+	return JS_TRUE;
+}
 
 JSBool js_hand2idx(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {

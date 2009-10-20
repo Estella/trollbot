@@ -81,8 +81,8 @@
  *   Returns: the stripped string.
  *   Module: core
  */
-/* NEED_IMP: Javascript, Python, PHP */
-/* IMP_IN: TCL */
+/* NEED_IMP: Python, PHP */
+/* IMP_IN: TCL, JavaScript */
 /* This needs to clear ANSI colors also */
 char *egg_stripcodes(const char *flags, const char *text)
 {

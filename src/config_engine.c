@@ -173,6 +173,7 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 	cfg->max_listeners = -1;
 	cfg->dccs          = NULL;
 	cfg->filters       = NULL;
+	cfg->log_file      = NULL;
 
 	cfg->dcc_motd      = NULL;
 
@@ -258,6 +259,11 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 					/* Only use the first value */
 					if (cfg->max_listeners == -1)
 						cfg->max_listeners = atoi(search->value);
+				}
+				else if (!strcmp(search->key,"log_file"))
+				{
+					if (cfg->log_file == NULL)
+						cfg->log_file = tstrdup(search->value);
 				}
 				else if (!strcmp(search->key,"dcc_motd"))
 				{
@@ -355,6 +361,11 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 					if (net->connect_delay == -1)
 						net->connect_delay = atoi(search->value);
 				}
+				else if (!strcmp(search->key,"log_file"))
+				{
+					if (net->log_file == NULL)
+						net->log_file = tstrdup(search->value);
+				}		
 				else if (!strcmp(search->key,"default-flags"))
 				{
 					if (net->default_flags == NULL)

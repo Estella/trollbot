@@ -1,15 +1,18 @@
-/******************************
- * Trollbot                   *
- ******************************
- * Written by poutine DALnet  *
- ******************************
- * This software is public    *
- * domain. Free for any use   *
- * whatsoever.                *
- ******************************
- * Last Audit: 2007-04-30     *
- ******************************/
-
+/*********************************************
+ * TrollBot v1.0                             *
+ *********************************************
+ * TrollBot is an eggdrop-clone designed to  *
+ * work with multiple networks and protocols *
+ * in order to present a unified scriptable  *
+ * event-based platform,                     *
+ *********************************************
+ * This software is PUBLIC DOMAIN. Feel free *
+ * to use it for whatever use whatsoever.    *
+ *********************************************
+ * Originally written by poutine/DALnet      *
+ *                       kicken/DALnet       *
+ *                       comcor/DALnet       *
+ *********************************************/
 /* This should go the fuck away */
 #include <stdio.h>
 #include <stdlib.h>

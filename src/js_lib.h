@@ -1,3 +1,18 @@
+/*********************************************
+ * TrollBot v1.0                             *
+ *********************************************
+ * TrollBot is an eggdrop-clone designed to  *
+ * work with multiple networks and protocols *
+ * in order to present a unified scriptable  *
+ * event-based platform,                     *
+ *********************************************
+ * This software is PUBLIC DOMAIN. Feel free *
+ * to use it for whatever use whatsoever.    *
+ *********************************************
+ * Originally written by poutine/DALnet      *
+ *                       kicken/DALnet       *
+ *                       comcor/DALnet       *
+ *********************************************/
 #ifndef __JS_LIB_H__
 #define __JS_LIB_H__
 
@@ -8,6 +23,7 @@ struct irc_data;
 struct network;
 struct dcc_session;
 
+JSBool js_stripcodes(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 JSBool js_hand2idx(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 JSBool js_putlog(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 JSBool js_adduser(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
