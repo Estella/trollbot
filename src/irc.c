@@ -306,6 +306,7 @@ void parse_irc_line(struct network *net, const char *buffer)
 
 
 	/* 302, Ip? */
+	/* FIXME: This is most definitely in the wrong place */
 	if (!strcmp("302",data->command))
 	{    
 		if (net->shost == NULL)

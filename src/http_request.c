@@ -21,6 +21,7 @@
 #include "http_server.h"
 #include "http_request.h"
 #include "http_proto.h"
+#include "log_entry.h"
 
 
 struct http_request *http_request_add(struct http_request *http_request, struct http_request *add)

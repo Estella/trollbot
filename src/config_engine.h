@@ -86,6 +86,8 @@ struct config
   
   int debug_level; /* see debug.h */
 
+	int max_listeners;
+
 #ifdef HAVE_PYTHON
   /* Global CLEAN python enviroment to be copied */
   PyObject *py_main;

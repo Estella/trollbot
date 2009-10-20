@@ -157,7 +157,6 @@ int tcl_irc_interp(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj 
 	char *net_name;
 	Tcl_Interp *alt_interp;
 	int ret;
-	Tcl_Obj *nobjv[1];
 
 	if (objc != 3)
 	{
@@ -196,7 +195,6 @@ int tcl_ics_interp(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj 
 	char *ics_name;
 	Tcl_Interp *alt_interp;
 	int ret;
-	Tcl_Obj *nobjv[1];
 
 	if (objc != 3)
 	{
@@ -435,7 +433,6 @@ int tcl_binds(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *cons
 	struct network *net = clientData;
 	char **binds = NULL;
 	char *mask   = NULL;
-	char *ret    = NULL;
 
 	if (objc > 2)
 	{

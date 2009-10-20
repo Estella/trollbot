@@ -165,31 +165,32 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 
 	cfg = tmalloc(sizeof(struct config));
 
-	cfg->networks     = NULL;
-	cfg->fork         = 0;
-	cfg->forked       = 0;
-	cfg->debug_level  = 0;
-	cfg->hash_type    = NULL;
-	cfg->dccs         = NULL;
-	cfg->filters      = NULL;
+	cfg->networks      = NULL;
+	cfg->fork          = 0;
+	cfg->forked        = 0;
+	cfg->debug_level   = 0;
+	cfg->hash_type     = NULL;
+	cfg->max_listeners = -1;
+	cfg->dccs          = NULL;
+	cfg->filters       = NULL;
 
-	cfg->dcc_motd     = NULL;
+	cfg->dcc_motd      = NULL;
 
-	cfg->tsockets     = NULL;
+	cfg->tsockets      = NULL;
 
 #ifdef HAVE_HTTP
-	cfg->http_servers = NULL;
+	cfg->http_servers  = NULL;
 #endif /* HAVE_HTTP */
 
 #ifdef HAVE_ICS
-	cfg->ics_servers = NULL;
+	cfg->ics_servers   = NULL;
 #endif /* HAVE_ICS */
 #ifdef HAVE_XMPP
-	cfg->xmpp_servers = NULL;
+	cfg->xmpp_servers  = NULL;
 #endif /* HAVE_XMPP */
 
-	cfg->crypto_name  = NULL;
-	cfg->crypto       = NULL;
+	cfg->crypto_name   = NULL;
+	cfg->crypto        = NULL;
 #ifdef HAVE_PYTHON
 	cfg->py_main         = NULL;
 	cfg->py_main_dict    = NULL;
@@ -251,6 +252,12 @@ struct config *config_engine_load(struct tconfig_block *tcfg)
 				else if (!strcmp(search->key,"debuglevel"))
 				{
 					cfg->debug_level = atoi(search->value);
+				}
+				else if (!strcmp(search->key,"max_listeners"))
+				{
+					/* Only use the first value */
+					if (cfg->max_listeners == -1)
+						cfg->max_listeners = atoi(search->value);
 				}
 				else if (!strcmp(search->key,"dcc_motd"))
 				{

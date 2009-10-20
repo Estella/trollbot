@@ -118,11 +118,8 @@ void irc_loop(void)
 	socklen_t lon      = 0;
 	int valopt   = 0;
 	time_t last = 0;
-	struct slist *sublist;
 	struct slist_node *node;
-	struct slist_node *inode;
 	struct tsocket *tsock;
-	struct tmodule *tmodule;
 
 
 	/* Rather then all these conditional piece of shits

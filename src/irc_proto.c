@@ -451,6 +451,56 @@ void new_user_pass(struct network *net, struct trigger *trig, struct irc_data *d
 
 void check_user_pass(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
+	struct user *user      = NULL;
+	char        *lpasshash = NULL; 
+
+	user = net->users;
+
+	while (user != NULL)
+	{
+		if (user->nick != NULL)
+		{
+			if (!strcmp(data->prefix->nick,user->nick))
+				break;
+		}
+
+		user = user->next;
+	}
+
+	/* Case: User is not in the db */
+	if (user == NULL)
+	{
+		irc_printf(net->sock,"PRIVMSG %s :I don't know you",data->prefix->nick);
+		return;
+	}
+
+	/* Case: User has no password set */
+	if (user->passhash == NULL)
+	{
+		irc_printf(net->sock, "PRIVMSG %s :You need to set a password first.", data->prefix->nick);
+		return;
+	}
+
+	/* Make sure it matches the hash type in the file */
+	lpasshash = egg_makepasswd(data->rest[1], user->hash_type);
+
+	if (!strcmp(user->passhash, lpasshash))
+	{
+		irc_printf(net->sock,"PRIVMSG %s :You're now recognized.",data->prefix->nick);
+
+		/* If hash type is different from the global one, convert it over, lazy re-encryption */
+		if (strcmp(user->hash_type, g_cfg->hash_type))
+		{
+			user->passhash  = egg_makepasswd(data->rest[1], g_cfg->hash_type);
+			free(user->hash_type);
+			user->hash_type = tstrdup(g_cfg->hash_type);
+			users_save(NULL);
+		}
+	}
+	else
+		irc_printf(net->sock,"PRIVMSG %s :I don't know you.", data->prefix->nick);
+
+	return;
 }
 
 void disconnect_bot(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)

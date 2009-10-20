@@ -2487,7 +2487,7 @@ fi
 
 # Define the identity of the package.
  PACKAGE=trollbot
- VERSION=snap20080930
+ VERSION=1.0
 
 
 cat >>confdefs.h <<_ACEOF

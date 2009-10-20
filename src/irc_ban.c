@@ -33,9 +33,48 @@
 /* Self */
 #include "irc_ban.h"
 
-struct ban *ban_new(void)
+#ifdef CLOWNS
+/* This function allows bans to be evaluated by the bot */
+int irc_ban_evaluate(struct irc_ban *ban, char *mask)
 {
-	struct ban *ban = tmalloc(sizeof(struct ban));
+	char *match_ident = NULL;
+	char *match_nick  = NULL;
+	char *match_host  = NULL;
+	char *match_ip    = NULL;
+	char *ptr         = NULL;
+	int  len          = 0;
+
+	/* When evaluating bans we have several aspects
+   * ident (fully realized or not with ~)
+   * nickname
+   * hostmask (Can be IP/Hostname)
+   */
+	/* Separate the mask into parts */
+	ptr = mask;
+	
+	/* Returns 0 if invalid mask */
+	if (strchr(mask, '!') || strchr(mask, '@'))
+		return 0;
+	
+	/* Separating tokens are ! and @ */
+	match_ident = tmalloc0(strlen(mask) + 1);
+	match_nick  = tmalloc0(strlen(mask) + 1);
+	match_host  = tmalloc0(strlen(mask) + 1);
+
+	while (*ptr != '!')
+	{
+		match_ident = *ptr;
+		ptr++;
+	}
+
+	/* Resolve the hostname */
+	return 0;
+}
+#endif /* CLOWNS */
+
+struct irc_ban *irc_ban_new(void)
+{
+	struct irc_ban *ban = tmalloc(sizeof(struct irc_ban));
 
 	ban->mask       = NULL;
 	ban->comment    = NULL;
@@ -47,13 +86,14 @@ struct ban *ban_new(void)
 	return ban;
 }
 
-void ban_free(void *data)
+void irc_ban_free(void *data)
 {
-	struct ban *ban = data;
+	struct irc_ban *ban = data;
 
 	free(ban->mask);
 	free(ban->comment);
 	free(ban->creator);
+	free(ban);
 
 	return;
 }

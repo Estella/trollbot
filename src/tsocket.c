@@ -17,6 +17,9 @@
 #include "debug.h"
 #include "util.h"
 
+/* For g_cfg */
+#include "trollbot.h"
+
 static void tsocket_set_nonblocking(int sock)
 {
   int opts;
@@ -177,8 +180,7 @@ int tsocket_listen(struct tsocket *tsock, const char *hostname, int port)
 		return 0;
 	}
 
-	/* TODO: Get rid of the 1024 magic number, it's not right anyways */
-	if (listen(tsock->sock, 1024) == -1)
+	if (listen(tsock->sock, g_cfg->max_listeners) == -1)
 	{
 		troll_debug(LOG_ERROR,"Could not listen on tsocket");
 		return 0;

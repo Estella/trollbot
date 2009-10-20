@@ -61,7 +61,7 @@ am__installdirs = "$(DESTDIR)$(libdir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 crypto_la_LIBADD =
-am_crypto_la_OBJECTS = sha512.lo crypto.lo util.lo blowfish.lo
+am_crypto_la_OBJECTS = sha512.lo crypto.lo util.lo blowfish.lo md5.lo
 crypto_la_OBJECTS = $(am_crypto_la_OBJECTS)
 crypto_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
@@ -249,7 +249,7 @@ crypto_la_SOURCES = sha512.c tomcrypt_argchk.h tomcrypt_cfg.h \
 										tomcrypt_cipher.h tomcrypt_custom.h tomcrypt.h \
 										tomcrypt_hash.h tomcrypt_mac.h tomcrypt_macros.h \
 										tomcrypt_math.h tomcrypt_misc.h tomcrypt_pkcs.h tomcrypt_pk.h \
-										tomcrypt_prng.h crypto.c util.c util.h blowfish.c
+										tomcrypt_prng.h crypto.c util.c util.h blowfish.c md5.c
 
 crypto_la_LDFLAGS = -module -no-undefined -avoid-version
 all: all-am
@@ -323,6 +323,7 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/blowfish.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/crypto.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/md5.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sha512.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/util.Plo@am__quote@
 

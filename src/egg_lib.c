@@ -12,6 +12,10 @@
  * Originally written by poutine/DALnet      *
  *                       kicken/DALnet       *
  *                       comcor/DALnet       *
+ *********************************************
+ * This file contains an API which mimics    *
+ * Eggdrop's internal API. These functions   *
+ * are wrapped in tcl_lib/js_lib, etc        *
  *********************************************/
 #include <stdio.h>
 #include <ctype.h>
@@ -65,18 +69,21 @@
  */
 
 /*
-  stripcodes <strip-flags> <string>
-    Description: strips specified control characters from the string given.
-      strip-flags can be any combination of the following:
-        b - remove all boldface codes
-        c - remove all color codes
-        r - remove all reverse video codes
-        u - remove all underline codes
-        a - remove all ANSI codes
-        g - remove all ctrl-g (bell) codes
-    Returns: the stripped string.
-    Module: core
-*/
+ * stripcodes <strip-flags> <string>
+ *   Description: strips specified control characters from the string given.
+ *     strip-flags can be any combination of the following:
+ *       b - remove all boldface codes
+ *       c - remove all color codes
+ *       r - remove all reverse video codes
+ *       u - remove all underline codes
+ *       a - remove all ANSI codes
+ *       g - remove all ctrl-g (bell) codes
+ *   Returns: the stripped string.
+ *   Module: core
+ */
+/* NEED_IMP: Javascript, Python, PHP */
+/* IMP_IN: TCL */
+/* This needs to clear ANSI colors also */
 char *egg_stripcodes(const char *flags, const char *text)
 {
 	char *ret   = tmalloc0(strlen(text) + 1);
@@ -102,7 +109,10 @@ char *egg_stripcodes(const char *flags, const char *text)
 				while ((isdigit(*ptr) || *ptr == ',') && *ptr != '\0')
 					ptr++;
 
-				/* Check for ANSI colors [ */
+				/* FIXME: Check for ANSI colors [ */
+				if (*ptr == '[')
+					while ((*ptr) && *(++ptr) != ';');
+				
 				break;
 			case '\037': /* Underline */
 				if (!strchr(flags, 'u'))
@@ -745,7 +755,7 @@ int egg_deluser(struct network *net, char *username)
 void egg_newchanban(struct network *net, const char *channel, const char *ban, const char *creator, const char *comment, int lifetime, char *options)
 {
 	struct channel     *chan;
-	struct ban         *cban;
+	struct irc_ban         *cban;
 
 	/* Why the retardation? I don't know how I'm getting these strings from the interpreters */
 	if ((channel == NULL) || strlen(channel) == 0 ||
@@ -769,7 +779,7 @@ void egg_newchanban(struct network *net, const char *channel, const char *ban, c
 	if (cban == NULL)
 	{
 		/* Populate the ban data */
-		cban = ban_new();
+		cban = irc_ban_new();
 	}
 
 	cban->mask       = tstrdup(ban);
@@ -783,7 +793,7 @@ void egg_newchanban(struct network *net, const char *channel, const char *ban, c
 		cban->expiration = 0;
 
 	if (chan->bans == NULL)
-		slist_init(&chan->bans, ban_free);
+		slist_init(&chan->bans, irc_ban_free);
 
 	slist_insert_next(chan->bans, NULL, (void *)cban);
 
@@ -813,7 +823,7 @@ void egg_newchanban(struct network *net, const char *channel, const char *ban, c
 */
 void egg_newban(struct network *net, char *mask, char *creator, char *comment, int lifetime, char *options)
 {
-	struct ban         *ban;
+	struct irc_ban         *ban;
 	struct slist_node  *node;
 
 	/* Why the retardation? I don't know how I'm getting these strings from the interpreters */
@@ -856,7 +866,7 @@ void egg_newban(struct network *net, char *mask, char *creator, char *comment, i
 	}
 	
 	
-	ban = ban_new();
+	ban = irc_ban_new();
 
 	ban->mask       = tstrdup(mask);
 	ban->creator    = tstrdup(creator);
@@ -869,7 +879,7 @@ void egg_newban(struct network *net, char *mask, char *creator, char *comment, i
 		ban->expiration = 0;
 
 	if (net->bans == NULL)
-		slist_init(&net->bans, ban_free);
+		slist_init(&net->bans, irc_ban_free);
 
 	slist_insert_next(net->bans, NULL, (void *)ban);
 
@@ -1084,7 +1094,7 @@ char **egg_banlist(struct network *net, const char *channel)
 	char              lastactive[20];
 	char              **ret;
 	struct channel    *chan;
-	struct ban        *ban;
+	struct irc_ban        *ban;
 	struct slist_node *node;
 	struct slist      *slist;
 

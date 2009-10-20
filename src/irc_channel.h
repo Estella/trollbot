@@ -125,7 +125,7 @@ void channel_ban_free(struct channel_ban *ban);
 struct channel_ban *channel_ban_new(void);
 void channel_bans_free(struct channel_ban *bans);
 struct channel_ban *channel_channel_ban_find(struct channel *, const char *);
-struct ban *channel_ban_find(struct channel *, const char *);
+struct irc_ban *channel_ban_find(struct channel *, const char *);
 
 
 

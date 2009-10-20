@@ -18,7 +18,7 @@
 
 #include <time.h>
 
-struct ban
+struct irc_ban
 {
 	char *mask;
 	char *comment;
@@ -29,8 +29,8 @@ struct ban
 	char *creator;
 };
 
-struct ban *ban_new(void);
-void ban_free(void *data);
+struct irc_ban *irc_ban_new(void);
+void irc_ban_free(void *data);
 
 
 #endif /* __IRC_BAN_H__ */

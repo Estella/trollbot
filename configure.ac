@@ -1,11 +1,11 @@
-VERSION = "snap20080930"
+VERSION = "1.0"
 
 AC_SUBST(VERSION)
 
 dnl set the default prefix to be /home/user/trollbot
 
 AC_INIT(src/trollbot.c)
-AM_INIT_AUTOMAKE(trollbot,snap20080930)
+AM_INIT_AUTOMAKE(trollbot,1.0)
 
 AC_CONFIG_HEADER(config.h)
 

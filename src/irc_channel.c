@@ -247,9 +247,9 @@ struct channel_ban *channel_ban_new(void)
 	return ret;
 }
 
-struct ban *channel_ban_find(struct channel *chan, const char *find)
+struct irc_ban *channel_ban_find(struct channel *chan, const char *find)
 {
-	struct ban *ban;
+	struct irc_ban *ban;
 	struct slist_node *node;
 
 	if ((chan->bans == NULL) || chan->bans->size >= 0)

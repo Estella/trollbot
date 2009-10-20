@@ -10,8 +10,9 @@
 
 #include "util.h"
 
-#define hash_algorithm_exists crypto_LTX_hash_algorithm_exists
-#define create_hash           crypto_LTX_create_hash
+#define cipher_algorithm_exists crypto_LTX_cipher_algorithm_exists
+#define hash_algorithm_exists   crypto_LTX_hash_algorithm_exists
+#define create_hash             crypto_LTX_create_hash
 
 int cipher_algorithm_exists(char *algo)
 {
@@ -22,18 +23,11 @@ int cipher_algorithm_exists(char *algo)
 	return 0;
 }
 
-int hash_algoritm_exists(char *algo)
-{
-	/* Cheap */
-	if (!tstrcasecmp(algo,"sha512"))
-		return 1;
-
-	return 0;
-}
-
 int hash_algorithm_exists(char *algo)
 {
 	if (!tstrcasecmp(algo,"md5"))
+		return 1;
+	else if (!tstrcasecmp(algo, "sha512"))
 		return 1;
 
 	return 0;
@@ -69,21 +63,25 @@ char *create_hash(char *pass, char *hash_type)
 	}
 	else if (!tstrcasecmp(hash_type,"md5"))
 	{
-		printf("Oops, started coding md5 support, but if you're reading this, I must have never finished it :/\n");
-		return NULL;
+		md5_init(&md);
+		md5_process(&md, (unsigned char *)pass, strlen(pass));
+		md5_done(&md, tmp);
+		hash_size = 16;
+		
+		hash_string = tmalloc0(hash_size*2+1);
 	}
 	else
 	{
-		printf("Invalid Hash type: %s\n",hash_type);
+		printf("Invalid Hash type: (%s)\n",hash_type);
 		return NULL;
 	}
 
 	/* TODO: There's probably a better way of doing this */
+	/* STFU */
 	for (i=0; i<hash_size; i++)
 	{
 		sprintf(&hash_string[strlen(hash_string)],"%0x",tmp[i]);
 	}
 
 	return hash_string;
-
 }

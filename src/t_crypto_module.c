@@ -30,8 +30,9 @@ struct t_crypto_module *t_crypto_module_load(char *module_name)
 
 	tcm->handle = tmp;
 
-	tcm->hash_algorithm_exists = lt_dlsym(tcm->handle,"hash_algorithm_exists");
-	tcm->create_hash           = lt_dlsym(tcm->handle,"create_hash");
+	tcm->cipher_algorithm_exists = lt_dlsym(tcm->handle,"cipher_algorithm_exists");
+	tcm->hash_algorithm_exists   = lt_dlsym(tcm->handle,"hash_algorithm_exists");
+	tcm->create_hash             = lt_dlsym(tcm->handle,"create_hash");
 
 	return tcm;
 }

@@ -118,13 +118,9 @@ JSBool js_adduser(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	hostmask    = (argc == 2) ? JS_GetStringBytes(JS_ValueToString(cx, argv[1])) : NULL;
   
 	if (egg_adduser(net, username, hostmask) == 1)
-	{
 		return JS_TRUE;
-	}
 	else
-	{
 		return JS_FALSE;
-	}
 }
 
 JSBool js_botisop(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
@@ -145,13 +141,9 @@ JSBool js_botisop(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *
 	channel    = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
   
 	if (egg_botisop(net, channel) == 1)
-	{
 		return JS_TRUE;
-	}
 	else
-	{
 		return JS_FALSE;
-	}
 }
 
 
