@@ -24,6 +24,7 @@ struct dcc_session;
 
 int troll_matchwilds(const char *haystack, const char *needle);
 
+void troll_tick(void);
 char *troll_makearg(const char *rest, const char *mask);
 void troll_user_host_handler(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
 void troll_parse_who(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);

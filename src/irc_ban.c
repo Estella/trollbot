@@ -25,6 +25,7 @@
 #include "irc.h"
 #include "irc_network.h"
 #include "irc_channel.h"
+#include "irc_proto.h"
 #include "user.h"
 
 /* Supplementary */
@@ -33,44 +34,28 @@
 /* Self */
 #include "irc_ban.h"
 
-#ifdef CLOWNS
 /* This function allows bans to be evaluated by the bot */
 int irc_ban_evaluate(struct irc_ban *ban, char *mask)
 {
-	char *match_ident = NULL;
-	char *match_nick  = NULL;
-	char *match_host  = NULL;
-	char *match_ip    = NULL;
-	char *ptr         = NULL;
-	int  len          = 0;
-
-	/* When evaluating bans we have several aspects
-   * ident (fully realized or not with ~)
-   * nickname
-   * hostmask (Can be IP/Hostname)
-   */
-	/* Separate the mask into parts */
-	ptr = mask;
+	struct irc_hostmask *src;
+	struct irc_hostmask *dst;
+	int ret = 0;
 	
-	/* Returns 0 if invalid mask */
-	if (strchr(mask, '!') || strchr(mask, '@'))
-		return 0;
-	
-	/* Separating tokens are ! and @ */
-	match_ident = tmalloc0(strlen(mask) + 1);
-	match_nick  = tmalloc0(strlen(mask) + 1);
-	match_host  = tmalloc0(strlen(mask) + 1);
+	src = irc_hostmask_parse(ban->mask);
+	dst = irc_hostmask_parse(mask);
 
-	while (*ptr != '!')
-	{
-		match_ident = *ptr;
-		ptr++;
-	}
+	/* If the entire ban's mask applies to mask, return TRUE, we have a winner */
+	if (matchwilds(src->nick,  dst->nick) &&
+			matchwilds(src->ident, dst->ident) &&
+			matchwilds(src->host,  dst->host))
+		ret = 1;
+
+	free(src);
+	free(dst);
 
 	/* Resolve the hostname */
-	return 0;
+	return ret;
 }
-#endif /* CLOWNS */
 
 struct irc_ban *irc_ban_new(void)
 {

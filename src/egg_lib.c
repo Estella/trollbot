@@ -270,8 +270,8 @@ int egg_validuser(struct network *net, const char *handle)
 /* finduser <nick!user@host> */
 /* Eggdrop: Returns: the handle found, or "*" if none */
 /* Trollbot: Returns: a user struct, NULL if none */
-/* NEED_IMP: Perl, Python */
-/* IMP_IN: TCL[poutine], Javascript[kicken], PHP */
+/* NEED_IMP: Perl */
+/* IMP_IN: TCL[poutine], Javascript[kicken], PHP, Python */
 struct user *egg_finduser(struct network *net, const char *mask)
 {
 	struct user *user;
@@ -717,8 +717,8 @@ int egg_adduser(struct network *net, char *username, char *hostmask)
 /* addbot <handle> <address> -- This should wrap egg_adduser */
 
 /* deluser <handle> */
-/* NEED_IMP: Javascript, TCL, Python, PHP */
-/* IMP_IN: None */
+/* NEED_IMP: TCL, Python, PHP */
+/* IMP_IN: Javascript */
 /*
   deluser <handle>
     Description: attempts to erase the user record for a handle
@@ -902,8 +902,8 @@ void egg_newban(struct network *net, char *mask, char *creator, char *comment, i
 
 
 /* stick <banmask> [channel] */
-/* NEED_IMP: TCL, Javascript, Python, PHP */
-/* IMP_IN: None */
+/* NEED_IMP: TCL, Python, PHP */
+/* IMP_IN: Javascript */
 /* Need to verify what this does */
 int egg_stick(struct network *net, char *ban, char *channel)
 {
@@ -934,8 +934,8 @@ int egg_stick(struct network *net, char *ban, char *channel)
 
 
 /* unstick <banmask> [channel] */
-/* NEED_IMP: TCL, Javascript, Python, PHP */
-/* IMP_IN: None */
+/* NEED_IMP: TCL, Python, PHP */
+/* IMP_IN: Javascript */
 /* Need to verify what this does */
 int egg_unstick(struct network *net, char *ban, char *channel)
 {

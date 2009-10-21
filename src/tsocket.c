@@ -12,6 +12,11 @@
  * Originally written by poutine/DALnet      *
  *                       kicken/DALnet       *
  *                       comcor/DALnet       *
+ *********************************************
+ * This is the generic socket interface for  *
+ * Trollbot. Eventually all protocols should *
+ * use this to connect to wherever it is     *
+ * that it is connecting to or for listening *
  *********************************************/
 #include <stdio.h>
 #include <stdlib.h>

@@ -124,8 +124,6 @@ struct http_server *http_server_from_tconfig_block(struct tconfig_block *tcfg)
 			}
 		}
 
-
-
 		tmp = tmp->next;
 	}
 

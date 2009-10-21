@@ -47,6 +47,9 @@ PyMethodDef PyTbMethods[] = {
 	{"countusers", py_countusers, METH_VARARGS,
 		"Counts number of recognized users on network."},
 
+	{"finduser", py_finduser, METH_VARARGS,
+		"Finds a user by mask."},
+
 	{"validuser", py_validuser, METH_VARARGS,
 		"Checks if a user is valid"},
 

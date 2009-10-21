@@ -16,6 +16,16 @@
 #ifndef __IRC_PROTO_H__
 #define __IRC_PROTO_H__
 
+struct irc_hostmask
+{
+	char *nick;
+	char *ident;
+	char *host;
+	char *s_ip;
+	
+	long long_ip;
+};
+
 struct network;
 struct trigger;
 struct irc_data;
@@ -23,6 +33,8 @@ struct dcc_session;
 
 void add_default_triggers(void);
 
+struct irc_hostmask *irc_hostmask_parse(char *mask);
+void irc_hostmask_free(struct irc_hostmask *hm);
 void new_join(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
 void new_part(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
 void new_quit(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);

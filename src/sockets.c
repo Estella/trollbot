@@ -32,6 +32,7 @@
 
 #include "dcc.h"
 #include "irc.h"
+#include "troll_lib.h"
 #include "irc_network.h"
 #include "server.h"
 #include "irc_channel.h"
@@ -125,7 +126,10 @@ void irc_loop(void)
 	int sockcount = 0; /* Don't know why this is different than above */
 	socklen_t lon      = 0;
 	int valopt   = 0;
+	int loops = 0;
+	time_t last_run = 0;
 	time_t last = 0;
+	time_t tick = 0;
 	struct slist_node *node;
 	struct tsocket *tsock;
 
@@ -402,6 +406,20 @@ void irc_loop(void)
 			continue;
 
 		select(numsocks+1, &socks, &writefds, NULL, NULL);
+
+		/* Every 10 runs, check if time has increased by 5 seconds, if not, do nothing */
+		if (loops >= 10)
+		{	
+			loops = 0;
+			
+			if (time(NULL) >= (last_run + 5))
+			{
+				troll_tick();
+				last_run = time(NULL);
+			}
+		}
+		else
+			loops++;
 
 		/* Check the generic list of tsockets */
 		if (g_cfg->tsockets != NULL)

@@ -29,6 +29,7 @@ struct irc_ban
 	char *creator;
 };
 
+int irc_ban_evaluate(struct irc_ban *ban, char *mask);
 struct irc_ban *irc_ban_new(void);
 void irc_ban_free(void *data);
 

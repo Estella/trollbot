@@ -145,6 +145,13 @@ char *troll_makearg(const char *rest, const char *mask)
 	return ret; 
 }
 
+void troll_tick(void)
+{
+	/* Check channels that have a record but are not joined */
+	/* Evaluate known conditions as need-op, need-unban, etc */
+	printf("Tick");
+}
+
 void troll_user_host_handler(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
 	irc_printf(net->sock,"USERHOST %s",net->nick);

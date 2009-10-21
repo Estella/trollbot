@@ -41,10 +41,12 @@ JSClass global_class = {
 };
 
 static void js_error_handler(JSContext *ctx, const char *msg, JSErrorReport *er);
+static void js_dcc_error_handler(JSContext *ctx, const char *msg, JSErrorReport *er);
 
 void dcc_javascript(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
 	jsval rval;
+	char *str_ret;
 
 	/* segfault if empty and not checked here */
 	if (strlen(troll_makearg(dccbuf, trig->mask)) == 0)
@@ -53,6 +55,13 @@ void dcc_javascript(struct network *net, struct trigger *trig, struct irc_data *
 	if (net->cx == NULL) /* Should do proper state checking */
 		net_init_js(net);
 
+	/* We want to do some swapping around to be able to act on the errors
+   * and such of JS within trollbot.
+	 * Note: I'm likely killing thread safety here
+   */
+	JS_SetContextPrivate(net->cx, dcc);
+	JS_SetErrorReporter(net->cx, js_dcc_error_handler); 
+	
 	if (JS_EvaluateScript(dcc->net->cx, 
 				dcc->net->global, 
 				troll_makearg(dccbuf,trig->mask), 
@@ -61,8 +70,18 @@ void dcc_javascript(struct network *net, struct trigger *trig, struct irc_data *
 				0,
 				&rval) == JS_TRUE)
 	{
-		/* Error handling or anything ? */
+		if (rval != NULL)
+		{
+			str_ret = JS_GetStringBytes(JS_ValueToString(net->cx, rval));
+			irc_printf(dcc->sock, "JS: Return: %s", str_ret);
+		}
 	}
+	/* Error handling or anything ? */
+
+
+	/* Set the old one */
+	JS_SetErrorReporter(net->cx, js_error_handler);
+	JS_SetContextPrivate(net->cx, dcc->net);
 }
 
 void js_load_scripts_from_config(struct config *cfg)
@@ -153,6 +172,60 @@ void net_init_js(struct network *net)
 	return;
 }
 
+static void js_dcc_error_handler(JSContext *ctx, const char *msg, JSErrorReport *er)
+{
+	char *pointer = NULL;
+	char *line    = NULL;
+	int len;
+	struct dcc_session *dcc = JS_GetContextPrivate(ctx);
+
+	if (er->linebuf != NULL)
+	{
+		line = tstrdup(er->linebuf);
+		len = er->tokenptr - er->linebuf + 2;
+		pointer = malloc(len);
+		memset(pointer, '-', len-2);
+		pointer[len-1] = '\0';
+		pointer[len-2] = '^';
+	}
+	else 
+	{
+		len=0;
+		pointer = malloc(1);
+		line = malloc(1);
+		pointer[0] = '\0';
+		line[0] = '\0';
+	}
+
+	while (len > 0)
+	{
+		if (line[len-1] == '\r' || line[len-1] == '\n')
+		{
+			line[len-1] = '\0';
+		}
+		else if (line[len-1]=='\t')
+		{
+			/*Convert tabs into spaces */
+			line[len-1] = ' ';
+		}
+		len--;
+	}
+
+	/* TODO: Perhaps this should use trollbot's built in log facility */
+	/* msg is \n terminated, after "fixing", decided it looked best */
+	irc_printf(dcc->sock, "JS Error: %s\n", msg);
+
+	if (line[0])
+	{
+		irc_printf(dcc->sock, "%s\n%s\n", line, pointer);
+	}
+
+	free(pointer);
+	free(line);
+}
+
+
+
 static void js_error_handler(JSContext *ctx, const char *msg, JSErrorReport *er)
 {
 	char *pointer = NULL;
@@ -219,6 +292,9 @@ void net_init_js_global_object(struct network *net)
 	builtins = JS_InitStandardClasses(net->cx, net->global);
 
 	/* Initialize egg_lib functions */
+	JS_DefineFunction(net->cx, net->global, "unstick", js_unstick, 1, 0);
+	JS_DefineFunction(net->cx, net->global, "stick", js_stick, 1, 0);
+	JS_DefineFunction(net->cx, net->global, "deluser", js_deluser, 1, 0);
 	JS_DefineFunction(net->cx, net->global, "stripcodes", js_stripcodes, 2, 0);
 	JS_DefineFunction(net->cx, net->global, "hand2idx", js_hand2idx, 1, 0);
 	JS_DefineFunction(net->cx, net->global, "putlog", js_putlog, 1, 0);

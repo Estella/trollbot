@@ -15,6 +15,39 @@
 #include "irc.h"
 #include "user.h"
 
+PyObject *py_finduser(PyObject *self, PyObject *args)
+{
+	struct network *net;
+	struct user    *user;
+	PyObject *network;
+	
+	char *mask;
+
+	PyObject *ret;
+
+	if (!PyArg_ParseTuple(args, "Os", &network, &mask)) 
+	{
+		troll_debug(LOG_DEBUG, "[python-bindings] py_bind failed to parse arguments from script");
+		Py_RETURN_FALSE;
+	}
+
+	Py_XINCREF(network); 
+
+	net = (struct network *) PyCObject_AsVoidPtr(network); 
+
+	if (net == NULL) 
+	{
+		troll_debug(LOG_DEBUG, "[python-bindings] py_bind failed to resolve network object reference");
+		Py_RETURN_FALSE;
+	}
+
+	user = egg_finduser(net, mask);
+	
+	ret = Py_BuildValue("s", user->username);
+
+	return ret;
+}
+
 PyObject *py_passwdok(PyObject *self, PyObject *args)
 {
 	struct network *net;

@@ -52,6 +52,48 @@ static void dcc_dump(struct network *net, struct trigger *trig, struct irc_data 
 static void do_join_channels(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
 static void rehash_bot(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
 
+/* IRC protocol convenience functions */
+struct irc_hostmask *irc_hostmask_parse(char *mask)
+{
+	struct irc_hostmask *ret;	
+	int i;
+	char *src;
+	char *dst;
+	
+	if (!strchr(mask, '!') || !strchr(mask, '@'))
+		return NULL;
+	
+	ret = tmalloc(sizeof(struct irc_hostmask));
+	ret->nick  = tmalloc0(strlen(mask) + 1);
+	ret->ident = tmalloc0(strlen(mask) + 1);
+	ret->host  = tmalloc0(strlen(mask) + 1);
+	ret->s_ip  = NULL; /* tmalloc0(strlen(mask) + 1); */
+
+	for (src=mask, dst=ret->nick;*src != '!';*(dst++) = *(src++));
+	src++;
+
+	for (dst=ret->ident;*src != '@';*(dst++) = *(src++));
+	src++;
+
+	for (dst=ret->host;*src != '\0';*(dst++) = *(src++));
+	src++;
+	
+	return ret;
+}
+
+void irc_hostmask_free(struct irc_hostmask *hm)
+{
+	free(hm->nick);
+	free(hm->ident);
+	free(hm->host);
+	free(hm->s_ip);
+	free(hm);
+	
+	return;
+}
+
+
+
 void add_default_triggers(void)
 {
 	struct network *net;
@@ -101,7 +143,10 @@ void add_default_triggers(void)
 		trigger_list_add(&net->trigs->dcc,new_trigger(NULL,TRIG_DCC,".console",NULL, &dcc_console));
 
 #ifdef HAVE_JS
+		/* TODO: Need alias facility */
 		trigger_list_add(&net->trigs->dcc,new_trigger("n",TRIG_DCC,".loadjavascript",NULL,&dcc_javascript_load));
+		trigger_list_add(&net->trigs->dcc,new_trigger("n",TRIG_DCC,".loadjs",NULL,&dcc_javascript_load));
+
 		trigger_list_add(&net->trigs->dcc,new_trigger("n",TRIG_DCC,".js",NULL,&dcc_javascript));
 #endif /* HAVE_JS */
 

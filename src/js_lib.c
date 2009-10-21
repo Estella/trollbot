@@ -29,6 +29,102 @@
 #include "irc_network.h"
 #include "egg_lib.h"
 
+/* FS Functions */
+/* fopen */
+JSBool js_fopen(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+	char *filename;
+	char *mode;
+
+	/* <filename> <mode> */
+	if (argc != 2)
+	{
+		return JS_FALSE;
+	}
+
+	filename = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+	mode     = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
+
+
+	return JS_TRUE;
+}
+
+/* fclose */
+/* fputs */
+/* fgets */
+/* feof */
+
+JSBool js_unstick(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+	struct network *net    = JS_GetContextPrivate(cx);
+	char           *mask   = NULL;
+	char           *chan   = NULL;
+	int             ret    = 0;
+
+	/* 1-2 args */
+	if (argc != 1 && argc != 2)
+	{
+		return JS_FALSE;
+	}
+
+	if (argc == 2)
+		chan = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
+
+	mask = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+
+	ret = egg_unstick(net, mask, chan);
+	
+	*rval = INT_TO_JSVAL(ret);
+
+	return JS_TRUE;
+}	
+
+
+JSBool js_stick(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+	struct network *net    = JS_GetContextPrivate(cx);
+	char           *mask   = NULL;
+	char           *chan   = NULL;
+	int             ret    = 0;
+
+	/* 1-2 args */
+	if (argc != 1 && argc != 2)
+	{
+		return JS_FALSE;
+	}
+
+	if (argc == 2)
+		chan = JS_GetStringBytes(JS_ValueToString(cx, argv[1]));
+
+	mask = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+
+	ret = egg_stick(net, mask, chan);
+	
+	*rval = INT_TO_JSVAL(ret);
+
+	return JS_TRUE;
+}	
+
+JSBool js_deluser(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+	struct network *net    = JS_GetContextPrivate(cx);
+	char           *handle = NULL;
+	int             ret    = 0;
+		
+	if (argc != 1)
+	{
+		return JS_FALSE;
+	}
+
+	handle = JS_GetStringBytes(JS_ValueToString(cx, argv[0]));
+
+	ret = egg_deluser(net, handle);
+
+	*rval = INT_TO_JSVAL(ret);
+
+	return JS_TRUE;
+}
+
 JSBool js_stripcodes(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	char *codes             = NULL;

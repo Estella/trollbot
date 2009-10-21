@@ -14,6 +14,7 @@ bind("pub","-","!js-getchanmode", "do_getchanmode");
 bind("pub","-","!js-isop", "do_isop");
 bind("pub","-","!js-isvoice", "do_isvoice");
 bind("pub","-","!js-die", "do_die");
+bind("pub","-","!js", "do_eval");
 
 function do_die(nick, uhost, hand, chan, arg)
 {
@@ -145,11 +146,13 @@ function do_matchattr(nick, uhost, hand, chan, arg)
 		putserv("PRIVMSG " + chan + " :" + matchattr(args[0],args[1]));
 }
 
-/*
-function eval_js(nick, uhost, hand, chan, arg)
+function do_eval(nick, uhost, hand, chan, arg)
 {
-	js_eval(arg,chan);
-}*/
+	var result = eval(arg);
+	
+	if (result != 'undefined')
+		putserv("PRIVMSG " + chan + " :JS Result: " + result);
+}
 
 function do_javascript(nick, uhost, hand, chan, arg)
 {
