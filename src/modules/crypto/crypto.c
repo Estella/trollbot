@@ -27,6 +27,8 @@ int hash_algorithm_exists(char *algo)
 {
 	if (!tstrcasecmp(algo,"md5"))
 		return 1;
+	else if (!tstrcasecmp(algo,"md4"))
+		return 1;
 	else if (!tstrcasecmp(algo, "sha512"))
 		return 1;
 
@@ -66,6 +68,15 @@ char *create_hash(char *pass, char *hash_type)
 		md5_init(&md);
 		md5_process(&md, (unsigned char *)pass, strlen(pass));
 		md5_done(&md, tmp);
+		hash_size = 16;
+		
+		hash_string = tmalloc0(hash_size*2+1);
+	}
+	else if (!tstrcasecmp(hash_type,"md4"))
+	{
+		md4_init(&md);
+		md4_process(&md, (unsigned char *)pass, strlen(pass));
+		md4_done(&md, tmp);
 		hash_size = 16;
 		
 		hash_string = tmalloc0(hash_size*2+1);
