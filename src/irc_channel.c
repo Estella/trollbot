@@ -107,6 +107,7 @@ void channel_user_free(struct channel_user *cuser)
 	free(cuser->modes);
 
   free(cuser->host);
+	free(cuser->hostmask);
 
 	free(cuser->realname);
 	free(cuser);
@@ -409,6 +410,7 @@ struct channel_user *new_channel_user(void)
 	ret->jointime = 0;
 	ret->urec     = NULL;
 	ret->host     = NULL;
+	ret->hostmask = NULL;
 	ret->ident    = NULL;
 	ret->realname = NULL;
 	ret->modes    = NULL;
@@ -429,6 +431,7 @@ void free_channel_user(void *ptr)
 	free(tmp->nick);
 	free(tmp->ident);
 	free(tmp->host);
+	free(tmp->hostmask);
 	free(tmp->realname);
 
 	free(tmp->modes);

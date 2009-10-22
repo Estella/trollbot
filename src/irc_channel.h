@@ -79,6 +79,7 @@ struct channel_user
 	char *modes;
 
 	char *host;
+	char *hostmask;
 
 	char *realname;
 

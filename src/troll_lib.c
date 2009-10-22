@@ -161,8 +161,10 @@ void troll_user_host_handler(struct network *net, struct trigger *trig, struct i
 
 void troll_nick_in_use_handler(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
-	if (net->altnick != NULL)
-		irc_printf(net->sock,"NICK %s",net->altnick);
+	if (net->altnick == NULL)
+		return;
+
+	log_entry_printf(net, NULL, "T", "Attempting to change nickname from %s to %s.", net->botnick, net->altnick);
 
 	if (net->botnick != NULL)
 		free(net->botnick);
@@ -207,9 +209,13 @@ void troll_parse_who(struct network *net, struct trigger *trig, struct irc_data 
 	
 	cuser->jointime = time(NULL);
 
-	cuser->ident = tstrdup(data->c_params[2]);
-	cuser->modes = NULL;
-	cuser->host  = tstrdup(data->c_params[3]);
+	cuser->ident    = tstrdup(data->c_params[2]);
+	cuser->modes    = NULL;
+	cuser->host     = tstrdup(data->c_params[3]);
+
+	/* !,@ + \0 */
+	cuser->hostmask = tmalloc0(strlen(cuser->ident) + strlen(cuser->nick) + strlen(cuser->host) + 2 + 1);
+	sprintf(cuser->hostmask, "%s!%s@%s", cuser->nick, cuser->ident, cuser->host);
 
 	/* Insert it into the list */
 	chan->user_list = channel_user_add(chan->user_list, cuser);

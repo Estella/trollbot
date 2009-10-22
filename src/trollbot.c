@@ -40,6 +40,7 @@
 #include "irc_proto.h"
 #include "log_entry.h"
 #include "egg_lib.h"
+#include "irc_ban.h"
 
 #ifdef HAVE_TCL
 #include "tcl_embed.h"

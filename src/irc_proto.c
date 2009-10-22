@@ -352,8 +352,12 @@ void new_join(struct network *net, struct trigger *trig, struct irc_data *data, 
 				chan->user_list = channel_user_add(chan->user_list, cuser);
 			}
 
-			cuser->host  = tstrdup(data->prefix->host); 
+			cuser->host  = tstrdup(data->prefix->host);
 			cuser->ident = tstrdup(data->prefix->user);
+				/* !,@ + \0 */
+			cuser->hostmask = tmalloc0(strlen(cuser->ident) + strlen(cuser->nick) + strlen(cuser->host) + 2 + 1);
+			sprintf(cuser->hostmask, "%s!%s@%s", cuser->nick, cuser->ident, cuser->host);
+
 			/* FIXME: Need check for whether they're a recognized user in the bot */
 
 			/* Check if nick is bot, if so do WHO, and MODE */

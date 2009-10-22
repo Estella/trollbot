@@ -41,13 +41,16 @@ int irc_ban_evaluate(struct irc_ban *ban, char *mask)
 	struct irc_hostmask *dst;
 	int ret = 0;
 	
+	if ((ban == NULL) || ban->mask == NULL || mask == NULL)
+		return 0;
+	
 	src = irc_hostmask_parse(ban->mask);
 	dst = irc_hostmask_parse(mask);
 
 	/* If the entire ban's mask applies to mask, return TRUE, we have a winner */
-	if (matchwilds(src->nick,  dst->nick) &&
-			matchwilds(src->ident, dst->ident) &&
-			matchwilds(src->host,  dst->host))
+	if (!matchwilds(dst->nick,  src->nick) &&
+			!matchwilds(dst->ident, src->ident) &&
+			!matchwilds(dst->host,  src->host))
 		ret = 1;
 
 	free(src);

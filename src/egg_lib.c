@@ -37,6 +37,9 @@
 #include "troll_lib.h"
 #include "irc_ban.h"
 
+#include "log_filter.h"
+#include "log_entry.h"
+
 #ifdef HAVE_TCL
 #include "tcl_embed.h"
 #endif /* HAVE_TCL */
@@ -757,8 +760,9 @@ int egg_deluser(struct network *net, char *username)
 /* Trollbot Specific: Calling this with -1 as lifetime will cause it to use the value in ban-time */
 void egg_newchanban(struct network *net, const char *channel, const char *ban, const char *creator, const char *comment, int lifetime, char *options)
 {
-	struct channel     *chan;
-	struct irc_ban         *cban;
+	struct channel      *chan  = NULL;
+	struct irc_ban      *cban  = NULL;
+	struct channel_user *cuser = NULL;
 
 	/* Why the retardation? I don't know how I'm getting these strings from the interpreters */
 	if ((channel == NULL) || strlen(channel) == 0 ||
@@ -800,11 +804,26 @@ void egg_newchanban(struct network *net, const char *channel, const char *ban, c
 
 	slist_insert_next(chan->bans, NULL, (void *)cban);
 
+	cuser = chan->user_list;
+
 	/* Evaluate bans, see if any channel users match, if so, ban them */
+	while (cuser != NULL)
+	{
+		if (cuser->hostmask != NULL)
+		{
+			if (irc_ban_evaluate(cban, cuser->hostmask))
+			{
+				irc_printf(net->sock, "MODE %s +b %s", chan->name, cban->mask);
+				/* TODO: Make the message configurable */
+				irc_printf(net->sock, "KICK %s %s :Matched Ban (%s)", chan->name, cuser->nick, cban->mask);
+			}
+		}
+		cuser = cuser->next;
+	}
 
 	/* Only if sticky, dynamic bans
-	irc_printf(net->sock, "MODE %s +b %s", cban->chan, cban->mask);
-	log_entry_sprintf(net, "b", "Added ban for %s", cban->mask);*/
+	irc_printf(net->sock, "MODE %s +b %s", cban->chan, cban->mask); */
+	log_entry_printf(net, "b", "Added ban for %s", cban->mask);
 
 	return;
 }
