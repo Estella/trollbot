@@ -28,6 +28,7 @@
 #include "irc.h"
 #include "irc_network.h"
 #include "irc_channel.h"
+#include "irc_ban.h"
 #include "irc_trigger.h"
 #include "user.h"
 #include "util.h"
@@ -53,10 +54,28 @@ static void do_join_channels(struct network *net, struct trigger *trig, struct i
 static void rehash_bot(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);
 
 /* IRC protocol convenience functions */
+void irc_ban(struct network *net, struct channel *channel, struct irc_ban *ban)
+{
+	irc_printf(net->sock, "MODE %s +b %s", channel->name, ban->mask);
+
+	return;
+}
+
+void irc_kick_ban(struct network *net, struct channel *channel, struct channel_user *cuser, struct irc_ban *ban)
+{
+	irc_printf(net->sock, "MODE %s +b %s", channel->name, ban->mask);
+
+	if (ban->comment != NULL)
+		irc_printf(net->sock, "KICK %s %s :%s", channel->name, cuser->nick, ban->comment);
+	else
+		irc_printf(net->sock, "KICK %s %s :Ban mask matched (%s)", channel->name, cuser->nick, ban->mask);
+
+	return;
+}
+
 struct irc_hostmask *irc_hostmask_parse(char *mask)
 {
 	struct irc_hostmask *ret;	
-	int i;
 	char *src;
 	char *dst;
 	
@@ -330,8 +349,10 @@ static void do_join_channels(struct network *net, struct trigger *trig, struct i
 
 void new_join(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
-	struct channel *chan          = net->chans;
-	struct channel_user *cuser    = NULL;
+	struct channel      *chan  = net->chans;
+	struct channel_user *cuser = NULL;
+	struct slist_node   *node  = NULL;
+	struct irc_ban      *ban   = NULL;
 
 	log_entry_printf(net,"j","%s joined %s.",data->prefix->nick,data->rest_str);
 
@@ -354,7 +375,8 @@ void new_join(struct network *net, struct trigger *trig, struct irc_data *data, 
 
 			cuser->host  = tstrdup(data->prefix->host);
 			cuser->ident = tstrdup(data->prefix->user);
-				/* !,@ + \0 */
+
+			/* !,@ + \0 */
 			cuser->hostmask = tmalloc0(strlen(cuser->ident) + strlen(cuser->nick) + strlen(cuser->host) + 2 + 1);
 			sprintf(cuser->hostmask, "%s!%s@%s", cuser->nick, cuser->ident, cuser->host);
 
@@ -364,11 +386,34 @@ void new_join(struct network *net, struct trigger *trig, struct irc_data *data, 
 			if (!tstrcasecmp(net->botnick,data->prefix->nick))
 			{
 				/* Definitely want to queue this */
+				/* FIXME: This lags the living fuck out of the bot */
 				irc_printf(net->sock,"MODE %s",chan->name);
 				irc_printf(net->sock,"MODE %s b",chan->name);
 				irc_printf(net->sock,"MODE %s e",chan->name);
 				irc_printf(net->sock,"MODE %s I",chan->name);
 				irc_printf(net->sock,"WHO %s",chan->name);
+			}
+			else
+			{
+				/* Only if not the bot */
+				/* Check Banlists */
+				if (chan->bans != NULL)
+				{
+					node = chan->bans->head;
+					
+					while (node != NULL)
+					{
+						ban  = node->data;
+	
+						if (irc_ban_evaluate(ban, cuser->hostmask))
+							irc_kick_ban(net, chan, cuser, ban);
+		
+						node = node->next;
+					}
+
+				}	
+				/* FIXME: Global banlist */
+
 			}
 
 			return;

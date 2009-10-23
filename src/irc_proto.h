@@ -27,12 +27,17 @@ struct irc_hostmask
 };
 
 struct network;
+struct channel;
+struct channel_user;
+struct irc_ban;
 struct trigger;
 struct irc_data;
 struct dcc_session;
 
 void add_default_triggers(void);
 
+void irc_ban(struct network *net, struct channel *channel, struct irc_ban *ban);
+void irc_kick_ban(struct network *net, struct channel *channel, struct channel_user *cuser, struct irc_ban *ban);
 struct irc_hostmask *irc_hostmask_parse(char *mask);
 void irc_hostmask_free(struct irc_hostmask *hm);
 void new_join(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf);

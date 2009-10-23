@@ -166,7 +166,7 @@ void new_http_connection(struct http_server *http)
 }
 
 /* This function gets an unparsed line from ICS, and makes it into the http_data struct */
-void parse_http_line(struct http_server *http, char *buffer)
+struct http_data *parse_http_line(struct http_server *http, char *buffer)
 {
 	struct http_data *data    = NULL;
 
@@ -177,7 +177,8 @@ void parse_http_line(struct http_server *http, char *buffer)
 
 	troll_debug(LOG_DEBUG, "%s\n",data->txt_packet);
 
-	http_data_free(data);
+	return data;
+/*	http_data_free(data); */
 }
 
 int http_in(struct http_server *http)

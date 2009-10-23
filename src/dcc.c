@@ -12,6 +12,9 @@
  * Originally written by poutine/DALnet      *
  *                       kicken/DALnet       *
  *                       comcor/DALnet       *
+ *********************************************
+ * This is the telnet/DCC interface for the  *
+ * IRC portion of Trollbot.                  *
  *********************************************/
 #include <stdio.h>
 #include <stdlib.h>

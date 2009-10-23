@@ -111,10 +111,13 @@ struct channel
 	/* Unhandled blocks get stuck here */
 	struct tconfig_block *tcfg;
 
+
 	struct channel *prev;
 	struct channel *next;
 };
 
+/* FIXME: Need standards <noun> <verb> notation */
+struct chan_egg_var *find_chan_egg_var(struct channel *chan, char *key);
 struct chan_egg_var *new_chan_egg_var(void);
 void free_chan_egg_var(void *chan_egg_var_ptr);
 

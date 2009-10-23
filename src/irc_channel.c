@@ -113,6 +113,35 @@ void channel_user_free(struct channel_user *cuser)
 	free(cuser);
 }
 
+struct chan_egg_var *find_chan_egg_var(struct channel *chan, char *key)
+{
+	struct slist        *slist  = NULL;
+	struct slist_node   *node   = NULL;
+	struct chan_egg_var *tmpvar = NULL;
+	
+	slist = chan->egg_vars;
+
+	if ((slist) && slist->head != NULL)
+	{
+		node = slist->head;
+		
+		while (node != NULL)
+		{
+			tmpvar = node->data;
+
+			if (tmpvar != NULL)
+			{
+				if (!tstrcasecmp(tmpvar->key, key))
+					return tmpvar;
+					
+			}
+			node = node->next;
+		}
+	}
+
+	return NULL;
+}
+
 /* These are generic key/values for eggdrop compatibility and script extension */
 struct chan_egg_var *new_chan_egg_var(void)
 {
@@ -622,8 +651,7 @@ void channel_list_populate(struct network *net, struct trigger *trig, struct irc
 
 		modes = tmalloc0(strlen(ptr) + 1); /* Guaranteed Maximum size */
 
-		/* All modes under RFC? FIXME: Verify with IRC RFC */
-		/* Get all modes, nasty code */
+		/* RFC 1459 states that only modes @ and + are valid for the 353 numeric, but who knows */
 		for (j = 0;*ptr == '@' || *ptr == '+';j++)
 		{
 			switch (*ptr)

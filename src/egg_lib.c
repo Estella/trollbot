@@ -763,6 +763,7 @@ void egg_newchanban(struct network *net, const char *channel, const char *ban, c
 	struct channel      *chan  = NULL;
 	struct irc_ban      *cban  = NULL;
 	struct channel_user *cuser = NULL;
+	struct chan_egg_var *cav   = NULL;
 
 	/* Why the retardation? I don't know how I'm getting these strings from the interpreters */
 	if ((channel == NULL) || strlen(channel) == 0 ||
@@ -784,10 +785,7 @@ void egg_newchanban(struct network *net, const char *channel, const char *ban, c
 	cban = channel_ban_find(chan, ban);
 
 	if (cban == NULL)
-	{
-		/* Populate the ban data */
 		cban = irc_ban_new();
-	}
 
 	cban->mask       = tstrdup(ban);
 	cban->creator    = tstrdup(creator);
@@ -811,16 +809,24 @@ void egg_newchanban(struct network *net, const char *channel, const char *ban, c
 	{
 		if (cuser->hostmask != NULL)
 		{
+			/* Kick ban them immediately if they're already in the channel */
 			if (irc_ban_evaluate(cban, cuser->hostmask))
-			{
-				irc_printf(net->sock, "MODE %s +b %s", chan->name, cban->mask);
-				/* TODO: Make the message configurable */
-				irc_printf(net->sock, "KICK %s %s :Matched Ban (%s)", chan->name, cuser->nick, cban->mask);
-			}
+				irc_kick_ban(net, chan, cuser, cban);
 		}
 		cuser = cuser->next;
 	}
 
+	/* Check egg vars for dynamicbans */
+	cav = find_chan_egg_var(chan, "dynamicbans");
+
+	if (cav != NULL)
+	{
+		/* Non-zero == true */
+		if (!strcmp(cav->value, "0"))
+			irc_ban(net, chan, cban);
+	}
+	
+	
 	/* Only if sticky, dynamic bans
 	irc_printf(net->sock, "MODE %s +b %s", cban->chan, cban->mask); */
 	log_entry_printf(net, "b", "Added ban for %s", cban->mask);
