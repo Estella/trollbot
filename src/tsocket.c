@@ -82,6 +82,26 @@ ssize_t tsocket_printf(struct tsocket *tsock, const char *fmt, ...)
 	return send(tsock->sock,buf2,strlen(buf2),0);
 }
 
+struct tsocket *tsocket_accept(struct tsocket *tsock)
+{
+	struct tsocket *new_tsock = NULL;
+  struct sockaddr_in client_addr;
+  socklen_t sin_size = 0;
+	int sock;
+
+	if ((sock = accept(tsock->sock,(struct sockaddr *)&client_addr,&sin_size)) == -1)
+		return NULL;
+
+	/* Copy client's host information into src_host */
+
+	new_tsock = tsocket_new();
+	
+	new_tsock->sock   = sock;
+	new_tsock->status = TSOCK_NOTINFDSET;
+	
+	return new_tsock;
+}
+
 int tsocket_close(struct tsocket *tsock)
 {
 	if (tsock->sock != -1)
@@ -333,6 +353,9 @@ struct tsocket *tsocket_new(void)
 	tsocket->tsocket_write_cb      = NULL;
 	tsocket->tsocket_connect_cb    = NULL;
 	tsocket->tsocket_disconnect_cb = NULL;
+
+	tsocket->src_host = NULL;
+	tsocket->dst_host = NULL;
 
 	/* Connection Queueing */
 	tsocket->last_attempt       = 0;

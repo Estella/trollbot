@@ -41,12 +41,6 @@
 #include "tsocket.h"
 #include "util.h"
 
-#ifdef HAVE_HTTP
-#include "http_server.h"
-#include "http_proto.h"
-#include "http_request.h"
-#endif /* HAVE_HTTP */
-
 #ifdef HAVE_ICS
 #include "ics_server.h"
 #include "ics_proto.h"
@@ -118,10 +112,6 @@ void irc_loop(void)
 #endif /* HAVE_XMPP */
 	struct dcc_session *dcc;
 
-#ifdef HAVE_HTTP
-	struct http_server *http;
-#endif /* HAVE_HTTP */
-
 	int numsocks = 0;
 	int sockcount = 0; /* Don't know why this is different than above */
 	socklen_t lon      = 0;
@@ -166,18 +156,6 @@ void irc_loop(void)
 		xs = xs->next;
 	}
 #endif /* HAVE_XMPP */
-#ifdef HAVE_HTTP
-	http = g_cfg->http_servers;
-
-	/* Connect to one server for each network, or mark network unconnectable */
-	while (http != NULL)
-	{
-		http->status = HTTP_UNINITIALIZED;
-		http_server_listen(http);
-
-		http = http->next;
-	}
-#endif /* HAVE_HTTP */
 
 	net = g_cfg->networks;
 
@@ -348,26 +326,6 @@ void irc_loop(void)
 			net = net->next;
 		}
 
-#ifdef HAVE_HTTP
-		http = g_cfg->http_servers;
-		
-		while (http != NULL)
-		{
-			if (http->sock == -2)
-				continue;
-
-      if (http->sock == -1)
-      {
-				http_init_listener(http);	
-			}
-
-			FD_SET(http->sock,&socks);
-			sockcount++;
-			numsocks = (http->sock > numsocks) ? http->sock : numsocks;
-			
-			http = http->next;
-		}
-#endif /* HAVE_HTTP */
 		/* Check the generic list of tsockets */
 		if (g_cfg->tsockets != NULL)
 		{
@@ -381,6 +339,12 @@ void irc_loop(void)
 				{
 					switch (tsock->status)
 					{
+						case TSOCK_LISTENER:
+							FD_SET(tsock->sock, &socks);
+							sockcount++;
+							numsocks = (tsock->sock > numsocks) ? tsock->sock : numsocks;
+							break;
+
 						case TSOCK_CONNECTING:
 							FD_SET(tsock->sock, &writefds);
 							sockcount++;
@@ -405,7 +369,7 @@ void irc_loop(void)
 		if (sockcount == 0)
 			continue;
 
-		select(numsocks+1, &socks, &writefds, NULL, NULL);
+		select(numsocks+1, &socks, &writefds, NULL, &timeout);
 
 		/* Every 10 runs, check if time has increased by 5 seconds, if not, do nothing */
 		if (loops >= 10)
@@ -434,6 +398,15 @@ void irc_loop(void)
 				{
 					switch (tsock->status)
 					{
+						case TSOCK_LISTENER:
+							if (FD_ISSET(tsock->sock, &socks))
+								if (tsock->tsocket_read_cb != NULL)
+									if (!tsock->tsocket_read_cb(tsock))
+									{
+										FD_CLR(tsock->sock, &socks);
+										tsock->tsocket_disconnect_cb(tsock);
+									}
+							break;
 						case TSOCK_CONNECTING:
 							/* Socket is in a non-blocking connect, do some hacks to figure
 							 * out if it succeeded or not.
@@ -518,28 +491,6 @@ void irc_loop(void)
 #endif /* HAVE_XMPP */
 
 		net = g_cfg->networks;
-
-#ifdef HAVE_HTTP
-
-		http = g_cfg->http_servers;
-		
-		while (http != NULL)
-		{
-      /* If a DCC listener exists, add it to the fd set */
-      if (http->sock > 0)
-      {
-        if (FD_ISSET(http->sock,&socks))
-				{
-					new_http_connection(http);
-				}
-      }
-			
-			http = http->next;
-		}
-
-
-#endif /* HAVE_HTTP */
-
 
 		while (net != NULL)
 		{

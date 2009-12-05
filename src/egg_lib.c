@@ -599,8 +599,10 @@ char *egg_chattr(struct network *net, const char *handle, const char *changes, c
 /* IMP_IN: TCL, Javascript, PHP */
 int egg_matchattr(struct network *net, const char *handle, const char *flags, const char *channel)
 {
-	struct user *user;
-	int i;
+	char        *gflags = NULL;
+	char        *cflags = NULL; 
+	struct user *user   = NULL;
+	int          i      = 0;
 
 
 	user = net->users;
@@ -620,10 +622,23 @@ int egg_matchattr(struct network *net, const char *handle, const char *flags, co
 
 	/* Deal with this either as a channel or global, not sure if this should
 	 * handle eggdrop notation a|f or whatever.
-	 * FIXME
+	 * Why not, decided to add it regardless of eggdrop behavior.
 	 */
 	if (channel != NULL)
 	{
+		/* If there's global flags | chan flags notation *
+		if (strchr(flags, '|') != NULL)
+		{
+			gflags = flags;
+			cflags = (strchr(flags, '|') + 1);
+			
+			* Check gflags until | *
+			for (i=0; (gflags != NULL) && gflags[i] != '|'; i++)
+			{
+				if (strchr(user->flags,flags[i]) == NULL)
+					return 0;
+			}
+		}*/
 		troll_debug(LOG_ERROR, "FIXME: egg_matchattr() only works for global flags");
 	} 
 	else
@@ -994,7 +1009,22 @@ int egg_unstick(struct network *net, char *ban, char *channel)
 /* unstickexempt <exemptmask> [channel] */
 /* stickinvite <invitemask> [channel] */
 /* unstickinvite <invitemask> [channel] */
+
 /* killchanban <channel> <ban> */
+/* NEED_IMP: Javascript, Python, PHP */
+/* IMP_IN: TCL */
+int egg_killchanban(struct network *net, char *channel, char *ban)
+{
+	/* TODO: Verify eggdrop behavior */
+	if (channel != NULL && ban != NULL)
+		irc_printf(net->sock, "MODE %s -b %s", channel, ban);
+	else
+		return 0;
+	
+	return 1;
+}
+
+
 /* killban <ban> */
 /* killchanexempt <channel> <exempt> */
 /* killexempt <exempt> */
@@ -2528,7 +2558,15 @@ void egg_die(struct network *net, const char *reason)
 
 /* unames */
 /* dnslookup <ip-address/hostname> <proc> [[arg1] [arg2] ... [argN]] */
+
 /* md5 <string> */
+/* IMP_IN: None */
+/* NEED_IMP: !php(built in), Javascript, TCL, ?Python? */
+char *egg_md5(char *string)
+{
+		return egg_makepasswd(string, "md5");
+}
+
 /* callevent <event> */
 /* modules */
 /* loadmodule <module> */

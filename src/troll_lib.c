@@ -464,6 +464,13 @@ void troll_trig_update_nick(struct network *net, struct trigger *trig, struct ir
 	struct channel      *chan  = NULL;
 	struct channel_user *cuser = NULL;
 
+	if (!tstrcasecmp(net->botnick, data->prefix->nick))
+	{
+		log_entry_printf(net, NULL, "T", "Detected nick change for bot from %s to %s.", net->botnick, data->rest[0]);
+		
+		net->botnick = tstrdup(data->rest[0]);
+	}
+
 	chan = net->chans;
 
 	while (chan != NULL)

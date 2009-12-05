@@ -43,6 +43,11 @@ struct tsocket
 	/* Extra data */
 	void *data;
 
+	/* Information on involved parties */
+	char *src_host;
+	char *dst_host;
+
+
 	/* Callback API */
 	int (*tsocket_read_cb)(struct tsocket *);
 	int (*tsocket_write_cb)(struct tsocket *);
@@ -58,6 +63,7 @@ struct tsocket
 };
 
 /* TCP API */
+struct tsocket *tsocket_accept(struct tsocket *tsock);
 ssize_t tsocket_printf(struct tsocket *tsock, const char *fmt, ...);
 int tsocket_check_nonblocking_connect(struct tsocket *tsock);
 int tsocket_close(struct tsocket *tsock);

@@ -18,6 +18,7 @@
 
 #include "config.h"
 
+struct tsocket;
 struct http_request;
 struct tconfig_block;
 struct log_filter;
@@ -46,11 +47,6 @@ struct interpreter;
 
 #define HTTP_MAX 100
 
-enum http_status {
-	HTTP_UNINITIALIZED = 0,
-	HTTP_LISTENING
-};
-
 /* All lists are at head */
 struct http_server
 {
@@ -61,14 +57,12 @@ struct http_server
 
 	/* Copy over on rehash */
   int sock;
+	struct tsocket *tsock;
 
 /* struct http_trigger_table *http_trigger_table; */
 
   char *host;
 	int port;
-
-	/* Copy over on rehash */
-  int status;
 
 	char *web_root;
 
@@ -122,6 +116,8 @@ struct http_server
 #endif /* HAVE_JS */
 };
 
+
+int http_server_accept(struct tsocket *tsock);
 
 struct http_server *http_server_from_tconfig_block(struct tconfig_block *tcfg);
 

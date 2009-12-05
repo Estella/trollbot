@@ -35,6 +35,49 @@
 #include "ics_lib.h"
 #endif /* HAVE_ICS */
 
+int tcl_md5(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	struct network *net     = clientData;
+	char           *string  = NULL;
+	char           *ret     = NULL;
+	Tcl_Obj        *t_ret   = NULL;
+
+	string = Tcl_GetString(objv[1]);
+
+	ret = egg_md5(string);
+
+	t_ret = Tcl_NewStringObj(ret, strlen(ret));
+
+	Tcl_SetObjResult(interp, t_ret);
+
+	return TCL_OK;
+}
+
+int tcl_killchanban(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	struct network *net     = clientData;
+	char           *channel = NULL;
+	char           *ban     = NULL;
+	Tcl_Obj        *t_ret   = NULL;
+	int             ret     = 0;
+
+	if (objc != 3)
+	{
+		Tcl_WrongNumArgs(interp, objc, objv, "<handle>");
+		return TCL_ERROR;
+	}
+
+	channel = Tcl_GetString(objv[1]);
+	ban     = Tcl_GetString(objv[2]);
+
+	ret = egg_killchanban(net, channel, ban);
+
+	t_ret = Tcl_NewIntObj(ret);
+
+	Tcl_SetObjResult(interp, t_ret);
+
+	return TCL_OK;
+}
 
 int tcl_hand2idx(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {

@@ -18,6 +18,7 @@
 
 
 struct http_server;
+struct tsocket;
 
 
 struct http_data
@@ -30,6 +31,6 @@ struct http_data
 void http_init_listener(struct http_server *http);
 void new_http_connection(struct http_server *http);
 struct http_data *parse_http_line(struct http_server *http, char *buffer);
-int http_in(struct http_server *http);
+int http_in(struct tsocket *tsock);
 
 #endif /* __HTTP_PROTO_H__ */

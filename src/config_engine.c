@@ -82,6 +82,10 @@ int config_engine_init(char *filename)
 	struct tconfig_block *tcfg;
 	struct tconfig_block *defaults;
 
+#ifdef HAVE_HTTP
+	struct http_server *http;
+#endif /* HAVE_HTTP */
+
 	log_entry_printf(NULL,NULL,"o","Loading %s as conf file.",filename);
 	tcfg      = file_to_tconfig(filename);
 	log_entry_printf(NULL,NULL,"o","Loaded %s.",filename);
@@ -147,6 +151,17 @@ int config_engine_init(char *filename)
 		g_cfg->crypto = t_crypto_module_load(g_cfg->crypto_name);
 		log_entry_printf(NULL,NULL,"o","Loaded crypto module successfully.");
 	}
+
+#ifdef HAVE_HTTP
+
+	http = g_cfg->http_servers;
+
+	while (http != NULL)
+	{
+		http_server_listen(http);
+		http = http->next;
+	}
+#endif /* HAVE_HTTP */
 
 	return 0;
 }

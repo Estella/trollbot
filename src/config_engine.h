@@ -19,6 +19,9 @@
 #include "config.h"
 
 #ifdef HAVE_PYTHON
+#ifdef _XOPEN_SOURCE
+#undef _XOPEN_SOURCE
+#endif /* _XOPEN_SOURCE */
 #include <Python.h>
 #endif /* HAVE_PYTHON */
 

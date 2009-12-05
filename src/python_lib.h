@@ -1,6 +1,12 @@
 #ifndef __PYTHON_LIB_H__
 #define __PYTHON_LIB_H__
 
+#ifdef _POSIX_C_SOURCE
+#undef _POSIX_C_SOURCE
+#endif /* _POSIX_C_SOURCE */
+#ifdef _XOPEN_SOURCE
+#undef _XOPEN_SOURCE
+#endif /* _XOPEN_SOURCE */
 #include <Python.h>
 
 PyObject *py_finduser(PyObject *self, PyObject *args);

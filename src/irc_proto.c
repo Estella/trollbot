@@ -56,19 +56,40 @@ static void rehash_bot(struct network *net, struct trigger *trig, struct irc_dat
 /* IRC protocol convenience functions */
 void irc_ban(struct network *net, struct channel *channel, struct irc_ban *ban)
 {
+	/* TODO: Friend evaluation? */
+	/* TODO: Don't ban self     */
 	irc_printf(net->sock, "MODE %s +b %s", channel->name, ban->mask);
 
 	return;
 }
 
+void irc_kick(struct network *net, struct channel *channel, struct channel_user *cuser, char *comment)
+{
+	/* struct chan_egg_var *cav = NULL; */
+
+	/* Evaluate dontkickops FIXME: matchattr needs to be able to get channel flags *
+	cav = find_chan_egg_var(chanel, "donkickops");
+
+	if (cav != NULL)
+	{
+		if (!strcmp(cav->value, "1"))
+			return;
+	}*/
+	
+	/* Don't kick self      */
+	if (!tstrcasecmp(cuser->nick, egg_botnick(net)))
+		return;
+
+	if (comment != NULL)
+		irc_printf(net->sock, "KICK %s %s :%s", channel->name, cuser->nick, comment);
+	else
+		irc_printf(net->sock, "KICK %s %s :Requested", channel->name, cuser->nick);
+}
+
 void irc_kick_ban(struct network *net, struct channel *channel, struct channel_user *cuser, struct irc_ban *ban)
 {
-	irc_printf(net->sock, "MODE %s +b %s", channel->name, ban->mask);
-
-	if (ban->comment != NULL)
-		irc_printf(net->sock, "KICK %s %s :%s", channel->name, cuser->nick, ban->comment);
-	else
-		irc_printf(net->sock, "KICK %s %s :Ban mask matched (%s)", channel->name, cuser->nick, ban->mask);
+	irc_ban(net, channel, ban);
+	irc_kick(net, channel, cuser, ban->comment);
 
 	return;
 }
@@ -88,14 +109,10 @@ struct irc_hostmask *irc_hostmask_parse(char *mask)
 	ret->host  = tmalloc0(strlen(mask) + 1);
 	ret->s_ip  = NULL; /* tmalloc0(strlen(mask) + 1); */
 
-	for (src=mask, dst=ret->nick;*src != '!';*(dst++) = *(src++));
-	src++;
-
-	for (dst=ret->ident;*src != '@';*(dst++) = *(src++));
-	src++;
-
-	for (dst=ret->host;*src != '\0';*(dst++) = *(src++));
-	src++;
+	/* Copy over each portion \1!\2@\3 */
+	for (src=mask, dst=ret->nick  ;*src != '!'; *(dst++) = *(src++));
+	for (src++,    dst=ret->ident ;*src != '@'; *(dst++) = *(src++));
+	for (src++,    dst=ret->host  ;*src != '\0';*(dst++) = *(src++));
 	
 	return ret;
 }
@@ -676,7 +693,7 @@ void introduce_user(struct network *net, struct trigger *trig, struct irc_data *
 
 	sprintf(user->uhost,"%s!%s@%s",data->prefix->user,data->prefix->nick,data->prefix->host);
 
-	irc_printf(net->sock,"PRIVMSG %s :Welcome to trollbot, your username is '%s'",data->prefix->nick,data->prefix->nick);
+	irc_printf(net->sock,"PRIVMSG %s :Welcome to Trollbot, your username is '%s'",data->prefix->nick,data->prefix->nick);
 	irc_printf(net->sock,"PRIVMSG %s :Type '/msg %s pass <your new password>' to continue",data->prefix->nick,net->nick);
 }
 
@@ -705,7 +722,7 @@ void return_ctcp_time(struct network *net, struct trigger *trig, struct irc_data
 
 void return_ctcp_version(struct network *net, struct trigger *trig, struct irc_data *data, struct dcc_session *dcc, const char *dccbuf)
 {
-	irc_printf(net->sock,"NOTICE %s :\001VERSION Trollbot v1.0.0 by poutine\001",data->prefix->nick);
+	irc_printf(net->sock,"NOTICE %s :\001VERSION Trollbot v1.0\001",data->prefix->nick);
 
 	return;
 }

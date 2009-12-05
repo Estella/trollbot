@@ -47,6 +47,11 @@ int irc_ban_evaluate(struct irc_ban *ban, char *mask)
 	src = irc_hostmask_parse(ban->mask);
 	dst = irc_hostmask_parse(mask);
 
+/* TODO
+# Set this to 0 if you want the bot to strip '~' characters from user@hosts
+# before matching them.
+set strict-host 0
+*/
 	/* If the entire ban's mask applies to mask, return TRUE, we have a winner */
 	if (!matchwilds(dst->nick,  src->nick) &&
 			!matchwilds(dst->ident, src->ident) &&

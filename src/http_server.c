@@ -34,6 +34,7 @@
 
 #include "trollbot.h"
 
+#include "tsocket.h"
 #include "http_server.h"
 #include "http_request.h"
 #include "http_proto.h"
@@ -59,6 +60,28 @@
 #include "js_embed.h"
 #endif /* HAVE_JS */
 
+/* In function for tsockets */
+int http_server_accept(struct tsocket *tsock)
+{
+	struct tsocket *ntsock;
+
+	ntsock       = tsocket_accept(tsock);
+	/* Unsafe ? */
+	ntsock->data = tsock->data;
+
+	log_entry_printf(NULL,NULL,"H","http_server_accept: New HTTP server connection.");
+
+	/* Give it a read callback */
+	ntsock->tsocket_read_cb = http_in;
+
+	/* Insert it into global list */
+	if (g_cfg->tsockets == NULL)                                     
+		slist_init(&g_cfg->tsockets, tsocket_free);              
+
+	slist_insert_next(g_cfg->tsockets, NULL, (void *)ntsock);
+
+	return ntsock->sock;
+}
 
 struct http_server *http_server_from_tconfig_block(struct tconfig_block *tcfg)
 {
@@ -189,71 +212,23 @@ struct http_server *http_server_del(struct http_server *http_server, struct http
 
 void http_server_listen(struct http_server *http)
 {
-	struct sockaddr_in my_addr;
-	struct hostent *he;
-	int yes=1;
+	struct tsocket *tsock;
 
-	char *hostip       = NULL;
+	tsock       = tsocket_new();
+	http->tsock = tsock;
 
-	if ((http == NULL) || http->host == NULL)
-	{
-		troll_debug(LOG_ERROR, "http_server_listen() called with NULL http or NULL host.");
-		return;
-	}
+	tsocket_listen(tsock, http->host, http->port);
 
-	if ((http->sock = socket(AF_INET, SOCK_STREAM, 0)) == -1)
-	{
-		troll_debug(LOG_WARN,"Could not create socket to server for HTTP server %s",http->label);
-		return;
-	}
+	tsock->data = http;
+	tsock->tsocket_read_cb = http_server_accept;
+	tsock->tsocket_write_cb = http_server_accept;
 
-	socket_set_nonblocking(http->sock);
 
-	if (setsockopt(http->sock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
-	{
-		troll_debug(LOG_ERROR,"Could not set socket options for HTTP server %s",http->label);
-		return;
-	}
+	/* Insert it into the global watchlist */
+	if (g_cfg->tsockets == NULL)                                     
+		slist_init(&g_cfg->tsockets, tsocket_free);              
 
-	if ((he = gethostbyname(http->host)) == NULL)
-		troll_debug(LOG_WARN,"Could not resolve HTTP host (%s) using default",http->host);
-	else
-	{
-		hostip = tmalloc0(3*4+3+1);
-		sprintf(hostip,"%s",inet_ntoa(*((struct in_addr *)he->h_addr_list[0])));
-	}
-
-  my_addr.sin_family = AF_INET;
-
-  my_addr.sin_addr.s_addr = inet_addr(hostip);
-
-  if (http->port == -1)
-  {
-    http->port = 4964;
-  }
-
-  my_addr.sin_port = htons(http->port);
-
-  memset(&(my_addr.sin_zero), '\0', 8);
-
-  if (bind(http->sock, (struct sockaddr *)&my_addr, sizeof(my_addr)) == -1)
-  {
-    troll_debug(LOG_ERROR,"Could not bind to HTTP socket");
-    free(hostip);
-    return;
-  }
-
-  if (listen(http->sock, HTTP_MAX) == -1)
-  {
-    troll_debug(LOG_ERROR,"Could not listen on HTTP socket");
-    free(hostip);
-    return;
-  }
-
-  troll_debug(LOG_DEBUG,"Listening on %s port %d\n",hostip,http->port);
-  free(hostip);
-
-	http->status = HTTP_LISTENING;
+	slist_insert_next(g_cfg->tsockets, NULL, (void *)tsock);    
 
 	return;
 }
@@ -290,6 +265,7 @@ void free_http_server(struct http_server *http)
 	free(http->web_root);
 	free(http->username);
 	free(http->password);
+	tsocket_free(http->tsock);
 
 	free_http_requests(http->requests);
 	t_timers_free(http->timers);
@@ -335,7 +311,7 @@ struct http_server *new_http_server(char *label)
 	ret->next          = NULL;
 
 	ret->sock          = -1;
-	ret->status        = HTTP_UNINITIALIZED;
+	ret->tsock         = NULL;
 
 	ret->timers        = NULL;
 

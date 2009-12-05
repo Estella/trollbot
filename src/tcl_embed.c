@@ -95,6 +95,8 @@ void net_tcl_init_commands(struct network *net)
 	Tcl_CreateObjCommand(net->tclinterp, "ics_interp", tcl_ics_interp, net, NULL);
 #endif /* HAVE_ICS */
 
+	Tcl_CreateObjCommand(net->tclinterp, "md5",          tcl_md5,          net, NULL);
+	Tcl_CreateObjCommand(net->tclinterp, "killchanban",  tcl_killchanban,  net, NULL);
 	Tcl_CreateObjCommand(net->tclinterp, "hand2idx",     tcl_hand2idx,     net, NULL);
 	Tcl_CreateObjCommand(net->tclinterp, "stripcodes",   tcl_stripcodes,   net, NULL);
 	Tcl_CreateObjCommand(net->tclinterp, "binds",        tcl_binds,        net, NULL);

@@ -35,6 +35,7 @@
 #include "http_server.h"
 #include "http_request.h"
 
+#include "tsocket.h"
 #include "trollbot.h"
 #include "debug.h"
 #include "util.h"
@@ -181,8 +182,9 @@ struct http_data *parse_http_line(struct http_server *http, char *buffer)
 /*	http_data_free(data); */
 }
 
-int http_in(struct http_server *http)
+int http_in(struct tsocket *tsock)
 {
+	struct http_server  *http    = tsock->data;
 	static char         *buffer  = NULL;
 	static size_t       size     = BUFFER_SIZE;
 	int                 recved   = 0;
@@ -216,7 +218,7 @@ int http_in(struct http_server *http)
 		case -1:
 			free(buffer);
 			buffer = NULL;
-			return 1;
+			return -1;
 		case 0:
 			http->sock = -1;
 			free(buffer);

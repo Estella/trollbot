@@ -36,6 +36,7 @@ struct dcc_session;
 
 void add_default_triggers(void);
 
+void irc_kick(struct network *net, struct channel *channel, struct channel_user *cuser, char *comment);
 void irc_ban(struct network *net, struct channel *channel, struct irc_ban *ban);
 void irc_kick_ban(struct network *net, struct channel *channel, struct channel_user *cuser, struct irc_ban *ban);
 struct irc_hostmask *irc_hostmask_parse(char *mask);

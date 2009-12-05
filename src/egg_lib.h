@@ -58,6 +58,7 @@ void egg_putlog(struct network *net, const char *text);
 int egg_countusers(struct network *net);
 int egg_validuser(struct network *net, const char *handle);
 struct user *egg_finduser(struct network *net, const char *mask);
+int egg_killchanban(struct network *net, char *channel, char *ban);
 void egg_newchanban(struct network *net, const char *channel, const char *ban, const char *who, const char *comment, int lifetime, char *options);
 void egg_newban(struct network *net, char *mask, char *creator, char *comment, int lifetime, char *options);
 
@@ -76,6 +77,9 @@ int egg_isban(struct network *net, char *ban, char *channel);
 int egg_ispermban(struct network *net, char *ban, char *channel);
 int egg_isbansticky(struct network *net,  char *ban, char *channel);
 int egg_getting_users(struct network *net);
+
+/*** Miscellaneous commands ***/
+char *egg_md5(char *string);
 
 /*** Channel Commands ***/
 void egg_savechannels(struct network *net);
