@@ -628,6 +628,17 @@ JSBool js_countusers(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsva
 	return JS_TRUE;
 }
 
+JSBool js_loadchannels(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+{
+	struct network *net = JS_GetContextPrivate(cx);
+
+	*rval = JSVAL_VOID;
+
+	egg_loadchannels(net);
+
+	return JS_TRUE;
+}
+
 JSBool js_savechannels(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
 	struct network *net = JS_GetContextPrivate(cx);

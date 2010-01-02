@@ -128,15 +128,6 @@ void init_ics_triggers(struct ics_server *ics)
 	trig->command = NULL;
 	ics->ics_trigger_table->msg = ics_trigger_add(ics->ics_trigger_table->msg, trig);
 
-	/* Announcing game on IRC *
-	trig          = new_ics_trigger();
-	trig->type    = ICS_TRIG_GAME;
-	trig->mask    = NULL;
-	trig->handler = ics_internal_announce_new_game;
-	trig->command = NULL;
-	ics->ics_trigger_table->game = ics_trigger_add(ics->ics_trigger_table->game, trig);
-*/
-
 	/* Handling updates of the board */
 	trig          = new_ics_trigger();
 	trig->type    = ICS_TRIG_MSG;
@@ -145,7 +136,7 @@ void init_ics_triggers(struct ics_server *ics)
 	trig->command = NULL;
 	ics->ics_trigger_table->msg = ics_trigger_add(ics->ics_trigger_table->msg, trig);
 
-
+	return;
 }
 
 void ics_internal_tell(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data)
@@ -205,7 +196,7 @@ void ics_internal_endgame(struct ics_server *ics, struct ics_trigger *ics_trig, 
 			ics->game->end_result = tstrdup("checkmate");
 		else if (!strncmp(data->tokens[argc-2], "resigns", 7))
 			ics->game->end_result = tstrdup("resignation");
-		else if (!strncmp(data->tokens[1], "forfeits", 8))
+		else if (!strncmp(data->tokens[argc-4], "forfeits", 8))
 			ics->game->end_result = tstrdup("forfeiture");
 
 		ics->game->winner_name = tstrdup(ics->game->white_name);
@@ -218,7 +209,7 @@ void ics_internal_endgame(struct ics_server *ics, struct ics_trigger *ics_trig, 
 			ics->game->end_result = tstrdup("checkmate");
 		else if (!strncmp(data->tokens[argc-2], "resigns", 7))
 			ics->game->end_result = tstrdup("resignation");
-		else if (!strncmp(data->tokens[1], "forfeits", 8))
+		else if (!strncmp(data->tokens[argc-4], "forfeits", 8))
 			ics->game->end_result = tstrdup("forfeiture");
 
 		ics->game->winner_name = tstrdup(ics->game->black_name);
@@ -281,7 +272,6 @@ void ics_move_or_new_game(struct ics_server *ics, struct ics_trigger *ics_trig, 
 	struct ics_trigger *trig;
 
 	ics_internal_board_get_info(ics, ics_trig, data);
-	printf("We have move\n");
 	
 	trig = ics->ics_trigger_table->move;
 
@@ -289,7 +279,6 @@ void ics_move_or_new_game(struct ics_server *ics, struct ics_trigger *ics_trig, 
 	{
 		if (trig->handler != NULL)
 		{
-			printf("Found trigger\n");
 			trig->handler(ics, trig, data);
 			trig->usecount++;
 		}
@@ -487,15 +476,13 @@ void ics_internal_notify(struct ics_server *ics, struct ics_trigger *ics_trig, s
 
 void ics_internal_style_twelve_init(struct ics_server *ics, struct ics_trigger *ics_trig, struct ics_data *data)
 {
-	/* struct ics_trigger *trig; */
-
 	ics_printf(ics, "style 12");
 	ics_printf(ics, "set shout 0");
 	ics_printf(ics, "set cshout 0");
 	ics_printf(ics, "set open 1");
 	ics_printf(ics, "set highlight 0");
 	ics_printf(ics, "set bell 0");
-	ics_printf(ics, "set interface Trollbot, by poutine/DALnet");
+	ics_printf(ics, "set interface Trollbot");
 
 	return;
 }

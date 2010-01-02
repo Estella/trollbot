@@ -860,6 +860,15 @@ int tcl_utimer(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *con
 	return TCL_OK;
 }
 
+int tcl_loadchannels(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
+{
+	struct network *net = clientData;
+
+	egg_loadchannels(net);
+
+	return TCL_OK;
+}
+
 int tcl_savechannels(ClientData clientData, Tcl_Interp *interp, int objc, Tcl_Obj *const objv[])
 {
 	struct network *net = clientData;

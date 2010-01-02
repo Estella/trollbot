@@ -1268,8 +1268,20 @@ void egg_savechannels(struct network *net)
 	chans_save(net);
 }
 
-/* loadchannels */
-
+/* 
+  loadchannels
+    Description: reloads the channel settings from the channel-file if one
+      is defined.
+    Returns: nothing
+    Module: channels
+*/
+/* NEED_IMP: PHP, Perl, Python */
+/* IMP_IN: TCL, Javascript */
+void egg_loadchannels(struct network *net)
+{
+	/* FIXME: This should be per network */
+	chan_init();	
+}
 
 /* Eggdrop Compatible */
 /* NEED_IMP: PHP, Perl, Python             */

@@ -54,6 +54,7 @@ JSBool js_topic(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rv
 JSBool js_validuser(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 JSBool js_countusers(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 JSBool js_validuser(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+JSBool js_loadchannels(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 JSBool js_savechannels(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 JSBool js_finduser(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 JSBool js_matchattr(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);

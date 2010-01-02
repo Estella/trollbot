@@ -83,6 +83,7 @@ char *egg_md5(char *string);
 
 /*** Channel Commands ***/
 void egg_savechannels(struct network *net);
+void egg_loadchannels(struct network *net);
 char *egg_channels(struct network *net);
 int egg_isbotnick(struct network *net, char *nick); /* Another miscategorization ? */
 int egg_botisop(struct network *net, const char *channel);

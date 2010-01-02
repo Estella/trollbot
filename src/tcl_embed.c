@@ -116,6 +116,7 @@ void net_tcl_init_commands(struct network *net)
 	Tcl_CreateObjCommand(net->tclinterp, "encpass",      tcl_encpass,      net, NULL);
 	Tcl_CreateObjCommand(net->tclinterp, "topic",        tcl_topic,        net, NULL);
 	Tcl_CreateObjCommand(net->tclinterp, "validuser",    tcl_validuser,    net, NULL);
+	Tcl_CreateObjCommand(net->tclinterp, "loadchannels", tcl_loadchannels, net, NULL);
 	Tcl_CreateObjCommand(net->tclinterp, "savechannels", tcl_savechannels, net, NULL);
 	Tcl_CreateObjCommand(net->tclinterp, "finduser",     tcl_finduser,     net, NULL);
 	Tcl_CreateObjCommand(net->tclinterp, "channels",     tcl_channels,     net, NULL);

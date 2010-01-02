@@ -892,7 +892,6 @@ void chan_init(void)
 				tmp = tmp->next;
 			}
 
-			/* Why the child? */
 			tconfig_merge(chantcfg, net->tcfg->child);
 			free_tconfig(chantcfg);
 		}
